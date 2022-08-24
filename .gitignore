@@ -1,0 +1,15 @@
+# Specify filepatterns you want git to ignore.
+
+nitrofs
+.idea
+tools/bgs
+tools/spr
+tools/fnt
+*.png
+build
+.vscode
+cmake*
+CMake*
+*.nds
+*.elf
+notes.txt
