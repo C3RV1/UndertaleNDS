@@ -123,6 +123,15 @@ namespace Engine {
         return ((uint8_t*)tileRam) + (tileId * 32);
     }
 
+    void TextBGManager::setPaletteColor(int colorIdx, int r, int g, int b, bool color8bit) {
+        if (color8bit) {
+            r >>= 3;
+            g >>= 3;
+            b >>= 3;
+        }
+        paletteRam[16 * 15 + colorIdx + 11] = (b << 10) + (g << 5) + r;
+    }
+
     TextBGManager textMain(BG_PALETTE, BG_TILE_RAM(4), BG_MAP_RAM(1));
     TextBGManager textSub(BG_PALETTE_SUB, BG_TILE_RAM_SUB(4), BG_MAP_RAM_SUB(1));
 }

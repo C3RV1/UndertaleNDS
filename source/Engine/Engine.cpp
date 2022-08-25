@@ -114,4 +114,19 @@ namespace Engine {
         }
         return 0;
     }
+
+    void clearMain() {
+        clearEngine(&REG_BG3CNT, BG_TILE_RAM(1), BG_MAP_RAM(0));
+    }
+
+    void clearSub() {
+        clearEngine(&REG_BG3CNT_SUB, BG_TILE_RAM_SUB(1), BG_MAP_RAM_SUB(0));
+    }
+
+    void clearEngine(vu16* bg3Reg, u16* tileRam, u16* mapRam) {
+        uint16_t mapRamUsage = 0x800;
+        memset(mapRam, 0, mapRamUsage);
+        *bg3Reg = (*bg3Reg & (~0xC000)); // size 32x32
+        *tileRam = 0;
+    }
 }

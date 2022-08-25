@@ -31,6 +31,7 @@ namespace BGM {
         uint32_t dataEnd = 0;
     };
 
+    // TODO: loop (data start, fseek and parameter?)
     void playWAV(WAV& wav);
     void stopWAV();
     mm_word fillWAV(mm_word length, mm_addr dest, mm_stream_formats format);

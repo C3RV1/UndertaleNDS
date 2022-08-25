@@ -16,6 +16,9 @@ namespace Engine {
     int loadBgSub(Background& f);
     int loadBgEngine(Background& bg, vu16* bg3Reg, u16* paletteRam,
                      u16* tileRam, u16* mapRam);
+    void clearMain();
+    void clearSub();
+    void clearEngine(vu16* bg3Reg, u16* tileRam, u16* mapRam);
 }
 
 #endif
