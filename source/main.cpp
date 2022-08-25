@@ -23,18 +23,18 @@ int main() {
         return 0;
 
     for (;;) {
+        Engine::tick();
         if (keysDown() & KEY_START)
             break;
-        Engine::tick();
     }
 
     runTitleScreen();
     writeNameMenu();
 
     for (;;) {
+        Engine::tick();
         if (keysDown() & KEY_START)
             break;
-        Engine::tick();
     }
 
     return 0;

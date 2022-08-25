@@ -9,6 +9,7 @@
 #include "Engine/Background.hpp"
 #include "Engine/BGM.hpp"
 #include "Engine/Engine.hpp"
+#include "Save.hpp"
 
 void writeNameMenu();
 
