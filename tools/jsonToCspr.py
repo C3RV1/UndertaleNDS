@@ -54,7 +54,7 @@ def main():
             if tile_y_ * 8 + y >= height:
                 break
             copy_length = min(8, width - tile_x_*8)
-            tile_[y][:copy_length] = np_array_palette[tile_y_*8 + y][frame_*width + tile_x_*8:frame_*width + tile_x_*8+copy_length]
+            tile_[y][:copy_length] = np_array_palette[tile_y_*8 + frame_ * height + y][tile_x_*8:tile_x_*8+copy_length]
         return tile_
 
     tiles = []

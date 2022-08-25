@@ -40,7 +40,7 @@ def convert(input_file, output_file):
         if np_array.shape[1] % 2 == 0:
             np_array_palette2[:] += np_array_palette[:, 1::2] << 4
         else:
-            np_array_palette2[:, ::-1] += np_array_palette[:, 1::2] << 4
+            np_array_palette2[:, :-1] += np_array_palette[:, 1::2] << 4
         np_array_palette = np_array_palette2
 
     def get_tile(tile_x, tile_y):
@@ -49,8 +49,8 @@ def convert(input_file, output_file):
         for y in range(8):
             if tile_y * 8 + y >= np_array.shape[0]:
                 break
-            copy_length = min(size_, np_array.shape[1] - tile_x*size_)
-            tile_[y][:copy_length] = np_array_palette[tile_y*8+y][tile_x*copy_length:tile_x*size_+copy_length]
+            copy_length = min(size_, np_array_palette.shape[1] - tile_x*size_)
+            tile_[y][:copy_length] = np_array_palette[tile_y*8+y][tile_x*size_:tile_x*size_+copy_length]
         return tile_
 
     tiles = []
@@ -106,7 +106,7 @@ def main():
         return
     input_file = sys.argv[1]
     if os.path.isdir(input_file):
-        input_file = [os.path.join(input_file, fp) for fp in os.listdir(input_file)]
+        input_file = [os.path.join(input_file, fp) for fp in os.listdir(input_file) if fp.endswith(".png")]
     else:
         input_file = [input_file]
     for fp in input_file:

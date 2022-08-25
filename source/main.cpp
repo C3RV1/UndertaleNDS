@@ -31,10 +31,34 @@ int main() {
     runTitleScreen();
     writeNameMenu();
 
+    FILE* f = fopen("/bg/rooms/room0.cbgf", "rb");
+    Engine::Background bg;
+    if (f) {
+        bg.loadCBGF(f);
+    }
+    fclose(f);
+
+    f = fopen("spr/spr_f_mainchara.cspr", "rb");
+    Engine::Sprite spr;
+    if (f) {
+        spr.loadCSPR(f);
+    }
+    fclose(f);
+
+    Engine::textMain.clear();
+    Engine::loadBgMain(bg);
+
+    Engine::SpriteManager* sprManager;
+    Engine::OAMSub.loadSprite(spr, sprManager);
+    int frame = 0;
+
     for (;;) {
         Engine::tick();
         if (keysDown() & KEY_START)
             break;
+        Engine::OAMSub.loadSpriteFrame(sprManager, frame / 60);
+        frame++;
+        frame = frame % (12 * 60);
     }
 
     return 0;

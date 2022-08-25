@@ -17,13 +17,13 @@ namespace Engine {
 
         lcdMainOnTop();
 
-        vramSetBankA(VRAM_A_TEXTURE_SLOT0);
-        vramSetBankB(VRAM_B_TEXTURE_SLOT1);
+        vramSetBankA(VRAM_A_MAIN_BG_0x06000000);
+        vramSetBankB(VRAM_B_TEXTURE_SLOT0);
         vramSetBankC(VRAM_C_SUB_BG);
         vramSetBankD(VRAM_D_SUB_SPRITE);
-        vramSetBankE(VRAM_E_MAIN_BG);
-        vramSetBankF(VRAM_F_MAIN_BG_0x06010000);
-        vramSetBankG(VRAM_G_TEX_PALETTE_SLOT0);
+        vramSetBankE(VRAM_E_TEX_PALETTE);
+        vramSetBankF(VRAM_F_LCD);
+        vramSetBankG(VRAM_G_LCD);
         // Bank H unused
         vramSetBankI(VRAM_I_LCD);  // Enabled but unused for now
 
@@ -34,9 +34,9 @@ namespace Engine {
         REG_BG0CNT = BG_PRIORITY(1);
         GFX_CLEAR_COLOR = 0;
 
-        REG_BG1CNT = BG_PRIORITY(2) | BG_TILE_BASE(4) | BG_MAP_BASE(1);
+        REG_BG1CNT = BG_PRIORITY(2) | BG_TILE_BASE(4) | BG_MAP_BASE(4);
         memset(BG_TILE_RAM(4), 0, 1);
-        memset(BG_MAP_RAM(1), 0, 32 * 32 * 2);
+        memset(BG_MAP_RAM(4), 0, 32 * 32 * 2);
         REG_BG3CNT = BG_PRIORITY(3) | BG_TILE_BASE(1) | BG_MAP_BASE(0);
 
         REG_BG1CNT_SUB = BG_PRIORITY(2) | BG_TILE_BASE(4) | BG_MAP_BASE(1);
@@ -107,10 +107,22 @@ namespace Engine {
 
         *bg3Reg = (*bg3Reg & (~0xC000)) + sizeFlag;
         memset(mapRam, 0, mapRamUsage);
+        char buffer[100];
 
-        for (int row = 0; row < height; row++) {
-            dmaCopyHalfWords(3, (uint8_t*) bg.getMap() + row * width * 2,
-                             (uint8_t*) mapRam + row * 32 * 2, width * 2);
+        for (int mapX = 0; mapX < (width + 31) / 32; mapX++) {
+            int copyWidth = 32;
+            if (mapX == (width + 31) / 32)
+                copyWidth = (width + 31) - 32 * mapX;
+            for (int mapY = 0; mapY < (height + 31) / 32; mapY++) {
+                uint8_t* mapStart = (uint8_t*)mapRam + (mapY * ((width + 31) / 32) + mapX) * 2048;
+                memset(mapStart, 0, 0x800);
+                sprintf(buffer, "map %d %d start %x ram %x w %d", mapX, mapY, mapStart, mapRam, copyWidth);
+                nocashMessage(buffer);
+                for (int row = mapY*32; row < height && row < (mapY + 1) * 32; row++) {
+                    dmaCopyHalfWords(3, (uint8_t *) bg.getMap() + (row * width + mapX * 32) * 2,
+                                     mapStart + (row - mapY * 32) * 32 * 2, copyWidth * 2);
+                }
+            }
         }
         return 0;
     }
