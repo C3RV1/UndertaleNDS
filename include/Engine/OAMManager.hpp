@@ -13,11 +13,18 @@ namespace Engine {
     struct SpriteManager {
         uint8_t frameCount = 0;
         uint8_t oamEntryCount = 0;
-        uint8_t * oamEntries = nullptr;
+        union {
+            uint8_t * oamEntries = nullptr;
+            uint16_t tileStart;
+        };
         uint8_t* tileData = nullptr;
         uint8_t tileWidth = 0, tileHeight = 0;
+        uint16_t allocX = 0, allocY = 0;
         uint8_t colorCount = 0;
-        uint8_t* paletteColors = nullptr;
+        union {
+            uint8_t *paletteColors = nullptr;
+            uint8_t paletteIdx;
+        };
     };
 
     struct OAMEntry {

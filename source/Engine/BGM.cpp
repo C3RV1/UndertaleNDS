@@ -100,6 +100,7 @@ namespace BGM {
         currentStream = wav.getStream();
         currentDataEnd = wav.getDataEnd();
         currentStereo = wav.getStereo();
+        shouldClose = false;
 
         mm_stream stream;
 

@@ -31,7 +31,7 @@ int main() {
     runTitleScreen();
     writeNameMenu();
 
-    FILE* f = fopen("/bg/rooms/room0.cbgf", "rb");
+    FILE* f = fopen("/bg/main1.cbgf", "rb");
     Engine::Background bg;
     if (f) {
         bg.loadCBGF(f);
@@ -49,14 +49,14 @@ int main() {
     Engine::loadBgMain(bg);
 
     Engine::SpriteManager* sprManager;
-    Engine::OAMSub.loadSprite(spr, sprManager);
+    Engine::main3dSpr.loadSprite(spr, sprManager);
     int frame = 0;
 
     for (;;) {
         Engine::tick();
         if (keysDown() & KEY_START)
             break;
-        Engine::OAMSub.loadSpriteFrame(sprManager, frame / 60);
+        Engine::main3dSpr.loadSpriteFrame(sprManager, frame / 60);
         frame++;
         frame = frame % (12 * 60);
     }
