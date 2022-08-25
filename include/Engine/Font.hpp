@@ -31,7 +31,7 @@ namespace Engine {
     public:
         TextBGManager(u16* paletteRam, u16* tileRam, u16* mapRam) :
                       paletteRam(paletteRam), tileRam(tileRam), mapRam(mapRam) {
-            paletteRam[16 * 15 + 0] = 31 << 5;  // full green color
+            paletteRam[16 * 15 + 0] = 31 << 5;  // full green color (transparent)
             paletteRam[16 * 15 + 11] = 0;  // black color
             paletteRam[16 * 15 + 12] = 31;  // full red color
             paletteRam[16 * 15 + 13] = 31 << 5;  // full green color
@@ -39,6 +39,8 @@ namespace Engine {
             paletteRam[16 * 15 + 15] = (31 << 10) + (31 << 5) + 31;  // full white color
         }
         void drawGlyph(Font& font, uint8_t glyph, int &x, int y);
+        void setPaletteColor(int colorIdx, int r, int g, int b, bool color8bit);
+        void setCurrentColor(int colorIdx) { paletteColor = colorIdx + 11; }
         void clear();
     private:
         uint8_t* getTile(int x, int y);

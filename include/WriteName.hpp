@@ -5,6 +5,11 @@
 #ifndef LAYTON_WRITENAME_HPP
 #define LAYTON_WRITENAME_HPP
 
-void WriteNameMenu();
+#include "Engine/Font.hpp"
+#include "Engine/Background.hpp"
+#include "Engine/BGM.hpp"
+#include "Engine/Engine.hpp"
+
+void writeNameMenu();
 
 #endif //LAYTON_WRITENAME_HPP

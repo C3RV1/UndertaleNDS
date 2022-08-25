@@ -14,6 +14,7 @@
 #include "Engine/Sprite.hpp"
 #include "Engine/OAMManager.hpp"
 #include "TitleScreen.hpp"
+#include "WriteName.hpp"
 #include "Font.hpp"
 
 int main() {
@@ -28,6 +29,7 @@ int main() {
     }
 
     runTitleScreen();
+    writeNameMenu();
 
     for (;;) {
         if (keysDown() & KEY_START)
