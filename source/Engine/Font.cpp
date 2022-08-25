@@ -129,7 +129,7 @@ namespace Engine {
             g >>= 3;
             b >>= 3;
         }
-        paletteRam[16 * 15 + colorIdx + 11] = (b << 10) + (g << 5) + r;
+        paletteRam[16 * 15 + colorIdx] = (b << 10) + (g << 5) + r;
     }
 
     TextBGManager textMain(BG_PALETTE, BG_TILE_RAM(4), BG_MAP_RAM(1));

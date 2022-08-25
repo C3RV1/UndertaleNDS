@@ -54,7 +54,6 @@ void runTitleScreen() {
     BGM::playWAV(music);
 
     setBrightness(1, -16);
-    Engine::tick();
     bool skip = false;
 
     for (int introIdx = 0; introIdx < 11 && !skip; introIdx++) {
@@ -79,9 +78,9 @@ void runTitleScreen() {
 
         timer = fadeInFrames;
         while (timer >= 0 && introIdx != 0 && !skip) {
+            Engine::tick();
             skip = keysDown() != 0;
             setBrightness(1, (-16 * timer) / fadeInFrames);
-            Engine::tick();
             timer--;
         }
         setBrightness(1, 0);
@@ -102,6 +101,7 @@ void runTitleScreen() {
         int x = initialX, y = 30;
         Engine::textSub.clear();
         while (timer >= 0 && !skip) {
+            Engine::tick();
             skip = keysDown() != 0;
             if (textTimer == 0 && *textPointer != 0) {
                 char glyph = *textPointer++;
@@ -120,7 +120,6 @@ void runTitleScreen() {
                 else if (glyph == ',' || glyph == ':' || glyph == ';')
                     textTimer = 20;
             }
-            Engine::tick();
             timer--;
             if (*textPointer != 0)
                 textTimer--;
@@ -129,16 +128,16 @@ void runTitleScreen() {
         if (introIdx == 10) {  // Intro last scroll
             timer = scrollFrames;
             while (timer >= 0 && !skip) {
+                Engine::tick();
                 skip = keysDown() != 0;
                 REG_BG3VOFS = ((height-192) * timer) / scrollFrames;
-                Engine::tick();
                 timer--;
             }
 
             timer = holdLastFrames;
             while (timer >= 0 && !skip) {
-                skip = keysDown() != 0;
                 Engine::tick();
+                skip = keysDown() != 0;
                 timer--;
             }
         }
@@ -147,11 +146,11 @@ void runTitleScreen() {
             fadeOutFrames *= 5;  // Can change value as it's never used again
         timer = fadeOutFrames;
         while (timer >= 0 && !skip) {
+            Engine::tick();
             skip = keysDown() != 0;
             setBrightness(1, (-16 * (fadeOutFrames - timer)) / fadeOutFrames);
             if (introIdx == 6)
                 setBrightness(2, (-16 * (fadeOutFrames - timer)) / fadeOutFrames);
-            Engine::tick();
             timer--;
         }
     }
@@ -179,8 +178,8 @@ void runTitleScreen() {
 
     timer = introLogoFrames;
     while (!skip) {
-        skip = keysDown() != 0;
         Engine::tick();
+        skip = keysDown() != 0;
         if (timer > 0) {
             timer--;
             if (timer <= 0) {

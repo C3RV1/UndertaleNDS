@@ -40,7 +40,7 @@ namespace Engine {
         }
         void drawGlyph(Font& font, uint8_t glyph, int &x, int y);
         void setPaletteColor(int colorIdx, int r, int g, int b, bool color8bit);
-        void setCurrentColor(int colorIdx) { paletteColor = colorIdx + 11; }
+        void setCurrentColor(int colorIdx) { paletteColor = colorIdx; }
         void clear();
     private:
         uint8_t* getTile(int x, int y);
