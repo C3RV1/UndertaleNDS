@@ -6,8 +6,6 @@
 
 
 void writeNameMenu() {
-    // TODO: Add music
-
     char buffer[100];
 
     BGM::WAV music;

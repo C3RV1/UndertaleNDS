@@ -45,10 +45,12 @@ namespace Engine {
         REG_BG3CNT_SUB = BG_PRIORITY(3) | BG_TILE_BASE(1) | BG_MAP_BASE(0);
 
         // Init 3d
-        MATRIX_CONTROL = 0; // Select projection matrix
-        MATRIX_IDENTITY = 0;  // Load identity matrix
-        MATRIX_STORE = 0;  // Push matrix to identity
-        while (GFX_BUSY); // wait for cmd execution
+        GFX_CONTROL |= 1 | (1 << 3);
+        glClearDepth( GL_MAX_DEPTH );
+        glViewport(0, 0, 255, 191);
+        glMatrixMode( GL_PROJECTION );     // set matrixmode to projection
+        glLoadIdentity();				 // reset
+        glOrthof32( 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, -1 << 12, 1 << 12 );  // downscale projection matrix
         return 0;
     }
 
@@ -56,6 +58,7 @@ namespace Engine {
         if (BGM::shouldClose) {
             BGM::stopWAV();
         }
+        main3dSpr.draw();
         glFlush(0);
         swiWaitForVBlank();
         scanKeys();
@@ -107,7 +110,6 @@ namespace Engine {
 
         *bg3Reg = (*bg3Reg & (~0xC000)) + sizeFlag;
         memset(mapRam, 0, mapRamUsage);
-        char buffer[100];
 
         for (int mapX = 0; mapX < (width + 31) / 32; mapX++) {
             int copyWidth = 32;
@@ -116,8 +118,6 @@ namespace Engine {
             for (int mapY = 0; mapY < (height + 31) / 32; mapY++) {
                 uint8_t* mapStart = (uint8_t*)mapRam + (mapY * ((width + 31) / 32) + mapX) * 2048;
                 memset(mapStart, 0, 0x800);
-                sprintf(buffer, "map %d %d start %x ram %x w %d", mapX, mapY, mapStart, mapRam, copyWidth);
-                nocashMessage(buffer);
                 for (int row = mapY*32; row < height && row < (mapY + 1) * 32; row++) {
                     dmaCopyHalfWords(3, (uint8_t *) bg.getMap() + (row * width + mapX * 32) * 2,
                                      mapStart + (row - mapY * 32) * 32 * 2, copyWidth * 2);
