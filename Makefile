@@ -21,7 +21,7 @@ include $(DEVKITARM)/ds_rules
 #---------------------------------------------------------------------------------
 TARGET   := $(shell basename $(CURDIR))
 BUILD    := build
-SOURCES  := source source/Engine
+SOURCES  := source source/Engine source/Formats
 INCLUDES := include include/Engine include/Formats
 DATA     :=
 GRAPHICS := gfx
@@ -33,7 +33,7 @@ ICON     :=
 NITRO    := nitrofs
 
 # These set the information text in the nds file
-GAME_TITLE     := Advanced ARM9 template
+GAME_TITLE     := Undertale NDS Intro
 GAME_SUBTITLE1 := built with devkitARM
 GAME_SUBTITLE2 := http://devitpro.org
 

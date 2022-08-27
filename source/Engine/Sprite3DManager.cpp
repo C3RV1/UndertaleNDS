@@ -12,6 +12,7 @@ namespace Engine {
         auto* sprEntry = (SpriteManager*) malloc(sizeof(SpriteManager));
         sprEntry->colorCount = sprite.getColorCount();
         sprEntry->frameCount = sprite.getFrameCount();
+        sprEntry->currentFrame = -1;
         sprite.getSizeTiles(sprEntry->tileWidth, sprEntry->tileHeight);
         sprEntry->tileData = sprite.getTiles();
 
@@ -201,8 +202,11 @@ namespace Engine {
     int Sprite3DManager::loadSpriteFrame(Engine::SpriteManager *spr, int frame) {
         if (spr == nullptr)
             return -1;
-        if (frame >= spr->frameCount)
+        if (spr->currentFrame == frame)
             return -2;
+        if (frame >= spr->frameCount || frame < 0)
+            return -3;
+        spr->currentFrame = frame;
 
         vramSetBankB(VRAM_B_LCD);
 
@@ -255,7 +259,7 @@ namespace Engine {
             GFX_BEGIN = GL_QUADS;
             GFX_TEX_COORD = 0;
             GFX_VERTEX16 = x + (y << 16);
-            GFX_VERTEX16 = i << 12;
+            GFX_VERTEX16 = activeControl->layer << 12;
             GFX_TEX_COORD = h << (4 + 16);
             GFX_VERTEX_XY = x + (y2 << 16);
             GFX_TEX_COORD = (h << (4 + 16)) + (w << 4);
@@ -264,6 +268,17 @@ namespace Engine {
             GFX_VERTEX_XY = x2 + (y << 16);
             GFX_END = 0;
         }
+    }
+
+    SpriteControl* Sprite3DManager::getSpriteControl(SpriteManager* manager) {
+        if (manager == nullptr)
+            return nullptr;
+        for (int i = 0; i < activeSpriteCount; i++) {
+            if (activeSprites[i] == manager) {
+                return activeSpriteControls[i];
+            }
+        }
+        return nullptr;
     }
 
     Sprite3DManager main3dSpr;

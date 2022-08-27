@@ -7,6 +7,9 @@ import numpy as np
 import binary
 
 
+FORCE_8BIT = True
+
+
 def convert(input_file, output_file):
     image = Image.open(input_file)
     np_array = np.array(image)  # access np_array[y][x]
@@ -31,7 +34,7 @@ def convert(input_file, output_file):
     palette = palette[1:]  # remove transparent color
 
     color8bit = True
-    if len(palette) <= 15:
+    if len(palette) <= 15 and not FORCE_8BIT:
         color8bit = False
         # Convert array palette from 8bit to 4bit
         np_array_palette2 = np.zeros((np_array.shape[0], (np_array.shape[1] + 1) // 2))

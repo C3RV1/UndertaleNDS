@@ -25,6 +25,7 @@ namespace Engine {
             uint8_t *paletteColors = nullptr;
             uint8_t paletteIdx;
         };
+        int currentFrame = -1;
     };
 
     struct OAMEntry {

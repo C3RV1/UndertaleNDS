@@ -1,0 +1,20 @@
+{
+  "parts": [
+    {
+      "conditions": [],
+      "room_bg": "nitro:/bg/rooms/room1.cbgf",
+      "music_path": "",
+      "exits": [
+        {
+          "exit_type": "side",
+          "room_id": 0,
+          "spawn_x": 618,
+          "spawn_y": 147,
+          "side": "down"
+        }
+      ],
+      "sprites": [],
+      "colliders": []
+    }
+  ]
+}

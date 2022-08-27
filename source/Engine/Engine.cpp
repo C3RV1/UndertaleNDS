@@ -34,13 +34,13 @@ namespace Engine {
         REG_BG0CNT = BG_PRIORITY(1);
         GFX_CLEAR_COLOR = 0;
 
-        REG_BG1CNT = BG_PRIORITY(2) | BG_TILE_BASE(4) | BG_MAP_BASE(4);
-        memset(BG_TILE_RAM(4), 0, 1);
+        REG_BG1CNT = BG_PRIORITY(2) | BG_TILE_BASE(5) | BG_MAP_BASE(4);
+        memset(BG_TILE_RAM(5), 0, 1);
         memset(BG_MAP_RAM(4), 0, 32 * 32 * 2);
         REG_BG3CNT = BG_PRIORITY(3) | BG_TILE_BASE(1) | BG_MAP_BASE(0);
 
-        REG_BG1CNT_SUB = BG_PRIORITY(2) | BG_TILE_BASE(4) | BG_MAP_BASE(1);
-        memset(BG_TILE_RAM_SUB(4), 0, 1);
+        REG_BG1CNT_SUB = BG_PRIORITY(2) | BG_TILE_BASE(5) | BG_MAP_BASE(1);
+        memset(BG_TILE_RAM_SUB(5), 0, 1);
         memset(BG_MAP_RAM_SUB(1), 0, 32 * 32 * 2);
         REG_BG3CNT_SUB = BG_PRIORITY(3) | BG_TILE_BASE(1) | BG_MAP_BASE(0);
 
@@ -64,24 +64,26 @@ namespace Engine {
         scanKeys();
     }
 
-    int loadBgMain(Background& bg) {
-        return loadBgEngine(bg, &REG_BG3CNT, BG_PALETTE, BG_TILE_RAM(1),
-                            BG_MAP_RAM(0));
+    int loadBgTextMain(Background& bg) {
+        videoSetMode(MODE_0_3D | DISPLAY_BG1_ACTIVE | DISPLAY_BG3_ACTIVE);
+        return loadBgTextEngine(bg, &REG_BG3CNT, BG_PALETTE, BG_TILE_RAM(1),
+                                BG_MAP_RAM(0));
     }
 
-    int loadBgSub(Background& bg) {
-        return loadBgEngine(bg, &REG_BG3CNT_SUB, BG_PALETTE_SUB, BG_TILE_RAM_SUB(1),
-                            BG_MAP_RAM_SUB(0));
+    int loadBgTextSub(Background& bg) {
+        videoSetModeSub(MODE_0_2D | DISPLAY_BG1_ACTIVE | DISPLAY_BG3_ACTIVE);
+        return loadBgTextEngine(bg, &REG_BG3CNT_SUB, BG_PALETTE_SUB, BG_TILE_RAM_SUB(1),
+                                BG_MAP_RAM_SUB(0));
     }
 
-    int loadBgEngine(Background& bg, vu16* bg3Reg, u16* paletteRam,
-                       u16* tileRam, u16* mapRam) {
+    int loadBgTextEngine(Background& bg, vu16* bg3Reg, u16* paletteRam,
+                         u16* tileRam, u16* mapRam) {
         if (!bg.getLoaded())
             return 1;
         bool color8bit = bg.getColor8bit();
 
         // Set control for 8-bit color depth
-        *bg3Reg = (*bg3Reg & (~0x80)) + (color8bit << 7);
+        *bg3Reg = (*bg3Reg & (~0x2080)) + (color8bit << 7);
 
         // skip first color (2 bytes)
         dmaCopy(bg.getColors(), (uint8_t*)paletteRam + 2, 2 * bg.getColorCount());
@@ -127,6 +129,78 @@ namespace Engine {
         return 0;
     }
 
+    int loadBgExtendedMain(Background& bg, int forceSize) {
+        videoSetMode(MODE_3_3D | DISPLAY_BG1_ACTIVE | DISPLAY_BG3_ACTIVE);
+        return loadBgExtendedEngine(bg, &REG_BG3CNT, BG_PALETTE, BG_TILE_RAM(1),
+                                    BG_MAP_RAM(0),
+                                    &REG_BG3PA, &REG_BG3PB,
+                                    &REG_BG3PC, &REG_BG3PD,
+                                    forceSize);
+    }
+
+    int loadBgExtendedSub(Background& bg, int forceSize) {
+        videoSetModeSub(MODE_3_2D | DISPLAY_BG1_ACTIVE | DISPLAY_BG3_ACTIVE);
+        return loadBgExtendedEngine(bg, &REG_BG3CNT_SUB, BG_PALETTE_SUB, BG_TILE_RAM_SUB(1),
+                                    BG_MAP_RAM_SUB(0),
+                                    &REG_BG3PA_SUB, &REG_BG3PB_SUB,
+                                    &REG_BG3PC_SUB, &REG_BG3PD_SUB,
+                                    forceSize);
+    }
+
+    int loadBgExtendedEngine(Background& bg, vu16* bg3Reg, u16* paletteRam,
+                             u16* tileRam, u16* mapRam,
+                             vs16* reg3A, vs16* reg3B,
+                             vs16* reg3C, vs16* reg3D,
+                             int forceSize) {
+        if (!bg.getLoaded())
+            return 1;
+        bool color8bit = bg.getColor8bit();
+        if (!color8bit)
+            return 2;  // TODO: tile convert from 4 bit to 8 bit
+
+        // Clear control for 16-bit bg map
+        // Can't set 4 bit on extended
+        *bg3Reg = (*bg3Reg & (~0x2080)) | (1 << 13);
+
+        // skip first color (2 bytes)
+        dmaCopy(bg.getColors(), (uint8_t *) paletteRam + 2, 2 * bg.getColorCount());
+
+        uint32_t tileDataSize;
+        if (color8bit) {
+            tileDataSize = 64;
+        } else {
+            tileDataSize = 32;
+        }
+
+        uint16_t sizeFlag = 0;
+        uint16_t mapRamUsage = 0x200;
+        uint8_t width, height;
+        bg.getSize(width, height);
+        uint8_t mapW = width, mapH = height;
+        if (forceSize != 0) {
+            mapW = forceSize;
+            mapH = forceSize;
+        }
+        if (mapW > 64 || mapH > 64) {
+            sizeFlag = 3;
+        } else if (mapW > 32 || mapH >= 32) {
+            sizeFlag = 2;
+        } else if (mapW > 16 || mapH > 16) {
+            sizeFlag = 1;
+        }
+        mapRamUsage <<= 2 * sizeFlag;
+
+        *bg3Reg = (*bg3Reg & (~0xC000)) + (sizeFlag << 14);
+        *reg3A = (1 << 8);
+        *reg3B = 0;
+        *reg3C = 0;
+        *reg3D = (1 << 8);
+        memset(mapRam, 0, mapRamUsage);
+
+        loadBgRectEngine(bg, bg3Reg, tileRam, mapRam, -1, -1, 34, 26);
+        return 0;
+    }
+
     void clearMain() {
         clearEngine(&REG_BG3CNT, BG_TILE_RAM(1), BG_MAP_RAM(0));
     }
@@ -140,5 +214,44 @@ namespace Engine {
         memset(mapRam, 0, mapRamUsage);
         *bg3Reg = (*bg3Reg & (~0xC000)); // size 32x32
         *tileRam = 0;
+    }
+
+    int loadBgRectMain(Background& bg, int x, int y, int w, int h) {
+        return loadBgRectEngine(bg, &REG_BG3CNT, BG_TILE_RAM(1), BG_MAP_RAM(0), x, y, w, h);
+    }
+
+    int loadBgRectSub(Background& bg, int x, int y, int w, int h) {
+        return loadBgRectEngine(bg, &REG_BG3CNT_SUB, BG_TILE_RAM_SUB(1),
+                                BG_MAP_RAM_SUB(0), x, y, w, h);
+    }
+
+    int loadBgRectEngine(Background& bg, const vu16* bg3Reg, u16* tileRam, u16* mapRam, int x, int y,
+                         int w, int h) {
+        if (!bg.getLoaded())
+            return 1;
+
+        bool color8bit = bg.getColor8bit();
+        if (!color8bit)
+            return 2;  // TODO: tile convert 4 bit to 8 bit
+
+        int mapSize = 16 << ((*bg3Reg >> 14) & 3);
+        uint8_t width, height;
+        bg.getSize(width, height);
+        for (int row = y; row < y + h; row++) {
+            for (int col = x; col < x + w; col++) {
+                int srcRow = mod(row, height);
+                int srcCol = mod(col, width);
+                int dstRow = mod(row, mapSize);
+                int dstCol = mod(col, mapSize);
+                auto* mapRes = (uint16_t*)((uint8_t*)mapRam + (dstRow * mapSize + dstCol) * 2);
+                int tileDst = mod(row, 26) * 34 + mod(col, 34);
+                *mapRes = tileDst;
+                auto* tileRes = (uint16_t*)((uint8_t*)tileRam + tileDst * 64);
+                auto* mapSrc = (uint16_t*)((uint8_t *) bg.getMap() + (srcRow * width + srcCol) * 2);
+                uint8_t *src = (uint8_t *) bg.getTiles() + (*mapSrc) * 64;
+                dmaCopyHalfWords(3, src, tileRes, 64);
+            }
+        }
+        return 0;
     }
 }
