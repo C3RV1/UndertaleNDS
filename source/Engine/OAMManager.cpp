@@ -9,6 +9,7 @@ namespace Engine {
 
         sprEntry->colorCount = sprite.getColorCount();
         sprEntry->frameCount = sprite.getFrameCount();
+        sprEntry->currentFrame = -1;
         sprite.getSizeTiles(sprEntry->tileWidth, sprEntry->tileHeight);
         sprEntry->tileData = sprite.getTiles();
 
@@ -92,8 +93,11 @@ namespace Engine {
     int OAMManager::loadSpriteFrame(Engine::SpriteManager *spr, int frame) {
         if (spr == nullptr)
             return -1;
-        if (frame >= spr->frameCount)
+        if (spr->currentFrame == frame)
             return -2;
+        if (frame >= spr->frameCount || frame < 0)
+            return -3;
+        spr->currentFrame = frame;
         uint8_t oamW = (spr->tileWidth + 7) / 8;
         uint8_t oamH = (spr->tileHeight + 7) / 8;
 

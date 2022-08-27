@@ -12,7 +12,8 @@
 
 namespace Engine {
     struct SpriteControl {
-        int x, y;
+        int x = 0, y = 0;
+        int layer = 0;
     };
 
     class Sprite3DManager {
@@ -26,7 +27,8 @@ namespace Engine {
 
         int loadSprite(Sprite& sprite, SpriteManager*& res);
         void freeSprite(SpriteManager*& spr);
-        static int loadSpriteFrame(SpriteManager* spr, int frame);
+        int loadSpriteFrame(SpriteManager* spr, int frame);
+        SpriteControl* getSpriteControl(SpriteManager* manager);
 
         void draw();
     private:

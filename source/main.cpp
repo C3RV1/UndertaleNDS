@@ -11,11 +11,15 @@
 #include <filesystem.h>
 #include <stdio.h>
 #include "Engine/Engine.hpp"
+#include "Engine/math.hpp"
 #include "Engine/Sprite.hpp"
 #include "Engine/OAMManager.hpp"
 #include "TitleScreen.hpp"
 #include "WriteName.hpp"
 #include "Font.hpp"
+#include "Room.hpp"
+#include "Player.hpp"
+#include "Camera.hpp"
 
 int main() {
     /* Configure the VRAM and background control registers. */
@@ -31,34 +35,23 @@ int main() {
     runTitleScreen();
     writeNameMenu();
 
-    FILE* f = fopen("/bg/main1.cbgf", "rb");
-    Engine::Background bg;
-    if (f) {
-        bg.loadCBGF(f);
-    }
-    fclose(f);
-
-    f = fopen("spr/spr_f_mainchara.cspr", "rb");
-    Engine::Sprite spr;
-    if (f) {
-        spr.loadCSPR(f);
-    }
-    fclose(f);
-
     Engine::textMain.clear();
-    Engine::loadBgMain(bg);
+    Engine::textSub.clear();
 
-    Engine::SpriteManager* sprManager;
-    Engine::main3dSpr.loadSprite(spr, sprManager);
-    int frame = 0;
+    Player player;
+    player.showPlayer();
+    player.x = 144 << 8;
+    player.y = 121 << 8;
+    Room* currentRoom = new Room(0);
+    Camera cam;
 
     for (;;) {
         Engine::tick();
         if (keysDown() & KEY_START)
             break;
-        Engine::main3dSpr.loadSpriteFrame(sprManager, frame / 60);
-        frame++;
-        frame = frame % (12 * 60);
+        player.update(currentRoom, cam);
+        cam.updatePosition(*currentRoom, player, false);
+        player.draw(cam);
     }
 
     return 0;

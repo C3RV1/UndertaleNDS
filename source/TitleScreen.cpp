@@ -34,7 +34,7 @@ void runTitleScreen() {
     FILE *f;
 
     Engine::Font mainFont;
-    f = fopen("fnt/fnt_main.font.cfnt", "rb");
+    f = fopen("nitro:/fnt/fnt_main.font.cfnt", "rb");
     if (f) {
         int font_load = mainFont.loadCFNT(f);
         if (font_load != 0) {
@@ -47,8 +47,8 @@ void runTitleScreen() {
     fclose(f);
 
     BGM::WAV music, introSound;
-    int loadWavResult = music.loadWAV(fopen("audio/mus_story_mod.wav", "rb"));
-    int loadSoundResult = introSound.loadWAV(fopen("audio/mus_intronoise.wav", "rb"));
+    int loadWavResult = music.loadWAV(fopen("nitro:/audio/mus_story_mod.wav", "rb"));
+    int loadSoundResult = introSound.loadWAV(fopen("nitro:/audio/mus_intronoise.wav", "rb"));
     sprintf(buffer, "LOAD WAVs %d %d", loadWavResult, loadSoundResult);
     nocashMessage(buffer);
     BGM::playWAV(music);
@@ -57,7 +57,7 @@ void runTitleScreen() {
     bool skip = false;
 
     for (int introIdx = 0; introIdx < 11 && !skip; introIdx++) {
-        sprintf(buffer, "bg/intro/intro%d.cbgf", introIdx);
+        sprintf(buffer, "nitro:/bg/intro/intro%d.cbgf", introIdx);
         f = fopen(buffer, "rb");
         if (f) {
             int bgLoad = currentBackground.loadCBGF(f);
@@ -72,7 +72,7 @@ void runTitleScreen() {
         }
         fclose(f);
 
-        Engine::loadBgMain(currentBackground);
+        Engine::loadBgTextMain(currentBackground);
         if (introIdx == 10)  // Intro last has scrolling
             REG_BG3VOFS = height-192;
 
@@ -161,7 +161,7 @@ void runTitleScreen() {
 
     BGM::playWAV(introSound);
 
-    f = fopen("bg/intro/title.cbgf", "rb");
+    f = fopen("nitro:/bg/intro/title.cbgf", "rb");
     if (f) {
         int titleLoad = currentBackground.loadCBGF(f);
         if (titleLoad != 0) {
@@ -173,7 +173,7 @@ void runTitleScreen() {
     }
     fclose(f);
 
-    Engine::loadBgMain(currentBackground);
+    Engine::loadBgTextMain(currentBackground);
     setBrightness(3, 0);  // set brightness to full bright
 
     timer = introLogoFrames;

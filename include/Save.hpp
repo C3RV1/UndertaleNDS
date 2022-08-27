@@ -5,8 +5,9 @@
 #ifndef LAYTON_SAVE_HPP
 #define LAYTON_SAVE_HPP
 
-struct SaveData{
+struct SaveData {
     char* name = nullptr;
+    int currentRoom = 0;
 };
 
 extern SaveData saveGlobal;
