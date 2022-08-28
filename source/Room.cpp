@@ -45,7 +45,11 @@ Room::Room(int roomId) : roomId(roomId) {
     }
 
     if (roomData.musicBg[0] != 0) {
-        if (strcmp(roomData.musicBg, BGM::globalWAV.getFilename()) != 0) {
+        bool musicChange = BGM::globalWAV.getFilename() == nullptr;
+        if (!musicChange) {
+            musicChange = strcmp(roomData.musicBg, BGM::globalWAV.getFilename()) != 0;
+        }
+        if (musicChange) {
             BGM::globalWAV.loadWAV(roomData.musicBg);
             BGM::globalWAV.setLoop(true);
             BGM::playWAV(BGM::globalWAV);
@@ -148,7 +152,6 @@ int Room::loadRoom(FILE *f) {
                 break;
             case 1:
                 rectExitCount++;
-                nocashMessage("rect exit");
                 fread(&roomExits[i].x, 2, 1, f);
                 fread(&roomExits[i].y, 2, 1, f);
                 fread(&roomExits[i].w, 2, 1, f);
@@ -163,7 +166,6 @@ int Room::loadRoom(FILE *f) {
     for (int i = 0, j = 0; i < roomData.roomExits.exitCount; i++) {
         if (roomExits[i].exitType != 1)
             continue;
-        nocashMessage("rect exit copy");
         rectExits[j++] = &roomExits[i];
     }
 

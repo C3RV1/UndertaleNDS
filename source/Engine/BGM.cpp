@@ -94,6 +94,7 @@ namespace BGM {
         if (stream == currentStream)
             stopWAV();
         free(filename);
+        filename = nullptr;
         fclose(stream);
         stream = nullptr;
         loaded = false;
