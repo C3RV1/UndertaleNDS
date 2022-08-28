@@ -1,11 +1,15 @@
 # Specify filepatterns you want git to ignore.
 
+# Exclude copyrighted material
 nitrofs
-.idea
-tools/bgs
-tools/spr
-tools/fnt
+*.cspr
+*.cbgf
+*.cfnt
+*.gmx
 *.png
+
+# Exclude misc internal
+.idea
 build
 .vscode
 cmake*

@@ -9,7 +9,7 @@ void writeNameMenu() {
     char buffer[100];
 
     BGM::WAV music;
-    int loadMusic = music.loadWAV(fopen("nitro:/audio/mus_menu0.wav", "rb"));
+    int loadMusic = music.loadWAV("nitro:/z_audio/mus_menu0.wav");
     sprintf(buffer, "Load mus_menu0.wav: %d", loadMusic);
     BGM::playWAV(music);
 

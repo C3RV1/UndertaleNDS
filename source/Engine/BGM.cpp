@@ -7,11 +7,17 @@ namespace BGM {
     WAV* currentlyPlayingWav = nullptr;
     FILE* currentStream = nullptr;
     uint32_t currentDataEnd = 0;
-    bool currentStereo = false;
+    uint32_t currentDataStart = 0;
+    bool currentLoop = false;
     bool shouldClose = false;
+    WAV globalWAV;
 
-    int WAV::loadWAV(FILE *f) {
+    int WAV::loadWAV(const char *name) {
         free_();
+        loop = false;
+        FILE *f = fopen(name, "rb");
+        filename = (char*) malloc(strlen(name) + 1);
+        strcpy(filename, name);
         if (!f)
             return 1;
         stream = f;
@@ -75,6 +81,7 @@ namespace BGM {
         uint32_t chunkSize;
         fread(&chunkSize, 4, 1, f);
         dataEnd = ftell(f) + chunkSize;
+        dataStart = ftell(f);
 
         loaded = true;
 
@@ -86,6 +93,7 @@ namespace BGM {
             return;
         if (stream == currentStream)
             stopWAV();
+        free(filename);
         fclose(stream);
         stream = nullptr;
         loaded = false;
@@ -99,7 +107,8 @@ namespace BGM {
         currentlyPlayingWav = &wav;
         currentStream = wav.getStream();
         currentDataEnd = wav.getDataEnd();
-        currentStereo = wav.getStereo();
+        currentDataStart = wav.getDataStart();
+        currentLoop = wav.getLoop();
         shouldClose = false;
 
         mm_stream stream;
@@ -118,7 +127,7 @@ namespace BGM {
         }
         stream.format = format; // select format
         stream.timer = MM_TIMER0;             // use timer0
-        stream.manual = 0;                    // auto filling
+        stream.manual = 1;                    // auto filling
 
         // open the stream
         mmStreamOpen(&stream);
@@ -142,9 +151,14 @@ namespace BGM {
             readLength *= 2;
         uint32_t maxLength = (currentDataEnd - ftell(stream)) / readLength;
         if (maxLength == 0) {
-            // stopWAV();
-            shouldClose = true;
-            return 0;
+            if (!currentLoop) {
+                shouldClose = true;
+                return 0;
+            }
+            else {
+                fseek(currentStream, currentDataStart, SEEK_SET);
+                return fillWAV(length, dest, format);
+            }
         }
         if (length > maxLength)
             length = maxLength;

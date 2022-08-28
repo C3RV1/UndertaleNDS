@@ -15,32 +15,31 @@ class Room;
 #include "Player.hpp"
 #include "Formats/ROOM_FILE.hpp"
 #include "Formats/utils.hpp"
+#include "RoomSprite.hpp"
 
 class Room {
 public:
     explicit Room(int roomId);
     int loadRoom(FILE *f);
     bool evaluateCondition(FILE *f);
-    // void loadSprites();
-    // void update();
-    // void draw(Camera &cam);
+    void loadSprites();
+    void draw(Camera &cam) const;
     void free_();
+
     uint16_t roomId;
     Engine::Background bg;
-    Engine::Sprite* sprites = nullptr;
-    Engine::SpriteManager* spriteManagers;
-    Engine::SpriteControl* spriteControls;
-    RoomPart roomData;
+    RoomSprite* sprites = nullptr;
+    ROOMPart roomData;
 
-    RoomExit* exitTop = nullptr;
-    RoomExit* exitBtm = nullptr;
-    RoomExit* exitLeft = nullptr;
-    RoomExit* exitRight = nullptr;
+    ROOMExit* exitTop = nullptr;
+    ROOMExit* exitBtm = nullptr;
+    ROOMExit* exitLeft = nullptr;
+    ROOMExit* exitRight = nullptr;
     uint8_t rectExitCount = 0;
-    RoomExit** rectExits = nullptr;
+    ROOMExit** rectExits = nullptr;
 };
 
-const int ROOM_CHANGE_FADE_FRAMES = 80;
+const int ROOM_CHANGE_FADE_FRAMES = 20;
 void loadNewRoom(Room*& room, Camera& cam, Player& player, int roomId);
 
 #endif //LAYTON_ROOM_HPP

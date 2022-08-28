@@ -11,9 +11,27 @@
           "spawn_x": 618,
           "spawn_y": 147,
           "side": "down"
+        },
+        {
+          "exit_type": "rect",
+          "room_id": 2,
+          "spawn_x": 131,
+          "spawn_y": 430,
+          "x": 142,
+          "y": 63,
+          "w": 41,
+          "h": 51
         }
       ],
-      "sprites": [],
+      "sprites": [
+        {
+          "sprite_path": "nitro:/spr/spr_flowey.cspr",
+          "x": 151,
+          "y": 227,
+          "animation": "idle",
+          "can_interact": false
+        }
+      ],
       "colliders": []
     }
   ]

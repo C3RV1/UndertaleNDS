@@ -7,7 +7,7 @@ int strlen_file(FILE *f) {
     fseek(f, 0, SEEK_END);
     long len = ftell(f);
     fseek(f, pos, SEEK_SET);
-    int count = 0;
+    int count = -1;
     char byte = 0;
     do {
         fread(&byte, 1, 1, f);

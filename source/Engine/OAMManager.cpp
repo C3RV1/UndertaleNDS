@@ -12,6 +12,8 @@ namespace Engine {
         sprEntry->currentFrame = -1;
         sprite.getSizeTiles(sprEntry->tileWidth, sprEntry->tileHeight);
         sprEntry->tileData = sprite.getTiles();
+        sprEntry->animCount = sprite.getAnimCount();
+        sprEntry->animations = sprite.getAnims();
 
         sprEntry->paletteColors = (uint8_t*) malloc(sprEntry->colorCount);
         uint16_t* colors = sprite.getColors();
@@ -174,7 +176,7 @@ namespace Engine {
         oamEntry->tileHeight = tileH;
 
         // load tiles in groups of animations
-        uint8_t neededTiles = oamEntry->tileWidth * oamEntry->tileHeight;
+        uint16_t neededTiles = oamEntry->tileWidth * oamEntry->tileHeight;
         int freeZoneIdx = 0;
         uint16_t start = 0;
         uint16_t length = 0;
@@ -283,8 +285,8 @@ namespace Engine {
         oamStart[1] = 0;
         oamStart[2] = 0;
 
-        uint8_t start = oamEntry->tileStart;
-        uint8_t length = oamEntry->tileWidth * oamEntry->tileHeight;
+        uint16_t start = oamEntry->tileStart;
+        uint16_t length = oamEntry->tileWidth * oamEntry->tileHeight;
 
         int freeAfterIdx = 0;
         for (; freeAfterIdx < tileFreeZoneCount; freeAfterIdx++) {
@@ -297,7 +299,7 @@ namespace Engine {
 
         if (freeAfterIdx > 0)
             mergePrev = (tileFreeZones[(freeAfterIdx - 1) * 2] + tileFreeZones[freeAfterIdx * 2 -1]) == start;
-        if (freeAfterIdx < tileFreeZoneCount - 1)
+        if (freeAfterIdx <= tileFreeZoneCount - 1)
             mergePost = (start + length) == tileFreeZones[freeAfterIdx * 2];
 
         if (mergePost && mergePrev)
@@ -330,7 +332,7 @@ namespace Engine {
             newFreeZones[freeAfterIdx * 2 + 1] = start;
             memcpy((uint8_t*)newFreeZones + (freeAfterIdx + 1) * 4,
                    tileFreeZones + freeAfterIdx * 4,
-                   (tileFreeZoneCount - freeAfterIdx + 1) * 4);
+                   (tileFreeZoneCount - (freeAfterIdx + 1)) * 4);
             free(tileFreeZones);
             tileFreeZones = newFreeZones;
         }

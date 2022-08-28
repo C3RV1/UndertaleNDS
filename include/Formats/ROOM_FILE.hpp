@@ -7,14 +7,14 @@
 
 #include <stdint.h>
 
-struct RoomHeader {
+struct ROOMHeader {
     char header[4] = {'R', 'O', 'O', 'M'};
     uint32_t fileSize = 0;
 
-    uint32_t version = 1;
+    uint32_t version = 3;
 };
 
-struct RoomExit {
+struct ROOMExit {
     uint8_t exitType = 0; // 0 side, 1 rect
     uint16_t roomId = 0;
     uint16_t spawnX = 0, spawnY = 0;
@@ -28,54 +28,54 @@ struct RoomExit {
     };
 };
 
-struct RoomExits {
+struct ROOMExits {
     uint8_t exitCount = 0;
-    RoomExit* roomExits = nullptr;
+    ROOMExit* roomExits = nullptr;
 };
 
-struct RoomSprite {
+struct ROOMSprite {
     char* spritePath = nullptr;
-    uint8_t animationStart = 0;
-    uint8_t animationLength = 0;
-    uint8_t frameTime = 0;
+    uint16_t x = 0, y = 0, layer = 0;
+    char* animation = nullptr;
     bool canInteract = false;
     uint8_t interactAction = 0;  // 0 - save, 1 - cutscene
     uint16_t cutsceneId = 0;  // only when interactAction == 1
 };
 
-struct RoomSprites {
+struct ROOMSprites {
     uint8_t spriteCount = 0;
-    RoomSprite* roomSprites = nullptr;
+    ROOMSprite* roomSprites = nullptr;
 };
 
-struct RoomCollider {
-    uint16_t x, y, w, h;
+struct ROOMCollider {
+    uint16_t x = 0, y = 0, w = 0, h = 0;
+    uint8_t colliderAction = 0;  // 0 - wall, 1 - trigger
+    uint16_t cutsceneId = 0;    // only when colliderAction == 1
 };
 
-struct RoomColliders {
+struct ROOMColliders {
     uint16_t colliderCount = 0;
-    RoomCollider* roomColliders = nullptr;
+    ROOMCollider* roomColliders = nullptr;
 };
 
-struct RoomPartCondition {
+struct ROOMPartCondition {
 };
 
-struct RoomPart {
+struct ROOMPart {
     uint32_t lengthBytes = 0;
     uint8_t conditionCount = 0;
-    RoomPartCondition* conditions = nullptr;
-    uint16_t onEnterCinematic = 0;
+    ROOMPartCondition* conditions = nullptr;
     char* roomBg = nullptr;
     char* musicBg = nullptr;
-    RoomExits roomExits;
-    RoomSprites roomSprites;
-    RoomColliders roomColliders;
+    ROOMExits roomExits;
+    ROOMSprites roomSprites;
+    ROOMColliders roomColliders;
 };
 
-struct RoomFile {
-    RoomHeader header;
+struct ROOMFile {
+    ROOMHeader header;
     uint8_t partCount = 0;
-    RoomPart* parts = nullptr;
+    ROOMPart* parts = nullptr;
 };
 
 #endif //LAYTON_ROOM_FILE_HPP

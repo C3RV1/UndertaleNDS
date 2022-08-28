@@ -61,6 +61,7 @@ namespace Engine {
         main3dSpr.draw();
         glFlush(0);
         swiWaitForVBlank();
+        mmStreamUpdate();
         scanKeys();
     }
 

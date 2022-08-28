@@ -10,7 +10,7 @@ class RoomHeader:
     def __init__(self):
         self.header = b"ROOM"
         self.file_size_pos = 0
-        self.version = 1
+        self.version = 3
 
     def write(self, wtr: binary.BinaryWriter):
         wtr.write(self.header)
@@ -95,18 +95,20 @@ class RoomExits:
 class RoomSprite:
     def __init__(self):
         self.sprite_path = ""
-        self.animation_start = 0
-        self.animation_length = 0
-        self.frame_time = 0
+        self.x = 0
+        self.y = 0
+        self.layer = 0
+        self.animation = ""
         self.can_interact = False
         self.interact_action = 0
         self.cutscene_id = 0
 
     def write(self, wtr: binary.BinaryWriter):
         wtr.write_string(self.sprite_path, encoding="ascii")
-        wtr.write_uint8(self.animation_start)
-        wtr.write_uint8(self.animation_length)
-        wtr.write_uint8(self.frame_time)
+        wtr.write_uint16(self.x)
+        wtr.write_uint16(self.y)
+        wtr.write_uint16(self.layer)
+        wtr.write_string(self.animation, encoding="ascii")
         wtr.write_bool(self.can_interact)
         wtr.write_uint8(self.interact_action)
         if self.interact_action == 1:
@@ -116,13 +118,15 @@ class RoomSprite:
     def from_dict(cls, dct):
         res = cls()
         res.sprite_path = dct["sprite_path"]
-        res.animation_start = dct["animation_start"]
-        res.animation_length = dct["animation_length"]
-        res.frame_time = dct["frame_time"]
+        res.x = dct["x"]
+        res.y = dct["y"]
+        res.layer = dct.get("layer", 1)
+        res.animation = dct["animation"]
         res.can_interact = dct["can_interact"]
-        res.interact_action = dct["interact_action"]
-        if res.interact_action == 1:
-            res.cutscene_id = dct["cutscene_id"]
+        if res.can_interact:
+            res.interact_action = dct["interact_action"]
+            if res.interact_action == 1:
+                res.cutscene_id = dct["cutscene_id"]
         return res
 
 
@@ -149,20 +153,31 @@ class RoomCollider:
         self.y = 0
         self.w = 0
         self.h = 0
+        self.collider_action = 0
+        self.cutscene_id = 0
 
     def write(self, wtr: binary.BinaryWriter):
         wtr.write_uint16(self.x)
         wtr.write_uint16(self.y)
         wtr.write_uint16(self.w)
         wtr.write_uint16(self.h)
+        wtr.write_uint8(self.collider_action)
+        if self.collider_action == 1:
+            wtr.write_uint16(self.cutscene_id)
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict):
         res = cls()
         res.x = dct["x"]
         res.y = dct["y"]
         res.w = dct["w"]
         res.h = dct["h"]
+        res.collider_action = {
+            "wall": 0,
+            "trigger": 1
+        }[dct.get("collider_action", "wall")]
+        if res.collider_action == 1:
+            res.cutscene_id = dct["cutscene_id"]
         return res
 
 
@@ -201,7 +216,6 @@ class RoomPart:
         self.conditions: List[RoomPartCondition] = []
         self.room_bg = ""
         self.music_path = ""
-        self.on_enter_cinematic = 0
         self.room_exits = RoomExits()
         self.room_sprites = RoomSprites()
         self.room_colliders = RoomColliders()
@@ -212,7 +226,6 @@ class RoomPart:
         wtr.write_uint8(len(self.conditions))
         for condition in self.conditions:
             condition.write(wtr)
-        wtr.write_uint16(self.on_enter_cinematic)
         wtr.write_string(self.room_bg, encoding="ascii")
         wtr.write_string(self.music_path, encoding="ascii")
         self.room_exits.write(wtr)
@@ -230,7 +243,6 @@ class RoomPart:
             res.conditions.append(RoomPartCondition.from_dict(condition))
         res.room_bg = dct["room_bg"]
         res.music_path = dct["music_path"]
-        res.on_enter_cinematic = dct.get("on_enter_cinematic", 0)
         res.room_exits = RoomExits.from_list(dct["exits"])
         res.room_sprites = RoomSprites.from_list(dct["sprites"])
         res.room_colliders = RoomColliders.from_list(dct["colliders"])

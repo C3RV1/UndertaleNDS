@@ -43,10 +43,22 @@ Room::Room(int roomId) : roomId(roomId) {
         sprintf(buffer, "Error loading room bg: %d", bgLoad);
         nocashMessage(buffer);
     }
+
+    if (roomData.musicBg[0] != 0) {
+        if (strcmp(roomData.musicBg, BGM::globalWAV.getFilename()) != 0) {
+            BGM::globalWAV.loadWAV(roomData.musicBg);
+            BGM::globalWAV.setLoop(true);
+            BGM::playWAV(BGM::globalWAV);
+        }
+    } else {
+        BGM::stopWAV();
+    }
+
+    loadSprites();
 }
 
 int Room::loadRoom(FILE *f) {
-    RoomFile roomFile;
+    ROOMFile roomFile;
 
     fread(roomFile.header.header, 4, 1, f);
     char expectedHeader[4] = {'R', 'O', 'O', 'M'};
@@ -66,7 +78,7 @@ int Room::loadRoom(FILE *f) {
     }
 
     fread(&roomFile.header.version, 4, 1, f);
-    if (roomFile.header.version != 1) {
+    if (roomFile.header.version != 3) {
         return 3;
     }
 
@@ -90,25 +102,23 @@ int Room::loadRoom(FILE *f) {
     if (!valid)  // no valid room part found
         return 4;
 
-    fread(&roomData.onEnterCinematic, 2, 1, f);
-
     int bgPathLen = strlen_file(f);
     if (bgPathLen == -1)
         return 5;
 
-    roomData.roomBg = (char*) malloc(bgPathLen);
-    fread(roomData.roomBg, bgPathLen, 1, f);
+    roomData.roomBg = (char*) malloc(bgPathLen + 1);
+    fread(roomData.roomBg, bgPathLen + 1, 1, f);
 
     int musicPathLen = strlen_file(f);
     if (musicPathLen == -1)
         return 5;
 
-    roomData.musicBg = (char*) malloc(musicPathLen);
-    fread(roomData.musicBg, musicPathLen, 1, f);
+    roomData.musicBg = (char*) malloc(musicPathLen + 1);
+    fread(roomData.musicBg, musicPathLen + 1, 1, f);
 
     fread(&roomData.roomExits.exitCount, 1, 1, f);
-    roomData.roomExits.roomExits = (RoomExit*) malloc(sizeof(RoomExit) * roomData.roomExits.exitCount);
-    RoomExit* roomExits = roomData.roomExits.roomExits;
+    roomData.roomExits.roomExits = (ROOMExit*) malloc(sizeof(ROOMExit) * roomData.roomExits.exitCount);
+    ROOMExit* roomExits = roomData.roomExits.roomExits;
 
     rectExitCount = 0;
     for (int i = 0; i < roomData.roomExits.exitCount; i++) {
@@ -149,7 +159,7 @@ int Room::loadRoom(FILE *f) {
         }
     }
 
-    rectExits = (RoomExit**) malloc(sizeof(RoomExit*) * rectExitCount);
+    rectExits = (ROOMExit**) malloc(sizeof(ROOMExit*) * rectExitCount);
     for (int i = 0, j = 0; i < roomData.roomExits.exitCount; i++) {
         if (roomExits[i].exitType != 1)
             continue;
@@ -158,18 +168,23 @@ int Room::loadRoom(FILE *f) {
     }
 
     fread(&roomData.roomSprites.spriteCount, 1, 1, f);
-    roomData.roomSprites.roomSprites = (RoomSprite*) malloc(sizeof(RoomSprite) * roomData.roomSprites.spriteCount);
-    RoomSprite* roomSprites = roomData.roomSprites.roomSprites;
+    roomData.roomSprites.roomSprites = (ROOMSprite*) malloc(sizeof(ROOMSprite) * roomData.roomSprites.spriteCount);
+    ROOMSprite* roomSprites = roomData.roomSprites.roomSprites;
 
     for (int i = 0; i < roomData.roomSprites.spriteCount; i++) {
         int sprPathLen = strlen_file(f);
         if (sprPathLen == -1)
             return 5;
-        roomSprites[i].spritePath = (char*) malloc(sprPathLen);
-        fread(roomSprites[i].spritePath, sprPathLen, 1, f);
-        fread(&roomSprites[i].animationStart, 1, 1, f);
-        fread(&roomSprites[i].animationLength, 1, 1, f);
-        fread(&roomSprites[i].frameTime, 1, 1, f);
+        roomSprites[i].spritePath = (char*) malloc(sprPathLen + 1);
+        fread(roomSprites[i].spritePath, sprPathLen + 1, 1, f);
+        fread(&roomSprites[i].x, 2, 1, f);
+        fread(&roomSprites[i].y, 2, 1, f);
+        fread(&roomSprites[i].layer, 2, 1, f);
+        int animLen = strlen_file(f);
+        if (animLen == -1)
+            return 5;
+        roomSprites[i].animation = (char*) malloc(animLen + 1);
+        fread(roomSprites[i].animation, animLen + 1, 1, f);
         fread(&roomSprites[i].canInteract, 1, 1, f);
         fread(&roomSprites[i].interactAction, 1, 1, f);
         if (roomSprites[i].interactAction == 1) {
@@ -178,14 +193,18 @@ int Room::loadRoom(FILE *f) {
     }
 
     fread(&roomData.roomColliders.colliderCount, 2, 1, f);
-    roomData.roomColliders.roomColliders = (RoomCollider*) malloc(sizeof(RoomCollider) * roomData.roomColliders.colliderCount);
-    RoomCollider* roomColliders = roomData.roomColliders.roomColliders;
+    roomData.roomColliders.roomColliders = (ROOMCollider*) malloc(sizeof(ROOMCollider) * roomData.roomColliders.colliderCount);
+    ROOMCollider* roomColliders = roomData.roomColliders.roomColliders;
 
     for (int i = 0; i < roomData.roomColliders.colliderCount; i++) {
         fread(&roomColliders[i].x, 2, 1, f);
         fread(&roomColliders[i].y, 2, 1, f);
         fread(&roomColliders[i].w, 2, 1, f);
         fread(&roomColliders[i].h, 2, 1, f);
+        fread(&roomColliders[i].colliderAction, 1, 1, f);
+        if (roomColliders[i].colliderAction == 1) {
+            fread(&roomColliders[i].cutsceneId, 2, 1, f);
+        }
     }
 
     return 0;
@@ -195,14 +214,30 @@ void Room::free_() {
     free(roomData.roomBg);
     free(roomData.roomExits.roomExits);
     for (int i = 0; i < roomData.roomSprites.spriteCount; i++) {
+        sprites[i].free_();
         free(roomData.roomSprites.roomSprites[i].spritePath);
+        free(roomData.roomSprites.roomSprites[i].animation);
     }
     free(roomData.roomSprites.roomSprites);
+    free(sprites);
     bg.free_();
+}
+
+void Room::loadSprites() {
+    sprites = (RoomSprite*) malloc(sizeof(RoomSprite) * roomData.roomSprites.spriteCount);
+    for (int i = 0; i < roomData.roomSprites.spriteCount; i++) {
+        sprites[i].load(&roomData.roomSprites.roomSprites[i]);
+    }
 }
 
 bool Room::evaluateCondition(FILE *f) {
     return true;
+}
+
+void Room::draw(Camera &cam) const {
+    for (int i = 0; i < roomData.roomSprites.spriteCount; i++) {
+        sprites[i].draw(cam);
+    }
 }
 
 void loadNewRoom(Room*& room, Camera& cam, Player& player, int roomId) {
@@ -220,6 +255,7 @@ void loadNewRoom(Room*& room, Camera& cam, Player& player, int roomId) {
 
     cam.updatePosition(*room, player, true);
     player.draw(cam);
+    room->draw(cam);
 
     timer = ROOM_CHANGE_FADE_FRAMES;
     while (timer >= 0) {
