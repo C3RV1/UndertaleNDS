@@ -11,17 +11,20 @@ namespace Engine {
         uint32_t version;
         uint8_t fileFormat;
         fread(header, 4, 1, f);
-
-        const char expectedChar[4] = {'C', 'B', 'G', 'F'};
-        if (memcmp(header, expectedChar, 4) != 0) {
-            return 1;
-        }
-
-        fread(&fileSize, 4, 1, f);
         uint32_t pos = ftell(f);
         fseek(f, 0, SEEK_END);
         uint32_t size = ftell(f);
         fseek(f, pos, SEEK_SET);
+
+        const char expectedChar[4] = {'C', 'B', 'G', 'F'};
+        if (memcmp(header, expectedChar, 4) != 0) {
+            char buffer[100];
+            sprintf(buffer, "Header %x %x %x %x size %x", header[0], header[1], header[2], header[3], size);
+            nocashMessage(buffer);
+            return 1;
+        }
+
+        fread(&fileSize, 4, 1, f);
 
         if (fileSize != size) {
             return 2;

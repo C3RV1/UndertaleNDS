@@ -17,6 +17,15 @@ Player::Player() {
         nocashMessage("Error opening player sprite");
     }
     fclose(f);
+
+    upIdleId = playerSpr.nameToAnimId("upIdle");
+    downIdleId = playerSpr.nameToAnimId("downIdle");
+    leftIdleId = playerSpr.nameToAnimId("leftIdle");
+    rightIdleId = playerSpr.nameToAnimId("rightIdle");
+    upMoveId = playerSpr.nameToAnimId("upMove");
+    downMoveId = playerSpr.nameToAnimId("downMove");
+    leftMoveId = playerSpr.nameToAnimId("leftMove");
+    rightMoveId = playerSpr.nameToAnimId("rightMove");
 }
 
 void Player::showPlayer() {
@@ -45,26 +54,26 @@ void Player::update(Room*& room, Camera& cam) {
     bool setAnim = true;
     if (keysHeld() & KEY_DOWN) {
         y += MOVE_SPEED;
-        moveDirection = 1;
-        if (currentAnimation == 5)
+        moveDirection = upMoveId;
+        if (currentAnimation == upMoveId)
             setAnim = false;
     }
     if (keysHeld() & KEY_UP) {
         y -= MOVE_SPEED;
-        moveDirection = 0;
-        if (currentAnimation == 4)
+        moveDirection = downMoveId;
+        if (currentAnimation == downMoveId)
             setAnim = false;
     }
     if (keysHeld() & KEY_RIGHT) {
         x += MOVE_SPEED;
-        moveDirection = 3;
-        if (currentAnimation == 7)
+        moveDirection = rightMoveId;
+        if (currentAnimation == rightMoveId)
             setAnim = false;
     }
     if (keysHeld() & KEY_LEFT) {
         x -= MOVE_SPEED;
-        moveDirection = 2;
-        if (currentAnimation == 6)
+        moveDirection = leftMoveId;
+        if (currentAnimation == leftMoveId)
             setAnim = false;
     }
 
@@ -86,16 +95,20 @@ void Player::update(Room*& room, Camera& cam) {
     }
 
     if (x == prevX && prevY == y) {
-        if (currentAnimation > 3) {
-            currentAnimation -= 4;
-            animFrame = 0;
-        }
+        if (currentAnimation == upMoveId)
+            currentAnimation = upIdleId;
+        else if (currentAnimation == downMoveId)
+            currentAnimation = downIdleId;
+        else if (currentAnimation == leftMoveId)
+            currentAnimation = leftIdleId;
+        else if (currentAnimation == rightMoveId)
+            currentAnimation = rightIdleId;
     } else {
         if (setAnim) {
-            currentAnimation = moveDirection + 4;
-            animFrame = 0;
+            currentAnimation = moveDirection;
         }
     }
+    Engine::main3dSpr.setSpriteAnim(sprManager, currentAnimation);
 }
 
 void Player::check_exits(Room*& room, Camera& cam) {
@@ -135,7 +148,7 @@ void Player::check_exits(Room*& room, Camera& cam) {
     }
 
     for (int i = 0; i < room->rectExitCount; i++) {
-        RoomExit* rectExit = room->rectExits[i];
+        ROOMExit* rectExit = room->rectExits[i];
         if (collidesRect(x >> 8, (y >> 8) + 20, 19, 9,
                          rectExit->x, rectExit->y,
                          rectExit->w, rectExit->h)) {
@@ -148,55 +161,21 @@ void Player::check_exits(Room*& room, Camera& cam) {
 
 bool Player::check_collisions(Room*& room) const {
     for (int i = 0; i < room->roomData.roomColliders.colliderCount; i++) {
-        RoomCollider* collider = &room->roomData.roomColliders.roomColliders[i];
+        ROOMCollider* collider = &room->roomData.roomColliders.roomColliders[i];
         if (collidesRect(x >> 8, (y >> 8) + 20, 19, 9,
                          collider->x, collider->y,
                          collider->w, collider->h)) {
-            return true;
+            if (collider->colliderAction == 0)  // Wall
+                return true;
         }
     }
     return false;
 }
 
 void Player::draw(Camera &cam) {
-    int playerFrame = 0;
+    if (sprControl == nullptr)
+        return;
     sprControl->x = (x - cam.x) >> 8;
     sprControl->y = (y - cam.y) >> 8;
-    if (currentAnimation > 3) {
-        animFrame++;
-        switch (currentAnimation) {
-            case 4:
-                animFrame %= 4 * FRAME_TIME;
-                playerFrame = 8 + animFrame / FRAME_TIME;
-                break;
-            case 5:
-                animFrame %= 4 * FRAME_TIME;
-                playerFrame = 0 + animFrame / FRAME_TIME;
-                break;
-            case 6:
-                animFrame %= 2 * FRAME_TIME;
-                playerFrame = 4 + animFrame / FRAME_TIME;
-                break;
-            case 7:
-                animFrame %= 2 * FRAME_TIME;
-                playerFrame = 6 + animFrame / FRAME_TIME;
-                break;
-        }
-    } else {
-        switch (currentAnimation) {
-            case 0:
-                playerFrame = 8;
-                break;
-            case 1:
-                playerFrame = 0;
-                break;
-            case 2:
-                playerFrame = 4;
-                break;
-            case 3:
-                playerFrame = 6;
-                break;
-        }
-    }
-    Engine::main3dSpr.loadSpriteFrame(sprManager, playerFrame);
+    sprControl->layer = 100;
 }

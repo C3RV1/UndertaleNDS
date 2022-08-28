@@ -44,6 +44,7 @@ int main() {
     player.y = 121 << 8;
     Room* currentRoom = new Room(0);
     Camera cam;
+    cam.updatePosition(*currentRoom, player, true);
 
     for (;;) {
         Engine::tick();
@@ -52,6 +53,7 @@ int main() {
         player.update(currentRoom, cam);
         cam.updatePosition(*currentRoom, player, false);
         player.draw(cam);
+        currentRoom->draw(cam);
     }
 
     return 0;

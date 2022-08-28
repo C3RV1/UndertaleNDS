@@ -15,6 +15,8 @@ namespace Engine {
         sprEntry->currentFrame = -1;
         sprite.getSizeTiles(sprEntry->tileWidth, sprEntry->tileHeight);
         sprEntry->tileData = sprite.getTiles();
+        sprEntry->animCount = sprite.getAnimCount();
+        sprEntry->animations = sprite.getAnims();
 
         sprEntry->paletteIdx = 96;
         for (int i = 0; i < 96; i++) {
@@ -44,7 +46,7 @@ namespace Engine {
         while (sprEntry->allocY < sprEntry->tileHeight * 8)
             sprEntry->allocY <<= 1;
 
-        uint8_t neededTiles = sprEntry->allocX * sprEntry->allocY;
+        uint16_t neededTiles = sprEntry->allocX * sprEntry->allocY;
         int freeZoneIdx = 0;
         uint16_t start = 0;
         uint16_t length = 0;
@@ -80,9 +82,14 @@ namespace Engine {
         else {
             tileFreeZones[freeZoneIdx * 2] += neededTiles;
             tileFreeZones[freeZoneIdx * 2 + 1] -= neededTiles;
+            sprintf(buffer, "reduce change idx %d start %d length %d",
+                    freeZoneIdx, tileFreeZones[freeZoneIdx * 2], tileFreeZones[freeZoneIdx * 2 + 1]);
+            nocashMessage(buffer);
         }
 
         sprEntry->tileStart = start;
+        sprintf(buffer, "SPR tile start %d palette %d", start, sprEntry->paletteIdx);
+        nocashMessage(buffer);
         int loadResult = loadSpriteFrame(sprEntry, 0);
         if (loadResult < 0) {
             free(sprEntry);
@@ -123,28 +130,10 @@ namespace Engine {
         if (sprIdx == -1)
             return;
 
-        SpriteControl* sprControl = activeSpriteControls[sprIdx];
-        free(sprControl);
-        sprControl = nullptr;
+        paletteUsed[spr->paletteIdx] = false;
 
-        auto** activeSpriteNew = (SpriteManager**) malloc(sizeof(SpriteManager**) * (activeSpriteCount - 1));
-        memcpy(activeSpriteNew, activeSprites, sizeof(SpriteManager**) * sprIdx);
-        memcpy(&activeSpriteNew[sprIdx], &activeSprites[sprIdx + 1],
-               sizeof(SpriteManager**) * (activeSpriteCount - sprIdx - 1));
-        free(activeSprites);
-        activeSprites = activeSpriteNew;
-
-        auto** sprControlsNew = (SpriteControl**) malloc(sizeof(SpriteControl**) * (activeSpriteCount + 1));
-        memcpy(sprControlsNew, activeSpriteControls, sizeof(SpriteControl**) * sprIdx);
-        memcpy(&sprControlsNew[sprIdx], &activeSpriteControls[sprIdx + 1],
-               sizeof(SpriteManager**) * (activeSpriteCount - sprIdx - 1));
-        free(activeSpriteControls);
-        activeSpriteControls = sprControlsNew;
-
-        activeSpriteCount--;
-
-        uint8_t start = spr->tileStart;
-        uint8_t length = spr->allocX * spr->allocY;
+        uint16_t start = spr->tileStart;
+        uint16_t length = spr->allocX * spr->allocY;
 
         int freeAfterIdx = 0;
         for (; freeAfterIdx < tileFreeZoneCount; freeAfterIdx++) {
@@ -157,8 +146,13 @@ namespace Engine {
 
         if (freeAfterIdx > 0)
             mergePrev = (tileFreeZones[(freeAfterIdx - 1) * 2] + tileFreeZones[freeAfterIdx * 2 -1]) == start;
-        if (freeAfterIdx < tileFreeZoneCount - 1)
+        if (freeAfterIdx <= tileFreeZoneCount - 1) {
+            char buffer[100];
+            sprintf(buffer, "start %d len %d %d %d startfree %d",
+                    start, length, spr->allocX, spr->allocY, tileFreeZones[freeAfterIdx * 2]);
+            nocashMessage(buffer);
             mergePost = (start + length) == tileFreeZones[freeAfterIdx * 2];
+        }
 
         if (mergePost && mergePrev)
         {
@@ -190,10 +184,30 @@ namespace Engine {
             newFreeZones[freeAfterIdx * 2 + 1] = start;
             memcpy((uint8_t*)newFreeZones + (freeAfterIdx + 1) * 4,
                    tileFreeZones + freeAfterIdx * 4,
-                   (tileFreeZoneCount - freeAfterIdx + 1) * 4);
+                   (tileFreeZoneCount - (freeAfterIdx + 1)) * 4);
             free(tileFreeZones);
             tileFreeZones = newFreeZones;
         }
+
+        SpriteControl* sprControl = activeSpriteControls[sprIdx];
+        free(sprControl);
+        sprControl = nullptr;
+
+        auto** activeSpriteNew = (SpriteManager**) malloc(sizeof(SpriteManager**) * (activeSpriteCount - 1));
+        memcpy(activeSpriteNew, activeSprites, sizeof(SpriteManager**) * sprIdx);
+        memcpy(&activeSpriteNew[sprIdx], &activeSprites[sprIdx + 1],
+               sizeof(SpriteManager**) * (activeSpriteCount - sprIdx - 1));
+        free(activeSprites);
+        activeSprites = activeSpriteNew;
+
+        auto** sprControlsNew = (SpriteControl**) malloc(sizeof(SpriteControl**) * (activeSpriteCount + 1));
+        memcpy(sprControlsNew, activeSpriteControls, sizeof(SpriteControl**) * sprIdx);
+        memcpy(&sprControlsNew[sprIdx], &activeSpriteControls[sprIdx + 1],
+               sizeof(SpriteManager**) * (activeSpriteCount - sprIdx - 1));
+        free(activeSpriteControls);
+        activeSpriteControls = sprControlsNew;
+
+        activeSpriteCount--;
 
         free(spr);
         spr = nullptr;
@@ -232,34 +246,48 @@ namespace Engine {
 
     void Sprite3DManager::draw() {
         for (int i = 0; i < activeSpriteCount; i++) {
-            SpriteManager* activeSprite = activeSprites[i];
+            SpriteManager* spr = activeSprites[i];
             SpriteControl* activeControl = activeSpriteControls[i];
+
+            if (spr->currentAnimation > 0) {
+                CSPRAnimation* current = &spr->animations[spr->currentAnimation];
+                if (current->frames[spr->currentAnimationFrame].duration != 0) {
+                    spr->currentAnimationTimer--;
+                    if (spr->currentAnimationTimer == 0) {
+                        spr->currentAnimationFrame++;
+                        spr->currentAnimationFrame %= current->frameCount;
+                        loadSpriteFrame(spr, current->frames[spr->currentAnimationFrame].frame);
+                        spr->currentAnimationTimer = current->frames[spr->currentAnimationFrame].duration;
+                    }
+                }
+            }
+
             glColor( RGB15(31,31,31) );
             glPolyFmt( POLY_ALPHA(31) | POLY_CULL_NONE);
 
             uint8_t allocXFmt = 0;
-            for (int x = activeSprite->allocX; x > 8; x >>= 1) {
+            for (int x = spr->allocX; x > 8; x >>= 1) {
                 allocXFmt += 1;
             }
             uint8_t allocYFmt = 0;
-            for (int x = activeSprite->allocY; x > 8; x >>= 1) {
+            for (int x = spr->allocY; x > 8; x >>= 1) {
                 allocYFmt += 1;
             }
 
             MATRIX_CONTROL = GL_MODELVIEW;
             MATRIX_IDENTITY = 0;
             uint32_t x = activeControl->x;
-            uint32_t x2 = activeControl->x + activeSprite->tileWidth * 8;
-            uint32_t w = activeSprite->tileWidth * 8;
+            uint32_t x2 = activeControl->x + spr->tileWidth * 8;
+            uint32_t w = spr->tileWidth * 8;
             uint32_t y = activeControl->y;
-            uint32_t y2 = activeControl->y + activeSprite->tileHeight * 8;
-            uint32_t h = activeSprite->tileHeight * 8;
-            GFX_TEX_FORMAT = (allocXFmt << 20) + (allocYFmt << 23) + (4 << 26) + (1 << 29) + activeSprite->tileStart * 8;
-            GFX_PAL_FORMAT = activeSprite->paletteIdx;
+            uint32_t y2 = activeControl->y + spr->tileHeight * 8;
+            uint32_t h = spr->tileHeight * 8;
+            GFX_TEX_FORMAT = (allocXFmt << 20) + (allocYFmt << 23) + (4 << 26) + (1 << 29) + spr->tileStart * 8;
+            GFX_PAL_FORMAT = spr->paletteIdx * 2 * 256 / 16;
             GFX_BEGIN = GL_QUADS;
             GFX_TEX_COORD = 0;
             GFX_VERTEX16 = x + (y << 16);
-            GFX_VERTEX16 = activeControl->layer << 12;
+            GFX_VERTEX16 = activeControl->layer;
             GFX_TEX_COORD = h << (4 + 16);
             GFX_VERTEX_XY = x + (y2 << 16);
             GFX_TEX_COORD = (h << (4 + 16)) + (w << 4);
@@ -279,6 +307,19 @@ namespace Engine {
             }
         }
         return nullptr;
+    }
+
+    void Sprite3DManager::setSpriteAnim(Engine::SpriteManager *spr, int animId) {
+        if (spr == nullptr)
+            return;
+        if (animId >= spr->animCount)
+            return;
+        if (spr->currentAnimation == animId)
+            return;
+        spr->currentAnimation = animId;
+        spr->currentAnimationFrame = 0;
+        spr->currentAnimationTimer = spr->animations[animId].frames[0].duration;
+        loadSpriteFrame(spr, spr->animations[animId].frames[0].frame);
     }
 
     Sprite3DManager main3dSpr;

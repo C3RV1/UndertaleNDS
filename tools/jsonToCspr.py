@@ -3,14 +3,10 @@ import numpy as np
 from PIL import Image
 import json
 import sys
+import os
 
 
-def main():
-    if len(sys.argv) != 3:  # name, input, output
-        return
-    input_file = sys.argv[1]
-    output_file = sys.argv[2]
-
+def convert(input_file, output_file):
     with open(input_file, "r") as f:
         data = json.loads(f.read())
 
@@ -68,7 +64,7 @@ def main():
     wtr.write(b"CSPR")
     file_size_pos = wtr.tell()
     wtr.write_uint32(0)
-    wtr.write_uint32(1)  # Version
+    wtr.write_uint32(2)  # Version
     wtr.write_uint8(tile_w)
     wtr.write_uint8(tile_h)
 
@@ -78,10 +74,32 @@ def main():
     wtr.write_uint8(frame_count)
     wtr.write(tiles.tobytes())
 
+    animations = data.get("animations", [])
+    wtr.write_uint8(len(animations))
+    for animation in animations:
+        wtr.write_string(animation["name"], encoding="ascii")
+        frames = animation["frames"]
+        wtr.write_uint8(len(frames))
+        for frame in frames:
+            wtr.write_uint8(frame["frame"])
+            wtr.write_uint16(frame["duration"])
+
     size = wtr.tell()
     wtr.seek(file_size_pos)
     wtr.write_uint32(size)
     wtr.close()
+
+
+def main():
+    if len(sys.argv) != 2:  # name, input
+        return
+    input_file = sys.argv[1]
+    if os.path.isdir(input_file):
+        input_file = [os.path.join(input_file, fp) for fp in os.listdir(input_file) if fp.endswith(".json")]
+    else:
+        input_file = [input_file]
+    for fp in input_file:
+        convert(fp, os.path.splitext(fp)[0] + ".cspr")
 
 
 if __name__ == '__main__':

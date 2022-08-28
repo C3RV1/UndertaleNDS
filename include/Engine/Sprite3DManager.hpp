@@ -6,7 +6,7 @@
 #define LAYTON_SPRITE3DMANAGER_HPP
 
 #include "Sprite.hpp"
-#include "OAMManager.hpp"
+#include "SpriteManager.hpp"
 #define ARM9
 #include <nds.h>
 
@@ -22,12 +22,13 @@ namespace Engine {
             tileFreeZoneCount = 1;
             tileFreeZones = (uint16_t*) malloc(4);
             tileFreeZones[0] = 1;
-            tileFreeZones[1] = 2043;
+            tileFreeZones[1] = 65535;
         }
 
         int loadSprite(Sprite& sprite, SpriteManager*& res);
         void freeSprite(SpriteManager*& spr);
         int loadSpriteFrame(SpriteManager* spr, int frame);
+        void setSpriteAnim(SpriteManager* spr, int animId);
         SpriteControl* getSpriteControl(SpriteManager* manager);
 
         void draw();

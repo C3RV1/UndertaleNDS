@@ -1,0 +1,30 @@
+{
+  "parts": [
+    {
+      "conditions": [],
+      "room_bg": "nitro:/bg/rooms/room2.cbgf",
+      "music_path": "nitro:/z_audio/mus_ruins.wav",
+      "exits": [
+        {
+          "exit_type": "side",
+          "room_id": 1,
+          "spawn_x": 152,
+          "spawn_y": 110,
+          "side": "down"
+        },
+        {
+          "exit_type": "rect",
+          "room_id": 3,
+          "spawn_x": 120,
+          "spawn_y": 210,
+          "x": 124,
+          "y": 49,
+          "w": 32,
+          "h": 41
+        }
+      ],
+      "sprites": [],
+      "colliders": []
+    }
+  ]
+}
