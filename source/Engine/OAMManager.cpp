@@ -5,7 +5,7 @@ namespace Engine {
         if (!sprite.getLoaded())
             return -1;
 
-        auto* sprEntry = (SpriteManager*) malloc(sizeof(SpriteManager));
+        auto* sprEntry = new SpriteManager;
 
         sprEntry->colorCount = sprite.getColorCount();
         sprEntry->frameCount = sprite.getFrameCount();
@@ -15,7 +15,7 @@ namespace Engine {
         sprEntry->animCount = sprite.getAnimCount();
         sprEntry->animations = sprite.getAnims();
 
-        sprEntry->paletteColors = (uint8_t*) malloc(sprEntry->colorCount);
+        sprEntry->paletteColors = new uint8_t[sprEntry->colorCount];
         uint16_t* colors = sprite.getColors();
 
         for (int i = 0; i < sprEntry->colorCount; i++) {
@@ -45,7 +45,7 @@ namespace Engine {
         uint8_t oamW = (sprEntry->tileWidth + 7) / 8;
         uint8_t oamH = (sprEntry->tileHeight + 7) / 8;
         sprEntry->oamEntryCount = oamW * oamH;
-        sprEntry->oamEntries = (uint8_t*) malloc(sprEntry->oamEntryCount);
+        sprEntry->oamEntries = new uint8_t[sprEntry->oamEntryCount];
 
         for (int oamY = 0; oamY < oamH; oamY++) {
             for (int oamX = 0; oamX < oamW; oamX++) {
@@ -73,7 +73,7 @@ namespace Engine {
                 int oamId = reserveOAMEntry(reserveX, reserveY);
                 if (oamId < 0)
                 {
-                    free(sprEntry);
+                    delete sprEntry;
                     res = nullptr;
                     return oamId - 1;
                 }
@@ -83,7 +83,7 @@ namespace Engine {
 
         int loadResult = loadSpriteFrame(sprEntry, 0);
         if (loadResult < 0) {
-            free(sprEntry);
+            delete sprEntry;
             res = nullptr;
             return loadResult - 3;
         }
@@ -103,11 +103,7 @@ namespace Engine {
         uint8_t oamW = (spr->tileWidth + 7) / 8;
         uint8_t oamH = (spr->tileHeight + 7) / 8;
 
-        auto* tmpRam = (uint8_t*) malloc(8*8*64);
-        if (tmpRam == nullptr) {
-            nocashMessage("alloc fail");
-            return -3;
-        }
+        auto* tmpRam = new uint8_t[64*64];
 
         // Copy tile into memory (replacing colors)
         for (int oamY = 0; oamY < oamH; oamY++) {
@@ -153,7 +149,7 @@ namespace Engine {
                 dmaCopyWords(3, tmpRam, tileRamStart, 8 * 8 * neededTiles);
             }
         }
-        free(tmpRam);
+        delete[] tmpRam;
         return 0;
     }
 
@@ -196,10 +192,9 @@ namespace Engine {
         }
 
         if (length == neededTiles) {
-            nocashMessage("alloc change");
             // Remove free zone
             tileFreeZoneCount--;
-            auto* newFreeZones = (uint16_t*) malloc(tileFreeZoneCount * 4);
+            auto* newFreeZones = new uint16_t[tileFreeZoneCount * 2];
             // Copy free zones up to freeZoneIdx
             memcpy(newFreeZones, tileFreeZones, freeZoneIdx * 4);
             // Copy free zones after freeZoneIdx
@@ -207,7 +202,7 @@ namespace Engine {
                    (uint8_t*)tileFreeZones + (freeZoneIdx + 1) * 4,
                    (tileFreeZoneCount - freeZoneIdx) * 4);
             // Free old tileZones and change reference
-            free(tileFreeZones);
+            delete[] tileFreeZones;
             tileFreeZones = newFreeZones;
         }
         else {
@@ -305,13 +300,13 @@ namespace Engine {
         if (mergePost && mergePrev)
         {
             tileFreeZoneCount--;
-            auto* newFreeZones = (uint16_t*) malloc(4 * tileFreeZoneCount);
+            auto* newFreeZones = new uint16_t[2 * tileFreeZoneCount];
             memcpy(newFreeZones, tileFreeZones, freeAfterIdx * 4);
             newFreeZones[(freeAfterIdx - 1) * 2 + 1] += length + tileFreeZones[freeAfterIdx * 2 + 1];
             memcpy((uint8_t*)newFreeZones + freeAfterIdx * 4,
                    (uint8_t*)tileFreeZones + (freeAfterIdx + 1) * 4,
                    (tileFreeZoneCount - freeAfterIdx) * 4);
-            free(tileFreeZones);
+            delete[] tileFreeZones;
             tileFreeZones = newFreeZones;
         }
         else if (mergePrev)
@@ -326,14 +321,14 @@ namespace Engine {
         else
         {
             tileFreeZoneCount++;
-            auto* newFreeZones = (uint16_t*) malloc(4 * tileFreeZoneCount);
+            auto* newFreeZones = new uint16_t[2 * tileFreeZoneCount];
             memcpy(newFreeZones, tileFreeZones, freeAfterIdx * 4);
             newFreeZones[freeAfterIdx * 2] = start;
             newFreeZones[freeAfterIdx * 2 + 1] = start;
             memcpy((uint8_t*)newFreeZones + (freeAfterIdx + 1) * 4,
                    tileFreeZones + freeAfterIdx * 4,
                    (tileFreeZoneCount - (freeAfterIdx + 1)) * 4);
-            free(tileFreeZones);
+            delete[] tileFreeZones;
             tileFreeZones = newFreeZones;
         }
     }
@@ -346,15 +341,17 @@ namespace Engine {
             uint8_t paletteColor = spr->paletteColors[colorIdx];
             paletteRefCounts[paletteColor]--;
         }
-        free(spr->paletteColors);
+        delete[] spr->paletteColors;
+        spr->paletteColors = nullptr;
 
         for (int oamIdx = 0; oamIdx < spr->oamEntryCount; oamIdx++) {
             uint8_t oamId = spr->oamEntries[oamIdx];
             freeOAMEntry(oamId);
         }
-        free(spr->oamEntries);
+        delete[] spr->oamEntries;
+        spr->oamEntries = nullptr;
 
-        free(spr);
+        delete spr;
         spr = nullptr;
     }
 

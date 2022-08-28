@@ -32,22 +32,22 @@ namespace Engine {
         fread(&tileHeight, 1, 1, f);
 
         fread(&colorCount, 1, 1, f);
-        colors = (uint16_t*) malloc(colorCount * 2);
+        colors = new uint16_t[colorCount];
         fread(colors, 2, colorCount, f);
 
         fread(&frameCount, 1, 1, f);
         uint16_t tileCount = tileWidth * tileHeight;
-        tiles = (uint8_t*) malloc(8 * 8 * tileCount * frameCount);
+        tiles = new uint8_t[64 * tileCount * frameCount];
         fread(tiles, 8 * 8 * tileCount * frameCount, 1, f);
 
         fread(&animationCount, 1, 1, f);
-        animations = (CSPRAnimation*) malloc(sizeof(CSPRAnimation) * animationCount);
+        animations = new CSPRAnimation[animationCount];
         for (int i = 0; i < animationCount; i++) {
             int nameLen = strlen_file(f, 0);
-            animations[i].name = (char*)malloc(nameLen + 1);
+            animations[i].name = new char[nameLen + 1];
             fread(animations[i].name, nameLen + 1, 1, f);
             fread(&animations[i].frameCount, 1, 1, f);
-            animations[i].frames = (CSPRAnimFrame*) malloc(sizeof(CSPRAnimFrame) * animations[i].frameCount);
+            animations[i].frames = new CSPRAnimFrame[animations[i].frameCount];
             if (animations[i].frameCount == 0) {
                 // should free on error?
                 return 4;
@@ -66,15 +66,17 @@ namespace Engine {
         if (!loaded)
             return;
         loaded = false;
-        free(colors);
+        delete[] colors;
         colors = nullptr;
-        free(tiles);
+        delete[] tiles;
         tiles = nullptr;
         for (int i = 0; i < animationCount; i++) {
-            free(animations[i].name);
-            free(animations[i].frames);
+            delete[] animations[i].name;
+            animations[i].name = nullptr;
+            delete[] animations[i].frames;
+            animations[i].frames = nullptr;
         }
-        free(animations);
+        delete[] animations;
         animations = nullptr;
     }
 

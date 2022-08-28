@@ -20,7 +20,7 @@ namespace Engine {
     public:
         Sprite3DManager() {
             tileFreeZoneCount = 1;
-            tileFreeZones = (uint16_t*) malloc(4);
+            tileFreeZones = new uint16_t[2];
             tileFreeZones[0] = 1;
             tileFreeZones[1] = 65535;
         }

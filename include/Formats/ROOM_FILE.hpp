@@ -18,14 +18,8 @@ struct ROOMExit {
     uint8_t exitType = 0; // 0 side, 1 rect
     uint16_t roomId = 0;
     uint16_t spawnX = 0, spawnY = 0;
-    union {
-        struct {
-            uint16_t x = 0, y = 0, w = 0, h = 0;
-        };
-        struct {
-            uint8_t side;  // 0-3, up, down, left, right
-        };
-    };
+    uint16_t x = 0, y = 0, w = 0, h = 0;  // rect
+    uint8_t side = 0;  // side 0-3, up, down, left, right
 };
 
 struct ROOMExits {
