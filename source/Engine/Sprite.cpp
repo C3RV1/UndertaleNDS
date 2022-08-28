@@ -43,7 +43,7 @@ namespace Engine {
         fread(&animationCount, 1, 1, f);
         animations = (CSPRAnimation*) malloc(sizeof(CSPRAnimation) * animationCount);
         for (int i = 0; i < animationCount; i++) {
-            int nameLen = strlen_file(f);
+            int nameLen = strlen_file(f, 0);
             animations[i].name = (char*)malloc(nameLen + 1);
             fread(animations[i].name, nameLen + 1, 1, f);
             fread(&animations[i].frameCount, 1, 1, f);

@@ -102,14 +102,14 @@ int Room::loadRoom(FILE *f) {
     if (!valid)  // no valid room part found
         return 4;
 
-    int bgPathLen = strlen_file(f);
+    int bgPathLen = strlen_file(f, 0);
     if (bgPathLen == -1)
         return 5;
 
     roomData.roomBg = (char*) malloc(bgPathLen + 1);
     fread(roomData.roomBg, bgPathLen + 1, 1, f);
 
-    int musicPathLen = strlen_file(f);
+    int musicPathLen = strlen_file(f, 0);
     if (musicPathLen == -1)
         return 5;
 
@@ -172,7 +172,7 @@ int Room::loadRoom(FILE *f) {
     ROOMSprite* roomSprites = roomData.roomSprites.roomSprites;
 
     for (int i = 0; i < roomData.roomSprites.spriteCount; i++) {
-        int sprPathLen = strlen_file(f);
+        int sprPathLen = strlen_file(f, 0);
         if (sprPathLen == -1)
             return 5;
         roomSprites[i].spritePath = (char*) malloc(sprPathLen + 1);
@@ -180,7 +180,7 @@ int Room::loadRoom(FILE *f) {
         fread(&roomSprites[i].x, 2, 1, f);
         fread(&roomSprites[i].y, 2, 1, f);
         fread(&roomSprites[i].layer, 2, 1, f);
-        int animLen = strlen_file(f);
+        int animLen = strlen_file(f, 0);
         if (animLen == -1)
             return 5;
         roomSprites[i].animation = (char*) malloc(animLen + 1);

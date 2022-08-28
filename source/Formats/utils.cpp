@@ -1,6 +1,6 @@
 #include "utils.hpp"
 
-int strlen_file(FILE *f) {
+int strlen_file(FILE *f, char terminator) {
     if (f == nullptr)
         return -1;
     long pos = ftell(f);
@@ -12,9 +12,9 @@ int strlen_file(FILE *f) {
     do {
         fread(&byte, 1, 1, f);
         count += 1;
-    } while (byte != 0 && ftell(f) != len);
+    } while (byte != terminator && ftell(f) != len);
     fseek(f, pos, SEEK_SET);
-    if (byte != 0) {
+    if (byte != terminator) {
         return -1;
     }
     return count;

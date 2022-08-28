@@ -7,6 +7,6 @@
 
 #include <stdio.h>
 
-int strlen_file(FILE *f);
+int strlen_file(FILE *f, char terminator);
 
 #endif //LAYTON_UTILS_HPP
