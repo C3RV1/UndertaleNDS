@@ -8,7 +8,9 @@ void RoomSprite::load(ROOMSprite *sprData) {
     char buffer[100];
     FILE *f = fopen(sprData->spritePath, "rb");
     if (f) {
+        nocashMessage("precspr");
         int sprLoad = spr.loadCSPR(f);
+        nocashMessage("postcspr");
         if (sprLoad != 0) {
             sprintf(buffer, "Error loading RoomSprite %s: %d",
                     sprData->spritePath, sprLoad);
@@ -33,10 +35,8 @@ void RoomSprite::show() {
     if (sprManager != nullptr)
         return;
     int loadSpriteRes = Engine::main3dSpr.loadSprite(spr, sprManager);
-    char buffer[100];
-    sprintf(buffer, "load res %d", loadSpriteRes);
-    nocashMessage(buffer);
-    sprControl = Engine::main3dSpr.getSpriteControl(sprManager);
+    if (loadSpriteRes == 0)
+        sprControl = Engine::main3dSpr.getSpriteControl(sprManager);
 }
 
 void RoomSprite::hide() {

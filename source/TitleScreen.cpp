@@ -167,6 +167,13 @@ void runTitleScreen() {
 
     REG_BG3VOFS = 0;
     Engine::textSub.clear();
+
+    if (skip) {
+        fclose(textStream);
+        BGM::stopWAV();
+        BGM::globalWAV.free_();
+        return;
+    }
     loadWavResult = BGM::globalWAV.loadWAV("nitro:/z_audio/mus_intronoise.wav");
     sprintf(buffer, "LOAD WAV introsound %d", loadWavResult);
     nocashMessage(buffer);

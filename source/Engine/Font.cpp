@@ -34,7 +34,7 @@ namespace Engine {
 
         fread(&glyphs.lineHeight, 1, 1, f);
         fread(&glyphs.glyphCount, 1, 1, f);
-        glyphs.glyphs = (CFNTGlyph*) malloc(sizeof(CFNTGlyph) * glyphs.glyphCount);
+        glyphs.glyphs = new CFNTGlyph[glyphs.glyphCount];
 
         for (int i = 0; i < glyphs.glyphCount; i++) {
             CFNTGlyph* glyph = &glyphs.glyphs[i];
@@ -43,7 +43,7 @@ namespace Engine {
             fread(&glyph->shift, 1, 1, f);
             fread(&glyph->offset, 1, 1, f);
             uint16_t dataBytes = ((glyph->width * glyph->height + 7) / 8);
-            glyph->glyphData = (uint8_t*) malloc(dataBytes);
+            glyph->glyphData = new uint8_t[dataBytes];
             fread(glyph->glyphData, dataBytes, 1, f);
         }
 
@@ -59,9 +59,11 @@ namespace Engine {
         loaded = false;
 
         for (int glyphIdx = 0; glyphIdx < glyphs.glyphCount; glyphIdx++) {
-            free(glyphs.glyphs[glyphIdx].glyphData);
+            delete[] glyphs.glyphs[glyphIdx].glyphData;
+            glyphs.glyphs[glyphIdx].glyphData = nullptr;
         }
-        free(glyphs.glyphs);
+        delete[] glyphs.glyphs;
+        glyphs.glyphs = nullptr;
     }
 
     void TextBGManager::drawGlyph(Font& font, uint8_t glyph, int &x, int y) {

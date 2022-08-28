@@ -18,9 +18,6 @@ namespace Engine {
 
         const char expectedChar[4] = {'C', 'B', 'G', 'F'};
         if (memcmp(header, expectedChar, 4) != 0) {
-            char buffer[100];
-            sprintf(buffer, "Header %x %x %x %x size %x", header[0], header[1], header[2], header[3], size);
-            nocashMessage(buffer);
             return 1;
         }
 
@@ -43,7 +40,7 @@ namespace Engine {
             return 4;
         }
 
-        colors = (uint16_t*) malloc(2 * colorCount);
+        colors = new uint16_t[colorCount];
         fread(colors, 2, colorCount, f);
 
         fread(&tileCount, 2, 1, f);
@@ -55,13 +52,13 @@ namespace Engine {
         if (color8bit)
             tileDataSize = 64;
 
-        tiles = (uint8_t *) malloc(sizeof(uint8_t*) * tileCount * tileDataSize);
+        tiles = new uint8_t[tileCount * tileDataSize];
         fread(tiles, tileDataSize, tileCount, f);
 
         fread(&width, 1, 1, f);
         fread(&height, 1, 1, f);
 
-        map = (uint16_t*) malloc(2 * width * height);
+        map = new uint16_t[width * height];
         fread(map, 2, width * height, f);
 
         loaded = true;
@@ -72,11 +69,11 @@ namespace Engine {
         if (!loaded)
             return;
         loaded = false;
-        free(colors);
+        delete[] colors;
         colors = nullptr;
-        free(tiles);
+        delete[] tiles;
         tiles = nullptr;
-        free(map);
+        delete[] map;
         map = nullptr;
     }
 }

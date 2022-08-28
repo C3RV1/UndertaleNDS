@@ -110,18 +110,18 @@ int Room::loadRoom(FILE *f) {
     if (bgPathLen == -1)
         return 5;
 
-    roomData.roomBg = (char*) malloc(bgPathLen + 1);
+    roomData.roomBg = new char[bgPathLen + 1];
     fread(roomData.roomBg, bgPathLen + 1, 1, f);
 
     int musicPathLen = strlen_file(f, 0);
     if (musicPathLen == -1)
         return 5;
 
-    roomData.musicBg = (char*) malloc(musicPathLen + 1);
+    roomData.musicBg = new char[musicPathLen + 1];
     fread(roomData.musicBg, musicPathLen + 1, 1, f);
 
     fread(&roomData.roomExits.exitCount, 1, 1, f);
-    roomData.roomExits.roomExits = (ROOMExit*) malloc(sizeof(ROOMExit) * roomData.roomExits.exitCount);
+    roomData.roomExits.roomExits = new ROOMExit[roomData.roomExits.exitCount];
     ROOMExit* roomExits = roomData.roomExits.roomExits;
 
     rectExitCount = 0;
@@ -162,7 +162,7 @@ int Room::loadRoom(FILE *f) {
         }
     }
 
-    rectExits = (ROOMExit**) malloc(sizeof(ROOMExit*) * rectExitCount);
+    rectExits = new ROOMExit*[rectExitCount];
     for (int i = 0, j = 0; i < roomData.roomExits.exitCount; i++) {
         if (roomExits[i].exitType != 1)
             continue;
@@ -170,14 +170,14 @@ int Room::loadRoom(FILE *f) {
     }
 
     fread(&roomData.roomSprites.spriteCount, 1, 1, f);
-    roomData.roomSprites.roomSprites = (ROOMSprite*) malloc(sizeof(ROOMSprite) * roomData.roomSprites.spriteCount);
+    roomData.roomSprites.roomSprites = new ROOMSprite[roomData.roomSprites.spriteCount];
     ROOMSprite* roomSprites = roomData.roomSprites.roomSprites;
 
     for (int i = 0; i < roomData.roomSprites.spriteCount; i++) {
         int sprPathLen = strlen_file(f, 0);
         if (sprPathLen == -1)
             return 5;
-        roomSprites[i].spritePath = (char*) malloc(sprPathLen + 1);
+        roomSprites[i].spritePath = new char[sprPathLen + 1];
         fread(roomSprites[i].spritePath, sprPathLen + 1, 1, f);
         fread(&roomSprites[i].x, 2, 1, f);
         fread(&roomSprites[i].y, 2, 1, f);
@@ -185,7 +185,7 @@ int Room::loadRoom(FILE *f) {
         int animLen = strlen_file(f, 0);
         if (animLen == -1)
             return 5;
-        roomSprites[i].animation = (char*) malloc(animLen + 1);
+        roomSprites[i].animation = new char[animLen + 1];
         fread(roomSprites[i].animation, animLen + 1, 1, f);
         fread(&roomSprites[i].canInteract, 1, 1, f);
         fread(&roomSprites[i].interactAction, 1, 1, f);
@@ -195,7 +195,7 @@ int Room::loadRoom(FILE *f) {
     }
 
     fread(&roomData.roomColliders.colliderCount, 2, 1, f);
-    roomData.roomColliders.roomColliders = (ROOMCollider*) malloc(sizeof(ROOMCollider) * roomData.roomColliders.colliderCount);
+    roomData.roomColliders.roomColliders = new ROOMCollider[roomData.roomColliders.colliderCount];
     ROOMCollider* roomColliders = roomData.roomColliders.roomColliders;
 
     for (int i = 0; i < roomData.roomColliders.colliderCount; i++) {
@@ -213,20 +213,32 @@ int Room::loadRoom(FILE *f) {
 }
 
 void Room::free_() {
-    free(roomData.roomBg);
-    free(roomData.roomExits.roomExits);
+    bg.free_();
+    delete[] roomData.roomBg;
+    roomData.roomBg = nullptr;
+    delete[] roomData.musicBg;
+    roomData.musicBg = nullptr;
+    delete[] roomData.roomExits.roomExits;
+    roomData.roomExits.roomExits = nullptr;
     for (int i = 0; i < roomData.roomSprites.spriteCount; i++) {
         sprites[i].free_();
-        free(roomData.roomSprites.roomSprites[i].spritePath);
-        free(roomData.roomSprites.roomSprites[i].animation);
+        delete[] roomData.roomSprites.roomSprites[i].spritePath;
+        roomData.roomSprites.roomSprites[i].spritePath = nullptr;
+        delete[] roomData.roomSprites.roomSprites[i].animation;
+        roomData.roomSprites.roomSprites[i].animation = nullptr;
     }
-    free(roomData.roomSprites.roomSprites);
-    free(sprites);
+    delete[] roomData.roomSprites.roomSprites;
+    roomData.roomSprites.roomSprites = nullptr;
+    delete[] sprites;
+    sprites = nullptr;
+
+    delete[] roomData.roomColliders.roomColliders;
+    roomData.roomColliders.roomColliders = nullptr;
     bg.free_();
 }
 
 void Room::loadSprites() {
-    sprites = (RoomSprite*) malloc(sizeof(RoomSprite) * roomData.roomSprites.spriteCount);
+    sprites = new RoomSprite[roomData.roomSprites.spriteCount];
     for (int i = 0; i < roomData.roomSprites.spriteCount; i++) {
         sprites[i].load(&roomData.roomSprites.roomSprites[i]);
     }
@@ -250,9 +262,9 @@ void loadNewRoom(Room*& room, Camera& cam, Player& player, int roomId) {
         timer--;
     }
 
-    Room* newRoom = new Room(roomId);
     room->free_();
     delete room;
+    Room* newRoom = new Room(roomId);
     room = newRoom;
 
     cam.updatePosition(*room, player, true);

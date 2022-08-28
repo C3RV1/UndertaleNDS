@@ -9,7 +9,7 @@ namespace Engine {
         if (!sprite.getLoaded())
             return -1;
 
-        auto* sprEntry = (SpriteManager*) malloc(sizeof(SpriteManager));
+        auto* sprEntry = new SpriteManager;
         sprEntry->colorCount = sprite.getColorCount();
         sprEntry->frameCount = sprite.getFrameCount();
         sprEntry->currentFrame = -1;
@@ -28,7 +28,7 @@ namespace Engine {
         }
         if (sprEntry->paletteIdx == 96) {
             // no palette found
-            free(sprEntry);
+            delete sprEntry;
             res = nullptr;
             return -2;
         }
@@ -68,7 +68,7 @@ namespace Engine {
             nocashMessage("alloc change");
             // Remove free zone
             tileFreeZoneCount--;
-            auto* newFreeZones = (uint16_t*) malloc(tileFreeZoneCount * 4);
+            auto* newFreeZones = new uint16_t[tileFreeZoneCount * 2];
             // Copy free zones up to freeZoneIdx
             memcpy(newFreeZones, tileFreeZones, freeZoneIdx * 4);
             // Copy free zones after freeZoneIdx
@@ -76,7 +76,7 @@ namespace Engine {
                    (uint8_t*)tileFreeZones + (freeZoneIdx + 1) * 4,
                    (tileFreeZoneCount - freeZoneIdx) * 4);
             // Free old tileZones and change reference
-            free(tileFreeZones);
+            delete[] tileFreeZones;
             tileFreeZones = newFreeZones;
         }
         else {
@@ -92,25 +92,24 @@ namespace Engine {
         nocashMessage(buffer);
         int loadResult = loadSpriteFrame(sprEntry, 0);
         if (loadResult < 0) {
-            free(sprEntry);
+            delete sprEntry;
             res = nullptr;
             return loadResult - 3;
         }
 
         res = sprEntry;
-        auto** activeSpriteNew = (SpriteManager**) malloc(sizeof(SpriteManager**) * (activeSpriteCount + 1));
+        auto** activeSpriteNew = new SpriteManager*[activeSpriteCount + 1];
         memcpy(activeSpriteNew, activeSprites, sizeof(SpriteManager**) * activeSpriteCount);
         activeSpriteNew[activeSpriteCount] = sprEntry;
-        free(activeSprites);
+        delete[] activeSprites;
         activeSprites = activeSpriteNew;
 
-        auto* sprControl = (SpriteControl*) malloc(sizeof(SpriteControl));
-        memset(sprControl, 0, sizeof(SpriteControl));
+        auto* sprControl = new SpriteControl;
 
-        auto** sprControlsNew = (SpriteControl**) malloc(sizeof(SpriteControl**) * (activeSpriteCount + 1));
+        auto** sprControlsNew = new SpriteControl*[activeSpriteCount + 1];
         memcpy(sprControlsNew, activeSpriteControls, sizeof(SpriteControl**) * activeSpriteCount);
         sprControlsNew[activeSpriteCount] = sprControl;
-        free(activeSpriteControls);
+        delete[] activeSpriteControls;
         activeSpriteControls = sprControlsNew;
 
         activeSpriteCount++;
@@ -157,13 +156,13 @@ namespace Engine {
         if (mergePost && mergePrev)
         {
             tileFreeZoneCount--;
-            auto* newFreeZones = (uint16_t*) malloc(4 * tileFreeZoneCount);
+            auto* newFreeZones = new uint16_t[tileFreeZoneCount * 2];
             memcpy(newFreeZones, tileFreeZones, freeAfterIdx * 4);
             newFreeZones[(freeAfterIdx - 1) * 2 + 1] += length + tileFreeZones[freeAfterIdx * 2 + 1];
             memcpy((uint8_t*)newFreeZones + freeAfterIdx * 4,
                    (uint8_t*)tileFreeZones + (freeAfterIdx + 1) * 4,
                    (tileFreeZoneCount - freeAfterIdx) * 4);
-            free(tileFreeZones);
+            delete[] tileFreeZones;
             tileFreeZones = newFreeZones;
         }
         else if (mergePrev)
@@ -178,38 +177,38 @@ namespace Engine {
         else
         {
             tileFreeZoneCount++;
-            auto* newFreeZones = (uint16_t*) malloc(4 * tileFreeZoneCount);
+            auto* newFreeZones = new uint16_t[2 * tileFreeZoneCount];
             memcpy(newFreeZones, tileFreeZones, freeAfterIdx * 4);
             newFreeZones[freeAfterIdx * 2] = start;
             newFreeZones[freeAfterIdx * 2 + 1] = start;
             memcpy((uint8_t*)newFreeZones + (freeAfterIdx + 1) * 4,
                    tileFreeZones + freeAfterIdx * 4,
                    (tileFreeZoneCount - (freeAfterIdx + 1)) * 4);
-            free(tileFreeZones);
+            delete[] tileFreeZones;
             tileFreeZones = newFreeZones;
         }
 
         SpriteControl* sprControl = activeSpriteControls[sprIdx];
-        free(sprControl);
+        delete sprControl;
         sprControl = nullptr;
 
-        auto** activeSpriteNew = (SpriteManager**) malloc(sizeof(SpriteManager**) * (activeSpriteCount - 1));
+        auto** activeSpriteNew = new SpriteManager*[activeSpriteCount - 1];
         memcpy(activeSpriteNew, activeSprites, sizeof(SpriteManager**) * sprIdx);
         memcpy(&activeSpriteNew[sprIdx], &activeSprites[sprIdx + 1],
                sizeof(SpriteManager**) * (activeSpriteCount - sprIdx - 1));
-        free(activeSprites);
+        delete[] activeSprites;
         activeSprites = activeSpriteNew;
 
-        auto** sprControlsNew = (SpriteControl**) malloc(sizeof(SpriteControl**) * (activeSpriteCount + 1));
+        auto** sprControlsNew = new SpriteControl*[activeSpriteCount - 1];
         memcpy(sprControlsNew, activeSpriteControls, sizeof(SpriteControl**) * sprIdx);
         memcpy(&sprControlsNew[sprIdx], &activeSpriteControls[sprIdx + 1],
                sizeof(SpriteManager**) * (activeSpriteCount - sprIdx - 1));
-        free(activeSpriteControls);
+        delete[] activeSpriteControls;
         activeSpriteControls = sprControlsNew;
 
         activeSpriteCount--;
 
-        free(spr);
+        delete spr;
         spr = nullptr;
     }
 

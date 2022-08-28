@@ -50,7 +50,7 @@ void Player::hidePlayer() {
 
 void Player::update(Room*& room, Camera& cam) {
     int32_t prevX = x, prevY = y;
-    int moveDirection;
+    int moveDirection = 0;
     bool setAnim = true;
     if (keysHeld() & KEY_DOWN) {
         y += MOVE_SPEED;

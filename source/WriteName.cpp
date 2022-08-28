@@ -291,7 +291,7 @@ void writeNameMenu() {
 
     if (saveGlobal.name != nullptr)
         free(saveGlobal.name);
-    saveGlobal.name = (char*) malloc(currentLen + 1);
+    saveGlobal.name = new char[currentLen + 1];
     memset(saveGlobal.name, 0, currentLen + 1);
     memcpy(saveGlobal.name, currentName, currentLen);
     sprintf(buffer, "Selected name: %s", saveGlobal.name);

@@ -26,7 +26,7 @@ namespace Engine {
                 oamRam(oamRam),
                 tileRam(tileRam) {
             tileFreeZoneCount = 1;
-            tileFreeZones = (uint16_t*) malloc(4);
+            tileFreeZones = new uint16_t[2];
             tileFreeZones[0] = 1;
             tileFreeZones[1] = 1023;
             *paletteRam = 31 << 5;  // full green for bg
@@ -45,7 +45,7 @@ namespace Engine {
         u16* tileRam;
 
         uint16_t tileFreeZoneCount;
-        uint16_t* tileFreeZones = nullptr;  // pairs of (starting addr, free tiles)
+        uint16_t* tileFreeZones;  // pairs of (starting addr, free tiles)
 
         uint8_t paletteRefCounts[255] = {0};
         OAMEntry oamEntries[SPRITE_COUNT];

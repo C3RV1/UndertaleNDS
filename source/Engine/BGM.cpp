@@ -16,7 +16,7 @@ namespace BGM {
         free_();
         loop = false;
         FILE *f = fopen(name, "rb");
-        filename = (char*) malloc(strlen(name) + 1);
+        filename = new char[strlen(name) + 1];
         strcpy(filename, name);
         if (!f)
             return 1;
@@ -93,7 +93,7 @@ namespace BGM {
             return;
         if (stream == currentStream)
             stopWAV();
-        free(filename);
+        delete[] filename;
         filename = nullptr;
         fclose(stream);
         stream = nullptr;
