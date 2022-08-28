@@ -6,19 +6,30 @@
 void runTitleScreen() {
     const int fadeInFrames = 30;
     const int holdFrames = 60*5;
-    int fadeOutFrames = 30;
+    int fadeOutFrames = 30;  // replace on last frame to fadeOutLastFrames
     const int height = 350;
     const int holdLastFrames = 60 * 4;
+    const int fadeOutLastFrames = 60 * 4;
     const int scrollFrames = 60 * 7;
     const int introLogoFrames = 300;
-    const char* pressText = "[Press any button]";
+    const int textX = 30;
+    const int textX_alt = 25;
+    const int textX_centered = 256 / 2 - 43;
+    const int textY = 30;
+    const int lineSpacing = 20;
+    const int characterExtraSpacing = 3;
+    const int characterExtraSpacing_intro3 = 2;
+    const int dotFrames = 40;
+    const int otherPunctuationFrames = 40;
+    const int letterFrames = 4;
+    const int pressAButtonX = 40;
+    const int pressAButtonY = 60;
     int timer;
 
     char textBuffer[100];
     FILE* textStream = fopen("nitro:/data/intro.txt", "rb");
     if (textStream == nullptr)
         nocashMessage("Error opening intro text");
-    int letterFrames = 4;
 
     Engine::Background currentBackground;
     char buffer[100];
@@ -91,12 +102,12 @@ void runTitleScreen() {
         }
 
         char* textPointer = textBuffer;
-        int initialX = 30;
+        int initialX = textX;
         if (introIdx == 3 || introIdx == 6)  // Fit to screen
-            initialX = 25;
+            initialX = textX_alt;
         else if (introIdx == 5)  // MT EBOTT. centered
-            initialX = 256 / 2 - 43;
-        int x = initialX, y = 30;
+            initialX = textX_centered;
+        int x = initialX, y = textY;
         Engine::textSub.clear();
         while (timer >= 0 && !skip) {
             Engine::tick();
@@ -105,18 +116,19 @@ void runTitleScreen() {
                 char glyph = *textPointer++;
                 if (glyph == '\n') {
                     x = initialX;
-                    y += 20;
+                    y += lineSpacing;
                 } else {
                     Engine::textSub.drawGlyph(mainFont, glyph, x, y);
-                    x += 3;
                     if (introIdx == 3)  // Fit to screen
-                        x -= 1;
+                        x += characterExtraSpacing_intro3;
+                    else
+                        x += characterExtraSpacing;
                 }
                 textTimer = letterFrames;
                 if (glyph == '.' && introIdx != 5)  // Don't want time on MT. EBOTT
-                    textTimer = 40;
+                    textTimer = dotFrames;
                 else if (glyph == ',' || glyph == ':' || glyph == ';')
-                    textTimer = 20;
+                    textTimer = otherPunctuationFrames;
             }
             timer--;
             if (*textPointer != 0)
@@ -141,7 +153,7 @@ void runTitleScreen() {
         }
 
         if (introIdx == 10)  // Intro last has longer fade out
-            fadeOutFrames *= 5;  // Can change value as it's never used again
+            fadeOutFrames = fadeOutLastFrames;  // Can change value as it's never used again
         timer = fadeOutFrames;
         while (timer >= 0 && !skip) {
             Engine::tick();
@@ -153,7 +165,6 @@ void runTitleScreen() {
         }
     }
 
-    fclose(textStream);
     REG_BG3VOFS = 0;
     Engine::textSub.clear();
     loadWavResult = BGM::globalWAV.loadWAV("nitro:/z_audio/mus_intronoise.wav");
@@ -177,14 +188,17 @@ void runTitleScreen() {
     setBrightness(3, 0);  // set brightness to full bright
 
     timer = introLogoFrames;
+    int textLen = strlen_file(textStream, '@');
+    fread(textBuffer, textLen + 2, 1, textStream);
+    textBuffer[textLen] = '\0';
     while (!skip) {
         Engine::tick();
         skip = keysDown() != 0;
         if (timer > 0) {
             timer--;
             if (timer <= 0) {
-                const char* textPointer = pressText;
-                int x = 20, y = 60;
+                const char* textPointer = textBuffer;
+                int x = pressAButtonX, y = pressAButtonY;
                 while (*textPointer != 0) {
                     Engine::textSub.drawGlyph(mainFont, *textPointer, x, y);
                     textPointer++;
@@ -192,6 +206,7 @@ void runTitleScreen() {
             }
         }
     }
+    fclose(textStream);
     BGM::stopWAV();
     BGM::globalWAV.free_();
 }

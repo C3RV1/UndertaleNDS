@@ -8,13 +8,24 @@
 void writeNameMenu() {
     char buffer[100];
 
+    // letter selection
+    const int startX = 30, startY = 30, spacingX = 30, spacingY = 17;
+
+    const int nameX = 80, nameY = 80;
+    const int line1x = 55, line1y = 40;
+    const int line2x = 50, line2y = 140;
+    const int line3x = 65, line3y = 160;
+
+    const int letterCount = 26 * 2;
+    const int maxLen = 10;
+
+    // Color 12 to yellow
+    Engine::textSub.setPaletteColor256(12, 255, 255, 0, true);
+
     BGM::WAV music;
     int loadMusic = music.loadWAV("nitro:/z_audio/mus_menu0.wav");
     sprintf(buffer, "Load mus_menu0.wav: %d", loadMusic);
     BGM::playWAV(music);
-
-    const int startX = 30, startY = 30, spacingX = 30, spacingY = 17;
-    const int nameX = 80, nameY = 80;
 
     Engine::clearMain();
 
@@ -32,39 +43,67 @@ void writeNameMenu() {
     }
     fclose(f);
 
-    const char* topText = "Name the fallen human.";
-    const char* topText2 = "Press START to confirm.";
-    const char* topText3 = "Press B to delete.";
-    int x = 55, y = 40;
-    Engine::textMain.clear();
-    while (*topText != 0) {
-        Engine::textMain.drawGlyph(mainFont, *topText++, x, y);
-    }
-    x = 50; y = 140;
-    while (*topText2 != 0) {
-        Engine::textMain.drawGlyph(mainFont, *topText2++, x, y);
-    }
-    x = 65; y = 160;
-    while (*topText3 != 0) {
-        Engine::textMain.drawGlyph(mainFont, *topText3++, x, y);
+    FILE* textStream = fopen("nitro:/data/write_name.txt", "rb");
+    if (textStream == nullptr)
+        nocashMessage("Error opening write name text file.");
+    else {
+        char charBuffer;
+
+        Engine::textMain.clear();
+
+        fread(&charBuffer, 1, 1, textStream);
+        int x = line1x, y = line1y;
+        while (charBuffer != '\n') {
+            Engine::textMain.drawGlyph(mainFont, charBuffer, x, y);
+            fread(&charBuffer, 1, 1, textStream);
+        }
+
+        fread(&charBuffer, 1, 1, textStream);
+        x = line2x; y = line2y;
+        while (charBuffer != '\n') {
+            Engine::textMain.drawGlyph(mainFont, charBuffer, x, y);
+            fread(&charBuffer, 1, 1, textStream);
+        }
+
+        fread(&charBuffer, 1, 1, textStream);
+        x = line3x; y = line3y;
+        while (charBuffer != '\n') {
+            Engine::textMain.drawGlyph(mainFont, charBuffer, x, y);
+            fread(&charBuffer, 1, 1, textStream);
+        }
     }
 
-    const char* confirmText = "Is \"";
-    const char* confirmText2 = "\" correct?";
-    const char* confirmText3 = "START to confirm";
-    const char* confirmText4 = "B to go back";
+    char confirmText[100];
+    int len = strlen_file(textStream, '\n');
+    fread(confirmText, len + 1, 1, textStream);
+    confirmText[len] = '\0';
 
-    const int letterCount = 26 * 2;
+    char confirmText2[100];
+    len = strlen_file(textStream, '\n');
+    fread(confirmText2, len + 1, 1, textStream);
+    confirmText2[len] = '\0';
 
-    char currentName[10] = {0};
+    char confirmText3[100];
+    len = strlen_file(textStream, '\n');
+    fread(confirmText3, len + 1, 1, textStream);
+    confirmText3[len] = '\0';
+
+    char confirmText4[100];
+    len = strlen_file(textStream, '\n');
+    fread(confirmText4, len + 1, 1, textStream);
+    confirmText4[len] = '\0';
+
+    fclose(textStream);
+
+    char currentName[maxLen] = {0};
     int currentLen = 0;
-    const int maxLen = 10;
+
+    int x, y;
 
     bool running = true;
     while (running) {
         int currentLetter = 0;
         Engine::textSub.clear();
-        Engine::textSub.setPaletteColor(12, 255, 255, 0, true);
         for (char c = 'A', i = 0; c <= 'Z'; c++, i++) {
             x = i % 7;
             y = i / 7;

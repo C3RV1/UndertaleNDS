@@ -39,7 +39,7 @@ namespace Engine {
             paletteRam[16 * 15 + 15] = (31 << 10) + (31 << 5) + 31;  // full white color
         }
         void drawGlyph(Font& font, uint8_t glyph, int &x, int y);
-        void setPaletteColor(int colorIdx, int r, int g, int b, bool color8bit);
+        void setPaletteColor256(int colorIdx, int r, int g, int b, bool color8bit);
         void setCurrentColor(int colorIdx) { paletteColor = colorIdx; }
         void clear();
     private:
