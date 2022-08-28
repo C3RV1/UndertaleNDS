@@ -14,19 +14,10 @@ void runTitleScreen() {
     const char* pressText = "[Press any button]";
     int timer;
 
-    const char* texts[] = {
-            "Long ago, two races\nruled over Earth:\nHUMANS and MONSTERS.",
-            "One day, war broke\nout between the two\nraces.",
-            "After a long battle,\nthe humans were\nvictorious.",
-            "They sealed the monsters\nunderground with a magic\nspell.",
-            "Many years later...",
-            "MT. EBOTT\n    201X",
-            "Legends say that those\nwho climb the mountain\nnever return.",
-            "",
-            "",
-            "",
-            ""
-    };
+    char textBuffer[100];
+    FILE* textStream = fopen("nitro:/data/intro.txt", "rb");
+    if (textStream == nullptr)
+        nocashMessage("Error opening intro text");
     int letterFrames = 4;
 
     Engine::Background currentBackground;
@@ -90,7 +81,16 @@ void runTitleScreen() {
         }
 
         int textTimer = letterFrames;
-        const char* textPointer = texts[introIdx];
+
+        if (f) {
+            int textLen = strlen_file(textStream, '@');
+            fread(textBuffer, textLen + 2, 1, textStream);  // read @\n characters
+            textBuffer[textLen] = '\0'; // replace @ terminator with 0 byte
+        } else {
+            *textBuffer = 0;  // if file couldn't be opened don't write anything
+        }
+
+        char* textPointer = textBuffer;
         int initialX = 30;
         if (introIdx == 3 || introIdx == 6)  // Fit to screen
             initialX = 25;
@@ -152,6 +152,8 @@ void runTitleScreen() {
             timer--;
         }
     }
+
+    fclose(textStream);
     REG_BG3VOFS = 0;
     Engine::textSub.clear();
     loadWavResult = BGM::globalWAV.loadWAV("nitro:/z_audio/mus_intronoise.wav");
