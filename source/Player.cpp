@@ -17,6 +17,7 @@ Player::Player() {
         nocashMessage("Error opening player sprite");
     }
     fclose(f);
+    spriteManager.loadSprite(playerSpr);
 
     upIdleId = playerSpr.nameToAnimId("upIdle");
     downIdleId = playerSpr.nameToAnimId("downIdle");
@@ -29,72 +30,66 @@ Player::Player() {
 }
 
 void Player::showPlayer() {
-    if (sprManager != nullptr)
-        return;
     char buffer[100];
-    int loadSprite = Engine::main3dSpr.loadSprite(playerSpr, sprManager);
+    int loadSprite = Engine::main3dSpr.loadSprite(spriteManager);
     if (loadSprite != 0) {
         sprintf(buffer, "Error showing player: %d", loadSprite);
         nocashMessage(buffer);
         return;
     }
-    sprControl = Engine::main3dSpr.getSpriteControl(sprManager);
 }
 
 void Player::hidePlayer() {
-    if (sprManager == nullptr)
-        return;
-    Engine::main3dSpr.freeSprite(sprManager);
-    sprControl = nullptr;
+    Engine::main3dSpr.freeSprite(spriteManager);
 }
 
-void Player::update(Room*& room, Camera& cam) {
-    int32_t prevX = x, prevY = y;
+void Player::update() {
+    int32_t prevX = spriteManager.wx, prevY = spriteManager.wy;
     int moveDirection = 0;
     bool setAnim = true;
     if (keysHeld() & KEY_DOWN) {
-        y += MOVE_SPEED;
+        spriteManager.wy += MOVE_SPEED;
         moveDirection = upMoveId;
         if (currentAnimation == upMoveId)
             setAnim = false;
     }
     if (keysHeld() & KEY_UP) {
-        y -= MOVE_SPEED;
+        spriteManager.wy -= MOVE_SPEED;
         moveDirection = downMoveId;
         if (currentAnimation == downMoveId)
             setAnim = false;
     }
     if (keysHeld() & KEY_RIGHT) {
-        x += MOVE_SPEED;
+        spriteManager.wx += MOVE_SPEED;
         moveDirection = rightMoveId;
         if (currentAnimation == rightMoveId)
             setAnim = false;
     }
     if (keysHeld() & KEY_LEFT) {
-        x -= MOVE_SPEED;
+        spriteManager.wx -= MOVE_SPEED;
         moveDirection = leftMoveId;
         if (currentAnimation == leftMoveId)
             setAnim = false;
     }
 
-    if (prevX != x || prevY != y) {
-        check_exits(room, cam);
-        int x2 = x, y2 = y;
-        if (check_collisions(room)) {
-            x = prevX;
-            y = y2;
-            if (check_collisions(room)) {
-                x = x2;
-                y = prevY;
-                if (check_collisions(room)) {
-                    x = prevX;
-                    y = prevY;
+    if (prevX != spriteManager.wx || prevY != spriteManager.wy) {
+        check_exits();
+        int x2 = spriteManager.wx, y2 = spriteManager.wy;
+        if (check_collisions()) {
+            spriteManager.wx = prevX;
+            spriteManager.wy = y2;
+            if (check_collisions()) {
+                spriteManager.wx = x2;
+                spriteManager.wy = prevY;
+                if (check_collisions()) {
+                    spriteManager.wx = prevX;
+                    spriteManager.wy = prevY;
                 }
             }
         }
     }
 
-    if (x == prevX && prevY == y) {
+    if (spriteManager.wx == prevX && prevY == spriteManager.wy) {
         if (currentAnimation == upMoveId)
             currentAnimation = upIdleId;
         else if (currentAnimation == downMoveId)
@@ -108,61 +103,61 @@ void Player::update(Room*& room, Camera& cam) {
             currentAnimation = moveDirection;
         }
     }
-    Engine::main3dSpr.setSpriteAnim(sprManager, currentAnimation);
+    spriteManager.setSpriteAnim(currentAnimation);
 }
 
-void Player::check_exits(Room*& room, Camera& cam) {
+void Player::check_exits() {
     uint8_t width, height;
-    room->bg.getSize(width, height);
-    if (x < 0) {
-        x = 0;
-        if (room->exitLeft != nullptr) {
-            x = room->exitLeft->spawnX << 8;
-            y = room->exitLeft->spawnY << 8;
-            loadNewRoom(room, cam, *this, room->exitLeft->roomId);
+    globalRoom->bg.getSize(width, height);
+    if (spriteManager.wx < 0) {
+        spriteManager.wx = 0;
+        if (globalRoom->exitLeft != nullptr) {
+            spriteManager.wx = globalRoom->exitLeft->spawnX << 8;
+            spriteManager.wy = globalRoom->exitLeft->spawnY << 8;
+            loadNewRoom(globalRoom->exitLeft->roomId);
         }
     }
-    else if ((x >> 8) + 19 > width * 8) {
-        x = (width * 8 - 19) << 8;
-        if (room->exitRight != nullptr) {
-            x = room->exitRight->spawnX << 8;
-            y = room->exitRight->spawnY << 8;
-            loadNewRoom(room, cam, *this, room->exitRight->roomId);
+    else if ((spriteManager.wx >> 8) + 19 > width * 8) {
+        spriteManager.wx = (width * 8 - 19) << 8;
+        if (globalRoom->exitRight != nullptr) {
+            spriteManager.wx = globalRoom->exitRight->spawnX << 8;
+            spriteManager.wy = globalRoom->exitRight->spawnY << 8;
+            loadNewRoom(globalRoom->exitRight->roomId);
         }
     }
-    if (y < 0) {
-        y = 0;
-        if (room->exitTop != nullptr) {
-            x = room->exitTop->spawnX << 8;
-            y = room->exitTop->spawnY << 8;
-            loadNewRoom(room, cam, *this, room->exitTop->roomId);
+    if (spriteManager.wy < 0) {
+        spriteManager.wy = 0;
+        if (globalRoom->exitTop != nullptr) {
+            spriteManager.wx = globalRoom->exitTop->spawnX << 8;
+            spriteManager.wy = globalRoom->exitTop->spawnY << 8;
+            loadNewRoom(globalRoom->exitTop->roomId);
         }
     }
-    else if ((y >> 8) + 29 > height * 8) {
-        y = (height * 8 - 29) << 8;
-        if (room->exitBtm != nullptr) {
-            x = room->exitBtm->spawnX << 8;
-            y = room->exitBtm->spawnY << 8;
-            loadNewRoom(room, cam, *this, room->exitBtm->roomId);
+    else if ((spriteManager.wy >> 8) + 29 > height * 8) {
+        spriteManager.wy = (height * 8 - 29) << 8;
+        if (globalRoom->exitBtm != nullptr) {
+            spriteManager.wx = globalRoom->exitBtm->spawnX << 8;
+            spriteManager.wy = globalRoom->exitBtm->spawnY << 8;
+            loadNewRoom(globalRoom->exitBtm->roomId);
         }
     }
 
-    for (int i = 0; i < room->rectExitCount; i++) {
-        ROOMExit* rectExit = room->rectExits[i];
-        if (collidesRect(x >> 8, (y >> 8) + 20, 19, 9,
+    for (int i = 0; i < globalRoom->rectExitCount; i++) {
+        ROOMExit* rectExit = globalRoom->rectExits[i];
+        if (collidesRect(spriteManager.wx >> 8, (spriteManager.wy >> 8) + 20, 19, 9,
                          rectExit->x, rectExit->y,
                          rectExit->w, rectExit->h)) {
-            x = rectExit->spawnX << 8;
-            y = rectExit->spawnY << 8;
-            loadNewRoom(room, cam, *this, rectExit->roomId);
+            spriteManager.wx = rectExit->spawnX << 8;
+            spriteManager.wy = rectExit->spawnY << 8;
+            loadNewRoom(rectExit->roomId);
         }
     }
 }
 
-bool Player::check_collisions(Room*& room) const {
-    for (int i = 0; i < room->roomData.roomColliders.colliderCount; i++) {
-        ROOMCollider* collider = &room->roomData.roomColliders.roomColliders[i];
-        if (collidesRect(x >> 8, (y >> 8) + 20, 19, 9,
+bool Player::check_collisions() const {
+    for (int i = 0; i < globalRoom->roomData.roomColliders.colliderCount; i++) {
+        ROOMCollider* collider = &globalRoom->roomData.roomColliders.roomColliders[i];
+        if (collidesRect(spriteManager.wx >> 8, (spriteManager.wy >> 8) + 20, 19, 9,
                          collider->x, collider->y,
                          collider->w, collider->h)) {
             if (collider->colliderAction == 0)  // Wall
@@ -172,10 +167,10 @@ bool Player::check_collisions(Room*& room) const {
     return false;
 }
 
-void Player::draw(Camera &cam) {
-    if (sprControl == nullptr)
-        return;
-    sprControl->x = (x - cam.x) >> 8;
-    sprControl->y = (y - cam.y) >> 8;
-    sprControl->layer = 100;
+void Player::draw() {
+    spriteManager.x = spriteManager.wx - globalCamera.x;
+    spriteManager.y = spriteManager.wy - globalCamera.y;
+    spriteManager.layer = 100;
 }
+
+Player* globalPlayer;

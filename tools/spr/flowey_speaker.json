@@ -1,0 +1,114 @@
+{
+  "image": "spr/flowey_speaker.png",
+  "size": [42, 44],
+  "frameCount": 20,
+  "animations": [
+    {
+      "name": "nice1",
+      "frames": [{"frame": 0, "duration": 0}]
+    },
+    {
+      "name": "nice1_talk",
+      "frames": [
+        {"frame": 0, "duration": 30},
+        {"frame": 1, "duration": 30}
+      ]
+    },
+    {
+      "name": "nice2",
+      "frames": [{"frame": 2, "duration": 0}]
+    },
+    {
+      "name": "nice2_talk",
+      "frames": [
+        {"frame": 2, "duration": 30},
+        {"frame": 3, "duration": 30}
+      ]
+    },
+    {
+      "name": "nice3",
+      "frames": [{"frame": 4, "duration": 0}]
+    },
+    {
+      "name": "nice3_talk",
+      "frames": [
+        {"frame": 4, "duration": 30},
+        {"frame": 5, "duration": 30}
+      ]
+    },
+    {
+      "name": "sassy",
+      "frames": [{"frame": 7, "duration": 0}]
+    },
+    {
+      "name": "sassy_talk",
+      "frames": [
+        {"frame": 7, "duration": 30},
+        {"frame": 8, "duration": 30}
+      ]
+    },
+    {
+      "name": "plain",
+      "frames": [{"frame": 9, "duration": 0}]
+    },
+    {
+      "name": "plain_talk",
+      "frames": [
+        {"frame": 9, "duration": 30},
+        {"frame": 10, "duration": 30}
+      ]
+    },
+    {
+      "name": "annoyed",
+      "frames": [{"frame": 11, "duration": 0}]
+    },
+    {
+      "name": "annoyed_talk",
+      "frames": [
+        {"frame": 11, "duration": 30},
+        {"frame": 12, "duration": 30}
+      ]
+    },
+    {
+      "name": "evil",
+      "frames": [{"frame": 13, "duration": 0}]
+    },
+    {
+      "name": "evil_talk",
+      "frames": [
+        {"frame": 13, "duration": 30},
+        {"frame": 14, "duration": 30}
+      ]
+    },
+    {
+      "name": "grin",
+      "frames": [{"frame": 18, "duration": 0}]
+    },
+    {
+      "name": "grin_talk",
+      "frames": [
+        {"frame": 18, "duration": 30},
+        {"frame": 19, "duration": 30}
+      ]
+    },
+    {
+      "name": "skull_laugh",
+      "frames": [
+        {"frame": 15, "duration": 20},
+        {"frame": 16, "duration": 20}
+      ]
+    },
+    {
+      "name": "wink",
+      "frames": [
+        {"frame": 6, "duration": 0}
+      ]
+    },
+    {
+      "name": "hurt",
+      "frames": [
+        {"frame": 17, "duration": 0}
+      ]
+    }
+  ]
+}

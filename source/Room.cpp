@@ -248,13 +248,13 @@ bool Room::evaluateCondition(FILE *f) {
     return true;
 }
 
-void Room::draw(Camera &cam) const {
+void Room::draw() const {
     for (int i = 0; i < roomData.roomSprites.spriteCount; i++) {
-        sprites[i].draw(cam);
+        sprites[i].draw();
     }
 }
 
-void loadNewRoom(Room*& room, Camera& cam, Player& player, int roomId) {
+void loadNewRoom(int roomId) {
     int timer = ROOM_CHANGE_FADE_FRAMES;
     while (timer >= 0) {
         Engine::tick();
@@ -262,14 +262,13 @@ void loadNewRoom(Room*& room, Camera& cam, Player& player, int roomId) {
         timer--;
     }
 
-    room->free_();
-    delete room;
-    Room* newRoom = new Room(roomId);
-    room = newRoom;
+    globalRoom->free_();
+    delete globalRoom;
+    globalRoom = new Room(roomId);
 
-    cam.updatePosition(*room, player, true);
-    player.draw(cam);
-    room->draw(cam);
+    globalCamera.updatePosition(true);
+    globalPlayer->draw();
+    globalRoom->draw();
 
     timer = ROOM_CHANGE_FADE_FRAMES;
     while (timer >= 0) {
@@ -278,3 +277,5 @@ void loadNewRoom(Room*& room, Camera& cam, Player& player, int roomId) {
         timer--;
     }
 }
+
+Room* globalRoom = nullptr;

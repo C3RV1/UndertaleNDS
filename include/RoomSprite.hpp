@@ -17,13 +17,12 @@ public:
     void load(ROOMSprite* sprData);
     void show();
     void hide();
-    void draw(Camera& cam);
+    void draw();
     void free_();
+    Engine::SpriteManager spriteManager;
 private:
     int32_t x, y; // 23 bit integer, 8 bit fraction
     Engine::Sprite spr;
-    Engine::SpriteManager* sprManager;
-    Engine::SpriteControl* sprControl;
     int animationId;
 };
 

@@ -32,14 +32,17 @@ namespace Engine {
             *paletteRam = 31 << 5;  // full green for bg
         };
 
-        int loadSprite(Sprite& sprite, SpriteManager*& res);
-        void freeSprite(SpriteManager*& spr);
-        void setSpritePos(SpriteManager* spr, int x, int y);
-        int loadSpriteFrame(SpriteManager* spr, int frame);
+        int loadSprite(SpriteManager& res);
+        void freeSprite(SpriteManager& spr);
 
         int reserveOAMEntry(uint8_t tileW, uint8_t tileH);
         void freeOAMEntry(int oamId);
+
+        void draw();
     private:
+        void setSpritePos(SpriteManager& spr, int x, int y);
+        int loadSpriteFrame(SpriteManager& spr, int frame);
+
         u16* paletteRam;
         u16* oamRam;
         u16* tileRam;
@@ -47,11 +50,14 @@ namespace Engine {
         uint16_t tileFreeZoneCount;
         uint16_t* tileFreeZones;  // pairs of (starting addr, free tiles)
 
+        uint8_t activeSpriteCount = 0;
+        SpriteManager** activeSprites = nullptr;
+
         uint8_t paletteRefCounts[255] = {0};
         OAMEntry oamEntries[SPRITE_COUNT];
     };
 
-    extern OAMManager OAMSub;
+    extern OAMManager OAMManagerSub;
 }
 
 #endif //LAYTON_OAMMANAGER_HPP

@@ -59,6 +59,7 @@ namespace Engine {
             BGM::stopWAV();
         }
         main3dSpr.draw();
+        OAMManagerSub.draw();
         glFlush(0);
         swiWaitForVBlank();
         mmStreamUpdate();

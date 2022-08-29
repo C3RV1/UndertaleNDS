@@ -13,9 +13,11 @@ class Camera;
 
 class Camera {
 public:
-    void updatePosition(Room& room, Player& player, bool roomChange);
+    void updatePosition(bool roomChange);
     // top left camera position
     int32_t x = 0, y = 0;  // 23 bit integer part, 8 bit fractional part
 };
+
+extern Camera globalCamera;
 
 #endif //LAYTON_CAMERA_HPP
