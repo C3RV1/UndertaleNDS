@@ -24,17 +24,15 @@ public:
     Player();
     void showPlayer();
     void hidePlayer();
-    void update(Room*& room, Camera& cam);
-    bool check_collisions(Room*& room) const;
-    void check_exits(Room*& room, Camera& cam);
-    void draw(Camera &cam);
+    void update();
+    bool check_collisions() const;
+    void check_exits();
+    void draw();
 
     // sprite top left position
-    int32_t x = 0, y = 0;  // 23 bit integer part, 8 bit fractional part
+    Engine::SpriteManager spriteManager;
 private:
     Engine::Sprite playerSpr;
-    Engine::SpriteManager* sprManager = nullptr;
-    Engine::SpriteControl* sprControl = nullptr;
 
     uint8_t currentAnimation = 0;  // 0-3 idle up, down, left, right, 4-7 move same
 
@@ -48,5 +46,7 @@ private:
     int leftMoveId;
     int rightMoveId;
 };
+
+extern Player* globalPlayer;
 
 #endif //LAYTON_PLAYER_HPP

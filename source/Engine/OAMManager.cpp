@@ -1,24 +1,16 @@
 #include "Engine/OAMManager.hpp"
 
 namespace Engine {
-    int OAMManager::loadSprite(Engine::Sprite &sprite, SpriteManager*& res) {
-        if (!sprite.getLoaded())
+    int OAMManager::loadSprite(SpriteManager& res) {
+        if (!res.loaded)
             return -1;
+        if (res.memory.allocated != NoAlloc)
+            return -2;
 
-        auto* sprEntry = new SpriteManager;
+        res.memory.paletteColors = new uint8_t[res.sprite->getColorCount()];
+        uint16_t* colors = res.sprite->getColors();
 
-        sprEntry->colorCount = sprite.getColorCount();
-        sprEntry->frameCount = sprite.getFrameCount();
-        sprEntry->currentFrame = -1;
-        sprite.getSizeTiles(sprEntry->tileWidth, sprEntry->tileHeight);
-        sprEntry->tileData = sprite.getTiles();
-        sprEntry->animCount = sprite.getAnimCount();
-        sprEntry->animations = sprite.getAnims();
-
-        sprEntry->paletteColors = new uint8_t[sprEntry->colorCount];
-        uint16_t* colors = sprite.getColors();
-
-        for (int i = 0; i < sprEntry->colorCount; i++) {
+        for (int i = 0; i < res.sprite->getColorCount(); i++) {
             int result = -1;
             bool foundColor = false;
 
@@ -33,7 +25,7 @@ namespace Engine {
                 }
             }
 
-            sprEntry->paletteColors[i] = result + 1;
+            res.memory.paletteColors[i] = result + 1;
             paletteRefCounts[result]++;
 
             if (!foundColor) {
@@ -42,18 +34,20 @@ namespace Engine {
         }
 
         // Reserve oam tiles
-        uint8_t oamW = (sprEntry->tileWidth + 7) / 8;
-        uint8_t oamH = (sprEntry->tileHeight + 7) / 8;
-        sprEntry->oamEntryCount = oamW * oamH;
-        sprEntry->oamEntries = new uint8_t[sprEntry->oamEntryCount];
+        uint8_t tileWidth, tileHeight;
+        res.sprite->getSizeTiles(tileWidth, tileHeight);
+        uint8_t oamW = (tileWidth + 7) / 8;
+        uint8_t oamH = (tileHeight + 7) / 8;
+        res.memory.oamEntryCount = oamW * oamH;
+        res.memory.oamEntries = new uint8_t[res.memory.oamEntryCount];
 
         for (int oamY = 0; oamY < oamH; oamY++) {
             for (int oamX = 0; oamX < oamW; oamX++) {
                 uint8_t reserveX = 8, reserveY = 8;
                 if (oamX == oamW - 1)
-                    reserveX = sprEntry->tileWidth - (oamW - 1) * 8;
+                    reserveX = tileWidth - (oamW - 1) * 8;
                 if (oamY == oamH - 1)
-                    reserveY = sprEntry->tileHeight - (oamH - 1) * 8;
+                    reserveY = tileHeight - (oamH - 1) * 8;
                 if (reserveX > 4)
                     reserveX = 8;
                 else if (reserveX > 2)
@@ -73,42 +67,55 @@ namespace Engine {
                 int oamId = reserveOAMEntry(reserveX, reserveY);
                 if (oamId < 0)
                 {
-                    delete sprEntry;
-                    res = nullptr;
-                    return oamId - 1;
+                    delete res.memory.oamEntries;
+                    res.memory.oamEntries = nullptr;
+                    delete res.memory.paletteColors;
+                    res.memory.paletteColors = nullptr;
+                    return oamId - 2;
                 }
-                sprEntry->oamEntries[oamY * oamW + oamX] = oamId;
+                res.memory.oamEntries[oamY * oamW + oamX] = oamId;
             }
         }
 
-        int loadResult = loadSpriteFrame(sprEntry, 0);
+        int loadResult = loadSpriteFrame(res, 0);
         if (loadResult < 0) {
-            delete sprEntry;
-            res = nullptr;
-            return loadResult - 3;
+            delete res.memory.oamEntries;
+            res.memory.oamEntries = nullptr;
+            delete res.memory.paletteColors;
+            res.memory.paletteColors = nullptr;
+            return loadResult - 4;
         }
 
-        res = sprEntry;
+        auto** activeSpriteNew = new SpriteManager*[activeSpriteCount + 1];
+        memcpy(activeSpriteNew, activeSprites, sizeof(SpriteManager**) * activeSpriteCount);
+        activeSpriteNew[activeSpriteCount] = &res;
+        delete[] activeSprites;
+        activeSprites = activeSpriteNew;
+
+        activeSpriteCount++;
+
+        res.memory.allocated = AllocatedOAM;
+        res.memory.loadedFrame = -1;
         return 0;
     }
 
-    int OAMManager::loadSpriteFrame(Engine::SpriteManager *spr, int frame) {
-        if (spr == nullptr)
+    int OAMManager::loadSpriteFrame(Engine::SpriteManager &spr, int frame) {
+        if (spr.memory.loadedFrame == frame)
             return -1;
-        if (spr->currentFrame == frame)
+        if (frame >= spr.sprite->getFrameCount() || frame < 0)
             return -2;
-        if (frame >= spr->frameCount || frame < 0)
-            return -3;
-        spr->currentFrame = frame;
-        uint8_t oamW = (spr->tileWidth + 7) / 8;
-        uint8_t oamH = (spr->tileHeight + 7) / 8;
+        spr.memory.loadedFrame = frame;
+        uint8_t tileWidth, tileHeight;
+        spr.sprite->getSizeTiles(tileWidth, tileHeight);
+        uint8_t oamW = (tileWidth + 7) / 8;
+        uint8_t oamH = (tileHeight + 7) / 8;
 
         auto* tmpRam = new uint8_t[64*64];
 
         // Copy tile into memory (replacing colors)
         for (int oamY = 0; oamY < oamH; oamY++) {
             for (int oamX = 0; oamX < oamW; oamX++) {
-                int oamId = spr->oamEntries[oamY * oamW + oamX];
+                int oamId = spr.memory.oamEntries[oamY * oamW + oamX];
                 auto* oamStart = (uint16_t*) ((uint8_t*) oamRam + oamId * 8);
                 oamStart[0] += 64 * oamY;
                 oamStart[1] += 64 * oamX;
@@ -120,27 +127,27 @@ namespace Engine {
 
                 uint8_t tilesX = 8, tilesY = 8;
                 if (oamX == oamW - 1)
-                    tilesX = spr->tileWidth - (oamW - 1) * 8;
+                    tilesX = tileWidth - (oamW - 1) * 8;
                 if (oamY == oamH - 1)
-                    tilesY = spr->tileHeight - (oamH - 1) * 8;
+                    tilesY = tileHeight - (oamH - 1) * 8;
 
                 for (int tileY = 0; tileY < tilesY; tileY++) {
                     for (int tileX = 0; tileX < tilesX; tileX++) {
-                        uint16_t framePos = frame * spr->tileWidth * spr->tileHeight;
+                        uint16_t framePos = frame * tileWidth * tileHeight;
                         uint16_t tileXPos = oamX * 8 + tileX;
                         uint16_t tileYPos = oamY * 8 + tileY;
-                        uint32_t tileOffset = framePos + tileYPos * spr->tileWidth + tileXPos;
+                        uint32_t tileOffset = framePos + tileYPos * tileWidth + tileXPos;
                         tileOffset = tileOffset * 8 * 8;
                         for (int pixelY = 0; pixelY < 8; pixelY++) {
                             for (int pixelX = 0; pixelX < 8; pixelX++) {
                                 uint32_t resultOffset = (tileY * oamEntry->tileWidth + tileX) * 8 * 8 + pixelY * 8 + pixelX;
                                 uint32_t tilesOffset = tileOffset + pixelY * 8 + pixelX;
-                                uint8_t pixel = spr->tileData[tilesOffset];
+                                uint8_t pixel = spr.sprite->getTiles()[tilesOffset];
                                 if (pixel == 0) {
                                     tmpRam[resultOffset] = 0;
                                     continue;
                                 }
-                                tmpRam[resultOffset] = spr->paletteColors[pixel - 1];
+                                tmpRam[resultOffset] = spr.memory.paletteColors[pixel - 1];
                             }
                         }
                     }
@@ -333,37 +340,77 @@ namespace Engine {
         }
     }
 
-    void OAMManager::freeSprite(SpriteManager*& spr) {
-        if (spr == nullptr)
+    void OAMManager::freeSprite(SpriteManager& spr) {
+        if (spr.memory.allocated != AllocatedOAM)
+            return;
+        int sprIdx = -1;
+        for (int i = 0; i < activeSpriteCount; i++) {
+            if (&spr == activeSprites[i]) {
+                sprIdx = i;
+                break;
+            }
+        }
+        if (sprIdx == -1)
             return;
 
-        for (int colorIdx = 0; colorIdx < spr->colorCount; colorIdx++) {
-            uint8_t paletteColor = spr->paletteColors[colorIdx];
+        for (int colorIdx = 0; colorIdx < spr.sprite->getColorCount(); colorIdx++) {
+            uint8_t paletteColor = spr.memory.paletteColors[colorIdx];
             paletteRefCounts[paletteColor]--;
         }
-        delete[] spr->paletteColors;
-        spr->paletteColors = nullptr;
+        delete[] spr.memory.paletteColors;
+        spr.memory.paletteColors = nullptr;
 
-        for (int oamIdx = 0; oamIdx < spr->oamEntryCount; oamIdx++) {
-            uint8_t oamId = spr->oamEntries[oamIdx];
+        for (int oamIdx = 0; oamIdx < spr.memory.oamEntryCount; oamIdx++) {
+            uint8_t oamId = spr.memory.oamEntries[oamIdx];
             freeOAMEntry(oamId);
         }
-        delete[] spr->oamEntries;
-        spr->oamEntries = nullptr;
+        delete[] spr.memory.oamEntries;
+        spr.memory.oamEntries = nullptr;
 
-        delete spr;
-        spr = nullptr;
+        auto** activeSpriteNew = new SpriteManager*[activeSpriteCount - 1];
+        memcpy(activeSpriteNew, activeSprites, sizeof(SpriteManager**) * sprIdx);
+        memcpy(&activeSpriteNew[sprIdx], &activeSprites[sprIdx + 1],
+               sizeof(SpriteManager**) * (activeSpriteCount - sprIdx - 1));
+        delete[] activeSprites;
+        activeSprites = activeSpriteNew;
+
+        activeSpriteCount--;
+
+        spr.memory.allocated = NoAlloc;
     }
 
-    void OAMManager::setSpritePos(Engine::SpriteManager *spr, int x, int y) {
-        if (spr == nullptr)
-            return;
+    void OAMManager::draw() {
+        for (int i = 0; i < activeSpriteCount; i++) {
+            SpriteManager* spr = activeSprites[i];
 
-        uint8_t oamW = (spr->tileWidth + 7) / 8;
-        uint8_t oamH = (spr->tileHeight + 7) / 8;
+            if (spr->currentAnimation > 0) {
+                CSPRAnimation* current = &spr->sprite->getAnims()[spr->currentAnimation];
+                if (current->frames[spr->currentAnimationFrame].duration != 0) {
+                    spr->currentAnimationTimer--;
+                    if (spr->currentAnimationTimer == 0) {
+                        spr->currentAnimationFrame++;
+                        spr->currentAnimationFrame %= current->frameCount;
+                        spr->currentFrame = current->frames[spr->currentAnimationFrame].frame;
+                        spr->currentAnimationTimer = current->frames[spr->currentAnimationFrame].duration;
+                    }
+                }
+            }
+
+            if (spr->currentFrame != spr->memory.loadedFrame)
+                loadSpriteFrame(*spr, spr->currentFrame);
+
+            setSpritePos(*spr, spr->x >> 8, spr->y >> 8);
+        }
+    }
+
+    void OAMManager::setSpritePos(Engine::SpriteManager &spr, int x, int y) {
+        uint8_t tileWidth, tileHeight;
+        spr.sprite->getSizeTiles(tileWidth, tileHeight);
+        uint8_t oamW = (tileWidth + 7) / 8;
+        uint8_t oamH = (tileHeight + 7) / 8;
         for (int oamY = 0; oamY < oamH; oamY++) {
             for (int oamX = 0; oamX < oamW; oamX++) {
-                int oamId = spr->oamEntries[oamY * oamW + oamX];
+                int oamId = spr.memory.oamEntries[oamY * oamW + oamX];
                 auto* oamStart = (uint16_t*) ((uint8_t*) oamRam + oamId * 8);
                 oamStart[0] &= ~0xFF;
                 oamStart[0] |= y + oamY * 64;
@@ -374,5 +421,5 @@ namespace Engine {
         }
     }
 
-    OAMManager OAMSub(SPRITE_PALETTE_SUB, SPRITE_GFX_SUB, OAM_SUB);
+    OAMManager OAMManagerSub(SPRITE_PALETTE_SUB, SPRITE_GFX_SUB, OAM_SUB);
 }

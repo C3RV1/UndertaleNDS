@@ -10,6 +10,7 @@
 #include "BGM.hpp"
 #include "math.hpp"
 #include "Sprite3DManager.hpp"
+#include "OAMManager.hpp"
 #include <maxmod9.h>
 
 namespace Engine {

@@ -11,11 +11,6 @@
 #include <nds.h>
 
 namespace Engine {
-    struct SpriteControl {
-        int x = 0, y = 0;
-        int layer = 0;
-    };
-
     class Sprite3DManager {
     public:
         Sprite3DManager() {
@@ -25,14 +20,13 @@ namespace Engine {
             tileFreeZones[1] = 65535;
         }
 
-        int loadSprite(Sprite& sprite, SpriteManager*& res);
-        void freeSprite(SpriteManager*& spr);
-        int loadSpriteFrame(SpriteManager* spr, int frame);
-        void setSpriteAnim(SpriteManager* spr, int animId);
-        SpriteControl* getSpriteControl(SpriteManager* manager);
+        int loadSprite(SpriteManager& res);
+        void freeSprite(SpriteManager& spr);
 
         void draw();
     private:
+        int loadSpriteFrame(SpriteManager& spr, int frame);
+
         uint16_t tileFreeZoneCount;
         uint16_t* tileFreeZones = nullptr;
 
@@ -40,7 +34,6 @@ namespace Engine {
 
         uint8_t activeSpriteCount = 0;
         SpriteManager** activeSprites = nullptr;
-        SpriteControl** activeSpriteControls = nullptr;
     };
 
     extern Sprite3DManager main3dSpr;

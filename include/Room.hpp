@@ -23,7 +23,7 @@ public:
     int loadRoom(FILE *f);
     bool evaluateCondition(FILE *f);
     void loadSprites();
-    void draw(Camera &cam) const;
+    void draw() const;
     void free_();
 
     uint16_t roomId;
@@ -40,6 +40,8 @@ public:
 };
 
 const int ROOM_CHANGE_FADE_FRAMES = 20;
-void loadNewRoom(Room*& room, Camera& cam, Player& player, int roomId);
+void loadNewRoom(int roomId);
+
+extern Room* globalRoom;
 
 #endif //LAYTON_ROOM_HPP

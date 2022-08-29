@@ -38,22 +38,21 @@ int main() {
     Engine::textMain.clear();
     Engine::textSub.clear();
 
-    Player player;
-    player.showPlayer();
-    player.x = 144 << 8;
-    player.y = 121 << 8;
-    Room* currentRoom = new Room(0);
-    Camera cam;
-    cam.updatePosition(*currentRoom, player, true);
+    globalPlayer = new Player();
+    globalPlayer->showPlayer();
+    globalPlayer->spriteManager.wx = 144 << 8;
+    globalPlayer->spriteManager.wy = 121 << 8;
+    globalRoom = new Room(0);
+    globalCamera.updatePosition(true);
 
     for (;;) {
         Engine::tick();
         if (keysDown() & KEY_START)
             break;
-        player.update(currentRoom, cam);
-        cam.updatePosition(*currentRoom, player, false);
-        player.draw(cam);
-        currentRoom->draw(cam);
+        globalPlayer->update();
+        globalCamera.updatePosition(false);
+        globalPlayer->draw();
+        globalRoom->draw();
     }
 
     return 0;

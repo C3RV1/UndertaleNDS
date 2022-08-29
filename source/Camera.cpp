@@ -4,13 +4,13 @@
 
 #include "Camera.hpp"
 
-void Camera::updatePosition(Room &room, Player &player, bool roomChange) {
+void Camera::updatePosition(bool roomChange) {
     int xTilePrev = (x >> 8) / 8, yTilePrev = (y >> 8) / 8;
     int prevX = x, prevY = y;
-    x = player.x - ((256 / 2 - 9) << 8);
-    y = player.y - ((192 / 2 - 14) << 8);
+    x = globalPlayer->spriteManager.wx - ((256 / 2 - 9) << 8);
+    y = globalPlayer->spriteManager.wy - ((192 / 2 - 14) << 8);
     uint8_t roomW, roomH;
-    room.bg.getSize(roomW, roomH);
+    globalRoom->bg.getSize(roomW, roomH);
     if ((x >> 8) + 256 > roomW * 8) {
         x = (roomW * 8 - 256) << 8;
     }
@@ -33,11 +33,13 @@ void Camera::updatePosition(Room &room, Player &player, bool roomChange) {
     }
     int xTilePost = (x >> 8) / 8, yTilePost = (y >> 8) / 8;
     if ((xTilePrev != xTilePost || yTilePrev != yTilePost) && !roomChange) {
-        Engine::loadBgRectMain(room.bg, xTilePost + 32, yTilePost, 1, 26);
-        Engine::loadBgRectMain(room.bg, xTilePost - 1, yTilePost, 1, 26);
-        Engine::loadBgRectMain(room.bg, xTilePost, yTilePost + 24, 34, 1);
-        Engine::loadBgRectMain(room.bg, xTilePost, yTilePost - 1, 34, 1);
+        Engine::loadBgRectMain(globalRoom->bg, xTilePost + 32, yTilePost, 1, 26);
+        Engine::loadBgRectMain(globalRoom->bg, xTilePost - 1, yTilePost, 1, 26);
+        Engine::loadBgRectMain(globalRoom->bg, xTilePost, yTilePost + 24, 34, 1);
+        Engine::loadBgRectMain(globalRoom->bg, xTilePost, yTilePost - 1, 34, 1);
     } else if (roomChange) {
-        Engine::loadBgRectMain(room.bg, xTilePost - 1, yTilePost - 1, 34, 26);
+        Engine::loadBgRectMain(globalRoom->bg, xTilePost - 1, yTilePost - 1, 34, 26);
     }
 }
+
+Camera globalCamera;

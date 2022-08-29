@@ -23,36 +23,32 @@ void RoomSprite::load(ROOMSprite *sprData) {
     fclose(f);
 
     animationId = spr.nameToAnimId(sprData->animation);
-    sprManager = nullptr;
-    sprControl = nullptr;
-    x = sprData->x << 8;
-    y = sprData->y << 8;
+    spriteManager.loadSprite(spr);
+    spriteManager.wx = sprData->x << 8;
+    spriteManager.wy = sprData->y << 8;
+    spriteManager.setSpriteAnim(animationId);
 
     show();
 }
 
 void RoomSprite::show() {
-    if (sprManager != nullptr)
+    char buffer[100];
+    int loadSprite = Engine::main3dSpr.loadSprite(spriteManager);
+    if (loadSprite != 0) {
+        sprintf(buffer, "Error showing room sprite: %d", loadSprite);
+        nocashMessage(buffer);
         return;
-    int loadSpriteRes = Engine::main3dSpr.loadSprite(spr, sprManager);
-    if (loadSpriteRes == 0)
-        sprControl = Engine::main3dSpr.getSpriteControl(sprManager);
+    }
 }
 
 void RoomSprite::hide() {
-    if (sprManager == nullptr)
-        return;
-    Engine::main3dSpr.freeSprite(sprManager);
-    sprControl = nullptr;
+    Engine::main3dSpr.freeSprite(spriteManager);
 }
 
-void RoomSprite::draw(Camera &cam) {
-    if (sprControl == nullptr)
-        return;
-    sprControl->x = (x - cam.x) >> 8;
-    sprControl->y = (y - cam.y) >> 8;
-    sprControl->layer = 1;
-    Engine::main3dSpr.setSpriteAnim(sprManager, animationId);
+void RoomSprite::draw() {
+    spriteManager.x = spriteManager.wx - globalCamera.x;
+    spriteManager.y = spriteManager.wy - globalCamera.y;
+    spriteManager.layer = 1;
 }
 
 void RoomSprite::free_() {
