@@ -50,6 +50,16 @@ int main() {
         if (keysDown() & KEY_START)
             break;
         globalPlayer->update();
+        globalRoom->update();
+        if (globalCutscene != nullptr) {
+            globalCutscene->update(ROOM);
+            if (globalCutscene->runCommands(ROOM)) {
+                delete globalCutscene;
+                globalCutscene = nullptr;
+                globalPlayer->playerControl = true;
+                globalCamera.manual = false;
+            }
+        }
         globalCamera.updatePosition(false);
         globalPlayer->draw();
         globalRoom->draw();

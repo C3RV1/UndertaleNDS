@@ -44,6 +44,8 @@ void Player::hidePlayer() {
 }
 
 void Player::update() {
+    if (!playerControl)
+        return;
     int32_t prevX = spriteManager.wx, prevY = spriteManager.wy;
     int moveDirection = 0;
     bool setAnim = true;
@@ -162,14 +164,19 @@ bool Player::check_collisions() const {
                          collider->w, collider->h)) {
             if (collider->colliderAction == 0)  // Wall
                 return true;
+            if (collider->colliderAction == 1 && globalCutscene == nullptr) {  // Trigger
+                globalCutscene = new Cutscene(collider->cutsceneId);
+            }
         }
     }
     return false;
 }
 
 void Player::draw() {
-    spriteManager.x = spriteManager.wx - globalCamera.x;
-    spriteManager.y = spriteManager.wy - globalCamera.y;
+    spriteManager.cam_x = globalCamera.pos.wx;
+    spriteManager.cam_y = globalCamera.pos.wy;
+    spriteManager.cam_scale_x = globalCamera.pos.wscale_x;
+    spriteManager.cam_scale_y = globalCamera.pos.wscale_y;
     spriteManager.layer = 100;
 }
 

@@ -32,7 +32,16 @@
           "can_interact": false
         }
       ],
-      "colliders": []
+      "colliders": [
+        {
+          "x": 0,
+          "y": 288,
+          "w": 318,
+          "h": 16,
+          "collider_action": "trigger",
+          "cutscene_id": 1
+        }
+      ]
     }
   ]
 }

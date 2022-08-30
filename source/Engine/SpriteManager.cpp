@@ -27,6 +27,15 @@ namespace Engine {
     }
 
     void SpriteManager::tick() {
+        x = wx - cam_x;
+        y = wy - cam_y;
+        x *= cam_scale_x;
+        x >>= 8;
+        y *= cam_scale_y;
+        y >>= 8;
+        scale_x = (cam_scale_x * wscale_x) >> 8;
+        scale_y = (cam_scale_y * wscale_y) >> 8;
+
         if (currentAnimation > 0) {
             CSPRAnimation* current = &sprite->getAnims()[currentAnimation];
             if (current->frames[currentAnimationFrame].duration != 0) {

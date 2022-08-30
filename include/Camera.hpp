@@ -14,8 +14,10 @@ class Camera;
 class Camera {
 public:
     void updatePosition(bool roomChange);
+    bool manual = false;
+    int prevX = 0, prevY = 0;
     // top left camera position
-    int32_t x = 0, y = 0;  // 23 bit integer part, 8 bit fractional part
+    Engine::SpriteManager pos;
 };
 
 extern Camera globalCamera;

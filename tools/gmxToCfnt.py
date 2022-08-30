@@ -1,3 +1,5 @@
+import pathlib
+
 import numpy as np
 from PIL import Image
 import sys
@@ -6,15 +8,10 @@ import binary
 from xml.etree import ElementTree as ET
 
 
-def main():
-    if len(sys.argv) != 2:
-        return
-    fp = sys.argv[1]
-    out = os.path.splitext(fp)[0] + ".cfnt"
-
+def convert(input_path, output_path):
     glyph_map = np.array([0] * 256, dtype=np.uint8)
 
-    et = ET.parse(fp)
+    et = ET.parse(input_path)
     root = et.getroot()
     image_fp = None
     glyphs = None
@@ -22,11 +19,11 @@ def main():
         if child.tag == "glyphs":
             glyphs = child
         if child.tag == "image":
-            image_fp = os.path.join(os.path.dirname(fp), child.text)
+            image_fp = os.path.join(os.path.dirname(input_path), child.text)
 
     img = Image.open(image_fp)
 
-    wtr = binary.BinaryWriter(open(out, "wb"))
+    wtr = binary.BinaryWriter(open(output_path, "wb"))
 
     wtr.write(b"CFNT")
     file_size_pos = wtr.tell()
@@ -82,5 +79,20 @@ def main():
     wtr.close()
 
 
+def compileFonts():
+    for root, _, files in os.walk("spr"):
+        for file in files:
+            path = os.path.join(root, file)
+            path_dest = os.path.splitext(os.path.join("../nitrofs", path))[0] + ".cspr"
+            if os.path.isfile(path_dest):
+                src_time = os.path.getmtime(path)
+                dst_time = os.path.getmtime(path_dest)
+                if src_time > dst_time:
+                    convert(path, path_dest)
+            else:
+                pathlib.Path(os.path.split(path_dest)[0]).mkdir(exist_ok=True, parents=True)
+                convert(path, path_dest)
+
+
 if __name__ == '__main__':
-    main()
+    compileFonts()

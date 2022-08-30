@@ -10,7 +10,7 @@ class CutsceneCommands(enum.IntEnum):
     HIDE = 4
     SET_ANIMATION = 5
     WAIT_FRAMES = 6
-    SET_X_Y = 7
+    SET_POS = 7
     MOVE_IN_FRAMES = 8
     START_DIALOGUE = 9
     WAIT_DIALOGUE_END = 10
@@ -27,6 +27,8 @@ class CutsceneCommands(enum.IntEnum):
     JUMP = 21
     MANUAL_CAMERA = 22
     UNLOAD_SPRITE = 23
+    SCALE_IN_FRAMES = 24
+    SET_SCALE = 25
     DEBUG = 0xff
 
 
@@ -34,6 +36,7 @@ class TargetType(enum.IntEnum):
     NULL = 0
     PLAYER = 1
     SPRITE = 2
+    CAMERA = 3
 
 
 class Target:
@@ -119,14 +122,27 @@ class Cutscene:
         self.wtr.write_uint16(frames)
 
     # == NAVIGATION ==
-    def set_x_y(self, target: Target, x: int, y: int):
-        self.write_header(CutsceneCommands.SET_X_Y)
+    def set_pos(self, target: Target, x: int, y: int):
+        self.write_header(CutsceneCommands.SET_POS)
+        target.write(self.wtr)
+        self.wtr.write_uint16(x)
+        self.wtr.write_uint16(y)
+
+    def set_scale(self, target: Target, x: int, y: int):
+        self.write_header(CutsceneCommands.SET_SCALE)
         target.write(self.wtr)
         self.wtr.write_uint16(x)
         self.wtr.write_uint16(y)
 
     def move_in_frames(self, target: Target, x: int, y: int, frames: int):
         self.write_header(CutsceneCommands.MOVE_IN_FRAMES)
+        target.write(self.wtr)
+        self.wtr.write_uint16(x)
+        self.wtr.write_uint16(y)
+        self.wtr.write_uint16(frames)
+
+    def scale_in_frames(self, target: Target, x: int, y: int, frames: int):
+        self.write_header(CutsceneCommands.SCALE_IN_FRAMES)
         target.write(self.wtr)
         self.wtr.write_uint16(x)
         self.wtr.write_uint16(y)
@@ -163,8 +179,8 @@ class Cutscene:
                               speaker_target: Target, idle_anim: str,
                               talk_anim: str, duration: int):
         self.write_header(CutsceneCommands.START_BATTLE_DIALOGUE)
-        self.wtr.write_uint16(x)
-        self.wtr.write_uint16(y)
+        self.wtr.write_uint8(x)
+        self.wtr.write_uint8(y)
         self.wtr.write_uint16(dialogue_text_id)
         speaker_target.write(self.wtr)
         self.wtr.write_string(idle_anim, encoding="ascii")

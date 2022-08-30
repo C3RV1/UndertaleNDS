@@ -6,6 +6,7 @@ else:
 
 
 def cutscene(c: Cutscene):
+    c.set_animation(Target(TargetType.PLAYER), "upIdle")
     c.start_dialogue(0, "spr/speaker/flowey.cspr", 0, 0, "nice1", "nice1_talk",
                      Target(TargetType.SPRITE, 0), "idle", "talk")
     c.wait_dialogue_end()
@@ -58,11 +59,11 @@ def cutscene(c: Cutscene):
     c.wait_dialogue_end()
 
     def set_pellets():
-        c.set_x_y(Target(TargetType.SPRITE, 2), 0, 0)
-        c.set_x_y(Target(TargetType.SPRITE, 3), 0, 0)
-        c.set_x_y(Target(TargetType.SPRITE, 4), 0, 0)
-        c.set_x_y(Target(TargetType.SPRITE, 5), 0, 0)
-        c.set_x_y(Target(TargetType.SPRITE, 6), 0, 0)
+        c.set_pos(Target(TargetType.SPRITE, 2), 0, 0)
+        c.set_pos(Target(TargetType.SPRITE, 3), 0, 0)
+        c.set_pos(Target(TargetType.SPRITE, 4), 0, 0)
+        c.set_pos(Target(TargetType.SPRITE, 5), 0, 0)
+        c.set_pos(Target(TargetType.SPRITE, 6), 0, 0)
 
     set_pellets()
     do_attack()
@@ -111,7 +112,7 @@ def cutscene(c: Cutscene):
     c.set_animation(Target(TargetType.SPRITE, 8), "")
     c.move_in_frames(Target(TargetType.SPRITE, 8), 0, 0, 0)
     c.wait_frames(120)
-    c.set_x_y(Target(TargetType.SPRITE, 1), 0, 0)
+    c.set_pos(Target(TargetType.SPRITE, 1), 0, 0)
     c.show(Target(TargetType.SPRITE, 1))
     c.start_battle_dialogue(0, 0, 9, Target(TargetType.SPRITE, 8), "worried", "worried_talk", 0)
     c.wait_dialogue_end()

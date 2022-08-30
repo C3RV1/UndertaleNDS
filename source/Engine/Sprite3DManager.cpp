@@ -242,10 +242,10 @@ namespace Engine {
             uint8_t tileWidth, tileHeight;
             spr->sprite->getSizeTiles(tileWidth, tileHeight);
             uint32_t x = spr->x >> 8;
-            uint32_t x2 = (spr->x >> 8) + tileWidth * 8;
+            uint32_t x2 = (spr->x + (tileWidth * 8 * spr->scale_x)) >> 8;
             uint32_t w = tileWidth * 8;
             uint32_t y = (spr->y >> 8);
-            uint32_t y2 = (spr->y >> 8) + tileHeight * 8;
+            uint32_t y2 = (spr->y + (tileHeight * 8 * spr->scale_y)) >> 8;
             uint32_t h = tileHeight * 8;
             GFX_TEX_FORMAT = (allocXFmt << 20) + (allocYFmt << 23) + (4 << 26) + (1 << 29) + spr->memory.tileStart * 8;
             GFX_PAL_FORMAT = spr->memory.paletteIdx * 2 * 256 / 16;

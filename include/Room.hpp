@@ -16,6 +16,7 @@ class Room;
 #include "Formats/ROOM_FILE.hpp"
 #include "Formats/utils.hpp"
 #include "RoomSprite.hpp"
+#include "Cutscene/Navigation.hpp"
 
 class Room {
 public:
@@ -23,6 +24,7 @@ public:
     int loadRoom(FILE *f);
     bool evaluateCondition(FILE *f);
     void loadSprites();
+    void update();
     void draw() const;
     void free_();
 
@@ -37,6 +39,7 @@ public:
     ROOMExit* exitRight = nullptr;
     uint8_t rectExitCount = 0;
     ROOMExit** rectExits = nullptr;
+    Navigation nav;
 };
 
 const int ROOM_CHANGE_FADE_FRAMES = 20;
