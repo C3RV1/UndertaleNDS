@@ -19,6 +19,7 @@ namespace Engine {
     struct SpriteInternalMemory {
         AllocationMode allocated = NoAlloc;
         uint8_t oamEntryCount = 0;
+        uint8_t oamScaleIdx = 0xff;  // all oam entries can share scale
         union {
             uint8_t * oamEntries = nullptr;
             uint16_t tileStart;
@@ -42,6 +43,10 @@ namespace Engine {
 
         int32_t x = 0, y = 0;  // 23 bit integer, 8 bit fraction, screen
         int32_t wx = 0, wy = 0;  // 23 bit integer, 8 bit fraction, world
+        int32_t wscale_x = 1 << 8, wscale_y = 1 << 8;
+        int32_t scale_x = 0, scale_y = 0;
+        int32_t cam_x = 0, cam_y = 0;
+        int32_t cam_scale_x = 1 << 8, cam_scale_y = 1 << 8;
         int32_t layer = 0;
         int currentFrame = -1;
         int currentAnimation = -1;

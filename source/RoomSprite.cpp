@@ -46,8 +46,10 @@ void RoomSprite::hide() {
 }
 
 void RoomSprite::draw() {
-    spriteManager.x = spriteManager.wx - globalCamera.x;
-    spriteManager.y = spriteManager.wy - globalCamera.y;
+    spriteManager.cam_x = globalCamera.pos.wx;
+    spriteManager.cam_y = globalCamera.pos.wy;
+    spriteManager.cam_scale_x = globalCamera.pos.wscale_x;
+    spriteManager.cam_scale_y = globalCamera.pos.wscale_y;
     spriteManager.layer = 1;
 }
 

@@ -40,8 +40,10 @@ namespace Engine {
 
         void draw();
     private:
-        void setSpritePos(SpriteManager& spr, int x, int y);
+        void setSpritePosAndScale(SpriteManager& spr);
         int loadSpriteFrame(SpriteManager& spr, int frame);
+        void allocateOamScaleEntry(SpriteManager& spr);
+        void freeOamScaleEntry(SpriteManager& spr);
 
         u16* paletteRam;
         u16* oamRam;
@@ -55,6 +57,7 @@ namespace Engine {
 
         uint8_t paletteRefCounts[255] = {0};
         OAMEntry oamEntries[SPRITE_COUNT];
+        bool oamScaleEntryUsed[32] = {false};
     };
 
     extern OAMManager OAMManagerSub;

@@ -360,6 +360,10 @@ namespace Engine {
         delete[] spr.memory.paletteColors;
         spr.memory.paletteColors = nullptr;
 
+        if (spr.memory.oamScaleIdx != 0xff) {
+            freeOamScaleEntry(spr);
+            spr.memory.oamScaleIdx = 0xff;
+        }
         for (int oamIdx = 0; oamIdx < spr.memory.oamEntryCount; oamIdx++) {
             uint8_t oamId = spr.memory.oamEntries[oamIdx];
             freeOAMEntry(oamId);
@@ -388,11 +392,11 @@ namespace Engine {
             if (spr->currentFrame != spr->memory.loadedFrame)
                 loadSpriteFrame(*spr, spr->currentFrame);
 
-            setSpritePos(*spr, spr->x >> 8, spr->y >> 8);
+            setSpritePosAndScale(*spr);
         }
     }
 
-    void OAMManager::setSpritePos(Engine::SpriteManager &spr, int x, int y) {
+    void OAMManager::setSpritePosAndScale(Engine::SpriteManager &spr) {
         uint8_t tileWidth, tileHeight;
         spr.sprite->getSizeTiles(tileWidth, tileHeight);
         uint8_t oamW = (tileWidth + 7) / 8;
@@ -401,13 +405,54 @@ namespace Engine {
             for (int oamX = 0; oamX < oamW; oamX++) {
                 int oamId = spr.memory.oamEntries[oamY * oamW + oamX];
                 auto* oamStart = (uint16_t*) ((uint8_t*) oamRam + oamId * 8);
+                bool useScale = (spr.scale_x != (1 << 8)) || (spr.scale_y != (1 << 8));
+                if (useScale) {
+                    if (spr.memory.oamScaleIdx == 0xff) {
+                        allocateOamScaleEntry(spr);
+                    }
+                } else {
+                    if (spr.memory.oamScaleIdx != 0xff) {
+                        freeOamScaleEntry(spr);
+                    }
+                }
+
+                oamStart[1] &= ~(0b1111 << 9);
+                if (spr.memory.oamScaleIdx != 0xff) {
+                    oamStart[0] |= 1 << 8;  // set scale and rotation flag
+                    oamStart[1] |= spr.memory.oamScaleIdx << 9;
+                    auto* oamScaleA = (uint16_t*)((uint8_t*)oamRam + spr.memory.oamScaleIdx * 0x20 + 0x6);
+                    auto* oamScaleB = (uint16_t*)((uint8_t*)oamRam + spr.memory.oamScaleIdx * 0x20 + 0xE);
+                    auto* oamScaleC = (uint16_t*)((uint8_t*)oamRam + spr.memory.oamScaleIdx * 0x20 + 0x16);
+                    auto* oamScaleD = (uint16_t*)((uint8_t*)oamRam + spr.memory.oamScaleIdx * 0x20 + 0x1E);
+                    *oamScaleA = (1 << 16) / spr.scale_x;
+                    *oamScaleB = 0;
+                    *oamScaleC = 0;
+                    *oamScaleD = (1 << 16) / spr.scale_y;
+                } else {
+                    oamStart[0] &= ~(1 << 8);
+                }
                 oamStart[0] &= ~0xFF;
-                oamStart[0] |= y + oamY * 64;
+                oamStart[0] |= (spr.y + oamY * 64 * spr.scale_y) >> 8;
                 oamStart[1] &= ~0x1FF;
-                oamStart[1] |= x + oamX * 64;
-                // TODO: Disable sprite if out of screen
+                oamStart[1] |= (spr.x + oamX * 64 * spr.scale_x) >> 8;
+                // TODO: Disable oam if out of screen
             }
         }
+    }
+
+    void OAMManager::allocateOamScaleEntry(Engine::SpriteManager &spr) {
+        for (int i = 0; i < 32; i++) {
+            if (!oamScaleEntryUsed[i]) {
+                spr.memory.oamScaleIdx = i;
+                oamScaleEntryUsed[i] = true;
+                return;
+            }
+        }
+    }
+
+    void OAMManager::freeOamScaleEntry(Engine::SpriteManager &spr) {
+       oamScaleEntryUsed[spr.memory.oamScaleIdx] = false;
+       spr.memory.oamScaleIdx = 0xff;
     }
 
     OAMManager OAMManagerSub(SPRITE_PALETTE_SUB, SPRITE_GFX_SUB, OAM_SUB);

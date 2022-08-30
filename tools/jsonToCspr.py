@@ -1,3 +1,5 @@
+import pathlib
+
 import binary
 import numpy as np
 from PIL import Image
@@ -7,6 +9,7 @@ import os
 
 
 def convert(input_file, output_file):
+    print(f"Converting {input_file} to {output_file}")
     with open(input_file, "r") as f:
         data = json.loads(f.read())
 
@@ -90,17 +93,22 @@ def convert(input_file, output_file):
     wtr.close()
 
 
-def main():
-    if len(sys.argv) != 2:  # name, input
-        return
-    input_file = sys.argv[1]
-    if os.path.isdir(input_file):
-        input_file = [os.path.join(input_file, fp) for fp in os.listdir(input_file) if fp.endswith(".json")]
-    else:
-        input_file = [input_file]
-    for fp in input_file:
-        convert(fp, os.path.splitext(fp)[0] + ".cspr")
+def compileSprites():
+    for root, _, files in os.walk("spr"):
+        for file in files:
+            path = os.path.join(root, file)
+            if path.endswith(".png"):
+                continue
+            path_dest = os.path.splitext(os.path.join("../nitrofs", path))[0] + ".cspr"
+            if os.path.isfile(path_dest):
+                src_time = os.path.getmtime(path)
+                dst_time = os.path.getmtime(path_dest)
+                if src_time > dst_time:
+                    convert(path, path_dest)
+            else:
+                pathlib.Path(os.path.split(path_dest)[0]).mkdir(exist_ok=True, parents=True)
+                convert(path, path_dest)
 
 
 if __name__ == '__main__':
-    main()
+    compileSprites()

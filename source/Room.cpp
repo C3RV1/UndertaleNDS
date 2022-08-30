@@ -278,4 +278,8 @@ void loadNewRoom(int roomId) {
     }
 }
 
+void Room::update() {
+    nav.update();
+}
+
 Room* globalRoom = nullptr;

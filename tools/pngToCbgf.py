@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import os
+import pathlib
 
 from PIL import Image
 import sys
@@ -11,6 +12,7 @@ FORCE_8BIT = True
 
 
 def convert(input_file, output_file):
+    print(f"Converting {input_file} to {output_file}")
     image = Image.open(input_file)
     np_array = np.array(image)  # access np_array[y][x]
     np_array_palette = np.zeros((np_array.shape[0], np_array.shape[1]), dtype=np.uint8)
@@ -104,17 +106,20 @@ def convert(input_file, output_file):
     wtr.close()
 
 
-def main():
-    if len(sys.argv) != 2:  # name, input
-        return
-    input_file = sys.argv[1]
-    if os.path.isdir(input_file):
-        input_file = [os.path.join(input_file, fp) for fp in os.listdir(input_file) if fp.endswith(".png")]
-    else:
-        input_file = [input_file]
-    for fp in input_file:
-        convert(fp, os.path.splitext(fp)[0] + ".cbgf")
+def compileBackgrounds():
+    for root, _, files in os.walk("bg"):
+        for file in files:
+            path = os.path.join(root, file)
+            path_dest = os.path.splitext(os.path.join("../nitrofs", path))[0] + ".cbgf"
+            if os.path.isfile(path_dest):
+                src_time = os.path.getmtime(path)
+                dst_time = os.path.getmtime(path_dest)
+                if src_time > dst_time:
+                    convert(path, path_dest)
+            else:
+                pathlib.Path(os.path.split(path_dest)[0]).mkdir(exist_ok=True, parents=True)
+                convert(path, path_dest)
 
 
 if __name__ == '__main__':
-    main()
+    compileBackgrounds()

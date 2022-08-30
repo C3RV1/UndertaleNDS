@@ -15,6 +15,7 @@ class Player;
 #include "Camera.hpp"
 #include "Room.hpp"
 #include "math.hpp"
+#include "Cutscene/Cutscene.hpp"
 
 class Player {
 public:
@@ -31,6 +32,7 @@ public:
 
     // sprite top left position
     Engine::SpriteManager spriteManager;
+    bool playerControl = true;
 private:
     Engine::Sprite playerSpr;
 
