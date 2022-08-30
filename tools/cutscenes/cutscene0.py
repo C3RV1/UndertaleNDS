@@ -1,9 +1,12 @@
-from CutsceneTypes import Cutscene, Target, TargetType
+import typing
+if typing.TYPE_CHECKING:
+    from ..CutsceneTypes import Cutscene, Target, TargetType
+else:
+    from CutsceneTypes import Cutscene, Target, TargetType
 
 
 def cutscene(c: Cutscene):
-    c.start_dialogue(0,
-                     "spr/speaker/flowey.cspr", 0, 0, "nice1", "nice1_talk",
+    c.start_dialogue(0, "spr/speaker/flowey.cspr", 0, 0, "nice1", "nice1_talk",
                      Target(TargetType.SPRITE, 0), "idle", "talk")
     c.wait_dialogue_end()
 
@@ -117,8 +120,8 @@ def cutscene(c: Cutscene):
 
     c.load_sprite(0, 0, "")  # Toriel world
     c.wait_load()
-    c.start_dialogue(10, "", 0, 0, "idle", "talk", Target(TargetType.SPRITE), "idle", "talk")
+    c.start_dialogue(10, "", 0, 0, "idle", "talk", Target(TargetType.SPRITE, 1), "idle", "talk")
     c.wait_dialogue_end()
-    c.move_in_frames(Target(TargetType.SPRITE, 2), 0, 0, 0)
-    c.player_control(True)
+    c.move_in_frames(Target(TargetType.SPRITE, 1), 0, 0, 0)
     c.wait_frames(0)
+    c.unload_sprite(1)

@@ -25,6 +25,8 @@ class CutsceneCommands(enum.IntEnum):
     JUMP_IF = 19
     JUMP_IF_NOT = 20
     JUMP = 21
+    MANUAL_CAMERA = 22
+    UNLOAD_SPRITE = 23
     DEBUG = 0xff
 
 
@@ -84,8 +86,16 @@ class Cutscene:
         self.wtr.write_uint16(y)
         self.wtr.write_string(sprite_path, encoding="ascii")
 
+    def unload_sprite(self, room_sprite_id: int):
+        self.write_header(CutsceneCommands.UNLOAD_SPRITE)
+        self.wtr.write_uint8(room_sprite_id)
+
     def player_control(self, control: bool):
         self.write_header(CutsceneCommands.PLAYER_CONTROL)
+        self.wtr.write_bool(control)
+
+    def manual_camera(self, control: bool):
+        self.write_header(CutsceneCommands.MANUAL_CAMERA)
         self.wtr.write_bool(control)
 
     def wait_load(self):

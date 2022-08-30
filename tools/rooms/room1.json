@@ -25,7 +25,7 @@
       ],
       "sprites": [
         {
-          "sprite_path": "nitro:/spr/spr_flowey.cspr",
+          "sprite_path": "nitro:/spr/room_sprites/flowey.cspr",
           "x": 151,
           "y": 227,
           "animation": "idle",

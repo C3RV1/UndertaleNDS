@@ -1,5 +1,5 @@
 {
-  "image": "spr/spr_flowey.png",
+  "image": "spr/room_sprites/flowey.png",
   "size": [21, 21],
   "frameCount": 2,
   "animations": [

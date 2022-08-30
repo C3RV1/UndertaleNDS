@@ -1,5 +1,5 @@
 {
-  "image": "spr/flowey_speaker.png",
+  "image": "spr/speaker/flowey.png",
   "size": [42, 44],
   "frameCount": 20,
   "animations": [
