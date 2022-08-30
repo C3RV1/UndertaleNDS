@@ -25,4 +25,19 @@ namespace Engine {
         sprite = &sprite_;
         loaded = true;
     }
+
+    void SpriteManager::tick() {
+        if (currentAnimation > 0) {
+            CSPRAnimation* current = &sprite->getAnims()[currentAnimation];
+            if (current->frames[currentAnimationFrame].duration != 0) {
+                currentAnimationTimer--;
+                if (currentAnimationTimer == 0) {
+                    currentAnimationFrame++;
+                    currentAnimationFrame %= current->frameCount;
+                    currentFrame = current->frames[currentAnimationFrame].frame;
+                    currentAnimationTimer = current->frames[currentAnimationFrame].duration;
+                }
+            }
+        }
+    }
 }
