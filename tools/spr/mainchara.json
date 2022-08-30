@@ -4,7 +4,7 @@
   "frameCount": 12,
   "animations": [
     {
-      "name": "upIdle",
+      "name": "downIdle",
       "frames": [{"frame": 0, "duration": 0}]
     },
     {
@@ -16,11 +16,11 @@
       "frames": [{"frame": 6, "duration": 0}]
     },
     {
-      "name": "downIdle",
+      "name": "upIdle",
       "frames": [{"frame": 8, "duration": 0}]
     },
     {
-      "name": "upMove",
+      "name": "downMove",
       "frames": [
         {"frame": 0, "duration": 15},
         {"frame": 1, "duration": 15},
@@ -43,7 +43,7 @@
       ]
     },
     {
-      "name": "downMove",
+      "name": "upMove",
       "frames": [
         {"frame": 8, "duration": 15},
         {"frame": 9, "duration": 15},

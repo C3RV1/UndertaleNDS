@@ -21,6 +21,7 @@ enum WaitingType {
 class Waiting {
 public:
     void waitFrames(int frames);
+    void waitLoad();
     void update(CutsceneLocation callingLocation);
     bool getBusy() {return currentWait != NONE;}
 private:

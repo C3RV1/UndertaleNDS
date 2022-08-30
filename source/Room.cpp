@@ -254,7 +254,7 @@ void Room::draw() const {
     }
 }
 
-void loadNewRoom(int roomId) {
+void loadNewRoom(int roomId, int32_t spawnX, int32_t spawnY) {
     int timer = ROOM_CHANGE_FADE_FRAMES;
     while (timer >= 0) {
         Engine::tick();
@@ -265,7 +265,13 @@ void loadNewRoom(int roomId) {
     globalRoom->free_();
     delete globalRoom;
     globalRoom = new Room(roomId);
+    globalPlayer->spriteManager.wx = spawnX << 8;
+    globalPlayer->spriteManager.wy = spawnY << 8;
 
+    if (globalCutscene != nullptr) {
+        globalCutscene->update(LOAD_ROOM);
+        globalCutscene->runCommands(LOAD_ROOM);
+    }
     globalCamera.updatePosition(true);
     globalPlayer->draw();
     globalRoom->draw();

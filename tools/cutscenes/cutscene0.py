@@ -84,13 +84,13 @@ def cutscene(c: Cutscene):
     c.wait_dialogue_end()
     die_jump = c.jump()
 
-    c.bound_jump(jump_hit)
-    c.bound_jump(jump_hit2)
-    c.bound_jump(jump_hit3)
+    c.bind(jump_hit)
+    c.bind(jump_hit2)
+    c.bind(jump_hit3)
 
     c.start_battle_dialogue(0, 0, 7, Target(TargetType.SPRITE, 0), "grin", "grin_talk", 300)
 
-    c.bound_jump(die_jump)
+    c.bind(die_jump)
     c.start_battle_dialogue(0, 0, 8, Target(TargetType.SPRITE, 0), "evil", "evil", 120)
     c.battle_attack(1)
     c.wait_frames(120)

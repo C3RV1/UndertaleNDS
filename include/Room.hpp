@@ -43,7 +43,7 @@ public:
 };
 
 const int ROOM_CHANGE_FADE_FRAMES = 20;
-void loadNewRoom(int roomId);
+void loadNewRoom(int roomId, int32_t spawnX, int32_t spawnY);
 
 extern Room* globalRoom;
 
