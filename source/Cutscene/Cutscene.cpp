@@ -84,8 +84,15 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
     uint8_t cmd;
     fread(&cmd, 1, 1, commandStream);
     int len;
-    uint8_t targetType, count;
+    uint8_t targetType, targetId = 0, count;
     uint32_t address;
+    Navigation* nav = nullptr;
+    if (callingLocation == ROOM || callingLocation == LOAD_ROOM) {
+        nav = &globalRoom->nav;
+    } else {
+        return true;
+    }
+
     switch (cmd) {
         case CMD_DEBUG:
             nocashMessage("CMD_DEBUG");
@@ -95,8 +102,8 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             break;
         case CMD_LOAD_SPRITE:
             nocashMessage("CMD_LOAD_SPRITE");
-            fread(buffer, 2, 1, commandStream);
-            fread(buffer, 2, 1, commandStream);
+            fread(buffer, 4, 1, commandStream);
+            fread(buffer, 4, 1, commandStream);
             len = strlen_file(commandStream, 0);
             fread(buffer, len + 1, 1, commandStream);
             break;
@@ -120,6 +127,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
         }
         case CMD_WAIT_LOAD:
             nocashMessage("CMD_WAIT_LOAD");
+            waiting.waitLoad();
             break;
         case CMD_SHOW:
             nocashMessage("CMD_SHOW");
@@ -137,9 +145,10 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             nocashMessage("CMD_SET_ANIMATION");
             fread(&targetType, 1, 1, commandStream);
             if (targetType == TargetType::SPRITE)
-                fread(buffer, 1, 1, commandStream);
+                fread(&targetId, 1, 1, commandStream);
             len = strlen_file(commandStream, 0);
             fread(buffer, len + 1, 1, commandStream);
+            nav->set_animation(targetType, targetId, buffer, callingLocation);
             break;
         case CMD_WAIT_FRAMES: {
             nocashMessage("CMD_WAIT_FRAMES");
@@ -148,47 +157,61 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             waiting.waitFrames(frameCount);
             break;
         }
-        case CMD_SET_POS:
+        case CMD_SET_POS: {
             nocashMessage("CMD_SET_POS");
             fread(&targetType, 1, 1, commandStream);
             if (targetType == TargetType::SPRITE)
-                fread(buffer, 1, 1, commandStream);
-            fread(buffer, 2, 1, commandStream);
-            fread(buffer, 2, 1, commandStream);
+                fread(&targetId, 1, 1, commandStream);
+            int32_t x, y;
+            fread(&x, 4, 1, commandStream);
+            fread(&y, 4, 1, commandStream);
+            Navigation::set_position(targetType, targetId, x, y, callingLocation);
             break;
-        case CMD_SET_SCALE:
+        }
+        case CMD_SET_SCALE: {
             nocashMessage("CMD_SET_SCALE");
             fread(&targetType, 1, 1, commandStream);
             if (targetType == TargetType::SPRITE)
-                fread(buffer, 1, 1, commandStream);
-            fread(buffer, 2, 1, commandStream);
-            fread(buffer, 2, 1, commandStream);
+                fread(&targetId, 1, 1, commandStream);
+            int32_t x, y;
+            fread(&x, 4, 1, commandStream);
+            fread(&y, 4, 1, commandStream);
+            Navigation::set_scale(targetType, targetId, x, y, callingLocation);
             break;
-        case CMD_MOVE_IN_FRAMES:
+        }
+        case CMD_MOVE_IN_FRAMES: {
             nocashMessage("CMD_MOVE_IN_FRAMES");
             fread(&targetType, 1, 1, commandStream);
             if (targetType == TargetType::SPRITE)
-                fread(buffer, 1, 1, commandStream);
-            fread(buffer, 2, 1, commandStream);
-            fread(buffer, 2, 1, commandStream);
-            fread(buffer, 2, 1, commandStream);
+                fread(&targetId, 1, 1, commandStream);
+            int32_t x, y;
+            fread(&x, 4, 1, commandStream);
+            fread(&y, 4, 1, commandStream);
+            uint16_t frames;
+            fread(&frames, 2, 1, commandStream);
+            nav->move_in_frames(targetType, targetId, x, y, frames, callingLocation);
             break;
-        case CMD_SCALE_IN_FRAMES:
+        }
+        case CMD_SCALE_IN_FRAMES: {
             nocashMessage("CMD_SCALE_IN_FRAMES");
             fread(&targetType, 1, 1, commandStream);
             if (targetType == TargetType::SPRITE)
-                fread(buffer, 1, 1, commandStream);
-            fread(buffer, 2, 1, commandStream);
-            fread(buffer, 2, 1, commandStream);
-            fread(buffer, 2, 1, commandStream);
+                fread(&targetId, 1, 1, commandStream);
+            int32_t x, y;
+            fread(&x, 4, 1, commandStream);
+            fread(&y, 4, 1, commandStream);
+            uint16_t frames;
+            fread(&frames, 2, 1, commandStream);
+            nav->scale_in_frames(targetType, targetId, x, y, frames, callingLocation);
             break;
+        }
         case CMD_START_DIALOGUE:
             nocashMessage("CMD_START_DIALOGUE");
             fread(buffer, 2, 1, commandStream);
             len = strlen_file(commandStream, 0);
             fread(buffer, len + 1, 1, commandStream);
-            fread(buffer, 1, 1, commandStream);
-            fread(buffer, 1, 1, commandStream);
+            fread(buffer, 4, 1, commandStream);
+            fread(buffer, 4, 1, commandStream);
             len = strlen_file(commandStream, 0);
             fread(buffer, len + 1, 1, commandStream);
             len = strlen_file(commandStream, 0);
@@ -212,8 +235,8 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             break;
         case CMD_START_BATTLE_DIALOGUE:
             nocashMessage("CMD_START_BATTLE_DIALOGUE");
-            fread(buffer, 1, 1, commandStream);
-            fread(buffer, 1, 1, commandStream);
+            fread(buffer, 4, 1, commandStream);
+            fread(buffer, 4, 1, commandStream);
             fread(buffer, 2, 1, commandStream);
             fread(&targetType, 1, 1, commandStream);
             if (targetType == TargetType::SPRITE)

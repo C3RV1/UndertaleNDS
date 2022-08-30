@@ -80,10 +80,12 @@ def convert(input_path, output_path):
 
 
 def compileFonts():
-    for root, _, files in os.walk("spr"):
+    for root, _, files in os.walk("fnt"):
         for file in files:
             path = os.path.join(root, file)
-            path_dest = os.path.splitext(os.path.join("../nitrofs", path))[0] + ".cspr"
+            if not path.endswith(".gmx"):
+                continue
+            path_dest = os.path.splitext(os.path.join("../nitrofs", path))[0] + ".cfnt"
             if os.path.isfile(path_dest):
                 src_time = os.path.getmtime(path)
                 dst_time = os.path.getmtime(path_dest)

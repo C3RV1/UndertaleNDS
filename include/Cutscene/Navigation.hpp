@@ -8,6 +8,7 @@
 class Navigation;
 
 #include "SpriteManager.hpp"
+#include "CutsceneEnums.hpp"
 
 enum NavigationTaskType {
     POSITION = 0,
@@ -22,8 +23,8 @@ enum TargetType {
 };
 
 struct NavigationTask {
-    uint16_t startingX = 0, startingY = 0;
-    uint16_t destX = 0, destY = 0;
+    int32_t startingX = 0, startingY = 0;
+    int32_t destX = 0, destY = 0;
     uint16_t frames = 0;
     uint16_t currentFrames = 0;
     NavigationTaskType taskType = POSITION;
@@ -32,11 +33,25 @@ struct NavigationTask {
 
 class Navigation {
 public:
-    void startTask(NavigationTask* navTask);
+    static void set_position(uint8_t targetType, uint8_t targetId, int32_t x, int32_t y,
+                             CutsceneLocation callingLocation);
+    static void set_scale(uint8_t targetType, uint8_t targetId, int32_t x, int32_t y,
+                          CutsceneLocation callingLocation);
+    void set_animation(uint8_t targetType, uint8_t targetId, char* animName,
+                       CutsceneLocation callingLocation);
+    void move_in_frames(uint8_t targetType, uint8_t targetId, int32_t x, int32_t y,
+                        uint16_t frames, CutsceneLocation callingLocation);
+    void scale_in_frames(uint8_t targetType, uint8_t targetId, int32_t x, int32_t y,
+                         uint16_t frames, CutsceneLocation callingLocation);
     void update();
 private:
-    uint8_t moveTaskCount = 0;
-    NavigationTask** moveTasks = nullptr;
+    void startTask(NavigationTask* navTask);
+    bool updateTask(int taskId);
+    void endTask(int taskId);
+    static Engine::SpriteManager* getTarget(uint8_t targetType, uint8_t targetId,
+                                     CutsceneLocation callingLocation);
+    uint8_t taskCount = 0;
+    NavigationTask** tasks = nullptr;
 };
 
 #include "Room.hpp"

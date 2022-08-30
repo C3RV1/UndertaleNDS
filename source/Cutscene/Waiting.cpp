@@ -9,6 +9,10 @@ void Waiting::waitFrames(int frames) {
     currentWaitTime = frames;
 }
 
+void Waiting::waitLoad() {
+    currentWait = WAIT_LOAD;
+}
+
 void Waiting::update(CutsceneLocation callingLocation) {
     if (currentWait == NONE)
         return;
@@ -18,5 +22,8 @@ void Waiting::update(CutsceneLocation callingLocation) {
         if (currentWaitTime <= 0) {
             currentWait = NONE;
         }
+    } else if (currentWait == WAIT_LOAD) {
+        if (callingLocation == LOAD_ROOM)
+            currentWait = NONE;
     }
 }

@@ -2,6 +2,10 @@ import enum
 import binary
 
 
+def to_fixed_point(f: float):
+    return int(f * (2 ** 8))
+
+
 class CutsceneCommands(enum.IntEnum):
     LOAD_SPRITE = 0
     PLAYER_CONTROL = 1
@@ -83,10 +87,10 @@ class Cutscene:
         self.write_header(CutsceneCommands.DEBUG)
         self.wtr.write_string(string, encoding="ascii")
 
-    def load_sprite(self, x: int, y: int, sprite_path: str):
+    def load_sprite(self, x: float, y: float, sprite_path: str):
         self.write_header(CutsceneCommands.LOAD_SPRITE)
-        self.wtr.write_uint16(x)
-        self.wtr.write_uint16(y)
+        self.wtr.write_int32(to_fixed_point(x))
+        self.wtr.write_int32(to_fixed_point(y))
         self.wtr.write_string(sprite_path, encoding="ascii")
 
     def unload_sprite(self, room_sprite_id: int):
@@ -122,43 +126,43 @@ class Cutscene:
         self.wtr.write_uint16(frames)
 
     # == NAVIGATION ==
-    def set_pos(self, target: Target, x: int, y: int):
+    def set_pos(self, target: Target, x: float, y: float):
         self.write_header(CutsceneCommands.SET_POS)
         target.write(self.wtr)
-        self.wtr.write_uint16(x)
-        self.wtr.write_uint16(y)
+        self.wtr.write_int32(to_fixed_point(x))
+        self.wtr.write_int32(to_fixed_point(y))
 
-    def set_scale(self, target: Target, x: int, y: int):
+    def set_scale(self, target: Target, x: float, y: float):
         self.write_header(CutsceneCommands.SET_SCALE)
         target.write(self.wtr)
-        self.wtr.write_uint16(x)
-        self.wtr.write_uint16(y)
+        self.wtr.write_int32(to_fixed_point(x))
+        self.wtr.write_int32(to_fixed_point(y))
 
-    def move_in_frames(self, target: Target, x: int, y: int, frames: int):
+    def move_in_frames(self, target: Target, x: float, y: float, frames: int):
         self.write_header(CutsceneCommands.MOVE_IN_FRAMES)
         target.write(self.wtr)
-        self.wtr.write_uint16(x)
-        self.wtr.write_uint16(y)
+        self.wtr.write_int32(to_fixed_point(x))
+        self.wtr.write_int32(to_fixed_point(y))
         self.wtr.write_uint16(frames)
 
-    def scale_in_frames(self, target: Target, x: int, y: int, frames: int):
+    def scale_in_frames(self, target: Target, x: float, y: float, frames: int):
         self.write_header(CutsceneCommands.SCALE_IN_FRAMES)
         target.write(self.wtr)
-        self.wtr.write_uint16(x)
-        self.wtr.write_uint16(y)
+        self.wtr.write_int32(to_fixed_point(x))
+        self.wtr.write_int32(to_fixed_point(y))
         self.wtr.write_uint16(frames)
 
     # == DIALOGUE ==
     def start_dialogue(self, dialogue_text_id: int,
-                       speaker_path: str, x: int, y: int,
+                       speaker_path: str, x: float, y: float,
                        idle_anim: str, talk_anim: str,
                        speaker_target: Target,
                        idle_anim2: str, talk_anim2: str):
         self.write_header(CutsceneCommands.START_DIALOGUE)
         self.wtr.write_uint16(dialogue_text_id)
         self.wtr.write_string(speaker_path, encoding="ascii")
-        self.wtr.write_uint8(x)
-        self.wtr.write_uint8(y)
+        self.wtr.write_int32(to_fixed_point(x))
+        self.wtr.write_int32(to_fixed_point(y))
         self.wtr.write_string(idle_anim, encoding="ascii")
         self.wtr.write_string(talk_anim, encoding="ascii")
         speaker_target.write(self.wtr)
@@ -179,8 +183,8 @@ class Cutscene:
                               speaker_target: Target, idle_anim: str,
                               talk_anim: str, duration: int):
         self.write_header(CutsceneCommands.START_BATTLE_DIALOGUE)
-        self.wtr.write_uint8(x)
-        self.wtr.write_uint8(y)
+        self.wtr.write_int32(to_fixed_point(x))
+        self.wtr.write_int32(to_fixed_point(y))
         self.wtr.write_uint16(dialogue_text_id)
         speaker_target.write(self.wtr)
         self.wtr.write_string(idle_anim, encoding="ascii")
@@ -226,7 +230,7 @@ class Cutscene:
         self.wtr.write_uint32(0)
         return len(self.instructions_address) - 1
 
-    def bound_jump(self, jump_id):
+    def bind(self, jump_id):
         if jump_id in self.pending_address:
             pos = self.wtr.tell()
             self.wtr.seek(self.pending_address[jump_id])

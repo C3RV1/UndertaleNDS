@@ -51,14 +51,14 @@ void Player::update() {
     bool setAnim = true;
     if (keysHeld() & KEY_DOWN) {
         spriteManager.wy += MOVE_SPEED;
-        moveDirection = upMoveId;
-        if (currentAnimation == upMoveId)
+        moveDirection = downMoveId;
+        if (currentAnimation == downMoveId)
             setAnim = false;
     }
     if (keysHeld() & KEY_UP) {
         spriteManager.wy -= MOVE_SPEED;
-        moveDirection = downMoveId;
-        if (currentAnimation == downMoveId)
+        moveDirection = upMoveId;
+        if (currentAnimation == upMoveId)
             setAnim = false;
     }
     if (keysHeld() & KEY_RIGHT) {
@@ -114,33 +114,33 @@ void Player::check_exits() {
     if (spriteManager.wx < 0) {
         spriteManager.wx = 0;
         if (globalRoom->exitLeft != nullptr) {
-            spriteManager.wx = globalRoom->exitLeft->spawnX << 8;
-            spriteManager.wy = globalRoom->exitLeft->spawnY << 8;
-            loadNewRoom(globalRoom->exitLeft->roomId);
+            loadNewRoom(globalRoom->exitLeft->roomId,
+                        globalRoom->exitLeft->spawnX,
+                        globalRoom->exitLeft->spawnY);
         }
     }
     else if ((spriteManager.wx >> 8) + 19 > width * 8) {
         spriteManager.wx = (width * 8 - 19) << 8;
         if (globalRoom->exitRight != nullptr) {
-            spriteManager.wx = globalRoom->exitRight->spawnX << 8;
-            spriteManager.wy = globalRoom->exitRight->spawnY << 8;
-            loadNewRoom(globalRoom->exitRight->roomId);
+            loadNewRoom(globalRoom->exitRight->roomId,
+                        globalRoom->exitRight->spawnX,
+                        globalRoom->exitLeft->spawnY);
         }
     }
     if (spriteManager.wy < 0) {
         spriteManager.wy = 0;
         if (globalRoom->exitTop != nullptr) {
-            spriteManager.wx = globalRoom->exitTop->spawnX << 8;
-            spriteManager.wy = globalRoom->exitTop->spawnY << 8;
-            loadNewRoom(globalRoom->exitTop->roomId);
+            loadNewRoom(globalRoom->exitTop->roomId,
+                        globalRoom->exitTop->spawnX,
+                        globalRoom->exitTop->spawnY);
         }
     }
     else if ((spriteManager.wy >> 8) + 29 > height * 8) {
         spriteManager.wy = (height * 8 - 29) << 8;
         if (globalRoom->exitBtm != nullptr) {
-            spriteManager.wx = globalRoom->exitBtm->spawnX << 8;
-            spriteManager.wy = globalRoom->exitBtm->spawnY << 8;
-            loadNewRoom(globalRoom->exitBtm->roomId);
+            loadNewRoom(globalRoom->exitBtm->roomId,
+                        globalRoom->exitBtm->spawnX,
+                        globalRoom->exitBtm->spawnY);
         }
     }
 
@@ -149,9 +149,9 @@ void Player::check_exits() {
         if (collidesRect(spriteManager.wx >> 8, (spriteManager.wy >> 8) + 20, 19, 9,
                          rectExit->x, rectExit->y,
                          rectExit->w, rectExit->h)) {
-            spriteManager.wx = rectExit->spawnX << 8;
-            spriteManager.wy = rectExit->spawnY << 8;
-            loadNewRoom(rectExit->roomId);
+            loadNewRoom(rectExit->roomId,
+                        rectExit->spawnX,
+                        rectExit->spawnY);
         }
     }
 }
