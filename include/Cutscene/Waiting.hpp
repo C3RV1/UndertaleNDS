@@ -16,7 +16,8 @@ enum WaitingType {
 
 class Waiting {
 public:
-    void WaitFrames();
+    void waitFrames(int frames);
+    void update();
 private:
     WaitingType currentWait = NONE;
     int currentWaitTime = 0;

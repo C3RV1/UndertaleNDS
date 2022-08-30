@@ -6,7 +6,7 @@
 
 Player::Player() {
     char buffer[100];
-    FILE *f = fopen("nitro:/spr/spr_f_mainchara.cspr", "rb");
+    FILE *f = fopen("nitro:/spr/mainchara.cspr", "rb");
     if (f) {
         int playerLoad = playerSpr.loadCSPR(f);
         if (playerLoad != 0) {
