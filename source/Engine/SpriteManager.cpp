@@ -25,15 +25,4 @@ namespace Engine {
         sprite = &sprite_;
         loaded = true;
     }
-
-    void SpriteManager::copyNoMemory(Engine::SpriteManager &spriteManager) {
-        if (sprite != spriteManager.sprite)
-            return;
-        x = spriteManager.x; y = spriteManager.y;
-        layer = spriteManager.layer;
-        currentFrame = spriteManager.currentFrame;
-        currentAnimation = spriteManager.currentAnimation;
-        currentAnimationTimer = spriteManager.currentAnimationTimer;
-        currentAnimationFrame = spriteManager.currentAnimationFrame;
-    }
 }
