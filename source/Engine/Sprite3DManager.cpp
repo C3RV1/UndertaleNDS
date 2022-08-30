@@ -220,18 +220,7 @@ namespace Engine {
         for (int i = 0; i < activeSpriteCount; i++) {
             SpriteManager* spr = activeSprites[i];
 
-            if (spr->currentAnimation > 0) {
-                CSPRAnimation* current = &spr->sprite->getAnims()[spr->currentAnimation];
-                if (current->frames[spr->currentAnimationFrame].duration != 0) {
-                    spr->currentAnimationTimer--;
-                    if (spr->currentAnimationTimer == 0) {
-                        spr->currentAnimationFrame++;
-                        spr->currentAnimationFrame %= current->frameCount;
-                        spr->currentFrame = current->frames[spr->currentAnimationFrame].frame;
-                        spr->currentAnimationTimer = current->frames[spr->currentAnimationFrame].duration;
-                    }
-                }
-            }
+            spr->tick();
 
             if (spr->currentFrame != spr->memory.loadedFrame)
                 loadSpriteFrame(*spr, spr->currentFrame);
