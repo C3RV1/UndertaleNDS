@@ -35,7 +35,6 @@ namespace Engine {
     public:
         void setSpriteAnim(int animId);
         void loadSprite(Sprite& sprite_);
-        void copyNoMemory(SpriteManager& spriteManager);
 
         bool loaded = false;
         Sprite* sprite = nullptr;
