@@ -30,7 +30,8 @@ public:
 
     uint16_t roomId;
     Engine::Background bg;
-    RoomSprite* sprites = nullptr;
+    uint8_t spriteCount = 0;
+    RoomSprite** sprites = nullptr;
     ROOMPart roomData;
 
     ROOMExit* exitTop = nullptr;

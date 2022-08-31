@@ -52,8 +52,8 @@ namespace Engine {
         bool loaded = false;
         Sprite* sprite = nullptr;
 
-        int32_t x = 0, y = 0;  // 23 bit integer, 8 bit fraction, screen
-        int32_t wx = 0, wy = 0;  // 23 bit integer, 8 bit fraction, world
+        int32_t x = 0, y = 0;  // 1 bit sign, 22 bit integer, 8 bit fraction, screen
+        int32_t wx = 0, wy = 0;  // 1 bit sign, 22 bit integer, 8 bit fraction, world
         int32_t wscale_x = 1 << 8, wscale_y = 1 << 8;
         int32_t scale_x = 0, scale_y = 0;
         int32_t cam_x = 0, cam_y = 0;

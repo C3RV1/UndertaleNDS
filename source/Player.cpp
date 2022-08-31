@@ -95,7 +95,7 @@ void Player::update() {
 }
 
 void Player::check_exits() {
-    uint8_t width, height;
+    uint16_t width, height;
     globalRoom->bg.getSize(width, height);
     if (spriteManager.wx < 0) {
         spriteManager.wx = 0;

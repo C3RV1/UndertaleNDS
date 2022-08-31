@@ -7,17 +7,17 @@ def to_fixed_point(f: float):
 
 
 class CutsceneCommands(enum.IntEnum):
-    LOAD_SPRITE = 0
-    PLAYER_CONTROL = 1
-    WAIT_EXIT = 2
-    WAIT_ENTER = 3
-    SET_SHOWN = 4
-    SET_ANIMATION = 5
-    WAIT_FRAMES = 6
-    SET_POS = 7
-    MOVE_IN_FRAMES = 8
-    START_DIALOGUE = 9
-    WAIT_DIALOGUE_END = 10
+    LOAD_SPRITE = 0  # Done (missing battle)
+    PLAYER_CONTROL = 1  # Done
+    WAIT_EXIT = 2  # Done (missing battle)
+    WAIT_ENTER = 3  # Done (missing battle)
+    SET_SHOWN = 4  # Done
+    SET_ANIMATION = 5  # Done
+    WAIT_FRAMES = 6  # Done
+    SET_POS = 7  # Done
+    MOVE_IN_FRAMES = 8  # Done
+    START_DIALOGUE = 9  # Done
+    WAIT_DIALOGUE_END = 10  # Done
     START_BATTLE = 11
     EXIT_BATTLE = 12
     START_BATTLE_DIALOGUE = 13
@@ -25,17 +25,18 @@ class CutsceneCommands(enum.IntEnum):
     WAIT_BATTLE_ATTACK = 15
     WAIT_BATTLE_ACTION = 16
     CMP_BATTLE_ACTION = 17
-    CHECK_HIT = 18
-    JUMP_IF = 19
-    JUMP_IF_NOT = 20
-    JUMP = 21
-    MANUAL_CAMERA = 22
-    UNLOAD_SPRITE = 23
-    SCALE_IN_FRAMES = 24
-    SET_SCALE = 25
-    START_BGM = 26
-    STOP_BGM = 27
-    DEBUG = 0xff
+    CHECK_HIT = 18  # Done
+    JUMP_IF = 19  # Done
+    JUMP_IF_NOT = 20  # Done
+    JUMP = 21  # Done
+    MANUAL_CAMERA = 22  # Done
+    UNLOAD_SPRITE = 23  # Done
+    SCALE_IN_FRAMES = 24  # Done
+    SET_SCALE = 25  # Done
+    START_BGM = 26  # Done
+    STOP_BGM = 27  # Done
+    SET_POS_IN_FRAMES = 28  # Done
+    DEBUG = 0xff  # Done
 
 
 class TargetType(enum.IntEnum):
@@ -59,7 +60,7 @@ class Target:
 class Cutscene:
     def __init__(self, wtr: binary.BinaryWriter):
         self.wtr: binary.BinaryWriter = wtr
-        self.version = 1
+        self.version = 2
         self.file_size_pos = 0
         self.instructions_address = []
         self.pending_address = {}
@@ -140,11 +141,20 @@ class Cutscene:
         self.wtr.write_int32(to_fixed_point(x))
         self.wtr.write_int32(to_fixed_point(y))
 
-    def move_in_frames(self, target: Target, x: float, y: float, frames: int):
-        self.write_header(CutsceneCommands.MOVE_IN_FRAMES)
+    def set_pos_in_frames(self, target: Target, x: float, y: float, frames: int):
+        self.write_header(CutsceneCommands.SET_POS_IN_FRAMES)
         target.write(self.wtr)
         self.wtr.write_int32(to_fixed_point(x))
         self.wtr.write_int32(to_fixed_point(y))
+        self.wtr.write_uint16(frames)
+
+    def move_in_frames(self, target: Target, dx: float, dy: float, frames: int):
+        self.write_header(CutsceneCommands.MOVE_IN_FRAMES)
+        target.write(self.wtr)
+        dx = to_fixed_point(abs(dx)) * (1 if dx > 0 else -1)
+        dy = to_fixed_point(abs(dy)) * (1 if dy > 0 else -1)
+        self.wtr.write_int32(dx)
+        self.wtr.write_int32(dy)
         self.wtr.write_uint16(frames)
 
     def scale_in_frames(self, target: Target, x: float, y: float, frames: int):
@@ -160,7 +170,7 @@ class Cutscene:
                        idle_anim: str, talk_anim: str,
                        speaker_target: Target,
                        idle_anim2: str, talk_anim2: str,
-                       font: str, frames_per_letter=5):
+                       font: str, frames_per_letter=4):
         self.write_header(CutsceneCommands.START_DIALOGUE)
         self.wtr.write_uint16(dialogue_text_id)
         self.wtr.write_string(speaker_path, encoding="ascii")
@@ -178,8 +188,11 @@ class Cutscene:
         self.write_header(CutsceneCommands.WAIT_DIALOGUE_END)
 
     # == BATTLE ==
-    def start_battle(self):
+    def start_battle(self, enemies):
         self.write_header(CutsceneCommands.START_BATTLE)
+        self.wtr.write_uint8(len(enemies))
+        for enemy_id in enemies:
+            self.wtr.write_uint16(enemy_id)
 
     def exit_battle(self):
         self.write_header(CutsceneCommands.EXIT_BATTLE)
@@ -203,11 +216,12 @@ class Cutscene:
     def wait_battle_attack(self):
         self.write_header(CutsceneCommands.WAIT_BATTLE_ATTACK)
 
-    def wait_battle_action(self, act_actions):
+    def wait_battle_action(self, text_id, act_actions):
         self.write_header(CutsceneCommands.WAIT_BATTLE_ACTION)
+        self.wtr.write_uint8(text_id)
         self.wtr.write_uint8(len(act_actions))
         for act_action in act_actions:
-            self.wtr.write_string(act_action, encoding="ascii")
+            self.wtr.write_uint8(act_action)
 
     def cmp_battle_action(self, compare_action):
         self.write_header(CutsceneCommands.CMP_BATTLE_ACTION)

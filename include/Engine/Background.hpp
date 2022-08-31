@@ -25,7 +25,7 @@ namespace Engine {
         uint16_t* getColors() const { return colors; }
         uint16_t getTileCount() const { return tileCount; }
         uint8_t* getTiles() const { return tiles; }
-        void getSize(uint8_t& l_width, uint8_t& l_height) const {
+        void getSize(uint16_t& l_width, uint16_t& l_height) const {
             l_width = width;
             l_height = height;
         }
@@ -39,7 +39,7 @@ namespace Engine {
         uint16_t* colors = nullptr;
         uint16_t tileCount = 0;
         uint8_t* tiles = nullptr;
-        uint8_t width = 0, height = 0;
+        uint16_t width = 0, height = 0;
         uint16_t* map = nullptr;
     };
 }

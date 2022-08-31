@@ -33,6 +33,10 @@ struct NavigationTask {
 
 class Navigation {
 public:
+    static void spawn_sprite(char* path, int32_t x, int32_t y,
+                             CutsceneLocation callingLocation);
+    static void unload_sprite(uint8_t sprId,
+                              CutsceneLocation callingLocation);
     static void set_position(uint8_t targetType, uint8_t targetId, int32_t x, int32_t y,
                              CutsceneLocation callingLocation);
     static void set_scale(uint8_t targetType, uint8_t targetId, int32_t x, int32_t y,
@@ -41,7 +45,9 @@ public:
                           CutsceneLocation callingLocation);
     static void set_animation(uint8_t targetType, uint8_t targetId, char* animName,
                        CutsceneLocation callingLocation);
-    void move_in_frames(uint8_t targetType, uint8_t targetId, int32_t x, int32_t y,
+    void set_pos_in_frames(uint8_t targetType, uint8_t targetId, int32_t x, int32_t y,
+                           uint16_t frames, CutsceneLocation callingLocation);
+    void move_in_frames(uint8_t targetType, uint8_t targetId, int32_t dx, int32_t dy,
                         uint16_t frames, CutsceneLocation callingLocation);
     void scale_in_frames(uint8_t targetType, uint8_t targetId, int32_t x, int32_t y,
                          uint16_t frames, CutsceneLocation callingLocation);

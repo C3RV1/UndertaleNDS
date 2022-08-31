@@ -19,7 +19,7 @@ class Player;
 
 class Player {
 public:
-    const int MOVE_SPEED = (60 << 8) / 60;  // 128 pixels per second
+    const int MOVE_SPEED = (90 << 8) / 60;  // 128 pixels per second
     const int FRAME_TIME = 15;
 
     Player();

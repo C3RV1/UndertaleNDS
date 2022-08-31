@@ -44,9 +44,6 @@ namespace Engine {
         fread(colors, 2, colorCount, f);
 
         fread(&tileCount, 2, 1, f);
-        if (tileCount > 1024) {
-            return 5;
-        }
 
         uint32_t tileDataSize = 32;
         if (color8bit)
@@ -55,8 +52,8 @@ namespace Engine {
         tiles = new uint8_t[tileCount * tileDataSize];
         fread(tiles, tileDataSize, tileCount, f);
 
-        fread(&width, 1, 1, f);
-        fread(&height, 1, 1, f);
+        fread(&width, 2, 1, f);
+        fread(&height, 2, 1, f);
 
         map = new uint16_t[width * height];
         fread(map, 2, width * height, f);

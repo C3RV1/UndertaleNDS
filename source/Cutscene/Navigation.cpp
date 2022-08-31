@@ -4,6 +4,40 @@
 
 #include "Cutscene/Navigation.hpp"
 
+void Navigation::spawn_sprite(char *path, int32_t x, int32_t y,
+                              CutsceneLocation callingLocation) {
+    if (callingLocation == LOAD_ROOM || callingLocation == ROOM) {
+        auto* newSprites = new RoomSprite*[globalRoom->spriteCount + 1];
+        memcpy(newSprites, globalRoom->sprites, sizeof(RoomSprite*) * globalRoom->spriteCount);
+
+        auto* newRoomSprite = new RoomSprite;
+        newRoomSprite->spawn(path, x, y);
+
+        newSprites[globalRoom->spriteCount] = newRoomSprite;
+        delete globalRoom->sprites;
+        globalRoom->sprites = newSprites;
+        globalRoom->spriteCount++;
+    }
+}
+
+void Navigation::unload_sprite(uint8_t sprId, CutsceneLocation callingLocation) {
+    if (callingLocation == LOAD_ROOM || callingLocation == ROOM) {
+        if (sprId >=globalRoom->spriteCount)
+            return;
+        auto* sprite = globalRoom->sprites[sprId];
+        sprite->free_();
+        delete sprite;
+
+        auto* newSprites = new RoomSprite*[globalRoom->spriteCount - 1];
+        memcpy(newSprites, globalRoom->sprites, sizeof(RoomSprite*) * sprId);
+        memcpy(&newSprites[sprId], &globalRoom->sprites[sprId + 1],
+               sizeof(RoomSprite*) * (globalRoom->spriteCount - (sprId + 1)));
+        delete globalRoom->sprites;
+        globalRoom->sprites = newSprites;
+        globalRoom->spriteCount--;
+    }
+}
+
 void Navigation::set_position(uint8_t targetType, uint8_t targetId, int32_t x, int32_t y,
                               CutsceneLocation callingLocation) {
     Engine::SpriteManager* spriteManager = getTarget(targetType, targetId, callingLocation);
@@ -43,14 +77,28 @@ void Navigation::set_animation(uint8_t targetType, uint8_t targetId, char *animN
     spriteManager->setSpriteAnim(animId);
 }
 
-void Navigation::move_in_frames(uint8_t targetType, uint8_t targetId, int32_t x, int32_t y, uint16_t frames,
-                                CutsceneLocation callingLocation) {
+void Navigation::set_pos_in_frames(uint8_t targetType, uint8_t targetId, int32_t x, int32_t y, uint16_t frames,
+                                   CutsceneLocation callingLocation) {
     auto* navTask = new NavigationTask;
     navTask->target = getTarget(targetType, targetId, callingLocation);
     navTask->startingX = navTask->target->wx;
     navTask->startingY = navTask->target->wy;
     navTask->destX = x;
     navTask->destY = y;
+    navTask->frames = frames;
+    navTask->taskType = POSITION;
+    startTask(navTask);
+    // nav task not freed as it's managed by navigation
+}
+
+void Navigation::move_in_frames(uint8_t targetType, uint8_t targetId, int32_t dx, int32_t dy, uint16_t frames,
+                                CutsceneLocation callingLocation) {
+    auto* navTask = new NavigationTask;
+    navTask->target = getTarget(targetType, targetId, callingLocation);
+    navTask->startingX = navTask->target->wx;
+    navTask->startingY = navTask->target->wy;
+    navTask->destX = navTask->target->wx + dx;
+    navTask->destY = navTask->target->wy + dy;
     navTask->frames = frames;
     navTask->taskType = POSITION;
     startTask(navTask);
@@ -119,8 +167,7 @@ void Navigation::endTask(int taskId) {
 
     auto** newTasks = new NavigationTask*[taskCount - 1];
     memcpy(newTasks, tasks, sizeof(NavigationTask*) * taskId);
-    memcpy(newTasks + sizeof(NavigationTask*) * taskId,
-           tasks + sizeof(NavigationTask*) * (taskId + 1),
+    memcpy(&newTasks[taskId], &tasks[taskId + 1],
            sizeof(NavigationTask*) * (taskCount - (taskId + 1)));
     delete[] tasks;
     tasks = newTasks;
@@ -144,11 +191,11 @@ Engine::SpriteManager* Navigation::getTarget(uint8_t targetType, uint8_t targetI
         } else if (targetType == CAMERA) {
             return &globalCamera.pos;
         } else if (targetType == SPRITE) {
-            if (targetId >= globalRoom->roomData.roomSprites.spriteCount) {
+            if (targetId >= globalRoom->spriteCount) {
                 nocashMessage("Error: target id outside of sprite count");
                 return nullptr;
             } else {
-                return &globalRoom->sprites[targetId].spriteManager;
+                return &globalRoom->sprites[targetId]->spriteManager;
             }
         }
     }
