@@ -1,0 +1,80 @@
+{
+    "image": "spr/room_sprites/toriel.png",
+    "size": [25, 52],
+    "frameCount": 15,
+    "animations": [
+        {
+            "name": "upIdle",
+            "frames": [{"frame": 0, "duration": 0}]
+        },
+        {
+            "name": "downIdle",
+            "frames": [{"frame": 3, "duration": 0}]
+        },
+        {
+            "name": "rightIdle",
+            "frames": [{"frame": 6, "duration": 0}]
+        },
+        {
+            "name": "leftIdle",
+            "frames": [{"frame": 9, "duration": 0}]
+        },
+        {
+            "name": "upMove",
+            "frames": [
+                {"frame": 0, "duration": 10},
+                {"frame": 1, "duration": 10},
+                {"frame": 0, "duration": 10},
+                {"frame": 2, "duration": 10}
+            ]
+        },
+        {
+            "name": "downMove",
+            "frames": [
+                {"frame": 3, "duration": 10},
+                {"frame": 4, "duration": 10},
+                {"frame": 3, "duration": 10},
+                {"frame": 5, "duration": 10}
+            ]
+        },
+        {
+            "name": "rightMove",
+            "frames": [
+                {"frame": 6, "duration": 10},
+                {"frame": 7, "duration": 10},
+                {"frame": 6, "duration": 10},
+                {"frame": 8, "duration": 10}
+            ]
+        },
+        {
+            "name": "leftMove",
+            "frames": [
+                {"frame": 9, "duration": 10},
+                {"frame": 10, "duration": 10},
+                {"frame": 9, "duration": 10},
+                {"frame": 11, "duration": 10}
+            ]
+        },
+        {
+            "name": "downTalk",
+            "frames": [
+                {"frame": 3, "duration": 10},
+                {"frame": 12, "duration": 10}
+            ]
+        },
+        {
+            "name": "rightTalk",
+            "frames": [
+                {"frame": 6, "duration": 10},
+                {"frame": 14, "duration": 10}
+            ]
+        },
+        {
+            "name": "leftTalk",
+            "frames": [
+                {"frame": 9, "duration": 10},
+                {"frame": 13, "duration": 10}
+            ]
+        }
+    ]
+}

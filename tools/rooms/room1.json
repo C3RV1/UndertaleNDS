@@ -39,7 +39,7 @@
           "w": 318,
           "h": 16,
           "collider_action": "trigger",
-          "cutscene_id": 0
+          "cutscene_id": 2
         }
       ]
     }

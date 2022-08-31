@@ -34,6 +34,7 @@ enum CutsceneCommands {
     CMD_SET_SCALE = 25,
     CMD_START_BGM = 26,
     CMD_STOP_BGM = 27,
+    CMD_SET_POS_IN_FRAMES = 28,
     CMD_DEBUG = 0xff
 };
 

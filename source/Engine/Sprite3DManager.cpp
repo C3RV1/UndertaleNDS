@@ -83,6 +83,7 @@ namespace Engine {
         res.memory.tileStart = start;
         sprintf(buffer, "SPR tile start %d palette %d", start, res.memory.paletteIdx);
         nocashMessage(buffer);
+        res.memory.loadedFrame = -1;
         int loadResult = loadSpriteFrame(res, 0);
         if (loadResult < 0) {
             return loadResult - 4;
@@ -97,7 +98,6 @@ namespace Engine {
         activeSpriteCount++;
 
         res.memory.allocated = Allocated3D;
-        res.memory.loadedFrame = -1;
         return 0;
     }
 
@@ -194,7 +194,7 @@ namespace Engine {
 
         vramSetBankB(VRAM_B_LCD);
 
-        uint8_t *tileRamStart = (uint8_t *) VRAM_B + spr.memory.tileStart * 64;
+        uint8_t *tileRamStart = (uint8_t *) VRAM_B + spr.memory.tileStart;
 
         uint8_t tileWidth, tileHeight;
         spr.sprite->getSizeTiles(tileWidth, tileHeight);
@@ -207,8 +207,8 @@ namespace Engine {
                 uint32_t tileOffset = framePos + tileY * tileWidth + tileX;
                 tileOffset *= 64;
                 tileOffset += (y % 8) * 8 + (x % 8);
-                *(uint16_t*)(tileRamStart + y * spr.memory.allocX + x) &= ~(0xFF << (8 * (x & 1)));
-                *(uint16_t*)(tileRamStart + y * spr.memory.allocX + x) |= (spr.sprite->getTiles()[tileOffset] & 0xFF) << (8 * (x & 1));
+                *(uint16_t*)(tileRamStart + y * spr.memory.allocX + x) &= ~(0xFF << (8 * !(x & 1)));
+                *(uint16_t*)(tileRamStart + y * spr.memory.allocX + x) |= (spr.sprite->getTiles()[tileOffset] & 0xFF) << (8 * !(x & 1));
             }
         }
 
@@ -242,12 +242,12 @@ namespace Engine {
             uint8_t tileWidth, tileHeight;
             spr->sprite->getSizeTiles(tileWidth, tileHeight);
             uint32_t x = spr->x >> 8;
-            uint32_t x2 = (spr->x + (tileWidth * 8 * spr->scale_x)) >> 8;
+            uint32_t x2 = x + ((tileWidth * 8 * spr->scale_x) >> 8);
             uint32_t w = tileWidth * 8;
             uint32_t y = (spr->y >> 8);
-            uint32_t y2 = (spr->y + (tileHeight * 8 * spr->scale_y)) >> 8;
+            uint32_t y2 = y + ((tileHeight * 8 * spr->scale_y) >> 8);
             uint32_t h = tileHeight * 8;
-            GFX_TEX_FORMAT = (allocXFmt << 20) + (allocYFmt << 23) + (4 << 26) + (1 << 29) + spr->memory.tileStart * 8;
+            GFX_TEX_FORMAT = (allocXFmt << 20) + (allocYFmt << 23) + (4 << 26) + (1 << 29) + spr->memory.tileStart / 8;
             GFX_PAL_FORMAT = spr->memory.paletteIdx * 2 * 256 / 16;
             GFX_BEGIN = GL_QUADS;
             GFX_TEX_COORD = 0;

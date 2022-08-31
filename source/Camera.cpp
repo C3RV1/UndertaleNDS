@@ -10,7 +10,7 @@ void Camera::updatePosition(bool roomChange) {
         pos.wx = globalPlayer->spriteManager.wx - ((256 / 2 - 9) << 8);
         pos.wy = globalPlayer->spriteManager.wy - ((192 / 2 - 14) << 8);
     }
-    uint8_t roomW, roomH;
+    uint16_t roomW, roomH;
     globalRoom->bg.getSize(roomW, roomH);
     if ((pos.wx >> 8) + 256 > roomW * 8) {
         pos.wx = (roomW * 8 - 256) << 8;

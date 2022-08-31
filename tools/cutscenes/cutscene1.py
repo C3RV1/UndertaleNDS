@@ -18,7 +18,7 @@ def cutscene(c: Cutscene):
     c.debug("End camera manual!")
     c.manual_camera(False)
     c.wait_frames(180)
-    c.move_in_frames(Target(TargetType.SPRITE, 0), 100, 100, 180)
+    c.set_pos_in_frames(Target(TargetType.SPRITE, 0), 100, 100, 180)
     c.scale_in_frames(Target(TargetType.SPRITE, 0), 2, 0.5, 180)
     c.wait_exit()
     c.debug("End debug cutscene!")

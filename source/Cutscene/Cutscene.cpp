@@ -70,12 +70,14 @@ void Cutscene::update(CutsceneLocation callingLocation) {
 bool Cutscene::runCommands(CutsceneLocation callingLocation) {
     if (commandStream == nullptr)
         return true;
+    if (waiting.getBusy())
+        return false;
+    if (ftell(commandStream) == commandStreamLen)
+        return true;
     while (!waiting.getBusy() && ftell(commandStream) != commandStreamLen) {
         if (runCommand(callingLocation))
             break;
     }
-    if (ftell(commandStream) == commandStreamLen)
-        return true;
     return false;
 }
 
@@ -100,17 +102,23 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             fread(buffer, len + 1, 1, commandStream);
             nocashMessage(buffer);
             break;
-        case CMD_LOAD_SPRITE:
+        case CMD_LOAD_SPRITE: {
             nocashMessage("CMD_LOAD_SPRITE");
-            fread(buffer, 4, 1, commandStream);
-            fread(buffer, 4, 1, commandStream);
+            int32_t x, y;
+            fread(&x, 4, 1, commandStream);
+            fread(&y, 4, 1, commandStream);
             len = strlen_file(commandStream, 0);
             fread(buffer, len + 1, 1, commandStream);
+            Navigation::spawn_sprite(buffer, x, y, callingLocation);
             break;
-        case CMD_UNLOAD_SPRITE:
+        }
+        case CMD_UNLOAD_SPRITE: {
             nocashMessage("CMD_UNLOAD_SPRITE");
-            fread(buffer, 1, 1, commandStream);
+            uint8_t sprId;
+            fread(&sprId, 1, 1, commandStream);
+            Navigation::unload_sprite(sprId, callingLocation);
             break;
+        }
         case CMD_PLAYER_CONTROL: {
             nocashMessage("CMD_PLAYER_CONTROL");
             bool playerControl;
@@ -179,6 +187,19 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             fread(&x, 4, 1, commandStream);
             fread(&y, 4, 1, commandStream);
             Navigation::set_scale(targetType, targetId, x, y, callingLocation);
+            break;
+        }
+        case CMD_SET_POS_IN_FRAMES: {
+            nocashMessage("CMD_SET_POS_IN_FRAMES");
+            fread(&targetType, 1, 1, commandStream);
+            if (targetType == TargetType::SPRITE)
+                fread(&targetId, 1, 1, commandStream);
+            int32_t x, y;
+            fread(&x, 4, 1, commandStream);
+            fread(&y, 4, 1, commandStream);
+            uint16_t frames;
+            fread(&frames, 2, 1, commandStream);
+            nav->set_pos_in_frames(targetType, targetId, x, y, frames, callingLocation);
             break;
         }
         case CMD_MOVE_IN_FRAMES: {
@@ -300,14 +321,19 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
         case CMD_JUMP_IF:
             nocashMessage("CMD_JUMP_IF");
             fread(&address, 4, 1, commandStream);
+            if (flag)
+                fseek(commandStream, address, SEEK_SET);
             break;
         case CMD_JUMP_IF_NOT:
             nocashMessage("CMD_JUMP_IF_NOT");
             fread(&address, 4, 1, commandStream);
+            if (!flag)
+                fseek(commandStream, address, SEEK_SET);
             break;
         case CMD_JUMP:
             nocashMessage("CMD_JUMP");
             fread(&address, 4, 1, commandStream);
+            fseek(commandStream, address, SEEK_SET);
             break;
         case CMD_START_BGM: {
             nocashMessage("CMD_START_BGM");

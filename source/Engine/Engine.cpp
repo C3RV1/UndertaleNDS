@@ -97,11 +97,14 @@ namespace Engine {
             tileDataSize = 32;
         }
 
+        if (bg.getTileCount() > 1024)
+            return 2;
+
         dmaCopyWords(3, bg.getTiles(), tileRam, tileDataSize * bg.getTileCount());
 
         uint16_t sizeFlag = 0;
         uint16_t mapRamUsage = 0x800;
-        uint8_t width, height;
+        uint16_t width, height;
         bg.getSize(width, height);
         if (width > 32) {
             sizeFlag += 1 << 14;  // bit 14 for 64 tile width
@@ -166,7 +169,7 @@ namespace Engine {
 
         uint16_t sizeFlag = 0;
         uint16_t mapRamUsage = 0x200;
-        uint8_t width, height;
+        uint16_t width, height;
         bg.getSize(width, height);
         uint8_t mapW = width, mapH = height;
         if (forceSize != 0) {
@@ -225,7 +228,7 @@ namespace Engine {
         bool color8bit = bg.getColor8bit();
 
         int mapSize = 16 << ((*bg3Reg >> 14) & 3);
-        uint8_t width, height;
+        uint16_t width, height;
         bg.getSize(width, height);
         for (int row = y; row < y + h; row++) {
             for (int col = x; col < x + w; col++) {

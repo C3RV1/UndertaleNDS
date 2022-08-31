@@ -96,8 +96,8 @@ def convert(input_file, output_file):
     wtr.write(tiles.tobytes())
 
     # begin map
-    wtr.write_uint8(tile_map.shape[1])
-    wtr.write_uint8(tile_map.shape[0])
+    wtr.write_uint16(tile_map.shape[1])
+    wtr.write_uint16(tile_map.shape[0])
     wtr.write(tile_map.tobytes())
 
     size = wtr.tell()
@@ -110,6 +110,8 @@ def compileBackgrounds():
     for root, _, files in os.walk("bg"):
         for file in files:
             path = os.path.join(root, file)
+            if file.startswith("_"):
+                continue
             path_dest = os.path.splitext(os.path.join("../nitrofs", path))[0] + ".cbgf"
             if os.path.isfile(path_dest):
                 src_time = os.path.getmtime(path)

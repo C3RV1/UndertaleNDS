@@ -16,12 +16,11 @@ class RoomSprite {
 public:
     RoomSprite() : spriteManager(Engine::Allocated3D) {}
     void load(ROOMSprite* sprData);
-    void hide();
+    void spawn(char* path, int32_t x, int32_t y);
     void draw();
     void free_();
     Engine::SpriteManager spriteManager;
 private:
-    int32_t x = 0, y = 0; // 23 bit integer, 8 bit fraction
     Engine::Sprite spr;
     int animationId = -1;
 };

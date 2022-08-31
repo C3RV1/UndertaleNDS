@@ -90,6 +90,7 @@ bool Dialogue::update() {
         if (keysDown() & (KEY_TOUCH | KEY_A)) {
             paused = false;
             if (ftell(textStream) == textLen) {
+                fclose(textStream);
                 return true;
             }
             progressText();

@@ -220,8 +220,11 @@ void Room::free_() {
     roomData.musicBg = nullptr;
     delete[] roomData.roomExits.roomExits;
     roomData.roomExits.roomExits = nullptr;
+    for (int i = 0; i < spriteCount; i++) {
+        sprites[i]->free_();
+        delete sprites[i];
+    }
     for (int i = 0; i < roomData.roomSprites.spriteCount; i++) {
-        sprites[i].free_();
         delete[] roomData.roomSprites.roomSprites[i].spritePath;
         roomData.roomSprites.roomSprites[i].spritePath = nullptr;
         delete[] roomData.roomSprites.roomSprites[i].animation;
@@ -238,9 +241,11 @@ void Room::free_() {
 }
 
 void Room::loadSprites() {
-    sprites = new RoomSprite[roomData.roomSprites.spriteCount];
+    sprites = new RoomSprite*[roomData.roomSprites.spriteCount];
+    spriteCount = roomData.roomSprites.spriteCount;
     for (int i = 0; i < roomData.roomSprites.spriteCount; i++) {
-        sprites[i].load(&roomData.roomSprites.roomSprites[i]);
+        sprites[i] = new RoomSprite;
+        sprites[i]->load(&roomData.roomSprites.roomSprites[i]);
     }
 }
 
@@ -249,8 +254,8 @@ bool Room::evaluateCondition(FILE *f) {
 }
 
 void Room::draw() const {
-    for (int i = 0; i < roomData.roomSprites.spriteCount; i++) {
-        sprites[i].draw();
+    for (int i = 0; i < spriteCount; i++) {
+        sprites[i]->draw();
     }
 }
 

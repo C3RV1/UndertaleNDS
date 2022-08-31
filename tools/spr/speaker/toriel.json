@@ -1,0 +1,20 @@
+{
+    "image": "spr/speaker/toriel.png",
+    "size": [50, 39],
+    "frameCount": 2,
+    "animations": [
+        {
+            "name": "talkIdle",
+            "frames": [
+                {"frame": 0, "duration": 0}
+            ]
+        },
+        {
+            "name": "talkTalk",
+            "frames": [
+                {"frame": 0, "duration": 10},
+                {"frame": 1, "duration": 10}
+            ]
+        }
+    ]
+}
