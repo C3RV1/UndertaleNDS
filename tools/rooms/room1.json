@@ -35,11 +35,11 @@
       "colliders": [
         {
           "x": 0,
-          "y": 288,
+          "y": 278,
           "w": 318,
           "h": 16,
           "collider_action": "trigger",
-          "cutscene_id": 1
+          "cutscene_id": 0
         }
       ]
     }

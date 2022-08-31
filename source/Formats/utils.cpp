@@ -14,8 +14,5 @@ int strlen_file(FILE *f, char terminator) {
         count += 1;
     } while (byte != terminator && ftell(f) != len);
     fseek(f, pos, SEEK_SET);
-    if (byte != terminator) {
-        return -1;
-    }
     return count;
 }

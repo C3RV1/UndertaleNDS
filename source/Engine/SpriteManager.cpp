@@ -4,6 +4,10 @@
 #include "SpriteManager.hpp"
 
 namespace Engine {
+    SpriteManager::SpriteManager(Engine::AllocationMode allocMode_) {
+        allocMode = allocMode_;
+    }
+
     void SpriteManager::setSpriteAnim(int animId) {
         if (!loaded)
             return;
@@ -48,5 +52,46 @@ namespace Engine {
                 }
             }
         }
+    }
+
+    void SpriteManager::setShown(bool shown_) {
+        if (!loaded)
+            return;
+        if (shown_ == shown)
+            return;
+        shown = shown_;
+        if (shown) {
+            if (memory.allocated != NoAlloc)
+                return;
+            if (allocMode == Allocated3D)
+                main3dSpr.loadSprite(*this);
+            else if (allocMode == AllocatedOAM)
+                OAMManagerSub.loadSprite(*this);
+        } else {
+            if (memory.allocated == Allocated3D)
+                main3dSpr.freeSprite(*this);
+            else if (memory.allocated == AllocatedOAM)
+                OAMManagerSub.freeSprite(*this);
+        }
+    }
+
+    int SpriteManager::nameToAnimId(const char *animName) const {
+        if (!loaded)
+            return -1;
+        for (int i = 0; i < sprite->getAnimCount(); i++) {
+            if (strcmp(animName, sprite->getAnims()[i].name) == 0) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    void SpriteManager::push() {
+        pushed = shown;
+        setShown(false);
+    }
+
+    void SpriteManager::pop() {
+        setShown(pushed);
     }
 }

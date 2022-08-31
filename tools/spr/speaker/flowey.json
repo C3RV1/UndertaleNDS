@@ -10,8 +10,8 @@
     {
       "name": "nice1_talk",
       "frames": [
-        {"frame": 0, "duration": 30},
-        {"frame": 1, "duration": 30}
+        {"frame": 0, "duration": 10},
+        {"frame": 1, "duration": 10}
       ]
     },
     {

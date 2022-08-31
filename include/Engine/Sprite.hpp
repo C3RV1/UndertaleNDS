@@ -19,7 +19,6 @@ namespace Engine {
         uint8_t getFrameCount() const { return frameCount; }
         uint8_t getAnimCount() const { return animationCount; }
         CSPRAnimation* getAnims() const { return animations;  }
-        int nameToAnimId(const char *animName);
         void getSizeTiles(uint8_t& tileWidth_, uint8_t& tileHeight_) const {
             tileWidth_ = tileWidth;
             tileHeight_ = tileHeight;

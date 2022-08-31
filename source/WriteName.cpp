@@ -19,9 +19,6 @@ void writeNameMenu() {
     const int letterCount = 26 * 2;
     const int maxLen = 10;
 
-    // Color 12 to yellow
-    Engine::textSub.setPaletteColor256(12, 255, 255, 0, true);
-
     BGM::WAV music;
     int loadMusic = music.loadWAV("nitro:/z_audio/mus_menu0.wav");
     sprintf(buffer, "Load mus_menu0.wav: %d", loadMusic);

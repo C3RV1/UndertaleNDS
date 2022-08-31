@@ -22,6 +22,13 @@ void Navigation::set_scale(uint8_t targetType, uint8_t targetId, int32_t x, int3
     spriteManager->wscale_y = y;
 }
 
+void Navigation::set_shown(uint8_t targetType, uint8_t targetId, bool shown, CutsceneLocation callingLocation) {
+    Engine::SpriteManager* spriteManager = getTarget(targetType, targetId, callingLocation);
+    if (spriteManager == nullptr)
+        return;
+    spriteManager->setShown(shown);
+}
+
 void Navigation::set_animation(uint8_t targetType, uint8_t targetId, char *animName, CutsceneLocation callingLocation) {
     Engine::SpriteManager* spriteManager = getTarget(targetType, targetId, callingLocation);
     if (spriteManager == nullptr) {
@@ -32,7 +39,7 @@ void Navigation::set_animation(uint8_t targetType, uint8_t targetId, char *animN
         nocashMessage("no sprite");
         return;
     }
-    int animId = spriteManager->sprite->nameToAnimId(animName);
+    int animId = spriteManager->nameToAnimId(animName);
     spriteManager->setSpriteAnim(animId);
 }
 

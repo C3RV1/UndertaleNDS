@@ -108,6 +108,29 @@ namespace Engine {
         x = endX;
     }
 
+    uint8_t TextBGManager::getGlyphWidth(Font& font, uint8_t glyph) {
+        if (!font.getLoaded())
+            return 0;
+
+        uint8_t glyphIdx = font.getGlyphMap()[glyph];
+        if (glyphIdx == 0)
+            return 0;
+        CFNTGlyph* glyphObj = font.getGlyph(glyphIdx);
+        return glyphObj->shift;
+    }
+
+    void TextBGManager::reloadColors() {
+        paletteRam[16 * 15 + 0] = 31 << 5;  // full green color (transparent)
+        paletteRam[16 * 15 + 8] = 0;  // black color
+        paletteRam[16 * 15 + 9] = 31;  // full red color
+        paletteRam[16 * 15 + 10] = 31 << 5;  // full green color
+        paletteRam[16 * 15 + 11] = 31 << 10;  // full blue color
+        paletteRam[16 * 15 + 12] = 31 + (31 << 5);  // red + green = yellow
+        paletteRam[16 * 15 + 13] = 31 + (31 << 10);  // red + blue = purple
+        paletteRam[16 * 15 + 14] = (31 << 5) + (31 << 10);  // green + blue = turquoise
+        paletteRam[16 * 15 + 15] = (31 << 10) + (31 << 5) + 31;  // full white color
+    }
+
     void TextBGManager::clear() {
         memset(mapRam, 0, 2 * 32 * 32);
         tileReserve = 1;

@@ -37,19 +37,21 @@ public:
                              CutsceneLocation callingLocation);
     static void set_scale(uint8_t targetType, uint8_t targetId, int32_t x, int32_t y,
                           CutsceneLocation callingLocation);
-    void set_animation(uint8_t targetType, uint8_t targetId, char* animName,
+    static void set_shown(uint8_t targetType, uint8_t targetId, bool shown,
+                          CutsceneLocation callingLocation);
+    static void set_animation(uint8_t targetType, uint8_t targetId, char* animName,
                        CutsceneLocation callingLocation);
     void move_in_frames(uint8_t targetType, uint8_t targetId, int32_t x, int32_t y,
                         uint16_t frames, CutsceneLocation callingLocation);
     void scale_in_frames(uint8_t targetType, uint8_t targetId, int32_t x, int32_t y,
                          uint16_t frames, CutsceneLocation callingLocation);
     void update();
+    static Engine::SpriteManager* getTarget(uint8_t targetType, uint8_t targetId,
+                                            CutsceneLocation callingLocation);
 private:
     void startTask(NavigationTask* navTask);
     bool updateTask(int taskId);
     void endTask(int taskId);
-    static Engine::SpriteManager* getTarget(uint8_t targetType, uint8_t targetId,
-                                     CutsceneLocation callingLocation);
     uint8_t taskCount = 0;
     NavigationTask** tasks = nullptr;
 };

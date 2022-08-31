@@ -4,7 +4,7 @@
 
 #include "Player.hpp"
 
-Player::Player() {
+Player::Player() : spriteManager(Engine::Allocated3D) {
     char buffer[100];
     FILE *f = fopen("nitro:/spr/mainchara.cspr", "rb");
     if (f) {
@@ -19,28 +19,14 @@ Player::Player() {
     fclose(f);
     spriteManager.loadSprite(playerSpr);
 
-    upIdleId = playerSpr.nameToAnimId("upIdle");
-    downIdleId = playerSpr.nameToAnimId("downIdle");
-    leftIdleId = playerSpr.nameToAnimId("leftIdle");
-    rightIdleId = playerSpr.nameToAnimId("rightIdle");
-    upMoveId = playerSpr.nameToAnimId("upMove");
-    downMoveId = playerSpr.nameToAnimId("downMove");
-    leftMoveId = playerSpr.nameToAnimId("leftMove");
-    rightMoveId = playerSpr.nameToAnimId("rightMove");
-}
-
-void Player::showPlayer() {
-    char buffer[100];
-    int loadSprite = Engine::main3dSpr.loadSprite(spriteManager);
-    if (loadSprite != 0) {
-        sprintf(buffer, "Error showing player: %d", loadSprite);
-        nocashMessage(buffer);
-        return;
-    }
-}
-
-void Player::hidePlayer() {
-    Engine::main3dSpr.freeSprite(spriteManager);
+    upIdleId = spriteManager.nameToAnimId("upIdle");
+    downIdleId = spriteManager.nameToAnimId("downIdle");
+    leftIdleId = spriteManager.nameToAnimId("leftIdle");
+    rightIdleId = spriteManager.nameToAnimId("rightIdle");
+    upMoveId = spriteManager.nameToAnimId("upMove");
+    downMoveId = spriteManager.nameToAnimId("downMove");
+    leftMoveId = spriteManager.nameToAnimId("leftMove");
+    rightMoveId = spriteManager.nameToAnimId("rightMove");
 }
 
 void Player::update() {

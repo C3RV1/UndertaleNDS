@@ -13,6 +13,7 @@ class Camera;
 
 class Camera {
 public:
+    Camera() : pos(Engine::NoAlloc) {}
     void updatePosition(bool roomChange);
     bool manual = false;
     int prevX = 0, prevY = 0;

@@ -115,7 +115,7 @@ namespace BGM {
         mm_stream stream;
 
         stream.sampling_rate = wav.getSampleRate();
-        stream.buffer_length = stream.sampling_rate;  // 1 seconds buffer
+        stream.buffer_length = 8000;  // 1 seconds buffer
         stream.callback = fillWAV;   // give wav filling routine
         uint16_t format;
         if (wav.getBitsPerSample() == 8) {

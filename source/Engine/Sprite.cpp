@@ -79,15 +79,4 @@ namespace Engine {
         delete[] animations;
         animations = nullptr;
     }
-
-    int Sprite::nameToAnimId(const char *animName) {
-        if (!loaded)
-            return -1;
-        for (int i = 0; i < animationCount; i++) {
-            if (strcmp(animName, animations[i].name) == 0) {
-                return i;
-            }
-        }
-        return -1;
-    }
 }

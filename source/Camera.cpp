@@ -26,8 +26,10 @@ void Camera::updatePosition(bool roomChange) {
     }
     if (!roomChange) {
         // 3D engine lags behind 1 frame for some reason
-        REG_BG3X = mod(prevX, 512 << 8);
-        REG_BG3Y = mod(prevY, 512 << 8);
+        if (prevX != pos.wx || prevY != pos.wy) {
+            REG_BG3X = mod(prevX, 512 << 8);
+            REG_BG3Y = mod(prevY, 512 << 8);
+        }
     } else {
         REG_BG3X = mod(pos.wx, 512 << 8);
         REG_BG3Y = mod(pos.wy, 512 << 8);
@@ -41,12 +43,12 @@ void Camera::updatePosition(bool roomChange) {
         int incrementX = xTilePost > xTilePrev ? 1 : -1;
         int incrementY = yTilePost > yTilePrev ? 1 : -1;
         for (int xTile = xTilePrev; xTile != xTilePost; xTile += incrementX) {
-            Engine::loadBgRectMain(globalRoom->bg, xTile + incrementX + 32, yTilePost, 1, 26);
-            Engine::loadBgRectMain(globalRoom->bg, xTile + incrementX - 1, yTilePost, 1, 26);
+            Engine::loadBgRectMain(globalRoom->bg, xTile + incrementX + 32, yTilePost - 1, 1, 26);
+            Engine::loadBgRectMain(globalRoom->bg, xTile + incrementX - 1, yTilePost - 1, 1, 26);
         }
         for (int yTile = yTilePrev; yTile != yTilePost; yTile += incrementY) {
-            Engine::loadBgRectMain(globalRoom->bg, xTilePost, yTile + incrementY + 24, 34, 1);
-            Engine::loadBgRectMain(globalRoom->bg, xTilePost, yTile + incrementY - 1, 34, 1);
+            Engine::loadBgRectMain(globalRoom->bg, xTilePost - 1, yTile + incrementY + 24, 34, 1);
+            Engine::loadBgRectMain(globalRoom->bg, xTilePost - 1, yTile + incrementY - 1, 34, 1);
         }
     } else if (roomChange) {
         Engine::loadBgRectMain(globalRoom->bg, xTilePost - 1, yTilePost - 1, 34, 26);

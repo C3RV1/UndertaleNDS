@@ -8,7 +8,7 @@ import numpy as np
 import binary
 
 
-FORCE_8BIT = True
+FORCE_8BIT = False
 
 
 def convert(input_file, output_file):
