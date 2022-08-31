@@ -39,7 +39,7 @@ int main() {
     Engine::textSub.clear();
 
     globalPlayer = new Player();
-    globalPlayer->showPlayer();
+    globalPlayer->spriteManager.setShown(true);
     globalPlayer->spriteManager.wx = 144 << 8;
     globalPlayer->spriteManager.wy = 121 << 8;
     globalRoom = new Room(0);
@@ -52,6 +52,13 @@ int main() {
         globalPlayer->update();
         globalRoom->update();
         if (globalCutscene != nullptr) {
+            if (currentDialogue != nullptr) {
+                if (currentDialogue->update()) {
+                    currentDialogue->free_();
+                    delete currentDialogue;
+                    currentDialogue = nullptr;
+                }
+            }
             globalCutscene->update(ROOM);
             if (globalCutscene->runCommands(ROOM)) {
                 delete globalCutscene;

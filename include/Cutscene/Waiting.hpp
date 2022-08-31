@@ -12,7 +12,8 @@ class Waiting;
 enum WaitingType {
     NONE = 0,
     WAIT_FRAMES,
-    WAIT_LOAD,
+    WAIT_EXIT,
+    WAIT_ENTER,
     WAIT_DIALOGUE_END,
     WAIT_BATTLE_ATTACK,
     WAIT_BATTLE_ACTION
@@ -21,12 +22,16 @@ enum WaitingType {
 class Waiting {
 public:
     void waitFrames(int frames);
-    void waitLoad();
+    void waitExit();
+    void waitEnter();
+    void waitDialogueEnd();
     void update(CutsceneLocation callingLocation);
     bool getBusy() {return currentWait != NONE;}
 private:
     WaitingType currentWait = NONE;
     int currentWaitTime = 0;
 };
+
+#include "Dialogue.hpp"
 
 #endif //LAYTON_WAITING_HPP

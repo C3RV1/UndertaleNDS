@@ -23,8 +23,6 @@ public:
     const int FRAME_TIME = 15;
 
     Player();
-    void showPlayer();
-    void hidePlayer();
     void update();
     bool check_collisions() const;
     void check_exits();

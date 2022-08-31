@@ -156,9 +156,6 @@ namespace Engine {
                              int forceSize) {
         if (!bg.getLoaded())
             return 1;
-        bool color8bit = bg.getColor8bit();
-        if (!color8bit)
-            return 2;  // TODO: tile convert from 4 bit to 8 bit
 
         // Clear control for 16-bit bg map
         // Can't set 4 bit on extended
@@ -166,13 +163,6 @@ namespace Engine {
 
         // skip first color (2 bytes)
         dmaCopy(bg.getColors(), (uint8_t *) paletteRam + 2, 2 * bg.getColorCount());
-
-        uint32_t tileDataSize;
-        if (color8bit) {
-            tileDataSize = 64;
-        } else {
-            tileDataSize = 32;
-        }
 
         uint16_t sizeFlag = 0;
         uint16_t mapRamUsage = 0x200;
@@ -233,8 +223,6 @@ namespace Engine {
             return 1;
 
         bool color8bit = bg.getColor8bit();
-        if (!color8bit)
-            return 2;  // TODO: tile convert 4 bit to 8 bit
 
         int mapSize = 16 << ((*bg3Reg >> 14) & 3);
         uint8_t width, height;
@@ -250,8 +238,19 @@ namespace Engine {
                 *mapRes = tileDst;
                 auto* tileRes = (uint16_t*)((uint8_t*)tileRam + tileDst * 64);
                 auto* mapSrc = (uint16_t*)((uint8_t *) bg.getMap() + (srcRow * width + srcCol) * 2);
-                uint8_t *src = (uint8_t *) bg.getTiles() + (*mapSrc) * 64;
-                dmaCopyHalfWords(3, src, tileRes, 64);
+
+                if (color8bit) {
+                    uint8_t *src = (uint8_t *) bg.getTiles() + (*mapSrc) * 64;
+                    dmaCopyHalfWords(3, src, tileRes, 64);
+                }
+                else {
+                    uint8_t *src = (uint8_t *) bg.getTiles() + (*mapSrc) * 32;
+                    for (int i = 0; i < 64; i++) {
+                        bool highBits = i & 1;
+                        tileRes[i / 2] &= ~(0xFF << (8 * highBits));
+                        tileRes[i / 2] |= (src[i / 2] >> (4 * highBits) & 0xF) << (8 * highBits);
+                    }
+                }
             }
         }
         return 0;

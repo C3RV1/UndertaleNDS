@@ -8,9 +8,9 @@
 enum CutsceneCommands {
     CMD_LOAD_SPRITE = 0,
     CMD_PLAYER_CONTROL = 1,
-    CMD_WAIT_LOAD = 2,
-    CMD_SHOW = 3,
-    CMD_HIDE = 4,
+    CMD_WAIT_EXIT = 2,
+    CMD_WAIT_ENTER = 3,
+    CMD_SET_SHOWN = 4,
     CMD_SET_ANIMATION = 5,
     CMD_WAIT_FRAMES = 6,
     CMD_SET_POS = 7,
@@ -32,6 +32,8 @@ enum CutsceneCommands {
     CMD_UNLOAD_SPRITE = 23,
     CMD_SCALE_IN_FRAMES = 24,
     CMD_SET_SCALE = 25,
+    CMD_START_BGM = 26,
+    CMD_STOP_BGM = 27,
     CMD_DEBUG = 0xff
 };
 

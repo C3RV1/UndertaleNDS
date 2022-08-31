@@ -9,9 +9,9 @@ def to_fixed_point(f: float):
 class CutsceneCommands(enum.IntEnum):
     LOAD_SPRITE = 0
     PLAYER_CONTROL = 1
-    WAIT_LOAD = 2
-    SHOW = 3
-    HIDE = 4
+    WAIT_EXIT = 2
+    WAIT_ENTER = 3
+    SET_SHOWN = 4
     SET_ANIMATION = 5
     WAIT_FRAMES = 6
     SET_POS = 7
@@ -33,6 +33,8 @@ class CutsceneCommands(enum.IntEnum):
     UNLOAD_SPRITE = 23
     SCALE_IN_FRAMES = 24
     SET_SCALE = 25
+    START_BGM = 26
+    STOP_BGM = 27
     DEBUG = 0xff
 
 
@@ -71,8 +73,8 @@ class Cutscene:
 
     def end_cutscene(self):
         if len(self.pending_address) > 0:
-            raise RuntimeError(f"Trying to jump to instructions {', '.join([k for k in self.pending_address.keys()])}, "
-                               f"instructions do not exist.")
+            raise RuntimeError(f"Missing jump bind on instructions "
+                               f"{', '.join([k for k in self.pending_address.keys()])}")
         size = self.wtr.tell()
         self.wtr.seek(self.file_size_pos)
         self.wtr.write_uint32(size)
@@ -105,16 +107,16 @@ class Cutscene:
         self.write_header(CutsceneCommands.MANUAL_CAMERA)
         self.wtr.write_bool(control)
 
-    def wait_load(self):
-        self.write_header(CutsceneCommands.WAIT_LOAD)
+    def wait_exit(self):
+        self.write_header(CutsceneCommands.WAIT_EXIT)
 
-    def show(self, target: Target):
-        self.write_header(CutsceneCommands.SHOW)
-        target.write(self.wtr)
+    def wait_enter(self):
+        self.write_header(CutsceneCommands.WAIT_ENTER)
 
-    def hide(self, target: Target):
-        self.write_header(CutsceneCommands.HIDE)
+    def set_shown(self, target: Target, shown: bool):
+        self.write_header(CutsceneCommands.SET_SHOWN)
         target.write(self.wtr)
+        self.wtr.write_bool(shown)
 
     def set_animation(self, target: Target, animation: str):
         self.write_header(CutsceneCommands.SET_ANIMATION)
@@ -157,7 +159,8 @@ class Cutscene:
                        speaker_path: str, x: float, y: float,
                        idle_anim: str, talk_anim: str,
                        speaker_target: Target,
-                       idle_anim2: str, talk_anim2: str):
+                       idle_anim2: str, talk_anim2: str,
+                       font: str, frames_per_letter=5):
         self.write_header(CutsceneCommands.START_DIALOGUE)
         self.wtr.write_uint16(dialogue_text_id)
         self.wtr.write_string(speaker_path, encoding="ascii")
@@ -168,6 +171,8 @@ class Cutscene:
         speaker_target.write(self.wtr)
         self.wtr.write_string(idle_anim2, encoding="ascii")
         self.wtr.write_string(talk_anim2, encoding="ascii")
+        self.wtr.write_string(font, encoding="ascii")
+        self.wtr.write_uint16(frames_per_letter)
 
     def wait_dialogue_end(self):
         self.write_header(CutsceneCommands.WAIT_DIALOGUE_END)
@@ -237,3 +242,12 @@ class Cutscene:
             self.wtr.write_uint32(pos)
             self.wtr.seek(pos)
             del self.pending_address[jump_id]
+
+    # == MUSIC ==
+    def start_bgm(self, path: str, loop: bool):
+        self.write_header(CutsceneCommands.START_BGM)
+        self.wtr.write_bool(loop)
+        self.wtr.write_string(path, encoding="ascii")
+
+    def stop_bgm(self):
+        self.write_header(CutsceneCommands.STOP_BGM)

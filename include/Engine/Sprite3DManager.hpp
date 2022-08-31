@@ -5,6 +5,11 @@
 #ifndef LAYTON_SPRITE3DMANAGER_HPP
 #define LAYTON_SPRITE3DMANAGER_HPP
 
+namespace Engine {
+    class Sprite3DManager;
+    extern Sprite3DManager main3dSpr;
+}
+
 #include "Sprite.hpp"
 #include "SpriteManager.hpp"
 #define ARM9
@@ -35,8 +40,6 @@ namespace Engine {
         uint8_t activeSpriteCount = 0;
         SpriteManager** activeSprites = nullptr;
     };
-
-    extern Sprite3DManager main3dSpr;
 }
 
 #endif //LAYTON_SPRITE3DMANAGER_HPP

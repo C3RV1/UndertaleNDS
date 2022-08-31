@@ -20,7 +20,7 @@ void runTitleScreen() {
     const int characterExtraSpacing = 3;
     const int characterExtraSpacing_intro3 = 2;
     const int dotFrames = 40;
-    const int otherPunctuationFrames = 40;
+    const int otherPunctuationFrames = 25;
     const int letterFrames = 4;
     const int pressAButtonX = 40;
     const int pressAButtonY = 60;

@@ -6,7 +6,7 @@
 
 Cutscene* globalCutscene = nullptr;
 
-Cutscene::Cutscene(uint16_t cutsceneId) {
+Cutscene::Cutscene(uint16_t cutsceneId_) : cutsceneId(cutsceneId_) {
     char buffer[100];
     sprintf(buffer, "nitro:/data/cutscenes/cutscene%d.cscn", cutsceneId);
     FILE* f = fopen(buffer, "rb");
@@ -125,22 +125,24 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             globalCamera.manual = manualCamera;
             break;
         }
-        case CMD_WAIT_LOAD:
-            nocashMessage("CMD_WAIT_LOAD");
-            waiting.waitLoad();
+        case CMD_WAIT_EXIT:
+            nocashMessage("CMD_WAIT_EXIT");
+            waiting.waitExit();
             break;
-        case CMD_SHOW:
-            nocashMessage("CMD_SHOW");
+        case CMD_WAIT_ENTER:
+            nocashMessage("CMD_WAIT_ENTER");
+            waiting.waitEnter();
+            break;
+        case CMD_SET_SHOWN: {
+            nocashMessage("CMD_SET_SHOWN");
             fread(&targetType, 1, 1, commandStream);
             if (targetType == TargetType::SPRITE)
-                fread(buffer, 1, 1, commandStream);
+                fread(&targetId, 1, 1, commandStream);
+            bool shown;
+            fread(&shown, 1, 1, commandStream);
+            Navigation::set_shown(targetType, targetId, shown, callingLocation);
             break;
-        case CMD_HIDE:
-            nocashMessage("CMD_HIDE");
-            fread(&targetType, 1, 1, commandStream);
-            if (targetType == TargetType::SPRITE)
-                fread(buffer, 1, 1, commandStream);
-            break;
+        }
         case CMD_SET_ANIMATION:
             nocashMessage("CMD_SET_ANIMATION");
             fread(&targetType, 1, 1, commandStream);
@@ -148,7 +150,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
                 fread(&targetId, 1, 1, commandStream);
             len = strlen_file(commandStream, 0);
             fread(buffer, len + 1, 1, commandStream);
-            nav->set_animation(targetType, targetId, buffer, callingLocation);
+            Navigation::set_animation(targetType, targetId, buffer, callingLocation);
             break;
         case CMD_WAIT_FRAMES: {
             nocashMessage("CMD_WAIT_FRAMES");
@@ -205,27 +207,53 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             nav->scale_in_frames(targetType, targetId, x, y, frames, callingLocation);
             break;
         }
-        case CMD_START_DIALOGUE:
+        case CMD_START_DIALOGUE: {
             nocashMessage("CMD_START_DIALOGUE");
-            fread(buffer, 2, 1, commandStream);
+            uint16_t textId, framesPerLetter;
+            int32_t x, y;
+            char speaker[50], font[50];
+            char idleAnim[50], talkAnim[50];
+            char idleAnim2[50], talkAnim2[50];
+
+            fread(&textId, 2, 1, commandStream);
+
             len = strlen_file(commandStream, 0);
-            fread(buffer, len + 1, 1, commandStream);
-            fread(buffer, 4, 1, commandStream);
-            fread(buffer, 4, 1, commandStream);
+            fread(speaker, len + 1, 1, commandStream);
+
+            fread(&x, 4, 1, commandStream);
+            fread(&y, 4, 1, commandStream);
+
             len = strlen_file(commandStream, 0);
-            fread(buffer, len + 1, 1, commandStream);
+            fread(idleAnim, len + 1, 1, commandStream);
+
             len = strlen_file(commandStream, 0);
-            fread(buffer, len + 1, 1, commandStream);
+            fread(talkAnim, len + 1, 1, commandStream);
+
             fread(&targetType, 1, 1, commandStream);
             if (targetType == TargetType::SPRITE)
-                fread(buffer, 1, 1, commandStream);
+                fread(&targetId, 1, 1, commandStream);
+
             len = strlen_file(commandStream, 0);
-            fread(buffer, len + 1, 1, commandStream);
+            fread(idleAnim2, len + 1, 1, commandStream);
+
             len = strlen_file(commandStream, 0);
-            fread(buffer, len + 1, 1, commandStream);
+            fread(talkAnim2, len + 1, 1, commandStream);
+
+            len = strlen_file(commandStream, 0);
+            fread(font, len + 1, 1, commandStream);
+
+            fread(&framesPerLetter, 2, 1, commandStream);
+
+            Engine::SpriteManager* target = Navigation::getTarget(targetType, targetId, callingLocation);
+            if (currentDialogue == nullptr) {
+                currentDialogue = new Dialogue(textId, speaker, x, y, idleAnim, talkAnim,
+                                               target, idleAnim2, talkAnim2, font, framesPerLetter);
+            }
             break;
+        }
         case CMD_WAIT_DIALOGUE_END:
             nocashMessage("CMD_WAIT_DIALOGUE_END");
+            waiting.waitDialogueEnd();
             break;
         case CMD_START_BATTLE:
             nocashMessage("CMD_START_BATTLE");
@@ -280,6 +308,23 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
         case CMD_JUMP:
             nocashMessage("CMD_JUMP");
             fread(&address, 4, 1, commandStream);
+            break;
+        case CMD_START_BGM: {
+            nocashMessage("CMD_START_BGM");
+            bool loop;
+            fread(&loop, 1, 1, commandStream);
+
+            len = strlen_file(commandStream, 0);
+            fread(buffer, len + 1, 1, commandStream);
+
+            BGM::globalWAV.loadWAV(buffer);
+            BGM::globalWAV.setLoop(loop);
+            BGM::playWAV(BGM::globalWAV);
+            break;
+        }
+        case CMD_STOP_BGM:
+            nocashMessage("CMD_STOP_BGM");
+            BGM::stopWAV();
             break;
         default:
             sprintf(buffer, "Error cmd %d unknown pos: %ld", cmd, ftell(commandStream));

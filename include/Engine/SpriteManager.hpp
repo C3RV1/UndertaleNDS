@@ -5,9 +5,15 @@
 #ifndef LAYTON_SPRITEMANAGER_HPP
 #define LAYTON_SPRITEMANAGER_HPP
 
+namespace Engine {
+    class SpriteManager;
+}
+
 #define ARM9
 #include <nds.h>
 #include "Sprite.hpp"
+#include "OAMManager.hpp"
+#include "Sprite3DManager.hpp"
 
 namespace Engine {
     enum AllocationMode {
@@ -34,9 +40,14 @@ namespace Engine {
 
     class SpriteManager {
     public:
+        explicit SpriteManager(AllocationMode allocMode_);
         void setSpriteAnim(int animId);
         void loadSprite(Sprite& sprite_);
+        int nameToAnimId(const char *animName) const;
         void tick();
+        void setShown(bool shown_);
+        void push();
+        void pop();
 
         bool loaded = false;
         Sprite* sprite = nullptr;
@@ -54,6 +65,10 @@ namespace Engine {
         uint16_t currentAnimationFrame = 0;
 
         SpriteInternalMemory memory;
+    private:
+        AllocationMode allocMode;
+        bool shown = false;
+        bool pushed = false;
     };
 }
 

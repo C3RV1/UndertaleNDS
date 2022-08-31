@@ -6,23 +6,25 @@ else:
 
 
 def cutscene(c: Cutscene):
+    c.start_bgm("nitro:/z_audio/mus_flowey.wav", True)
     c.set_animation(Target(TargetType.PLAYER), "upIdle")
-    c.start_dialogue(0, "spr/speaker/flowey.cspr", 0, 0, "nice1", "nice1_talk",
-                     Target(TargetType.SPRITE, 0), "idle", "talk")
+    c.start_dialogue(0, "nitro:/spr/speaker/flowey.cspr", 128 - 21, (192 - 44) // 4 - 5, "nice1", "nice1_talk",
+                     Target(TargetType.SPRITE, 0), "idle", "talk", "nitro:/fnt/fnt_main.font.cfnt")
     c.wait_dialogue_end()
 
     c.start_battle()
-    c.load_sprite(0, 0, "spr/speaker/flowey.cspr")  # flowey
+    c.wait_exit()
+    c.load_sprite(0, 0, "nitro:/spr/speaker/flowey.cspr")  # flowey
     c.wait_frames(30)
-    c.load_sprite(0, 0, "spr/dialogue/spr_blconwdshrt.cspr")  # dialogue box
-    c.wait_load()
+    c.load_sprite(0, 0, "nitro:/spr/dialogue/spr_blconwdshrt.cspr")  # dialogue box
+    c.wait_enter()
     c.start_battle_dialogue(0, 0, 1, Target(TargetType.SPRITE, 0), "nice1", "nice1_talk", 300)
     c.wait_dialogue_end()
 
-    c.hide(Target(TargetType.SPRITE, 1))
+    c.set_shown(Target(TargetType.SPRITE, 1), False)
     c.set_animation(Target(TargetType.SPRITE, 0), "wink")
     c.wait_frames(180)
-    c.show(Target(TargetType.SPRITE, 1))
+    c.set_shown(Target(TargetType.SPRITE, 1), True)
 
     c.load_sprite(0, 0, "")
     c.load_sprite(0, 0, "")
@@ -94,7 +96,7 @@ def cutscene(c: Cutscene):
     c.start_battle_dialogue(0, 0, 8, Target(TargetType.SPRITE, 0), "evil", "evil", 120)
     c.battle_attack(1)
     c.wait_frames(120)
-    c.hide(Target(TargetType.SPRITE, 1))
+    c.set_shown(Target(TargetType.SPRITE, 1), False)
     c.set_animation(Target(TargetType.SPRITE, 0), "skull_laugh")
     c.wait_battle_attack()
 
@@ -113,15 +115,16 @@ def cutscene(c: Cutscene):
     c.move_in_frames(Target(TargetType.SPRITE, 8), 0, 0, 0)
     c.wait_frames(120)
     c.set_pos(Target(TargetType.SPRITE, 1), 0, 0)
-    c.show(Target(TargetType.SPRITE, 1))
+    c.set_shown(Target(TargetType.SPRITE, 1), True)
     c.start_battle_dialogue(0, 0, 9, Target(TargetType.SPRITE, 8), "worried", "worried_talk", 0)
     c.wait_dialogue_end()
 
     c.exit_battle()
 
     c.load_sprite(0, 0, "")  # Toriel world
-    c.wait_load()
-    c.start_dialogue(10, "", 0, 0, "idle", "talk", Target(TargetType.SPRITE, 1), "idle", "talk")
+    c.wait_exit()
+    c.start_dialogue(10, "", 0, 0, "idle", "talk", Target(TargetType.SPRITE, 1), "idle", "talk",
+                     "nitro:/fnt/fnt_main.font.cfnt")
     c.wait_dialogue_end()
     c.move_in_frames(Target(TargetType.SPRITE, 1), 0, 0, 0)
     c.wait_frames(0)

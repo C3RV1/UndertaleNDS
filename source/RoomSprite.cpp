@@ -22,27 +22,13 @@ void RoomSprite::load(ROOMSprite *sprData) {
     }
     fclose(f);
 
-    animationId = spr.nameToAnimId(sprData->animation);
     spriteManager.loadSprite(spr);
+    animationId = spriteManager.nameToAnimId(sprData->animation);
     spriteManager.wx = sprData->x << 8;
     spriteManager.wy = sprData->y << 8;
     spriteManager.setSpriteAnim(animationId);
 
-    show();
-}
-
-void RoomSprite::show() {
-    char buffer[100];
-    int loadSprite = Engine::main3dSpr.loadSprite(spriteManager);
-    if (loadSprite != 0) {
-        sprintf(buffer, "Error showing room sprite: %d", loadSprite);
-        nocashMessage(buffer);
-        return;
-    }
-}
-
-void RoomSprite::hide() {
-    Engine::main3dSpr.freeSprite(spriteManager);
+    spriteManager.setShown(true);
 }
 
 void RoomSprite::draw() {
@@ -54,6 +40,6 @@ void RoomSprite::draw() {
 }
 
 void RoomSprite::free_() {
-    hide();
+    spriteManager.setShown(false);
     spr.free_();
 }
