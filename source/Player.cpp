@@ -153,6 +153,7 @@ bool Player::check_collisions() const {
             if (collider->colliderAction == 0)  // Wall
                 return true;
             if (collider->colliderAction == 1 && globalCutscene == nullptr) {  // Trigger
+                globalInGameMenu.hide();
                 globalCutscene = new Cutscene(collider->cutsceneId);
             }
         }

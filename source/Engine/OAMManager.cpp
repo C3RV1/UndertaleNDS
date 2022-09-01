@@ -355,7 +355,7 @@ namespace Engine {
 
         for (int colorIdx = 0; colorIdx < spr.sprite->getColorCount(); colorIdx++) {
             uint8_t paletteColor = spr.memory.paletteColors[colorIdx];
-            paletteRefCounts[paletteColor]--;
+            paletteRefCounts[paletteColor - 1]--;
         }
         delete[] spr.memory.paletteColors;
         spr.memory.paletteColors = nullptr;

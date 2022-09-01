@@ -16,6 +16,7 @@ class Player;
 #include "Room.hpp"
 #include "math.hpp"
 #include "Cutscene/Cutscene.hpp"
+#include "InGameMenu.hpp"
 
 class Player {
 public:

@@ -16,6 +16,8 @@ enum Flags {
 struct SaveData {
     char* name = nullptr;
     uint16_t flags[FLAG_COUNT] = {0};
+    uint8_t hp = 20, maxHp = 20;
+    uint8_t lv = 1, exp = 0;
 };
 
 extern SaveData saveGlobal;
