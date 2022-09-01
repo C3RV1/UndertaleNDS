@@ -134,9 +134,6 @@ void Dialogue::progressText() {
         y += lineSpacing;
         linePos = 0;
         getLine();
-        char buffer[100];
-        sprintf(buffer, "line len %d", lineLen);
-        nocashMessage(buffer);
     }
     if (*(line + linePos) == '@') {
         linePos++;

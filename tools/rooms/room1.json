@@ -1,7 +1,10 @@
 {
   "parts": [
     {
-      "conditions": [],
+      "comment": "not met flowey",
+      "conditions": [
+        { "flag_id": 0, "op": "==", "cmp_value": 0 }
+      ],
       "room_bg": "nitro:/bg/rooms/room1.cbgf",
       "music_path": "",
       "exits": [
@@ -42,6 +45,33 @@
           "cutscene_id": 2
         }
       ]
+    },
+    {
+      "comment": "already met flowey",
+      "conditions": [],
+      "room_bg": "nitro:/bg/rooms/room1.cbgf",
+      "music_path": "",
+      "exits": [
+        {
+          "exit_type": "side",
+          "room_id": 0,
+          "spawn_x": 618,
+          "spawn_y": 147,
+          "side": "down"
+        },
+        {
+          "exit_type": "rect",
+          "room_id": 2,
+          "spawn_x": 131,
+          "spawn_y": 430,
+          "x": 142,
+          "y": 63,
+          "w": 41,
+          "h": 51
+        }
+      ],
+      "sprites": [],
+      "colliders": []
     }
   ]
 }

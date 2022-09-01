@@ -204,6 +204,7 @@ int Room::loadRoom(FILE *f) {
         fread(&roomColliders[i].w, 2, 1, f);
         fread(&roomColliders[i].h, 2, 1, f);
         fread(&roomColliders[i].colliderAction, 1, 1, f);
+        fread(&roomColliders[i].enabled, 1, 1, f);
         if (roomColliders[i].colliderAction == 1) {
             fread(&roomColliders[i].cutsceneId, 2, 1, f);
         }
@@ -250,7 +251,24 @@ void Room::loadSprites() {
 }
 
 bool Room::evaluateCondition(FILE *f) {
-    return true;
+    ROOMPartCondition cond;
+    fread(&cond.flagId, 2, 1, f);
+    fread(&cond.cmpOperator, 1, 1, f);
+    bool flip = (cond.cmpOperator & 0b10000) != 0;
+    cond.cmpOperator = cond.cmpOperator & 3;
+    fread(&cond.cmpValue, 2, 1, f);
+
+    uint16_t flagValue = saveGlobal.flags[cond.flagId];
+    bool flag;
+    if (cond.cmpOperator == ComparisonOperator::EQUALS)
+        flag = (flagValue == cond.cmpValue);
+    else if (cond.cmpOperator == ComparisonOperator::GREATER_THAN)
+        flag = (flagValue > cond.cmpValue);
+    else if (cond.cmpOperator == ComparisonOperator::LESS_THAN)
+        flag = (flagValue < cond.cmpValue);
+    if (flip)
+        flag = !flag;
+    return flag;
 }
 
 void Room::draw() const {

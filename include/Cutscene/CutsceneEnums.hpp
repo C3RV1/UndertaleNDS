@@ -35,6 +35,9 @@ enum CutsceneCommands {
     CMD_START_BGM = 26,
     CMD_STOP_BGM = 27,
     CMD_SET_POS_IN_FRAMES = 28,
+    CMD_SET_FLAG = 29,
+    CMD_CMP_FLAG = 30,
+    CMD_SET_COLLIDER_ENABLED = 31,
     CMD_DEBUG = 0xff
 };
 
@@ -43,6 +46,12 @@ enum CutsceneLocation {
     ROOM = 1,
     LOAD_BATTLE = 2,
     BATTLE = 3
+};
+
+enum ComparisonOperator {
+    EQUALS = 0,
+    GREATER_THAN = 1,
+    LESS_THAN = 2
 };
 
 #endif //LAYTON_CUTSCENEENUMS_HPP

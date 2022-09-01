@@ -33,5 +33,6 @@ def cutscene(c: Cutscene):
     c.manual_camera(False)
     c.unload_sprite(1)
     c.player_control(True)
-    c.wait_exit()
+    c.set_flag(0, 1)
+    c.set_collider_enabled(0, False)
     c.debug("Cutscene 2 end!")

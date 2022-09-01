@@ -145,6 +145,8 @@ void Player::check_exits() {
 bool Player::check_collisions() const {
     for (int i = 0; i < globalRoom->roomData.roomColliders.colliderCount; i++) {
         ROOMCollider* collider = &globalRoom->roomData.roomColliders.roomColliders[i];
+        if (!collider->enabled)
+            continue;
         if (collidesRect(spriteManager.wx >> 8, (spriteManager.wy >> 8) + 20, 19, 9,
                          collider->x, collider->y,
                          collider->w, collider->h)) {

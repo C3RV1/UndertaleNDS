@@ -22,7 +22,7 @@ class Room {
 public:
     explicit Room(int roomId);
     int loadRoom(FILE *f);
-    bool evaluateCondition(FILE *f);
+    static bool evaluateCondition(FILE *f);
     void loadSprites();
     void update();
     void draw() const;
