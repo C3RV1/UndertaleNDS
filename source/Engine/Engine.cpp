@@ -73,7 +73,8 @@ namespace Engine {
     }
 
     int loadBgTextSub(Background& bg) {
-        videoSetModeSub(MODE_0_2D | DISPLAY_BG1_ACTIVE | DISPLAY_BG3_ACTIVE);
+        videoSetModeSub(MODE_0_2D | DISPLAY_BG1_ACTIVE | DISPLAY_BG3_ACTIVE | DISPLAY_SPR_1D | DISPLAY_SPR_ACTIVE
+                        | (1 << 20));
         return loadBgTextEngine(bg, &REG_BG3CNT_SUB, BG_PALETTE_SUB, BG_TILE_RAM_SUB(1),
                                 BG_MAP_RAM_SUB(0));
     }

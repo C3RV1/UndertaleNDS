@@ -311,4 +311,40 @@ void Room::update() {
     nav.update();
 }
 
+void Room::push() {
+    globalPlayer->spriteManager.push();
+    bg.free_();
+    for (int i = 0; i < spriteCount; i++) {
+        sprites[i]->spriteManager.push();
+    }
+}
+
+void Room::pop() {
+    char buffer[100];
+    FILE* f = fopen(roomData.roomBg, "rb");
+    if (f) {
+        int bgLoad = bg.loadCBGF(f);
+        if (bgLoad != 0) {
+            sprintf(buffer, "Error loading room %d bg %s: %d", roomId,
+                    roomData.roomBg, bgLoad);
+            nocashMessage(buffer);
+            fclose(f);
+        }
+    } else {
+        sprintf(buffer, "Error opening room %d bg %s", roomId, roomData.roomBg);
+        nocashMessage(buffer);
+    }
+    fclose(f);
+
+    int bgLoad = Engine::loadBgExtendedMain(bg, 512 / 8);
+    if (bgLoad != 0) {
+        sprintf(buffer, "Error loading room bg: %d", bgLoad);
+        nocashMessage(buffer);
+    }
+    for (int i = 0; i < spriteCount; i++) {
+        sprites[i]->spriteManager.pop();
+    }
+    globalPlayer->spriteManager.pop();
+}
+
 Room* globalRoom = nullptr;

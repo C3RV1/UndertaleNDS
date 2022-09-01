@@ -28,6 +28,9 @@ public:
     void draw() const;
     void free_();
 
+    void push();
+    void pop();
+
     uint16_t roomId;
     Engine::Background bg;
     uint8_t spriteCount = 0;

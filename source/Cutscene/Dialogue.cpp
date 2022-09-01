@@ -83,7 +83,14 @@ void Dialogue::setNoTalk() {
 bool Dialogue::update() {
     if (!paused) {
         setTalk();
-        progressText();
+        progressText(true, true);
+        if (keysDown() & (KEY_TOUCH | KEY_A)) {
+            progressText(true, false);
+            while (!paused)
+                progressText(false, false);
+            linePos--;
+            progressText(false, true);
+        }
         return false;
     } else {
         setNoTalk();
@@ -93,7 +100,7 @@ bool Dialogue::update() {
                 fclose(textStream);
                 return true;
             }
-            progressText();
+            progressText(true, true);
             return false;
         }
     }
@@ -120,8 +127,8 @@ void Dialogue::getLine() {
     fread(line, lineLen + 1, 1, textStream);
 }
 
-void Dialogue::progressText() {
-    if (currentTimer > 0) {
+void Dialogue::progressText(bool clear, bool draw) {
+    if (currentTimer > 0 && draw) {
         currentTimer--;
         return;
     }
@@ -160,7 +167,8 @@ void Dialogue::progressText() {
             pLine += 1;
             continue;
         }
-        Engine::textSub.drawGlyph(font, *pLine, startingX, y);
+        if (clear || linePos > lineLen)
+            Engine::textSub.drawGlyph(font, *pLine, startingX, y);
         startingX += 1;
     }
 
@@ -189,7 +197,8 @@ void Dialogue::progressText() {
             lineEndColor = Engine::textSub.getCurrentColor();
             continue;
         }
-        Engine::textSub.drawGlyph(font, *pLine, startingX, y);
+        if (draw || linePos > lineLen)
+            Engine::textSub.drawGlyph(font, *pLine, startingX, y);
         startingX += 1;
     }
 

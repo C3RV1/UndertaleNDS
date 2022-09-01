@@ -24,7 +24,7 @@ public:
 private:
     void setTalk();
     void setNoTalk();
-    void progressText();
+    void progressText(bool clear, bool draw);
     uint16_t getLineWidth(int linePos_);
     void getLine();
     bool paused = false;

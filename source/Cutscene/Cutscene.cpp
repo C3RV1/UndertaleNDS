@@ -88,7 +88,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
     int len;
     uint8_t targetType, targetId = 0, count;
     uint32_t address;
-    Navigation* nav = nullptr;
+    Navigation* nav;
     if (callingLocation == ROOM || callingLocation == LOAD_ROOM) {
         nav = &globalRoom->nav;
     } else {
@@ -278,7 +278,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             break;
         case CMD_START_BATTLE:
             nocashMessage("CMD_START_BATTLE");
-            break;
+            return true;
         case CMD_EXIT_BATTLE:
             nocashMessage("CMD_EXIT_BATTLE");
             break;
