@@ -31,6 +31,8 @@ private:
     Engine::SpriteManager selectedMenuHeart;
     Engine::SpriteManager listHeart;
     SelectedMenu selectedMenu = MENU_ITEMS;
+    uint8_t itemCount = 0;
+    uint8_t itemSelected = 0;
 };
 
 extern InGameMenu globalInGameMenu;
