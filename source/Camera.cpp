@@ -27,8 +27,8 @@ void Camera::updatePosition(bool roomChange) {
     if (!roomChange) {
         // 3D engine lags behind 1 frame for some reason
         if (prevX != pos.wx || prevY != pos.wy) {
-            REG_BG3X = mod(prevX, 512 << 8);
-            REG_BG3Y = mod(prevY, 512 << 8);
+            REG_BG3X = mod(pos.wx, 512 << 8);
+            REG_BG3Y = mod(pos.wy, 512 << 8);
         }
     } else {
         REG_BG3X = mod(pos.wx, 512 << 8);

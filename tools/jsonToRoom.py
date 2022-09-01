@@ -155,6 +155,7 @@ class RoomCollider:
         self.w = 0
         self.h = 0
         self.collider_action = 0
+        self.enabled = True
         self.cutscene_id = 0
 
     def write(self, wtr: binary.BinaryWriter):
@@ -163,6 +164,7 @@ class RoomCollider:
         wtr.write_uint16(self.w)
         wtr.write_uint16(self.h)
         wtr.write_uint8(self.collider_action)
+        wtr.write_bool(self.enabled)
         if self.collider_action == 1:
             wtr.write_uint16(self.cutscene_id)
 
@@ -177,6 +179,7 @@ class RoomCollider:
             "wall": 0,
             "trigger": 1
         }[dct.get("collider_action", "wall")]
+        res.enabled = dct.get("enabled", True)
         if res.collider_action == 1:
             res.cutscene_id = dct["cutscene_id"]
         return res
@@ -201,14 +204,29 @@ class RoomColliders:
 
 class RoomPartCondition:
     def __init__(self):
-        pass
+        self.flag_id = 0
+        self.cmp_operator = 0
+        self.cmp_value = 0
 
     def write(self, wtr: binary.BinaryWriter):
-        pass
+        wtr.write_uint16(self.flag_id)
+        wtr.write_uint8(self.cmp_operator)
+        wtr.write_uint16(self.cmp_value)
 
     @classmethod
-    def from_dict(cls, _dct):
+    def from_dict(cls, dct):
         res = cls()
+        res.flag_id = dct["flag_id"]
+        res.cmp_operator = {
+            "==": 0,
+            "!=": 1,
+            ">": 2,
+            "<=": 2,
+            "<": 3,
+            ">=": 3
+        }[dct["op"]]
+        res.cmp_operator += (1 << 4) if dct["op"] in ["!=", "<=", ">="] else 0  # add flip bit
+        res.cmp_value = dct["cmp_value"]
         return res
 
 

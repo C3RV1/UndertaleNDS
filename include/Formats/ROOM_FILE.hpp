@@ -44,6 +44,7 @@ struct ROOMSprites {
 struct ROOMCollider {
     uint16_t x = 0, y = 0, w = 0, h = 0;
     uint8_t colliderAction = 0;  // 0 - wall, 1 - trigger
+    bool enabled = true;
     uint16_t cutsceneId = 0;    // only when colliderAction == 1
 };
 
@@ -53,6 +54,9 @@ struct ROOMColliders {
 };
 
 struct ROOMPartCondition {
+    uint16_t flagId = 0;
+    uint8_t cmpOperator = 0;  // Same as cutscene cmp, but bit 4 is flip
+    uint16_t cmpValue = 0;
 };
 
 struct ROOMPart {

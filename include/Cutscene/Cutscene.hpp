@@ -15,6 +15,7 @@ class Cutscene;
 #include "CutsceneEnums.hpp"
 #include "Dialogue.hpp"
 #include "Engine/BGM.hpp"
+#include "Save.hpp"
 
 class Cutscene {
 public:

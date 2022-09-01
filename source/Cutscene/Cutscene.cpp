@@ -44,7 +44,7 @@ bool Cutscene::checkHeader(FILE *f) {
     uint32_t version;
     fread(&version, 4, 1, f);
 
-    if (version != 1) {
+    if (version != 2) {
         return false;
     }
 
@@ -352,6 +352,42 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             nocashMessage("CMD_STOP_BGM");
             BGM::stopWAV();
             break;
+        case CMD_SET_FLAG: {
+            nocashMessage("CMD_SET_FLAG");
+            uint16_t flagId, flagValue;
+            fread(&flagId, 2, 1, commandStream);
+            fread(&flagValue, 2, 1, commandStream);
+            saveGlobal.flags[flagId] = flagValue;
+            break;
+        }
+        case CMD_CMP_FLAG: {
+            nocashMessage("CMD_SET_FLAG");
+            uint16_t flagId, flagValue, cmpValue;
+            uint8_t comparator;
+            fread(&flagId, 2, 1, commandStream);
+            fread(&comparator, 1, 1, commandStream);
+            fread(&cmpValue, 2, 1, commandStream);
+            flagValue = saveGlobal.flags[flagId];
+            if (comparator == ComparisonOperator::EQUALS)
+                flag = (flagValue == cmpValue);
+            else if (comparator == ComparisonOperator::GREATER_THAN)
+                flag = (flagValue > cmpValue);
+            else if (comparator == ComparisonOperator::LESS_THAN)
+                flag = (flagValue < cmpValue);
+            break;
+        }
+        case CMD_SET_COLLIDER_ENABLED: {
+            uint8_t colliderId;
+            bool enabled;
+            fread(&colliderId, 1, 1, commandStream);
+            fread(&enabled, 1, 1, commandStream);
+            if (callingLocation == ROOM || callingLocation == LOAD_ROOM) {
+                if (colliderId < globalRoom->roomData.roomColliders.colliderCount) {
+                    globalRoom->roomData.roomColliders.roomColliders[colliderId].enabled = enabled;
+                }
+            }
+            break;
+        }
         default:
             sprintf(buffer, "Error cmd %d unknown pos: %ld", cmd, ftell(commandStream));
             nocashMessage(buffer);
