@@ -36,6 +36,10 @@ int main() {
     runTitleScreen();
     writeNameMenu();
 
+    for (int i = 0; i < 8; i++) {
+        saveGlobal.items[i] = (i & 1) + 1;
+    }
+
     Engine::textMain.clear();
     Engine::textSub.clear();
     globalInGameMenu.load();
@@ -65,14 +69,13 @@ int main() {
             if (globalCutscene->runCommands(ROOM)) {
                 delete globalCutscene;
                 globalCutscene = nullptr;
+                globalInGameMenu.show();
                 globalPlayer->playerControl = true;
                 globalCamera.manual = false;
             }
-        } else {
-            globalInGameMenu.show();
         }
         globalCamera.updatePosition(false);
-        // globalInGameMenu.update();
+        globalInGameMenu.update();
         globalPlayer->draw();
         globalRoom->draw();
     }
