@@ -2,7 +2,7 @@
 // Created by cervi on 27/08/2022.
 //
 
-#include "Player.hpp"
+#include "Room/Player.hpp"
 
 Player::Player() : spriteManager(Engine::Allocated3D) {
     char buffer[100];

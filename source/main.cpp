@@ -12,15 +12,15 @@
 #include <stdio.h>
 #include "Engine/Engine.hpp"
 #include "Engine/math.hpp"
-#include "Engine/Sprite.hpp"
+#include "Engine/Texture.hpp"
 #include "Engine/OAMManager.hpp"
 #include "TitleScreen.hpp"
 #include "WriteName.hpp"
 #include "Font.hpp"
-#include "Room.hpp"
-#include "Player.hpp"
-#include "Camera.hpp"
-#include "InGameMenu.hpp"
+#include "Room/Room.hpp"
+#include "Room/Player.hpp"
+#include "Room/Camera.hpp"
+#include "Room/InGameMenu.hpp"
 
 int main() {
     /* Configure the VRAM and background control registers. */
@@ -36,13 +36,14 @@ int main() {
     runTitleScreen();
     writeNameMenu();
 
-    for (int i = 0; i < 8; i++) {
-        saveGlobal.items[i] = 1 + (i > 3);
+    for (int i = 0; i < 5; i++) {
+        saveGlobal.items[i] = 1 + (i % 3 == 0);
     }
 
     Engine::textMain.clear();
     Engine::textSub.clear();
     globalInGameMenu.load();
+    globalInGameMenu.show();
 
     globalPlayer = new Player();
     globalPlayer->spriteManager.setShown(true);
@@ -53,8 +54,6 @@ int main() {
 
     for (;;) {
         Engine::tick();
-        if (keysDown() & KEY_START)
-            break;
         globalPlayer->update();
         globalRoom->update();
         if (globalCutscene != nullptr) {

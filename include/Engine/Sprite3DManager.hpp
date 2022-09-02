@@ -10,8 +10,8 @@ namespace Engine {
     extern Sprite3DManager main3dSpr;
 }
 
+#include "Texture.hpp"
 #include "Sprite.hpp"
-#include "SpriteManager.hpp"
 #define ARM9
 #include <nds.h>
 
@@ -25,12 +25,12 @@ namespace Engine {
             tileFreeZones[1] = 65535;
         }
 
-        int loadSprite(SpriteManager& res);
-        void freeSprite(SpriteManager& spr);
+        int loadSprite(Sprite& res);
+        void freeSprite(Sprite& spr);
 
         void draw();
     private:
-        int loadSpriteFrame(SpriteManager& spr, int frame);
+        int loadSpriteFrame(Sprite& spr, int frame);
 
         uint16_t tileFreeZoneCount;
         uint16_t* tileFreeZones = nullptr;
@@ -38,7 +38,7 @@ namespace Engine {
         bool paletteUsed[96] = {false};
 
         uint8_t activeSpriteCount = 0;
-        SpriteManager** activeSprites = nullptr;
+        Sprite** activeSprites = nullptr;
     };
 }
 

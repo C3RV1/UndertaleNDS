@@ -1,82 +1,97 @@
-#include "Engine/Sprite.hpp"
+//
+// Created by cervi on 30/08/2022.
+//
+#include "Sprite.hpp"
 
 namespace Engine {
-    int Sprite::loadCSPR(FILE *f) {
-        free_();
-        char header[4];
-        uint32_t fileSize;
-        uint32_t version;
-        fread(header, 4, 1, f);
-
-        const char expectedChar[4] = {'C', 'S', 'P', 'R'};
-        if (memcmp(header, expectedChar, 4) != 0) {
-            return 1;
-        }
-
-        fread(&fileSize, 4, 1, f);
-        uint32_t pos = ftell(f);
-        fseek(f, 0, SEEK_END);
-        uint32_t size = ftell(f);
-        fseek(f, pos, SEEK_SET);
-
-        if (fileSize != size) {
-            return 2;
-        }
-
-        fread(&version, 4, 1, f);
-        if (version != 2) {
-            return 3;
-        }
-
-        fread(&tileWidth, 1, 1, f);
-        fread(&tileHeight, 1, 1, f);
-
-        fread(&colorCount, 1, 1, f);
-        colors = new uint16_t[colorCount];
-        fread(colors, 2, colorCount, f);
-
-        fread(&frameCount, 1, 1, f);
-        uint16_t tileCount = tileWidth * tileHeight;
-        tiles = new uint8_t[64 * tileCount * frameCount];
-        fread(tiles, 8 * 8 * tileCount * frameCount, 1, f);
-
-        fread(&animationCount, 1, 1, f);
-        animations = new CSPRAnimation[animationCount];
-        for (int i = 0; i < animationCount; i++) {
-            int nameLen = strlen_file(f, 0);
-            animations[i].name = new char[nameLen + 1];
-            fread(animations[i].name, nameLen + 1, 1, f);
-            fread(&animations[i].frameCount, 1, 1, f);
-            animations[i].frames = new CSPRAnimFrame[animations[i].frameCount];
-            if (animations[i].frameCount == 0) {
-                // should free on error?
-                return 4;
-            }
-            for (int j = 0; j < animations[i].frameCount; j++) {
-                fread(&animations[i].frames[j].frame, 1, 1, f);
-                fread(&animations[i].frames[j].duration, 2, 1, f);
-            }
-        }
-
-        loaded = true;
-        return 0;
+    Sprite::Sprite(Engine::AllocationMode allocMode_) {
+        allocMode = allocMode_;
     }
 
-    void Sprite::free_() {
+    void Sprite::setSpriteAnim(int animId) {
         if (!loaded)
             return;
-        loaded = false;
-        delete[] colors;
-        colors = nullptr;
-        delete[] tiles;
-        tiles = nullptr;
-        for (int i = 0; i < animationCount; i++) {
-            delete[] animations[i].name;
-            animations[i].name = nullptr;
-            delete[] animations[i].frames;
-            animations[i].frames = nullptr;
+        if (animId >= sprite->getAnimCount())
+            return;
+        if (currentAnimation == animId)
+            return;
+        currentAnimation = animId;
+        currentAnimationFrame = 0;
+        currentAnimationTimer = sprite->getAnims()[animId].frames[0].duration;
+        currentFrame = sprite->getAnims()[animId].frames[0].frame;
+    }
+
+    void Sprite::loadSprite(Engine::Texture &sprite_) {
+        if (!sprite_.getLoaded())
+            return;
+
+        currentFrame = 0;
+        sprite = &sprite_;
+        loaded = true;
+    }
+
+    void Sprite::tick() {
+        x = wx - cam_x;
+        y = wy - cam_y;
+        x *= cam_scale_x;
+        x >>= 8;
+        y *= cam_scale_y;
+        y >>= 8;
+        scale_x = (cam_scale_x * wscale_x) >> 8;
+        scale_y = (cam_scale_y * wscale_y) >> 8;
+
+        if (currentAnimation > 0) {
+            CSPRAnimation* current = &sprite->getAnims()[currentAnimation];
+            if (current->frames[currentAnimationFrame].duration != 0) {
+                currentAnimationTimer--;
+                if (currentAnimationTimer == 0) {
+                    currentAnimationFrame++;
+                    currentAnimationFrame %= current->frameCount;
+                    currentFrame = current->frames[currentAnimationFrame].frame;
+                    currentAnimationTimer = current->frames[currentAnimationFrame].duration;
+                }
+            }
         }
-        delete[] animations;
-        animations = nullptr;
+    }
+
+    void Sprite::setShown(bool shown_) {
+        if (!loaded)
+            return;
+        if (shown_ == shown)
+            return;
+        shown = shown_;
+        if (shown) {
+            if (memory.allocated != NoAlloc)
+                return;
+            if (allocMode == Allocated3D)
+                main3dSpr.loadSprite(*this);
+            else if (allocMode == AllocatedOAM)
+                OAMManagerSub.loadSprite(*this);
+        } else {
+            if (memory.allocated == Allocated3D)
+                main3dSpr.freeSprite(*this);
+            else if (memory.allocated == AllocatedOAM)
+                OAMManagerSub.freeSprite(*this);
+        }
+    }
+
+    int Sprite::nameToAnimId(const char *animName) const {
+        if (!loaded)
+            return -1;
+        for (int i = 0; i < sprite->getAnimCount(); i++) {
+            if (strcmp(animName, sprite->getAnims()[i].name) == 0) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    void Sprite::push() {
+        pushed = shown;
+        setShown(false);
+    }
+
+    void Sprite::pop() {
+        setShown(pushed);
     }
 }

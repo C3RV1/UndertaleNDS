@@ -20,7 +20,7 @@ void writeNameMenu() {
     const int maxLen = 10;
 
     BGM::WAV music;
-    int loadMusic = music.loadWAV("nitro:/z_audio/mus_menu0.wav");
+    int loadMusic = music.loadWAV("mus_menu0.wav");
     sprintf(buffer, "Load mus_menu0.wav: %d", loadMusic);
     BGM::playWAV(music);
 
@@ -28,7 +28,7 @@ void writeNameMenu() {
 
     Engine::Font mainFont;
     FILE *f;
-    f = fopen("nitro:/fnt/fnt_main.font.cfnt", "rb");
+    f = fopen("nitro:/fnt/fnt_maintext.font.cfnt", "rb");
     if (f) {
         int font_load = mainFont.loadCFNT(f);
         if (font_load != 0) {

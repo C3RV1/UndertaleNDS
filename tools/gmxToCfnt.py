@@ -9,6 +9,7 @@ from xml.etree import ElementTree as ET
 
 
 def convert(input_path, output_path):
+    print(f"Converted {input_path} to {output_path}")
     glyph_map = np.array([0] * 256, dtype=np.uint8)
 
     et = ET.parse(input_path)
@@ -50,15 +51,15 @@ def convert(input_path, output_path):
         y = int(glyph.attrib["y"])
         w = int(glyph.attrib["w"])
         h = int(glyph.attrib["h"])
-        wtr.write_uint8(w // 2)
-        wtr.write_uint8(h // 2)
-        wtr.write_uint8(int(glyph.attrib["shift"]) // 2)
+        wtr.write_uint8(w)
+        wtr.write_uint8(h)
+        wtr.write_uint8(int(glyph.attrib["shift"]))
         wtr.write_uint8(int(glyph.attrib["offset"]))
         byte = 0
         bit_pos = 0
-        for glyph_y in range(h // 2):
-            for glyph_x in range(w // 2):
-                pixel = img.getpixel((x + glyph_x * 2, y + glyph_y * 2))
+        for glyph_y in range(h):
+            for glyph_x in range(w):
+                pixel = img.getpixel((x + glyph_x, y + glyph_y))
                 if pixel[3] > 0:
                     byte += 1 << (7 - bit_pos)
                 bit_pos += 1

@@ -16,8 +16,8 @@ class Dialogue;
 
 class Dialogue {
 public:
-    Dialogue(uint16_t textId, char* speaker, int32_t speakerX, int32_t speakerY,
-             char* idleAnimTxt, char* talkAnimTxt, Engine::SpriteManager* target_,
+    Dialogue(bool isRoom_, uint16_t textId, char* speaker, int32_t speakerX, int32_t speakerY,
+             char* idleAnimTxt, char* talkAnimTxt, Engine::Sprite* target_,
              char* idleAnim2Txt, char* talkAnim2Txt, char* fontTxt, uint16_t framesPerLetter);
     bool update();
     void free_();
@@ -25,23 +25,28 @@ private:
     void setTalk();
     void setNoTalk();
     void progressText(bool clear, bool draw);
+    void progressTextRoom(bool clear, bool draw);  // Draws text centered
+    void progressTextBattle(bool clear, bool draw);  // Draws text left-aligned
     uint16_t getLineWidth(int linePos_);
     void getLine();
     bool paused = false;
-    uint16_t y;
+    int startingX, startingY;
+    int x, y;
+
+    bool isRoom;
     uint16_t linePos = 0;
     uint16_t lineLen = 0;
     uint16_t lineWidth = 0;
     uint16_t textLen = 0;
-    const uint16_t startingY = 192 / 2, lineSpacing = 20;
+    const uint16_t lineSpacing = 20;
 
     uint16_t currentTimer;
     uint16_t letterFrames = 20;
 
-    Engine::Sprite speakerSpr;
-    Engine::SpriteManager speakerManager;
-    Engine::SpriteManager* target;
-    int idleAnim, talkAnim, idleAnim2, talkAnim2;
+    Engine::Texture speakerSpr;
+    Engine::Sprite speakerManager;
+    Engine::Sprite* target;
+    int idleAnim = -1, talkAnim = -1, idleAnim2 = -1, talkAnim2 = -1;
     FILE* textStream;
     char line[100] = {};
     uint8_t currentColor = 15;

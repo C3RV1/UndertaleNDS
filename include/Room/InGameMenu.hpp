@@ -40,16 +40,16 @@ private:
     bool shown = false;
     Engine::Font fnt;
     Engine::Background bg;
-    Engine::Sprite littleHeart;
-    Engine::Sprite itemExplain;
-    Engine::SpriteManager selectedMenuHeart;
-    Engine::SpriteManager listHeart;
-    Engine::SpriteManager itemExplainBox;
+    Engine::Texture littleHeart;
+    Engine::Texture itemExplain;
+    Engine::Sprite selectedMenuHeart;
+    Engine::Sprite listHeart;
+    Engine::Sprite itemExplainBox;
     SelectedMenu selectedMenu = MENU_ITEMS;
     uint8_t itemCount = 0;
     uint8_t pageCount = 0;
     uint8_t itemSelected = 0;
-    uint8_t itemPage = 1;
+    uint8_t itemPage = 0;
 };
 
 extern InGameMenu globalInGameMenu;

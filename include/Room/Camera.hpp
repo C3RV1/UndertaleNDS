@@ -18,7 +18,7 @@ public:
     bool manual = false;
     int prevX = 0, prevY = 0;
     // top left camera position
-    Engine::SpriteManager pos;
+    Engine::Sprite pos;
 };
 
 extern Camera globalCamera;

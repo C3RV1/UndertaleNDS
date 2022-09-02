@@ -63,8 +63,8 @@ struct ROOMPart {
     uint32_t lengthBytes = 0;
     uint8_t conditionCount = 0;
     ROOMPartCondition* conditions = nullptr;
-    char roomBg[100] = {0};
-    char musicBg[100] = {0};
+    char roomBg[50] = {0};
+    char musicBg[50] = {0};
     ROOMExits roomExits;
     ROOMSprites roomSprites;
     ROOMColliders roomColliders;

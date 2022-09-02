@@ -5,7 +5,7 @@
 #include "Sprite3DManager.hpp"
 
 namespace Engine {
-    int Sprite3DManager::loadSprite(Engine::SpriteManager &res) {
+    int Sprite3DManager::loadSprite(Engine::Sprite &res) {
         if (!res.loaded)
             return -1;
         if (res.memory.allocated != NoAlloc)
@@ -81,11 +81,13 @@ namespace Engine {
         }
 
         res.memory.tileStart = start;
-        sprintf(buffer, "SPR tile start %d palette %d", start, res.memory.paletteIdx);
-        nocashMessage(buffer);
+        vramSetBankB(VRAM_B_LCD);
+        uint8_t *tileRamStart = (uint8_t *) VRAM_B + res.memory.tileStart;
+        memset(tileRamStart, 0, neededTiles);
+        vramSetBankB(VRAM_B_TEXTURE_SLOT0);
 
-        auto** activeSpriteNew = new SpriteManager*[activeSpriteCount + 1];
-        memcpy(activeSpriteNew, activeSprites, sizeof(SpriteManager**) * activeSpriteCount);
+        auto** activeSpriteNew = new Sprite*[activeSpriteCount + 1];
+        memcpy(activeSpriteNew, activeSprites, sizeof(Sprite**) * activeSpriteCount);
         activeSpriteNew[activeSpriteCount] = &res;
         delete[] activeSprites;
         activeSprites = activeSpriteNew;
@@ -97,7 +99,7 @@ namespace Engine {
         return 0;
     }
 
-    void Sprite3DManager::freeSprite(Engine::SpriteManager &spr) {
+    void Sprite3DManager::freeSprite(Engine::Sprite &spr) {
         if (spr.memory.allocated != Allocated3D)
             return;
         int sprIdx = -1;
@@ -127,10 +129,6 @@ namespace Engine {
         if (freeAfterIdx > 0)
             mergePrev = (tileFreeZones[(freeAfterIdx - 1) * 2] + tileFreeZones[freeAfterIdx * 2 -1]) == start;
         if (freeAfterIdx <= tileFreeZoneCount - 1) {
-            char buffer[100];
-            sprintf(buffer, "start %d len %d %d %d startfree %d",
-                    start, length, spr.memory.allocX, spr.memory.allocY, tileFreeZones[freeAfterIdx * 2]);
-            nocashMessage(buffer);
             mergePost = (start + length) == tileFreeZones[freeAfterIdx * 2];
         }
 
@@ -169,10 +167,10 @@ namespace Engine {
             tileFreeZones = newFreeZones;
         }
 
-        auto** activeSpriteNew = new SpriteManager*[activeSpriteCount - 1];
-        memcpy(activeSpriteNew, activeSprites, sizeof(SpriteManager**) * sprIdx);
+        auto** activeSpriteNew = new Sprite*[activeSpriteCount - 1];
+        memcpy(activeSpriteNew, activeSprites, sizeof(Sprite**) * sprIdx);
         memcpy(&activeSpriteNew[sprIdx], &activeSprites[sprIdx + 1],
-               sizeof(SpriteManager**) * (activeSpriteCount - sprIdx - 1));
+               sizeof(Sprite**) * (activeSpriteCount - sprIdx - 1));
         delete[] activeSprites;
         activeSprites = activeSpriteNew;
 
@@ -181,7 +179,7 @@ namespace Engine {
         spr.memory.allocated = NoAlloc;
     }
 
-    int Sprite3DManager::loadSpriteFrame(Engine::SpriteManager &spr, int frame) {
+    int Sprite3DManager::loadSpriteFrame(Engine::Sprite &spr, int frame) {
         if (spr.memory.loadedFrame == frame)
             return -1;
         if (frame >= spr.sprite->getFrameCount() || frame < 0)
@@ -214,7 +212,7 @@ namespace Engine {
 
     void Sprite3DManager::draw() {
         for (int i = 0; i < activeSpriteCount; i++) {
-            SpriteManager* spr = activeSprites[i];
+            Sprite* spr = activeSprites[i];
 
             spr->tick();
 

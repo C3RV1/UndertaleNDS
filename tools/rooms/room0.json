@@ -2,7 +2,7 @@
   "parts": [
     {
       "conditions": [],
-      "room_bg": "nitro:/bg/rooms/room0.cbgf",
+      "room_bg": "rooms/room0.cbgf",
       "music_path": "",
       "exits": [
         {

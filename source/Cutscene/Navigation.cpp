@@ -4,14 +4,14 @@
 
 #include "Cutscene/Navigation.hpp"
 
-void Navigation::spawn_sprite(char *path, int32_t x, int32_t y,
+void Navigation::spawn_sprite(char *path, int32_t x, int32_t y, int32_t layer,
                               CutsceneLocation callingLocation) {
     if (callingLocation == LOAD_ROOM || callingLocation == ROOM) {
         auto* newSprites = new ManagedSprite*[globalRoom->spriteCount + 1];
         memcpy(newSprites, globalRoom->sprites, sizeof(ManagedSprite*) * globalRoom->spriteCount);
 
-        auto* newRoomSprite = new ManagedSprite;
-        newRoomSprite->spawn(path, x, y);
+        auto* newRoomSprite = new ManagedSprite(Engine::Allocated3D);
+        newRoomSprite->spawn(path, x, y, layer);
 
         newSprites[globalRoom->spriteCount] = newRoomSprite;
         delete globalRoom->sprites;
@@ -21,8 +21,8 @@ void Navigation::spawn_sprite(char *path, int32_t x, int32_t y,
         auto* newSprites = new ManagedSprite*[globalBattle->spriteCount + 1];
         memcpy(newSprites, globalBattle->sprites, sizeof(ManagedSprite*) * globalBattle->spriteCount);
 
-        auto* newRoomSprite = new ManagedSprite;
-        newRoomSprite->spawn(path, x, y);
+        auto* newRoomSprite = new ManagedSprite(Engine::AllocatedOAM);
+        newRoomSprite->spawn(path, x, y, layer);
 
         newSprites[globalBattle->spriteCount] = newRoomSprite;
         delete globalBattle->sprites;
@@ -65,7 +65,7 @@ void Navigation::unload_sprite(uint8_t sprId, CutsceneLocation callingLocation) 
 
 void Navigation::set_position(uint8_t targetType, uint8_t targetId, int32_t x, int32_t y,
                               CutsceneLocation callingLocation) {
-    Engine::SpriteManager* spriteManager = getTarget(targetType, targetId, callingLocation);
+    Engine::Sprite* spriteManager = getTarget(targetType, targetId, callingLocation);
     if (spriteManager == nullptr)
         return;
     spriteManager->wx = x;
@@ -74,7 +74,7 @@ void Navigation::set_position(uint8_t targetType, uint8_t targetId, int32_t x, i
 
 void Navigation::set_scale(uint8_t targetType, uint8_t targetId, int32_t x, int32_t y,
                            CutsceneLocation callingLocation) {
-    Engine::SpriteManager* spriteManager = getTarget(targetType, targetId, callingLocation);
+    Engine::Sprite* spriteManager = getTarget(targetType, targetId, callingLocation);
     if (spriteManager == nullptr)
         return;
     spriteManager->wscale_x = x;
@@ -82,14 +82,14 @@ void Navigation::set_scale(uint8_t targetType, uint8_t targetId, int32_t x, int3
 }
 
 void Navigation::set_shown(uint8_t targetType, uint8_t targetId, bool shown, CutsceneLocation callingLocation) {
-    Engine::SpriteManager* spriteManager = getTarget(targetType, targetId, callingLocation);
+    Engine::Sprite* spriteManager = getTarget(targetType, targetId, callingLocation);
     if (spriteManager == nullptr)
         return;
     spriteManager->setShown(shown);
 }
 
 void Navigation::set_animation(uint8_t targetType, uint8_t targetId, char *animName, CutsceneLocation callingLocation) {
-    Engine::SpriteManager* spriteManager = getTarget(targetType, targetId, callingLocation);
+    Engine::Sprite* spriteManager = getTarget(targetType, targetId, callingLocation);
     if (spriteManager == nullptr) {
         nocashMessage("no target");
         return;
@@ -161,7 +161,7 @@ bool Navigation::updateTask(int taskId) {
         endTask(taskId);
         return true;
     }
-    Engine::SpriteManager* target = navTask->target;
+    Engine::Sprite* target = navTask->target;
     if (navTask->target == nullptr) {
         endTask(taskId);
         return true;
@@ -207,7 +207,7 @@ void Navigation::update() {
     }
 }
 
-Engine::SpriteManager* Navigation::getTarget(uint8_t targetType, uint8_t targetId,
+Engine::Sprite* Navigation::getTarget(uint8_t targetType, uint8_t targetId,
                                              CutsceneLocation callingLocation) {
     if (callingLocation == ROOM || callingLocation == LOAD_ROOM) {
         if (targetType == PLAYER) {

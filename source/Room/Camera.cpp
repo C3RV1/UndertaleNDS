@@ -2,7 +2,7 @@
 // Created by cervi on 27/08/2022.
 //
 
-#include "Camera.hpp"
+#include "Room/Camera.hpp"
 
 void Camera::updatePosition(bool roomChange) {
     int xTilePrev = (prevX >> 8) / 8, yTilePrev = (prevY >> 8) / 8;

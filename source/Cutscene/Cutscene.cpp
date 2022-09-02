@@ -104,12 +104,13 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             break;
         case CMD_LOAD_SPRITE: {
             nocashMessage("CMD_LOAD_SPRITE");
-            int32_t x, y;
+            int32_t x, y, layer;
             fread(&x, 4, 1, commandStream);
             fread(&y, 4, 1, commandStream);
+            fread(&layer, 4, 1, commandStream);
             len = strlen_file(commandStream, 0);
             fread(buffer, len + 1, 1, commandStream);
-            Navigation::spawn_sprite(buffer, x, y, callingLocation);
+            Navigation::spawn_sprite(buffer, x, y, layer, callingLocation);
             break;
         }
         case CMD_UNLOAD_SPRITE: {
@@ -265,9 +266,10 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
 
             fread(&framesPerLetter, 2, 1, commandStream);
 
-            Engine::SpriteManager* target = Navigation::getTarget(targetType, targetId, callingLocation);
+            Engine::Sprite* target = Navigation::getTarget(targetType, targetId, callingLocation);
             if (currentDialogue == nullptr) {
-                currentDialogue = new Dialogue(textId, speaker, x, y, idleAnim, talkAnim,
+                bool isRoom = callingLocation == ROOM || callingLocation == LOAD_ROOM;
+                currentDialogue = new Dialogue(isRoom, textId, speaker, x, y, idleAnim, talkAnim,
                                                target, idleAnim2, talkAnim2, font, framesPerLetter);
             }
             break;
@@ -281,23 +283,12 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             runBattle(commandStream);
             return true;
         }
-        case CMD_EXIT_BATTLE:
+        case CMD_EXIT_BATTLE: {
             nocashMessage("CMD_EXIT_BATTLE");
+            if (globalBattle != nullptr)
+                globalBattle->running = false;
             break;
-        case CMD_START_BATTLE_DIALOGUE:
-            nocashMessage("CMD_START_BATTLE_DIALOGUE");
-            fread(buffer, 4, 1, commandStream);
-            fread(buffer, 4, 1, commandStream);
-            fread(buffer, 2, 1, commandStream);
-            fread(&targetType, 1, 1, commandStream);
-            if (targetType == TargetType::SPRITE)
-                fread(buffer, 1, 1, commandStream);
-            len = strlen_file(commandStream, 0);
-            fread(buffer, len + 1, 1, commandStream);
-            len = strlen_file(commandStream, 0);
-            fread(buffer, len + 1, 1, commandStream);
-            fread(buffer, 2, 1, commandStream);
-            break;
+        }
         case CMD_BATTLE_ATTACK:
             nocashMessage("CMD_BATTLE_ATTACK");
             fread(buffer, 2, 1, commandStream);

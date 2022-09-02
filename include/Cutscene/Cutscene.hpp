@@ -16,7 +16,7 @@ class Cutscene;
 #include "Dialogue.hpp"
 #include "Engine/BGM.hpp"
 #include "Save.hpp"
-#include "Battle.hpp"
+#include "Battle/Battle.hpp"
 
 class Cutscene {
 public:

@@ -36,7 +36,7 @@ void runTitleScreen() {
     FILE *f;
 
     Engine::Font mainFont;
-    f = fopen("nitro:/fnt/fnt_main.font.cfnt", "rb");
+    f = fopen("nitro:/fnt/fnt_maintext.font.cfnt", "rb");
     if (f) {
         int font_load = mainFont.loadCFNT(f);
         if (font_load != 0) {
@@ -48,7 +48,7 @@ void runTitleScreen() {
     }
     fclose(f);
 
-    int loadWavResult = BGM::globalWAV.loadWAV("nitro:/z_audio/mus_story_mod.wav");
+    int loadWavResult = BGM::globalWAV.loadWAV("mus_story_mod.wav");
     sprintf(buffer, "LOAD WAV story %d", loadWavResult);
     nocashMessage(buffer);
     BGM::playWAV(BGM::globalWAV);
@@ -174,7 +174,7 @@ void runTitleScreen() {
         BGM::globalWAV.free_();
         return;
     }
-    loadWavResult = BGM::globalWAV.loadWAV("nitro:/z_audio/mus_intronoise.wav");
+    loadWavResult = BGM::globalWAV.loadWAV("mus_intronoise.wav");
     sprintf(buffer, "LOAD WAV introsound %d", loadWavResult);
     nocashMessage(buffer);
     BGM::playWAV(BGM::globalWAV);
