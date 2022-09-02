@@ -19,6 +19,12 @@ Battle::Battle() : playerManager(Engine::Allocated3D) {
         nocashMessage("Error opening battle heart spr");
     }
     fclose(f);
+
+    playerManager.loadSprite(player);
+    playerManager.wx = ((256 - 16) / 2) << 8;
+    playerManager.wy = ((192 - 32) / 2) << 8;
+    playerManager.layer = 1;
+    playerManager.setShown(true);
 }
 
 void Battle::loadFromStream(FILE *stream) {
@@ -37,6 +43,29 @@ void Battle::loadFromStream(FILE *stream) {
         enemies[i].enemyName[len] = '\0';
         fclose(enemyNameFile);
     }
+
+    uint8_t boardId;
+    fread(&boardId, 1, 1, stream);
+    sprintf(buffer, "nitro:/bg/battle/board%d.cbgf", boardId);
+    FILE* boardFile = fopen(buffer, "rb");
+    if (boardFile) {
+        int bgLoad = bulletBoard.loadCBGF(boardFile);
+        if (bgLoad != 0) {
+            sprintf(buffer, "Error loading board %d: %d", boardId, bgLoad);
+            nocashMessage(buffer);
+        }
+    } else {
+        sprintf(buffer, "Error opening board %d", boardId);
+        nocashMessage(buffer);
+    }
+    fclose(boardFile);
+
+    Engine::loadBgTextMain(bulletBoard);
+
+    fread(&boardX, 1, 1, stream);
+    fread(&boardY, 1, 1, stream);
+    fread(&boardW, 1, 1, stream);
+    fread(&boardH, 1, 1, stream);
 }
 
 void Battle::draw() {
@@ -55,9 +84,32 @@ void Battle::update() {
             currentBattleAttack = nullptr;
         }
     }
+    if (keysHeld() & KEY_RIGHT) {
+        playerManager.wx += playerSpeed;
+    }
+    if (keysHeld() & KEY_LEFT) {
+        playerManager.wx -= playerSpeed;
+    }
+    if (keysHeld() & KEY_DOWN) {
+        playerManager.wy += playerSpeed;
+    }
+    if (keysHeld() & KEY_UP) {
+        playerManager.wy -= playerSpeed;
+    }
+    if (playerManager.wx < boardX << 8) {
+        playerManager.wx = boardX << 8;
+    } else if (playerManager.wx > (boardX + boardW) << 8) {
+        playerManager.wx = (boardX + boardW) << 8;
+    }
+    if (playerManager.wy < boardY << 8) {
+        playerManager.wy = boardY << 8;
+    } else if (playerManager.wy > (boardY + boardH) << 8) {
+        playerManager.wy = (boardY + boardH) << 8;
+    }
 }
 
 void Battle::free_() {
+    bulletBoard.free_();
     delete[] enemies;
     enemies = nullptr;
     enemyCount = 0;

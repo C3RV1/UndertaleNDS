@@ -246,11 +246,17 @@ class Cutscene:
         return self.instructions_address[-1]
 
     # == BATTLE ==
-    def start_battle(self, enemies: List[Enemy]):
+    def start_battle(self, enemies: List[Enemy], board_id: int,
+                     board_x: int, board_y: int, board_w: int, board_h: int):
         self.write_header(CutsceneCommands.START_BATTLE)
         self.wtr.write_uint8(len(enemies))
         for enemy in enemies:
             enemy.write(self.wtr)
+        self.wtr.write_uint8(board_id)
+        self.wtr.write_uint8(board_x)
+        self.wtr.write_uint8(board_y)
+        self.wtr.write_uint8(board_w)
+        self.wtr.write_uint8(board_h)
         return self.instructions_address[-1]
 
     def exit_battle(self):
