@@ -31,10 +31,10 @@ void Waiting::update(CutsceneLocation callingLocation) {
             currentWait = NONE;
         }
     } else if (currentWait == WAIT_EXIT) {
-        if (callingLocation == LOAD_ROOM)
+        if (callingLocation == LOAD_ROOM || callingLocation == LOAD_BATTLE)
             currentWait = NONE;
     } else if (currentWait == WAIT_ENTER) {
-        if (callingLocation == ROOM)
+        if (callingLocation == ROOM || callingLocation == BATTLE)
             currentWait = NONE;
     } else if (currentWait == WAIT_DIALOGUE_END) {
         if (currentDialogue == nullptr)

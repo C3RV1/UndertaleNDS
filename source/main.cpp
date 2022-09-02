@@ -37,7 +37,7 @@ int main() {
     writeNameMenu();
 
     for (int i = 0; i < 8; i++) {
-        saveGlobal.items[i] = (i & 1) + 1;
+        saveGlobal.items[i] = 1 + (i > 3);
     }
 
     Engine::textMain.clear();

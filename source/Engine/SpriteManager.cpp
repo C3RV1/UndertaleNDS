@@ -25,7 +25,7 @@ namespace Engine {
         if (!sprite_.getLoaded())
             return;
 
-        currentFrame = -1;
+        currentFrame = 0;
         sprite = &sprite_;
         loaded = true;
     }

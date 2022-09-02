@@ -7,10 +7,10 @@ def to_fixed_point(f: float):
 
 
 class CutsceneCommands(enum.IntEnum):
-    LOAD_SPRITE = 0  # Done (missing battle)
+    LOAD_SPRITE = 0  # Done
     PLAYER_CONTROL = 1  # Done
-    WAIT_EXIT = 2  # Done (missing battle)
-    WAIT_ENTER = 3  # Done (missing battle)
+    WAIT_EXIT = 2  # Done
+    WAIT_ENTER = 3  # Done
     SET_SHOWN = 4  # Done
     SET_ANIMATION = 5  # Done
     WAIT_FRAMES = 6  # Done
@@ -18,7 +18,7 @@ class CutsceneCommands(enum.IntEnum):
     MOVE_IN_FRAMES = 8  # Done
     START_DIALOGUE = 9  # Done
     WAIT_DIALOGUE_END = 10  # Done
-    START_BATTLE = 11
+    START_BATTLE = 11  # Little done
     EXIT_BATTLE = 12
     START_BATTLE_DIALOGUE = 13
     BATTLE_ATTACK = 14

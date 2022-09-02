@@ -2,9 +2,9 @@
 // Created by cervi on 28/08/2022.
 //
 
-#include "RoomSprite.hpp"
+#include "ManagedSprite.hpp"
 
-void RoomSprite::load(ROOMSprite *sprData) {
+void ManagedSprite::load(ROOMSprite *sprData) {
     char buffer[100];
     FILE *f = fopen(sprData->spritePath, "rb");
     if (f) {
@@ -29,7 +29,7 @@ void RoomSprite::load(ROOMSprite *sprData) {
     spriteManager.setShown(true);
 }
 
-void RoomSprite::spawn(char *path, int32_t x, int32_t y) {
+void ManagedSprite::spawn(char *path, int32_t x, int32_t y) {
     char buffer[100];
     FILE *f = fopen(path, "rb");
     if (f) {
@@ -52,7 +52,7 @@ void RoomSprite::spawn(char *path, int32_t x, int32_t y) {
     spriteManager.setShown(true);
 }
 
-void RoomSprite::draw() {
+void ManagedSprite::draw() {
     spriteManager.cam_x = globalCamera.pos.wx;
     spriteManager.cam_y = globalCamera.pos.wy;
     spriteManager.cam_scale_x = globalCamera.pos.wscale_x;
@@ -60,7 +60,7 @@ void RoomSprite::draw() {
     spriteManager.layer = 1;
 }
 
-void RoomSprite::free_() {
+void ManagedSprite::free_() {
     spriteManager.setShown(false);
     spr.free_();
 }

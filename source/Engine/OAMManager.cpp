@@ -77,15 +77,6 @@ namespace Engine {
             }
         }
 
-        int loadResult = loadSpriteFrame(res, 0);
-        if (loadResult < 0) {
-            delete res.memory.oamEntries;
-            res.memory.oamEntries = nullptr;
-            delete res.memory.paletteColors;
-            res.memory.paletteColors = nullptr;
-            return loadResult - 4;
-        }
-
         auto** activeSpriteNew = new SpriteManager*[activeSpriteCount + 1];
         memcpy(activeSpriteNew, activeSprites, sizeof(SpriteManager**) * activeSpriteCount);
         activeSpriteNew[activeSpriteCount] = &res;
@@ -331,7 +322,7 @@ namespace Engine {
             auto* newFreeZones = new uint16_t[2 * tileFreeZoneCount];
             memcpy(newFreeZones, tileFreeZones, freeAfterIdx * 4);
             newFreeZones[freeAfterIdx * 2] = start;
-            newFreeZones[freeAfterIdx * 2 + 1] = start;
+            newFreeZones[freeAfterIdx * 2 + 1] = length;
             memcpy((uint8_t*)newFreeZones + (freeAfterIdx + 1) * 4,
                    tileFreeZones + freeAfterIdx * 4,
                    (tileFreeZoneCount - (freeAfterIdx + 1)) * 4);
@@ -391,6 +382,9 @@ namespace Engine {
 
             if (spr->currentFrame != spr->memory.loadedFrame)
                 loadSpriteFrame(*spr, spr->currentFrame);
+
+            if (spr->memory.loadedFrame == -1)
+                continue;
 
             setSpritePosAndScale(*spr);
         }
