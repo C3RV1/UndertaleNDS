@@ -7,8 +7,8 @@
 
 #define ARM9
 #include <nds.h>
+#include "Texture.hpp"
 #include "Sprite.hpp"
-#include "SpriteManager.hpp"
 
 namespace Engine {
     struct OAMEntry {
@@ -32,18 +32,20 @@ namespace Engine {
             *paletteRam = 31 << 5;  // full green for bg
         };
 
-        int loadSprite(SpriteManager& res);
-        void freeSprite(SpriteManager& spr);
+        int loadSprite(Sprite& res);
+        void freeSprite(Sprite& spr);
 
         int reserveOAMEntry(uint8_t tileW, uint8_t tileH);
         void freeOAMEntry(int oamId);
 
+        void dumpOamState();
+
         void draw();
     private:
-        void setSpritePosAndScale(SpriteManager& spr);
-        int loadSpriteFrame(SpriteManager& spr, int frame);
-        void allocateOamScaleEntry(SpriteManager& spr);
-        void freeOamScaleEntry(SpriteManager& spr);
+        void setSpritePosAndScale(Sprite& spr);
+        int loadSpriteFrame(Sprite& spr, int frame);
+        void allocateOamScaleEntry(Sprite& spr);
+        void freeOamScaleEntry(Sprite& spr);
 
         u16* paletteRam;
         u16* oamRam;
@@ -53,7 +55,7 @@ namespace Engine {
         uint16_t* tileFreeZones;  // pairs of (starting addr, free tiles)
 
         uint8_t activeSpriteCount = 0;
-        SpriteManager** activeSprites = nullptr;
+        Sprite** activeSprites = nullptr;
 
         uint8_t paletteRefCounts[255] = {0};
         OAMEntry oamEntries[SPRITE_COUNT];

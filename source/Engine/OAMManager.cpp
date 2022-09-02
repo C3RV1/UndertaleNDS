@@ -1,7 +1,7 @@
 #include "Engine/OAMManager.hpp"
 
 namespace Engine {
-    int OAMManager::loadSprite(SpriteManager& res) {
+    int OAMManager::loadSprite(Sprite& res) {
         if (!res.loaded)
             return -1;
         if (res.memory.allocated != NoAlloc)
@@ -77,8 +77,8 @@ namespace Engine {
             }
         }
 
-        auto** activeSpriteNew = new SpriteManager*[activeSpriteCount + 1];
-        memcpy(activeSpriteNew, activeSprites, sizeof(SpriteManager**) * activeSpriteCount);
+        auto** activeSpriteNew = new Sprite*[activeSpriteCount + 1];
+        memcpy(activeSpriteNew, activeSprites, sizeof(Sprite**) * activeSpriteCount);
         activeSpriteNew[activeSpriteCount] = &res;
         delete[] activeSprites;
         activeSprites = activeSpriteNew;
@@ -90,7 +90,7 @@ namespace Engine {
         return 0;
     }
 
-    int OAMManager::loadSpriteFrame(Engine::SpriteManager &spr, int frame) {
+    int OAMManager::loadSpriteFrame(Engine::Sprite &spr, int frame) {
         if (spr.memory.loadedFrame == frame)
             return -1;
         if (frame >= spr.sprite->getFrameCount() || frame < 0)
@@ -189,7 +189,11 @@ namespace Engine {
             return -2;
         }
 
+        char buffer[100];
         if (length == neededTiles) {
+            sprintf(buffer, "remove free zone change idx %d start %d length %d",
+                    freeZoneIdx, tileFreeZones[freeZoneIdx * 2], tileFreeZones[freeZoneIdx * 2 + 1]);
+            nocashMessage(buffer);
             // Remove free zone
             tileFreeZoneCount--;
             auto* newFreeZones = new uint16_t[tileFreeZoneCount * 2];
@@ -206,6 +210,9 @@ namespace Engine {
         else {
             tileFreeZones[freeZoneIdx * 2] += neededTiles;
             tileFreeZones[freeZoneIdx * 2 + 1] -= neededTiles;
+            sprintf(buffer, "reduce change idx %d start %d length %d",
+                    freeZoneIdx, tileFreeZones[freeZoneIdx * 2], tileFreeZones[freeZoneIdx * 2 + 1]);
+            nocashMessage(buffer);
         }
 
         oamEntry->tileStart = start;
@@ -262,6 +269,7 @@ namespace Engine {
                     break;
             }
         }
+        // dumpOamState();
 
         return oamId;
     }
@@ -291,12 +299,13 @@ namespace Engine {
         bool mergePrev = false, mergePost = false;
 
         if (freeAfterIdx > 0)
-            mergePrev = (tileFreeZones[(freeAfterIdx - 1) * 2] + tileFreeZones[freeAfterIdx * 2 -1]) == start;
+            mergePrev = (tileFreeZones[freeAfterIdx * 2 - 2] + tileFreeZones[freeAfterIdx * 2 -1]) == start;
         if (freeAfterIdx <= tileFreeZoneCount - 1)
             mergePost = (start + length) == tileFreeZones[freeAfterIdx * 2];
 
         if (mergePost && mergePrev)
         {
+            nocashMessage("merge both");
             tileFreeZoneCount--;
             auto* newFreeZones = new uint16_t[2 * tileFreeZoneCount];
             memcpy(newFreeZones, tileFreeZones, freeAfterIdx * 4);
@@ -309,15 +318,18 @@ namespace Engine {
         }
         else if (mergePrev)
         {
+            nocashMessage("merge prev");
             tileFreeZones[(freeAfterIdx - 1) * 2 + 1] += length;
         }
         else if (mergePost)
         {
+            nocashMessage("merge post");
             tileFreeZones[freeAfterIdx * 2] -= length;
             tileFreeZones[freeAfterIdx * 2 + 1] += length;
         }
         else
         {
+            nocashMessage("no merge");
             tileFreeZoneCount++;
             auto* newFreeZones = new uint16_t[2 * tileFreeZoneCount];
             memcpy(newFreeZones, tileFreeZones, freeAfterIdx * 4);
@@ -329,9 +341,24 @@ namespace Engine {
             delete[] tileFreeZones;
             tileFreeZones = newFreeZones;
         }
+        // dumpOamState();
     }
 
-    void OAMManager::freeSprite(SpriteManager& spr) {
+    void OAMManager::dumpOamState() {
+        char buffer[100];
+        for (int i = 0; i < tileFreeZoneCount; i++) {
+            sprintf(buffer, "FREE ZONE %d (%d length)", tileFreeZones[i * 2],
+                    tileFreeZones[i * 2 + 1]);
+            nocashMessage(buffer);
+        }
+        for (int i = 0; i < 128; i++) {
+            sprintf(buffer, "OAM %d free %d start %d w %d h %d", i, oamEntries[i].free_,
+                    oamEntries[i].tileStart, oamEntries[i].tileWidth, oamEntries[i].tileHeight);
+            nocashMessage(buffer);
+        }
+    }
+
+    void OAMManager::freeSprite(Sprite& spr) {
         if (spr.memory.allocated != AllocatedOAM)
             return;
         int sprIdx = -1;
@@ -362,10 +389,10 @@ namespace Engine {
         delete[] spr.memory.oamEntries;
         spr.memory.oamEntries = nullptr;
 
-        auto** activeSpriteNew = new SpriteManager*[activeSpriteCount - 1];
-        memcpy(activeSpriteNew, activeSprites, sizeof(SpriteManager**) * sprIdx);
+        auto** activeSpriteNew = new Sprite*[activeSpriteCount - 1];
+        memcpy(activeSpriteNew, activeSprites, sizeof(Sprite**) * sprIdx);
         memcpy(&activeSpriteNew[sprIdx], &activeSprites[sprIdx + 1],
-               sizeof(SpriteManager**) * (activeSpriteCount - sprIdx - 1));
+               sizeof(Sprite**) * (activeSpriteCount - sprIdx - 1));
         delete[] activeSprites;
         activeSprites = activeSpriteNew;
 
@@ -376,7 +403,7 @@ namespace Engine {
 
     void OAMManager::draw() {
         for (int i = 0; i < activeSpriteCount; i++) {
-            SpriteManager* spr = activeSprites[i];
+            Sprite* spr = activeSprites[i];
 
             spr->tick();
 
@@ -390,7 +417,7 @@ namespace Engine {
         }
     }
 
-    void OAMManager::setSpritePosAndScale(Engine::SpriteManager &spr) {
+    void OAMManager::setSpritePosAndScale(Engine::Sprite &spr) {
         uint8_t tileWidth, tileHeight;
         spr.sprite->getSizeTiles(tileWidth, tileHeight);
         uint8_t oamW = (tileWidth + 7) / 8;
@@ -429,12 +456,14 @@ namespace Engine {
                 oamStart[0] |= (spr.y + oamY * 64 * spr.scale_y) >> 8;
                 oamStart[1] &= ~0x1FF;
                 oamStart[1] |= (spr.x + oamX * 64 * spr.scale_x) >> 8;
+                oamStart[2] &= ~(3 << 10);
+                oamStart[2] |= (spr.layer & 0b11) << 10;
                 // TODO: Disable oam if out of screen
             }
         }
     }
 
-    void OAMManager::allocateOamScaleEntry(Engine::SpriteManager &spr) {
+    void OAMManager::allocateOamScaleEntry(Engine::Sprite &spr) {
         for (int i = 0; i < 32; i++) {
             if (!oamScaleEntryUsed[i]) {
                 spr.memory.oamScaleIdx = i;
@@ -444,7 +473,7 @@ namespace Engine {
         }
     }
 
-    void OAMManager::freeOamScaleEntry(Engine::SpriteManager &spr) {
+    void OAMManager::freeOamScaleEntry(Engine::Sprite &spr) {
        oamScaleEntryUsed[spr.memory.oamScaleIdx] = false;
        spr.memory.oamScaleIdx = 0xff;
     }

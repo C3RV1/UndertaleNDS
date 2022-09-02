@@ -1,4 +1,6 @@
 import enum
+from typing import List
+
 import binary
 
 
@@ -20,7 +22,7 @@ class CutsceneCommands(enum.IntEnum):
     WAIT_DIALOGUE_END = 10  # Done
     START_BATTLE = 11  # Little done
     EXIT_BATTLE = 12
-    START_BATTLE_DIALOGUE = 13
+    # 13
     BATTLE_ATTACK = 14
     WAIT_BATTLE_ATTACK = 15
     WAIT_BATTLE_ACTION = 16
@@ -40,6 +42,16 @@ class CutsceneCommands(enum.IntEnum):
     CMP_FLAG = 30  # Done
     SET_COLLIDER_ENABLED = 31  # Done
     DEBUG = 0xff  # Done
+
+
+class Enemy:
+    def __init__(self, enemy_id, enemy_hp):
+        self.id_ = enemy_id
+        self.hp = enemy_hp
+
+    def write(self, wtr: binary.BinaryWriter):
+        wtr.write_uint16(self.id_)
+        wtr.write_uint16(self.hp)
 
 
 class TargetType(enum.IntEnum):
@@ -88,7 +100,7 @@ class Cutscene:
     def end_cutscene(self):
         if len(self.pending_address) > 0:
             raise RuntimeError(f"Missing jump bind on instructions "
-                               f"{', '.join([k for k in self.pending_address.keys()])}")
+                               f"{', '.join([str(k) for k in self.pending_address.keys()])}")
         size = self.wtr.tell()
         self.wtr.seek(self.file_size_pos)
         self.wtr.write_uint32(size)
@@ -104,10 +116,11 @@ class Cutscene:
         self.wtr.write_string(string, encoding="ascii")
         return self.instructions_address[-1]
 
-    def load_sprite(self, x: float, y: float, sprite_path: str):
+    def load_sprite(self, x: float, y: float, sprite_path: str, layer=1):
         self.write_header(CutsceneCommands.LOAD_SPRITE)
         self.wtr.write_int32(to_fixed_point(x))
         self.wtr.write_int32(to_fixed_point(y))
+        self.wtr.write_int32(layer)
         self.wtr.write_string(sprite_path, encoding="ascii")
         return self.instructions_address[-1]
 
@@ -204,7 +217,7 @@ class Cutscene:
                        idle_anim: str, talk_anim: str,
                        speaker_target: Target,
                        idle_anim2: str, talk_anim2: str,
-                       font: str, frames_per_letter=4):
+                       font: str, frames_per_letter=3):
         self.write_header(CutsceneCommands.START_DIALOGUE)
         self.wtr.write_uint16(dialogue_text_id)
         self.wtr.write_string(speaker_path, encoding="ascii")
@@ -219,34 +232,29 @@ class Cutscene:
         self.wtr.write_uint16(frames_per_letter)
         return self.instructions_address[-1]
 
+    def start_dialogue_battle(self, dialogue_text_id: int,
+                              x: float, y: float,
+                              speaker_target: Target,
+                              idle_anim: str, talk_anim: str,
+                              font: str, frames_per_letter=3):
+        return self.start_dialogue(dialogue_text_id, "", x, y,
+                                   "", "", speaker_target, idle_anim, talk_anim,
+                                   font, frames_per_letter=frames_per_letter)
+
     def wait_dialogue_end(self):
         self.write_header(CutsceneCommands.WAIT_DIALOGUE_END)
         return self.instructions_address[-1]
 
     # == BATTLE ==
-    def start_battle(self, enemies):
+    def start_battle(self, enemies: List[Enemy]):
         self.write_header(CutsceneCommands.START_BATTLE)
         self.wtr.write_uint8(len(enemies))
-        for enemy_id, enemy_hp in enemies:
-            self.wtr.write_uint16(enemy_id)
-            self.wtr.write_uint16(enemy_hp)
+        for enemy in enemies:
+            enemy.write(self.wtr)
         return self.instructions_address[-1]
 
     def exit_battle(self):
         self.write_header(CutsceneCommands.EXIT_BATTLE)
-        return self.instructions_address[-1]
-
-    def start_battle_dialogue(self, x, y, dialogue_text_id,
-                              speaker_target: Target, idle_anim: str,
-                              talk_anim: str, duration: int):
-        self.write_header(CutsceneCommands.START_BATTLE_DIALOGUE)
-        self.wtr.write_int32(to_fixed_point(x))
-        self.wtr.write_int32(to_fixed_point(y))
-        self.wtr.write_uint16(dialogue_text_id)
-        speaker_target.write(self.wtr)
-        self.wtr.write_string(idle_anim, encoding="ascii")
-        self.wtr.write_string(talk_anim, encoding="ascii")
-        self.wtr.write_uint16(duration)
         return self.instructions_address[-1]
 
     def battle_attack(self, attack_pattern_id):

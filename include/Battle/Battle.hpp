@@ -10,19 +10,24 @@ class Battle;
 #define ARM9
 #include <nds.h>
 #include <stdio.h>
-#include "Room.hpp"
+#include "Room/Room.hpp"
+#include "Background.hpp"
+#include "Texture.hpp"
+#include "Sprite.hpp"
 #include "ManagedSprite.hpp"
-#include "Navigation.hpp"
+#include "Cutscene/Navigation.hpp"
+#include "BattleAttack.hpp"
 
 struct Enemy {
-    uint16_t enemyId;
-    char enemyName[20];
-    uint16_t hp;
-    uint16_t maxHp;
+    uint16_t enemyId = 0;
+    char enemyName[20] = {0};
+    uint16_t hp = 0;
+    uint16_t maxHp = 0;
 };
 
 class Battle {
 public:
+    Battle();
     void loadFromStream(FILE* stream);
     void draw();
     void update();
@@ -35,6 +40,12 @@ public:
 
     uint8_t spriteCount = 0;
     ManagedSprite** sprites = nullptr;
+
+    Engine::Background bulletBoard;
+    Engine::Texture player;
+    Engine::Sprite playerManager;
+
+    BattleAttack* currentBattleAttack = nullptr;
 };
 
 void runBattle(FILE* stream);

@@ -1,12 +1,12 @@
 //
 // Created by cervi on 01/09/2022.
 //
-#include "InGameMenu.hpp"
+#include "Room/InGameMenu.hpp"
 
 void InGameMenu::load() {
     char buffer[100];
     FILE *f;
-    f = fopen("nitro:/fnt/fnt_main.font.cfnt", "rb");
+    f = fopen("nitro:/fnt/fnt_maintext.font.cfnt", "rb");
     if (f) {
         int fontLoad = fnt.loadCFNT(f);
         if (fontLoad != 0) {
@@ -59,8 +59,6 @@ void InGameMenu::load() {
     itemExplainBox.loadSprite(itemExplain);
     itemExplainBox.wx = 17 << 8;
     itemExplainBox.wy = 102 << 8;
-
-    show();
 }
 
 void InGameMenu::unload() {
@@ -78,6 +76,7 @@ void InGameMenu::hide() {
     Engine::clearSub();
     selectedMenuHeart.setShown(false);
     listHeart.setShown(false);
+    itemExplainBox.setShown(false);
 }
 
 void InGameMenu::show() {
@@ -140,7 +139,7 @@ void InGameMenu::show() {
             }
             for (int i = 0; i < 2; i++) {
                 int itemIdx = (itemPage * 2) + i;
-                if (itemIdx > itemCount)
+                if (itemIdx >= itemCount)
                     break;
                 int item = saveGlobal.items[itemIdx];
 

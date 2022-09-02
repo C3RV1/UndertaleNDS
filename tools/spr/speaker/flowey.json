@@ -21,8 +21,8 @@
     {
       "name": "nice2_talk",
       "frames": [
-        {"frame": 2, "duration": 30},
-        {"frame": 3, "duration": 30}
+        {"frame": 2, "duration": 10},
+        {"frame": 3, "duration": 10}
       ]
     },
     {
@@ -32,8 +32,8 @@
     {
       "name": "nice3_talk",
       "frames": [
-        {"frame": 4, "duration": 30},
-        {"frame": 5, "duration": 30}
+        {"frame": 4, "duration": 10},
+        {"frame": 5, "duration": 10}
       ]
     },
     {
@@ -43,8 +43,8 @@
     {
       "name": "sassy_talk",
       "frames": [
-        {"frame": 7, "duration": 30},
-        {"frame": 8, "duration": 30}
+        {"frame": 7, "duration": 10},
+        {"frame": 8, "duration": 10}
       ]
     },
     {
@@ -54,8 +54,8 @@
     {
       "name": "plain_talk",
       "frames": [
-        {"frame": 9, "duration": 30},
-        {"frame": 10, "duration": 30}
+        {"frame": 9, "duration": 10},
+        {"frame": 10, "duration": 10}
       ]
     },
     {
@@ -65,8 +65,8 @@
     {
       "name": "annoyed_talk",
       "frames": [
-        {"frame": 11, "duration": 30},
-        {"frame": 12, "duration": 30}
+        {"frame": 11, "duration": 10},
+        {"frame": 12, "duration": 10}
       ]
     },
     {
@@ -76,8 +76,8 @@
     {
       "name": "evil_talk",
       "frames": [
-        {"frame": 13, "duration": 30},
-        {"frame": 14, "duration": 30}
+        {"frame": 13, "duration": 10},
+        {"frame": 14, "duration": 10}
       ]
     },
     {
@@ -87,15 +87,21 @@
     {
       "name": "grin_talk",
       "frames": [
-        {"frame": 18, "duration": 30},
-        {"frame": 19, "duration": 30}
+        {"frame": 18, "duration": 10},
+        {"frame": 19, "duration": 10}
+      ]
+    },
+    {
+      "name": "skull_idle",
+      "frames": [
+        {"frame": 15, "duration": 0}
       ]
     },
     {
       "name": "skull_laugh",
       "frames": [
-        {"frame": 15, "duration": 20},
-        {"frame": 16, "duration": 20}
+        {"frame": 15, "duration": 6},
+        {"frame": 16, "duration": 6}
       ]
     },
     {
@@ -109,6 +115,10 @@
       "frames": [
         {"frame": 17, "duration": 0}
       ]
+    },
+    {
+      "name": "side",
+      "frames": [{"frame": 20, "duration": 0}]
     }
   ]
 }

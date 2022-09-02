@@ -11,8 +11,8 @@ class Room;
 #include <string.h>
 #include "Engine/Background.hpp"
 #include "Engine/Engine.hpp"
-#include "Camera.hpp"
-#include "Player.hpp"
+#include "Room/Camera.hpp"
+#include "Room/Player.hpp"
 #include "Formats/ROOM_FILE.hpp"
 #include "Formats/utils.hpp"
 #include "ManagedSprite.hpp"

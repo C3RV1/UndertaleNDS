@@ -7,9 +7,8 @@
 
 class Navigation;
 
-#include "SpriteManager.hpp"
+#include "Sprite.hpp"
 #include "CutsceneEnums.hpp"
-#include "Battle.hpp"
 
 enum NavigationTaskType {
     POSITION = 0,
@@ -29,12 +28,12 @@ struct NavigationTask {
     uint16_t frames = 0;
     uint16_t currentFrames = 0;
     NavigationTaskType taskType = POSITION;
-    Engine::SpriteManager* target = nullptr;
+    Engine::Sprite* target = nullptr;
 };
 
 class Navigation {
 public:
-    static void spawn_sprite(char* path, int32_t x, int32_t y,
+    static void spawn_sprite(char* path, int32_t x, int32_t y, int32_t layer,
                              CutsceneLocation callingLocation);
     static void unload_sprite(uint8_t sprId,
                               CutsceneLocation callingLocation);
@@ -53,7 +52,7 @@ public:
     void scale_in_frames(uint8_t targetType, uint8_t targetId, int32_t x, int32_t y,
                          uint16_t frames, CutsceneLocation callingLocation);
     void update();
-    static Engine::SpriteManager* getTarget(uint8_t targetType, uint8_t targetId,
+    static Engine::Sprite* getTarget(uint8_t targetType, uint8_t targetId,
                                             CutsceneLocation callingLocation);
 private:
     void startTask(NavigationTask* navTask);
@@ -63,6 +62,8 @@ private:
     NavigationTask** tasks = nullptr;
 };
 
-#include "Room.hpp"
+#include "Battle/Battle.hpp"
+
+#include "Room/Room.hpp"
 
 #endif //LAYTON_NAVIGATION_HPP

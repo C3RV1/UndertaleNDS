@@ -7,16 +7,16 @@
 
 class Player;
 
-#include "Sprite.hpp"
+#include "Texture.hpp"
 #include <stdio.h>
 #define ARM9
 #include <nds.h>
 #include "Sprite3DManager.hpp"
-#include "Camera.hpp"
+#include "Room/Camera.hpp"
 #include "Room.hpp"
 #include "math.hpp"
 #include "Cutscene/Cutscene.hpp"
-#include "InGameMenu.hpp"
+#include "Room/InGameMenu.hpp"
 
 class Player {
 public:
@@ -30,10 +30,10 @@ public:
     void draw();
 
     // sprite top left position
-    Engine::SpriteManager spriteManager;
+    Engine::Sprite spriteManager;
     bool playerControl = true;
 private:
-    Engine::Sprite playerSpr;
+    Engine::Texture playerSpr;
 
     uint8_t currentAnimation = 0;  // 0-3 idle up, down, left, right, 4-7 move same
 

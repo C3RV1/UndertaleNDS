@@ -2,8 +2,8 @@
   "parts": [
     {
       "conditions": [],
-      "room_bg": "nitro:/bg/rooms/room2.cbgf",
-      "music_path": "nitro:/z_audio/mus_ruins.wav",
+      "room_bg": "rooms/room2.cbgf",
+      "music_path": "mus_ruins.wav",
       "exits": [
         {
           "exit_type": "side",

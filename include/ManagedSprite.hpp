@@ -7,21 +7,21 @@
 
 class ManagedSprite;
 
-#include "Engine/Sprite.hpp"
+#include "Engine/Texture.hpp"
 #include "Engine/Sprite3DManager.hpp"
 #include "Formats/ROOM_FILE.hpp"
-#include "Camera.hpp"
+#include "Room/Camera.hpp"
 
 class ManagedSprite {
 public:
-    ManagedSprite() : spriteManager(Engine::Allocated3D) {}
+    explicit ManagedSprite(Engine::AllocationMode alloc) : spriteManager(alloc) {}
     void load(ROOMSprite* sprData);
-    void spawn(char* path, int32_t x, int32_t y);
-    void draw();
+    void spawn(char* path, int32_t x, int32_t y, int32_t layer);
+    void draw(bool isRoom);
     void free_();
-    Engine::SpriteManager spriteManager;
+    Engine::Sprite spriteManager;
 private:
-    Engine::Sprite spr;
+    Engine::Texture spr;
     int animationId = -1;
 };
 

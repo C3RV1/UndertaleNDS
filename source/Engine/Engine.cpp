@@ -34,12 +34,12 @@ namespace Engine {
         REG_BG0CNT = BG_PRIORITY(1);
         GFX_CLEAR_COLOR = 0;
 
-        REG_BG1CNT = BG_PRIORITY(2) | BG_TILE_BASE(5) | BG_MAP_BASE(4);
+        REG_BG1CNT = BG_PRIORITY(1) | BG_TILE_BASE(5) | BG_MAP_BASE(4);
         memset(BG_TILE_RAM(5), 0, 1);
         memset(BG_MAP_RAM(4), 0, 32 * 32 * 2);
         REG_BG3CNT = BG_PRIORITY(3) | BG_TILE_BASE(1) | BG_MAP_BASE(0);
 
-        REG_BG1CNT_SUB = BG_PRIORITY(2) | BG_TILE_BASE(5) | BG_MAP_BASE(1);
+        REG_BG1CNT_SUB = BG_PRIORITY(1) | BG_TILE_BASE(5) | BG_MAP_BASE(1);
         memset(BG_TILE_RAM_SUB(5), 0, 1);
         memset(BG_MAP_RAM_SUB(1), 0, 32 * 32 * 2);
         REG_BG3CNT_SUB = BG_PRIORITY(3) | BG_TILE_BASE(1) | BG_MAP_BASE(0);

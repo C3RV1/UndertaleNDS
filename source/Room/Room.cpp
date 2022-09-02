@@ -2,7 +2,7 @@
 // Created by cervi on 27/08/2022.
 //
 
-#include "Room.hpp"
+#include "Room/Room.hpp"
 
 Room::Room(int roomId) : roomId(roomId) {
     char buffer[100];
@@ -23,7 +23,8 @@ Room::Room(int roomId) : roomId(roomId) {
     }
     fclose(f);
 
-    f = fopen(roomData.roomBg, "rb");
+    sprintf(buffer, "nitro:/bg/%s", roomData.roomBg);
+    f = fopen(buffer, "rb");
     if (f) {
         int bgLoad = bg.loadCBGF(f);
         if (bgLoad != 0) {
@@ -241,7 +242,7 @@ void Room::loadSprites() {
     sprites = new ManagedSprite*[roomData.roomSprites.spriteCount];
     spriteCount = roomData.roomSprites.spriteCount;
     for (int i = 0; i < roomData.roomSprites.spriteCount; i++) {
-        sprites[i] = new ManagedSprite;
+        sprites[i] = new ManagedSprite(Engine::Allocated3D);
         sprites[i]->load(&roomData.roomSprites.roomSprites[i]);
     }
 }
@@ -255,7 +256,7 @@ bool Room::evaluateCondition(FILE *f) {
     fread(&cond.cmpValue, 2, 1, f);
 
     uint16_t flagValue = saveGlobal.flags[cond.flagId];
-    bool flag;
+    bool flag = false;
     if (cond.cmpOperator == ComparisonOperator::EQUALS)
         flag = (flagValue == cond.cmpValue);
     else if (cond.cmpOperator == ComparisonOperator::GREATER_THAN)
@@ -269,7 +270,7 @@ bool Room::evaluateCondition(FILE *f) {
 
 void Room::draw() const {
     for (int i = 0; i < spriteCount; i++) {
-        sprites[i]->draw();
+        sprites[i]->draw(true);
     }
 }
 
@@ -317,7 +318,8 @@ void Room::push() {
 
 void Room::pop() {
     char buffer[100];
-    FILE* f = fopen(roomData.roomBg, "rb");
+    sprintf(buffer, "nitro:/bg/%s", roomData.roomBg);
+    FILE* f = fopen(buffer, "rb");
     if (f) {
         int bgLoad = bg.loadCBGF(f);
         if (bgLoad != 0) {

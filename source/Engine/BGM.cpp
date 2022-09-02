@@ -15,7 +15,9 @@ namespace BGM {
     int WAV::loadWAV(const char *name) {
         free_();
         loop = false;
-        FILE *f = fopen(name, "rb");
+        char buffer[100];
+        sprintf(buffer, "nitro:/z_audio/%s", name);
+        FILE *f = fopen(buffer, "rb");
         filename = new char[strlen(name) + 1];
         strcpy(filename, name);
         if (!f)

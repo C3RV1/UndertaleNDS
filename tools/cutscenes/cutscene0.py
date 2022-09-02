@@ -9,16 +9,17 @@ def cutscene(c: Cutscene):
     c.start_bgm("nitro:/z_audio/mus_flowey.wav", True)
     c.set_animation(Target(TargetType.PLAYER), "upIdle")
     c.start_dialogue(0, "nitro:/spr/speaker/flowey.cspr", 128 - 21, (192 - 44) // 4 - 5, "nice1", "nice1_talk",
-                     Target(TargetType.SPRITE, 0), "idle", "talk", "nitro:/fnt/fnt_main.font.cfnt")
+                     Target(TargetType.SPRITE, 0), "idle", "talk", "fnt_main.font.cfnt")
     c.wait_dialogue_end()
 
-    c.start_battle()
+    c.start_battle([])
     c.wait_exit()
-    c.load_sprite(0, 0, "nitro:/spr/speaker/flowey.cspr")  # flowey
+    c.load_sprite(0, 0, "speaker/flowey.cspr")  # flowey
     c.wait_frames(30)
-    c.load_sprite(0, 0, "nitro:/spr/dialogue/spr_blconwdshrt.cspr")  # dialogue box
+    c.load_sprite(0, 0, "dialogue/spr_blconwdshrt.cspr")  # dialogue box
     c.wait_enter()
-    c.start_battle_dialogue(0, 0, 1, Target(TargetType.SPRITE, 0), "nice1", "nice1_talk", 300)
+    c.start_dialogue_battle(1, 0, 0, Target(TargetType.SPRITE, 0), "nice1", "nice1_talk",
+                            "fnt_main.font.cfnt")
     c.wait_dialogue_end()
 
     c.set_shown(Target(TargetType.SPRITE, 1), False)
@@ -37,10 +38,10 @@ def cutscene(c: Cutscene):
     c.set_pos_in_frames(Target(TargetType.SPRITE, 5), 0, 0, 180)
     c.set_pos_in_frames(Target(TargetType.SPRITE, 6), 0, 0, 180)
 
-    c.start_battle_dialogue(0, 0, 2, Target(TargetType.SPRITE, 0), "nice2", "nice2_talk", 300)
+    c.start_dialogue(2, "", 0, 0, "", "", Target(TargetType.SPRITE, 0), "nice2", "nice2_talk", "fnt_main.font.cfnt")
     c.wait_dialogue_end()
 
-    c.start_battle_dialogue(0, 0, 3, Target(TargetType.SPRITE, 0), "nice1", "nice1_talk", 180)
+    c.start_dialogue_battle(3, 0, 0, Target(TargetType.SPRITE, 0), "nice1", "nice1_talk", "fnt_main.font.cfnt")
 
     def do_attack():
         c.set_pos_in_frames(Target(TargetType.SPRITE, 2), 0, 0, 120)
@@ -57,7 +58,7 @@ def cutscene(c: Cutscene):
     c.check_hit()
     jump_hit = c.jump_if()
 
-    c.start_battle_dialogue(0, 0, 4, Target(TargetType.SPRITE, 0), "sassy", "sassy_talk", 300)
+    c.start_dialogue_battle(4, 0, 0, Target(TargetType.SPRITE, 0), "sassy", "sassy_talk", "fnt_main.font.cfnt")
     c.wait_dialogue_end()
 
     def set_pellets():
@@ -73,7 +74,7 @@ def cutscene(c: Cutscene):
     c.check_hit()
     jump_hit2 = c.jump_if()
 
-    c.start_battle_dialogue(0, 0, 5, Target(TargetType.SPRITE, 0), "annoyed", "annoyed_talk", 300)
+    c.start_dialogue_battle(5, 0, 0, Target(TargetType.SPRITE, 0), "annoyed", "annoyed_talk", "fnt_main.font.cfnt")
     c.wait_frames(180)
 
     set_pellets()
@@ -82,7 +83,7 @@ def cutscene(c: Cutscene):
     c.check_hit()
     jump_hit3 = c.jump_if()
 
-    c.start_battle_dialogue(0, 0, 6, Target(TargetType.SPRITE, 0), "evil", "evil_talk", 300)
+    c.start_dialogue_battle(6, 0, 0, Target(TargetType.SPRITE, 0), "evil", "evil_talk", "fnt_main.font.cfnt")
     c.wait_dialogue_end()
     die_jump = c.jump()
 
@@ -90,10 +91,10 @@ def cutscene(c: Cutscene):
     c.bind(jump_hit2)
     c.bind(jump_hit3)
 
-    c.start_battle_dialogue(0, 0, 7, Target(TargetType.SPRITE, 0), "grin", "grin_talk", 300)
+    c.start_dialogue_battle(7, 0, 0, Target(TargetType.SPRITE, 0), "grin", "grin_talk", "fnt_main.font.cfnt")
 
     c.bind(die_jump)
-    c.start_battle_dialogue(0, 0, 8, Target(TargetType.SPRITE, 0), "evil", "evil", 120)
+    c.start_dialogue_battle(8, 0, 0, Target(TargetType.SPRITE, 0), "evil", "evil", "fnt_main.font.cfnt")
     c.battle_attack(1)
     c.wait_frames(120)
     c.set_shown(Target(TargetType.SPRITE, 1), False)
@@ -116,7 +117,7 @@ def cutscene(c: Cutscene):
     c.wait_frames(120)
     c.set_pos(Target(TargetType.SPRITE, 1), 0, 0)
     c.set_shown(Target(TargetType.SPRITE, 1), True)
-    c.start_battle_dialogue(0, 0, 9, Target(TargetType.SPRITE, 8), "worried", "worried_talk", 0)
+    c.start_dialogue_battle(9, 0, 0, Target(TargetType.SPRITE, 8), "worried", "worried_talk", "fnt_main.font.cfnt")
     c.wait_dialogue_end()
 
     c.exit_battle()
@@ -124,7 +125,7 @@ def cutscene(c: Cutscene):
     c.load_sprite(0, 0, "")  # Toriel world
     c.wait_exit()
     c.start_dialogue(10, "", 0, 0, "idle", "talk", Target(TargetType.SPRITE, 1), "idle", "talk",
-                     "nitro:/fnt/fnt_main.font.cfnt")
+                     "fnt_main.font.cfnt")
     c.wait_dialogue_end()
     c.set_pos_in_frames(Target(TargetType.SPRITE, 1), 0, 0, 0)
     c.wait_frames(0)
