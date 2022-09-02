@@ -59,7 +59,7 @@ namespace Engine {
         int32_t cam_x = 0, cam_y = 0;
         int32_t cam_scale_x = 1 << 8, cam_scale_y = 1 << 8;
         int32_t layer = 0;
-        int currentFrame = -1;
+        int currentFrame = 0;
         int currentAnimation = -1;
         uint16_t currentAnimationTimer = 0;
         uint16_t currentAnimationFrame = 0;

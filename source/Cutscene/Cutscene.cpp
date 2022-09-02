@@ -92,7 +92,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
     if (callingLocation == ROOM || callingLocation == LOAD_ROOM) {
         nav = &globalRoom->nav;
     } else {
-        return true;
+        nav = &globalBattle->nav;
     }
 
     switch (cmd) {
@@ -276,9 +276,11 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             nocashMessage("CMD_WAIT_DIALOGUE_END");
             waiting.waitDialogueEnd();
             break;
-        case CMD_START_BATTLE:
+        case CMD_START_BATTLE: {
             nocashMessage("CMD_START_BATTLE");
+            runBattle(commandStream);
             return true;
+        }
         case CMD_EXIT_BATTLE:
             nocashMessage("CMD_EXIT_BATTLE");
             break;

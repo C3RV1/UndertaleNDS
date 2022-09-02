@@ -15,7 +15,7 @@ class Room;
 #include "Player.hpp"
 #include "Formats/ROOM_FILE.hpp"
 #include "Formats/utils.hpp"
-#include "RoomSprite.hpp"
+#include "ManagedSprite.hpp"
 #include "Cutscene/Navigation.hpp"
 
 class Room {
@@ -34,7 +34,7 @@ public:
     uint16_t roomId;
     Engine::Background bg;
     uint8_t spriteCount = 0;
-    RoomSprite** sprites = nullptr;
+    ManagedSprite** sprites = nullptr;
     ROOMPart roomData;
 
     ROOMExit* exitTop = nullptr;

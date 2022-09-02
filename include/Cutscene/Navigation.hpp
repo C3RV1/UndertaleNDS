@@ -9,6 +9,7 @@ class Navigation;
 
 #include "SpriteManager.hpp"
 #include "CutsceneEnums.hpp"
+#include "Battle.hpp"
 
 enum NavigationTaskType {
     POSITION = 0,

@@ -83,11 +83,6 @@ namespace Engine {
         res.memory.tileStart = start;
         sprintf(buffer, "SPR tile start %d palette %d", start, res.memory.paletteIdx);
         nocashMessage(buffer);
-        res.memory.loadedFrame = -1;
-        int loadResult = loadSpriteFrame(res, 0);
-        if (loadResult < 0) {
-            return loadResult - 4;
-        }
 
         auto** activeSpriteNew = new SpriteManager*[activeSpriteCount + 1];
         memcpy(activeSpriteNew, activeSprites, sizeof(SpriteManager**) * activeSpriteCount);
@@ -98,6 +93,7 @@ namespace Engine {
         activeSpriteCount++;
 
         res.memory.allocated = Allocated3D;
+        res.memory.loadedFrame = -1;
         return 0;
     }
 
@@ -165,7 +161,7 @@ namespace Engine {
             auto* newFreeZones = new uint16_t[2 * tileFreeZoneCount];
             memcpy(newFreeZones, tileFreeZones, freeAfterIdx * 4);
             newFreeZones[freeAfterIdx * 2] = start;
-            newFreeZones[freeAfterIdx * 2 + 1] = start;
+            newFreeZones[freeAfterIdx * 2 + 1] = length;
             memcpy((uint8_t*)newFreeZones + (freeAfterIdx + 1) * 4,
                    tileFreeZones + freeAfterIdx * 4,
                    (tileFreeZoneCount - (freeAfterIdx + 1)) * 4);
@@ -224,6 +220,9 @@ namespace Engine {
 
             if (spr->currentFrame != spr->memory.loadedFrame)
                 loadSpriteFrame(*spr, spr->currentFrame);
+
+            if (spr->memory.loadedFrame == -1)
+                continue;
 
             glColor( RGB15(31,31,31) );
             glPolyFmt( POLY_ALPHA(31) | POLY_CULL_NONE);

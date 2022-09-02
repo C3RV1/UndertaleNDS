@@ -5,13 +5,18 @@
 #ifndef LAYTON_BATTLE_HPP
 #define LAYTON_BATTLE_HPP
 
+class Battle;
+
 #define ARM9
 #include <nds.h>
 #include <stdio.h>
+#include "Room.hpp"
+#include "ManagedSprite.hpp"
+#include "Navigation.hpp"
 
 struct Enemy {
     uint16_t enemyId;
-    char* enemyName;
+    char enemyName[20];
     uint16_t hp;
     uint16_t maxHp;
 };
@@ -19,11 +24,20 @@ struct Enemy {
 class Battle {
 public:
     void loadFromStream(FILE* stream);
-private:
-    uint8_t enemyCount;
-    Enemy* enemies;
+    void draw();
+    void update();
+    void free_();
+    bool running = true;
+    Navigation nav;
+
+    uint8_t enemyCount = 0;
+    Enemy* enemies = nullptr;
+
+    uint8_t spriteCount = 0;
+    ManagedSprite** sprites = nullptr;
 };
 
-void startBattle(FILE* stream);
+void runBattle(FILE* stream);
+extern Battle* globalBattle;
 
 #endif //LAYTON_BATTLE_HPP

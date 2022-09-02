@@ -7,34 +7,59 @@
 void Navigation::spawn_sprite(char *path, int32_t x, int32_t y,
                               CutsceneLocation callingLocation) {
     if (callingLocation == LOAD_ROOM || callingLocation == ROOM) {
-        auto* newSprites = new RoomSprite*[globalRoom->spriteCount + 1];
-        memcpy(newSprites, globalRoom->sprites, sizeof(RoomSprite*) * globalRoom->spriteCount);
+        auto* newSprites = new ManagedSprite*[globalRoom->spriteCount + 1];
+        memcpy(newSprites, globalRoom->sprites, sizeof(ManagedSprite*) * globalRoom->spriteCount);
 
-        auto* newRoomSprite = new RoomSprite;
+        auto* newRoomSprite = new ManagedSprite;
         newRoomSprite->spawn(path, x, y);
 
         newSprites[globalRoom->spriteCount] = newRoomSprite;
         delete globalRoom->sprites;
         globalRoom->sprites = newSprites;
         globalRoom->spriteCount++;
+    } else {
+        auto* newSprites = new ManagedSprite*[globalBattle->spriteCount + 1];
+        memcpy(newSprites, globalBattle->sprites, sizeof(ManagedSprite*) * globalBattle->spriteCount);
+
+        auto* newRoomSprite = new ManagedSprite;
+        newRoomSprite->spawn(path, x, y);
+
+        newSprites[globalBattle->spriteCount] = newRoomSprite;
+        delete globalBattle->sprites;
+        globalBattle->sprites = newSprites;
+        globalBattle->spriteCount++;
     }
 }
 
 void Navigation::unload_sprite(uint8_t sprId, CutsceneLocation callingLocation) {
     if (callingLocation == LOAD_ROOM || callingLocation == ROOM) {
-        if (sprId >=globalRoom->spriteCount)
+        if (sprId >= globalRoom->spriteCount)
             return;
         auto* sprite = globalRoom->sprites[sprId];
         sprite->free_();
         delete sprite;
 
-        auto* newSprites = new RoomSprite*[globalRoom->spriteCount - 1];
-        memcpy(newSprites, globalRoom->sprites, sizeof(RoomSprite*) * sprId);
+        auto* newSprites = new ManagedSprite*[globalRoom->spriteCount - 1];
+        memcpy(newSprites, globalRoom->sprites, sizeof(ManagedSprite*) * sprId);
         memcpy(&newSprites[sprId], &globalRoom->sprites[sprId + 1],
-               sizeof(RoomSprite*) * (globalRoom->spriteCount - (sprId + 1)));
+               sizeof(ManagedSprite*) * (globalRoom->spriteCount - (sprId + 1)));
         delete globalRoom->sprites;
         globalRoom->sprites = newSprites;
         globalRoom->spriteCount--;
+    } else {
+        if (sprId >= globalBattle->spriteCount)
+            return;
+        auto* sprite = globalBattle->sprites[sprId];
+        sprite->free_();
+        delete sprite;
+
+        auto* newSprites = new ManagedSprite*[globalBattle->spriteCount - 1];
+        memcpy(newSprites, globalBattle->sprites, sizeof(ManagedSprite*) * sprId);
+        memcpy(&newSprites[sprId], &globalBattle->sprites[sprId + 1],
+               sizeof(ManagedSprite*) * (globalBattle->spriteCount - (sprId + 1)));
+        delete globalBattle->sprites;
+        globalBattle->sprites = newSprites;
+        globalBattle->spriteCount--;
     }
 }
 
@@ -196,6 +221,15 @@ Engine::SpriteManager* Navigation::getTarget(uint8_t targetType, uint8_t targetI
                 return nullptr;
             } else {
                 return &globalRoom->sprites[targetId]->spriteManager;
+            }
+        }
+    } else {
+        if (targetType == SPRITE) {
+            if (targetId >= globalBattle->spriteCount) {
+                nocashMessage("Error: target id outside of sprite count");
+                return nullptr;
+            } else {
+                return &globalBattle->sprites[targetId]->spriteManager;
             }
         }
     }

@@ -145,7 +145,8 @@ namespace Engine {
     }
 
     int loadBgExtendedSub(Background& bg, int forceSize) {
-        videoSetModeSub(MODE_3_2D | DISPLAY_BG1_ACTIVE | DISPLAY_BG3_ACTIVE);
+        videoSetModeSub(MODE_3_2D | DISPLAY_BG1_ACTIVE | DISPLAY_BG3_ACTIVE | DISPLAY_SPR_1D | DISPLAY_SPR_ACTIVE
+                        | (1 << 20));
         return loadBgExtendedEngine(bg, &REG_BG3CNT_SUB, BG_PALETTE_SUB, BG_TILE_RAM_SUB(1),
                                     BG_MAP_RAM_SUB(0),
                                     &REG_BG3PA_SUB, &REG_BG3PB_SUB,
@@ -198,17 +199,20 @@ namespace Engine {
     }
 
     void clearMain() {
+        videoSetMode(MODE_0_3D | DISPLAY_BG1_ACTIVE | DISPLAY_BG3_ACTIVE);
         clearEngine(&REG_BG3CNT, BG_TILE_RAM(1), BG_MAP_RAM(0));
     }
 
     void clearSub() {
+        videoSetModeSub(MODE_0_2D | DISPLAY_BG1_ACTIVE | DISPLAY_BG3_ACTIVE | DISPLAY_SPR_1D | DISPLAY_SPR_ACTIVE
+                        | (1 << 20));
         clearEngine(&REG_BG3CNT_SUB, BG_TILE_RAM_SUB(1), BG_MAP_RAM_SUB(0));
     }
 
     void clearEngine(vu16* bg3Reg, u16* tileRam, u16* mapRam) {
         uint16_t mapRamUsage = 0x800;
         memset(mapRam, 0, mapRamUsage);
-        *bg3Reg = (*bg3Reg & (~0xC000)); // size 32x32
+        *bg3Reg = (*bg3Reg & (~0xE080)); // size 32x32
         *tileRam = 0;
     }
 

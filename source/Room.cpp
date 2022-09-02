@@ -110,15 +110,15 @@ int Room::loadRoom(FILE *f) {
     if (bgPathLen == -1)
         return 5;
 
-    roomData.roomBg = new char[bgPathLen + 1];
     fread(roomData.roomBg, bgPathLen + 1, 1, f);
+    roomData.roomBg[bgPathLen] = 0;
 
     int musicPathLen = strlen_file(f, 0);
     if (musicPathLen == -1)
         return 5;
 
-    roomData.musicBg = new char[musicPathLen + 1];
     fread(roomData.musicBg, musicPathLen + 1, 1, f);
+    roomData.musicBg[musicPathLen] = 0;
 
     fread(&roomData.roomExits.exitCount, 1, 1, f);
     roomData.roomExits.roomExits = new ROOMExit[roomData.roomExits.exitCount];
@@ -215,10 +215,6 @@ int Room::loadRoom(FILE *f) {
 
 void Room::free_() {
     bg.free_();
-    delete[] roomData.roomBg;
-    roomData.roomBg = nullptr;
-    delete[] roomData.musicBg;
-    roomData.musicBg = nullptr;
     delete[] roomData.roomExits.roomExits;
     roomData.roomExits.roomExits = nullptr;
     for (int i = 0; i < spriteCount; i++) {
@@ -242,10 +238,10 @@ void Room::free_() {
 }
 
 void Room::loadSprites() {
-    sprites = new RoomSprite*[roomData.roomSprites.spriteCount];
+    sprites = new ManagedSprite*[roomData.roomSprites.spriteCount];
     spriteCount = roomData.roomSprites.spriteCount;
     for (int i = 0; i < roomData.roomSprites.spriteCount; i++) {
-        sprites[i] = new RoomSprite;
+        sprites[i] = new ManagedSprite;
         sprites[i]->load(&roomData.roomSprites.roomSprites[i]);
     }
 }
