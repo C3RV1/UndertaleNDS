@@ -17,3 +17,4 @@ CMake*
 *.nds
 *.elf
 notes.txt
+*.pyc
