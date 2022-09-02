@@ -127,7 +127,7 @@ namespace Engine {
         bool mergePrev = false, mergePost = false;
 
         if (freeAfterIdx > 0)
-            mergePrev = (tileFreeZones[(freeAfterIdx - 1) * 2] + tileFreeZones[freeAfterIdx * 2 -1]) == start;
+            mergePrev = (tileFreeZones[freeAfterIdx * 2 - 2] + tileFreeZones[freeAfterIdx * 2 -1]) == start;
         if (freeAfterIdx <= tileFreeZoneCount - 1) {
             mergePost = (start + length) == tileFreeZones[freeAfterIdx * 2];
         }
@@ -201,8 +201,8 @@ namespace Engine {
                 uint32_t tileOffset = framePos + tileY * tileWidth + tileX;
                 tileOffset *= 64;
                 tileOffset += (y % 8) * 8 + (x % 8);
-                *(uint16_t*)(tileRamStart + y * spr.memory.allocX + x) &= ~(0xFF << (8 * !(x & 1)));
-                *(uint16_t*)(tileRamStart + y * spr.memory.allocX + x) |= (spr.sprite->getTiles()[tileOffset] & 0xFF) << (8 * !(x & 1));
+                *(uint16_t*)(tileRamStart + y * spr.memory.allocX + x) &= ~(0xFF << (8 * (x & 1)));
+                *(uint16_t*)(tileRamStart + y * spr.memory.allocX + x) |= (spr.sprite->getTiles()[tileOffset] & 0xFF) << (8 * (x & 1));
             }
         }
 

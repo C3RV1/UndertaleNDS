@@ -21,8 +21,8 @@ namespace Engine {
         Sprite3DManager() {
             tileFreeZoneCount = 1;
             tileFreeZones = new uint16_t[2];
-            tileFreeZones[0] = 1;
-            tileFreeZones[1] = 65535;
+            tileFreeZones[0] = 0;
+            tileFreeZones[1] = 65536-8;
         }
 
         int loadSprite(Sprite& res);

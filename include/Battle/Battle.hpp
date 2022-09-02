@@ -17,6 +17,7 @@ class Battle;
 #include "ManagedSprite.hpp"
 #include "Cutscene/Navigation.hpp"
 #include "BattleAttack.hpp"
+#include "Engine.hpp"
 
 struct Enemy {
     uint16_t enemyId = 0;
@@ -42,6 +43,9 @@ public:
     ManagedSprite** sprites = nullptr;
 
     Engine::Background bulletBoard;
+    uint8_t boardX = 0, boardY = 0, boardW = 0, boardH = 0;
+
+    const int32_t playerSpeed = (128 << 8) / 60;
     Engine::Texture player;
     Engine::Sprite playerManager;
 

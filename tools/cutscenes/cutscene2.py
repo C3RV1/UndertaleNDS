@@ -15,7 +15,7 @@ def cutscene(c: Cutscene):
                      Target(TargetType.SPRITE, 0), "idle", "talk", "fnt_maintext.font.cfnt")
     c.wait_dialogue_end()
 
-    c.start_battle([])
+    c.start_battle([], 0, 24, 57, 208, 105)
     c.load_sprite(30, (192 - 44) // 2, "speaker/flowey.cspr")
     c.wait_enter()
     c.debug("In battle!")
@@ -48,6 +48,8 @@ def cutscene(c: Cutscene):
                             "fnt_maintext.font.cfnt", frames_per_letter=0)
     c.wait_dialogue_end()
 
+    c.stop_bgm()
+
     c.set_animation(Target(TargetType.SPRITE, 0), "evil")
     c.wait_frames(40)
     c.start_dialogue_battle(6, 90, 192 // 4, Target(TargetType.SPRITE, 0), "evil", "evil_talk",
@@ -62,7 +64,19 @@ def cutscene(c: Cutscene):
     c.wait_frames(240)
 
     c.set_animation(Target(TargetType.SPRITE, 0), "skull_idle")
-    c.wait_frames(240)
+    c.wait_frames(80)
+
+    c.load_sprite(256 - 60, (192 - 30) // 2, "cutscene/0/spr_torielflame.png")
+    c.set_animation(Target(TargetType.SPRITE, 1), "flashing")
+    c.wait_frames(60)
+    c.set_animation(Target(TargetType.SPRITE, 1), "flying")
+    c.move_in_frames(Target(TargetType.SPRITE, 1), -180, 0, 60)
+    c.wait_frames(60)
+    c.unload_sprite(1)
+    c.set_animation(Target(TargetType.SPRITE, 0), "hurt")
+    c.move_in_frames(Target(TargetType.SPRITE, 0), -100, 0, 60)
+    c.wait_frames(60)
+    c.unload_sprite(0)
 
     c.wait_frames(300)
 
