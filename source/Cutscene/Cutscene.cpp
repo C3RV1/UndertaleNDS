@@ -44,7 +44,7 @@ bool Cutscene::checkHeader(FILE *f) {
     uint32_t version;
     fread(&version, 4, 1, f);
 
-    if (version != 2) {
+    if (version != 3) {
         return false;
     }
 
@@ -102,15 +102,26 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             fread(buffer, len + 1, 1, commandStream);
             nocashMessage(buffer);
             break;
+        case CMD_LOAD_TEXTURE:
+            nocashMessage("CMD_LOAD_TEXTURE");
+            len = strlen_file(commandStream, 0);
+            fread(buffer, len + 1, 1, commandStream);
+            Navigation::load_texture(buffer, callingLocation);
+            break;
+        case CMD_UNLOAD_TEXTURE:
+            nocashMessage("CMD_LOAD_TEXTURE");
+            fread(&targetId, 1, 1, commandStream);
+            Navigation::unload_texture(targetId, callingLocation);
+            break;
         case CMD_LOAD_SPRITE: {
             nocashMessage("CMD_LOAD_SPRITE");
             int32_t x, y, layer;
+            uint8_t texId;
             fread(&x, 4, 1, commandStream);
             fread(&y, 4, 1, commandStream);
             fread(&layer, 4, 1, commandStream);
-            len = strlen_file(commandStream, 0);
-            fread(buffer, len + 1, 1, commandStream);
-            Navigation::spawn_sprite(buffer, x, y, layer, callingLocation);
+            fread(&texId, 1, 1, commandStream);
+            Navigation::spawn_sprite(texId, x, y, layer, callingLocation);
             break;
         }
         case CMD_UNLOAD_SPRITE: {

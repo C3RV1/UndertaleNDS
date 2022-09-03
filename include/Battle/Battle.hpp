@@ -39,6 +39,9 @@ public:
     uint8_t enemyCount = 0;
     Enemy* enemies = nullptr;
 
+    uint8_t textureCount = 0;
+    Engine::Texture** textures = nullptr;
+
     uint8_t spriteCount = 0;
     ManagedSprite** sprites = nullptr;
 

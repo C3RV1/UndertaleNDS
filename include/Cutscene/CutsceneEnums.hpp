@@ -19,7 +19,7 @@ enum CutsceneCommands {
     CMD_WAIT_DIALOGUE_END = 10,
     CMD_START_BATTLE = 11,
     CMD_EXIT_BATTLE = 12,
-    // 13,
+    CMD_LOAD_TEXTURE = 13,
     CMD_BATTLE_ATTACK = 14,
     CMD_WAIT_BATTLE_ATTACK = 15,
     CMD_WAIT_BATTLE_ACTION = 16,
@@ -38,6 +38,7 @@ enum CutsceneCommands {
     CMD_SET_FLAG = 29,
     CMD_CMP_FLAG = 30,
     CMD_SET_COLLIDER_ENABLED = 31,
+    CMD_UNLOAD_TEXTURE = 32,
     CMD_DEBUG = 0xff
 };
 

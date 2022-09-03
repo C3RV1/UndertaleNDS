@@ -33,7 +33,11 @@ struct NavigationTask {
 
 class Navigation {
 public:
-    static void spawn_sprite(char* path, int32_t x, int32_t y, int32_t layer,
+    static void load_texture(char* path,
+                             CutsceneLocation callingLocation);
+    static void unload_texture(uint8_t textureId,
+                               CutsceneLocation callingLocation);
+    static void spawn_sprite(uint8_t textureId, int32_t x, int32_t y, int32_t layer,
                              CutsceneLocation callingLocation);
     static void unload_sprite(uint8_t sprId,
                               CutsceneLocation callingLocation);

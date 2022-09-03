@@ -16,6 +16,7 @@
           "h": 51
         }
       ],
+      "textures": [],
       "sprites": [],
       "colliders": [
         {"x": 0, "y": 0, "w": 22, "h": 264},

@@ -65,6 +65,7 @@ Room::Room(int roomId) : roomId(roomId) {
 
 int Room::loadRoom(FILE *f) {
     ROOMFile roomFile;
+    char buffer[100];
 
     fread(roomFile.header.header, 4, 1, f);
     char expectedHeader[4] = {'R', 'O', 'O', 'M'};
@@ -84,7 +85,7 @@ int Room::loadRoom(FILE *f) {
     }
 
     fread(&roomFile.header.version, 4, 1, f);
-    if (roomFile.header.version != 3) {
+    if (roomFile.header.version != 4) {
         return 3;
     }
 
@@ -171,16 +172,37 @@ int Room::loadRoom(FILE *f) {
         rectExits[j++] = &roomExits[i];
     }
 
-    fread(&roomData.roomSprites.spriteCount, 1, 1, f);
-    roomData.roomSprites.roomSprites = new ROOMSprite[roomData.roomSprites.spriteCount];
-    ROOMSprite* roomSprites = roomData.roomSprites.roomSprites;
+    fread(&textureCount, 1, 1, f);
+    textures = new Engine::Texture*[textureCount];
+    char path[100];
+    for (int i = 0; i < textureCount; i++){
+        textures[i] = new Engine::Texture;
 
-    for (int i = 0; i < roomData.roomSprites.spriteCount; i++) {
         int sprPathLen = strlen_file(f, 0);
         if (sprPathLen == -1)
             return 5;
-        roomSprites[i].spritePath = new char[sprPathLen + 1];
-        fread(roomSprites[i].spritePath, sprPathLen + 1, 1, f);
+        fread(path, sprPathLen + 1, 1, f);
+
+        FILE* textureFile = fopen(path, "rb");
+        if (textureFile) {
+            int texLoad = textures[i]->loadCSPR(textureFile);
+            if (texLoad != 0) {
+                sprintf(buffer, "Error loading texture %s: %d", path, texLoad);
+                nocashMessage(buffer);
+            }
+        } else {
+            sprintf(buffer, "Error opening texture %s", path);
+            nocashMessage(buffer);
+        }
+        fclose(textureFile);
+    }
+
+    fread(&spriteCount, 1, 1, f);
+    roomData.roomSprites.roomSprites = new ROOMSprite[spriteCount];
+    ROOMSprite* roomSprites = roomData.roomSprites.roomSprites;
+
+    for (int i = 0; i < spriteCount; i++) {
+        fread(&roomSprites[i].textureId, 1, 1, f);
         fread(&roomSprites[i].x, 2, 1, f);
         fread(&roomSprites[i].y, 2, 1, f);
         fread(&roomSprites[i].layer, 2, 1, f);
@@ -223,9 +245,11 @@ void Room::free_() {
         sprites[i]->free_();
         delete sprites[i];
     }
+    for (int i = 0; i < textureCount; i++) {
+        delete textures[i];
+    }
+    delete[] textures;
     for (int i = 0; i < roomData.roomSprites.spriteCount; i++) {
-        delete[] roomData.roomSprites.roomSprites[i].spritePath;
-        roomData.roomSprites.roomSprites[i].spritePath = nullptr;
         delete[] roomData.roomSprites.roomSprites[i].animation;
         roomData.roomSprites.roomSprites[i].animation = nullptr;
     }
@@ -240,11 +264,10 @@ void Room::free_() {
 }
 
 void Room::loadSprites() {
-    sprites = new ManagedSprite*[roomData.roomSprites.spriteCount];
-    spriteCount = roomData.roomSprites.spriteCount;
-    for (int i = 0; i < roomData.roomSprites.spriteCount; i++) {
+    sprites = new ManagedSprite*[spriteCount];
+    for (int i = 0; i < spriteCount; i++) {
         sprites[i] = new ManagedSprite(Engine::Allocated3D);
-        sprites[i]->load(&roomData.roomSprites.roomSprites[i]);
+        sprites[i]->load(&roomData.roomSprites.roomSprites[i], textureCount, textures);
     }
 }
 
