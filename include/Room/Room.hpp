@@ -11,6 +11,7 @@ class Room;
 #include <string.h>
 #include "Engine/Background.hpp"
 #include "Engine/Engine.hpp"
+#include "Engine/Texture.hpp"
 #include "Room/Camera.hpp"
 #include "Room/Player.hpp"
 #include "Formats/ROOM_FILE.hpp"
@@ -33,8 +34,13 @@ public:
 
     uint16_t roomId;
     Engine::Background bg;
+
+    uint8_t textureCount = 0;
+    Engine::Texture** textures;
+
     uint8_t spriteCount = 0;
     ManagedSprite** sprites = nullptr;
+
     ROOMPart roomData;
 
     ROOMExit* exitTop = nullptr;

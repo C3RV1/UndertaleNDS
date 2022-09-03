@@ -4,14 +4,83 @@
 
 #include "Cutscene/Navigation.hpp"
 
-void Navigation::spawn_sprite(char *path, int32_t x, int32_t y, int32_t layer,
+void Navigation::load_texture(char *path, CutsceneLocation callingLocation) {
+    char buffer[100];
+    auto* newTexture = new Engine::Texture;
+    sprintf(buffer, "nitro:/spr/%s", path);
+    FILE*f = fopen(buffer, "rb");
+    if (f) {
+        int texLoad = newTexture->loadCSPR(f);
+        if (texLoad != 0) {
+            sprintf(buffer, "Error loading texture %s: %d", path, texLoad);
+            nocashMessage(buffer);
+        }
+    } else {
+        sprintf(buffer, "Error opening texture %s", path);
+        nocashMessage(buffer);
+    }
+    fclose(f);
+
+    if (callingLocation == LOAD_ROOM || callingLocation == ROOM) {
+        auto* newTextures = new Engine::Texture*[globalRoom->textureCount + 1];
+        memcpy(newTextures, globalRoom->textures, sizeof(Engine::Texture*) * globalRoom->textureCount);
+
+        newTextures[globalRoom->textureCount] = newTexture;
+        delete globalRoom->textures;
+        globalRoom->textures = newTextures;
+        globalRoom->textureCount++;
+    } else {
+        auto* newTextures = new Engine::Texture*[globalBattle->textureCount + 1];
+        memcpy(newTextures, globalBattle->textures, sizeof(Engine::Texture*) * globalBattle->textureCount);
+
+        newTextures[globalBattle->textureCount] = newTexture;
+        delete globalBattle->textures;
+        globalBattle->textures = newTextures;
+        globalBattle->textureCount++;
+    }
+}
+
+void Navigation::unload_texture(uint8_t textureId, CutsceneLocation callingLocation) {
+    if (callingLocation == LOAD_ROOM || callingLocation == ROOM) {
+        if (textureId >= globalRoom->textureCount)
+            return;
+        auto* sprite = globalRoom->textures[textureId];
+        sprite->free_();
+        delete sprite;
+
+        auto* newTextures = new Engine::Texture*[globalRoom->textureCount - 1];
+        memcpy(newTextures, globalRoom->textures, sizeof(Engine::Texture*) * textureId);
+        memcpy(&newTextures[textureId], &globalRoom->textures[textureId + 1],
+               sizeof(Engine::Texture*) * (globalRoom->textureCount - (textureId + 1)));
+        delete globalRoom->textures;
+        globalRoom->textures = newTextures;
+        globalRoom->textureCount--;
+    } else {
+        if (textureId >= globalBattle->textureCount)
+            return;
+        auto* sprite = globalBattle->textures[textureId];
+        sprite->free_();
+        delete sprite;
+
+        auto* newTextures = new Engine::Texture*[globalBattle->textureCount - 1];
+        memcpy(newTextures, globalBattle->textures, sizeof(Engine::Texture*) * textureId);
+        memcpy(&newTextures[textureId], &globalBattle->textures[textureId + 1],
+               sizeof(Engine::Texture*) * (globalBattle->textureCount - (textureId + 1)));
+        delete globalBattle->textures;
+        globalBattle->textures = newTextures;
+        globalBattle->textureCount--;
+    }
+}
+
+void Navigation::spawn_sprite(uint8_t textureId, int32_t x, int32_t y, int32_t layer,
                               CutsceneLocation callingLocation) {
     if (callingLocation == LOAD_ROOM || callingLocation == ROOM) {
         auto* newSprites = new ManagedSprite*[globalRoom->spriteCount + 1];
         memcpy(newSprites, globalRoom->sprites, sizeof(ManagedSprite*) * globalRoom->spriteCount);
 
         auto* newRoomSprite = new ManagedSprite(Engine::Allocated3D);
-        newRoomSprite->spawn(path, x, y, layer);
+        newRoomSprite->spawn(textureId, x, y, layer, globalRoom->textureCount,
+                             globalRoom->textures);
 
         newSprites[globalRoom->spriteCount] = newRoomSprite;
         delete globalRoom->sprites;
@@ -22,7 +91,8 @@ void Navigation::spawn_sprite(char *path, int32_t x, int32_t y, int32_t layer,
         memcpy(newSprites, globalBattle->sprites, sizeof(ManagedSprite*) * globalBattle->spriteCount);
 
         auto* newRoomSprite = new ManagedSprite(Engine::AllocatedOAM);
-        newRoomSprite->spawn(path, x, y, layer);
+        newRoomSprite->spawn(textureId, x, y, layer,
+                             globalBattle->textureCount, globalBattle->textures);
 
         newSprites[globalBattle->spriteCount] = newRoomSprite;
         delete globalBattle->sprites;

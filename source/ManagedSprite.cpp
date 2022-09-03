@@ -4,23 +4,12 @@
 
 #include "ManagedSprite.hpp"
 
-void ManagedSprite::load(ROOMSprite *sprData) {
-    char buffer[100];
-    FILE *f = fopen(sprData->spritePath, "rb");
-    if (f) {
-        int sprLoad = spr.loadCSPR(f);
-        if (sprLoad != 0) {
-            sprintf(buffer, "Error loading RoomSprite %s: %d",
-                    sprData->spritePath, sprLoad);
-            nocashMessage(buffer);
-        }
-    } else {
-        sprintf(buffer, "Error opening RoomSprite %s", sprData->spritePath);
-        nocashMessage(buffer);
+void ManagedSprite::load(ROOMSprite *sprData, uint8_t textureCount,
+                         Engine::Texture** textures) {
+    if (sprData->textureId < textureCount) {
+        texture = textures[sprData->textureId];
+        spriteManager.loadSprite(*texture);
     }
-    fclose(f);
-
-    spriteManager.loadSprite(spr);
     animationId = spriteManager.nameToAnimId(sprData->animation);
     spriteManager.wx = sprData->x << 8;
     spriteManager.wy = sprData->y << 8;
@@ -30,24 +19,12 @@ void ManagedSprite::load(ROOMSprite *sprData) {
     spriteManager.setShown(true);
 }
 
-void ManagedSprite::spawn(char *path, int32_t x, int32_t y, int32_t layer) {
-    char buffer[100];
-    sprintf(buffer, "nitro:/spr/%s", path);
-    FILE *f = fopen(buffer, "rb");
-    if (f) {
-        int sprLoad = spr.loadCSPR(f);
-        if (sprLoad != 0) {
-            sprintf(buffer, "Error loading RoomSprite %s: %d",
-                    path, sprLoad);
-            nocashMessage(buffer);
-        }
-    } else {
-        sprintf(buffer, "Error opening RoomSprite %s", path);
-        nocashMessage(buffer);
+void ManagedSprite::spawn(uint8_t textureId, int32_t x, int32_t y, int32_t layer,
+                          uint8_t textureCount, Engine::Texture** textures) {
+    if (textureId < textureCount) {
+        texture = textures[textureId];
+        spriteManager.loadSprite(*texture);
     }
-    fclose(f);
-
-    spriteManager.loadSprite(spr);
     spriteManager.wx = x;
     spriteManager.wy = y;
     spriteManager.layer = layer;
@@ -66,5 +43,4 @@ void ManagedSprite::draw(bool isRoom) {
 
 void ManagedSprite::free_() {
     spriteManager.setShown(false);
-    spr.free_();
 }

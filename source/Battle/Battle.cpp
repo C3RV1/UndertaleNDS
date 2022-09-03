@@ -110,9 +110,16 @@ void Battle::update() {
 
 void Battle::free_() {
     bulletBoard.free_();
+    playerManager.setShown(false);
+    player.free_();
     delete[] enemies;
     enemies = nullptr;
     enemyCount = 0;
+    for (int i = 0; i < textureCount; i++) {
+        textures[i]->free_();
+    }
+    delete[] textures;
+    textures = nullptr;
     for (int i = 0; i < spriteCount; i++) {
         sprites[i]->free_();
         delete sprites[i];

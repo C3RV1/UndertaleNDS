@@ -15,13 +15,14 @@ class ManagedSprite;
 class ManagedSprite {
 public:
     explicit ManagedSprite(Engine::AllocationMode alloc) : spriteManager(alloc) {}
-    void load(ROOMSprite* sprData);
-    void spawn(char* path, int32_t x, int32_t y, int32_t layer);
+    void load(ROOMSprite* sprData, uint8_t textureCount, Engine::Texture** textures);
+    void spawn(uint8_t textureId, int32_t x, int32_t y, int32_t layer,
+               uint8_t textureCount, Engine::Texture** textures);
     void draw(bool isRoom);
     void free_();
     Engine::Sprite spriteManager;
 private:
-    Engine::Texture spr;
+    Engine::Texture* texture = nullptr;
     int animationId = -1;
 };
 

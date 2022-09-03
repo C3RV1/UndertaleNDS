@@ -11,7 +11,7 @@ class RoomHeader:
     def __init__(self):
         self.header = b"ROOM"
         self.file_size_pos = 0
-        self.version = 3
+        self.version = 4
 
     def write(self, wtr: binary.BinaryWriter):
         wtr.write(self.header)
@@ -93,9 +93,25 @@ class RoomExits:
         return res
 
 
+class RoomTextures:
+    def __init__(self):
+        self.textures = []
+
+    def write(self, wtr: binary.BinaryWriter):
+        wtr.write_uint8(len(self.textures))
+        for texture in self.textures:
+            wtr.write_string(texture, encoding="ascii")
+
+    @classmethod
+    def from_list(cls, lst):
+        res = cls()
+        res.textures = lst
+        return res
+
+
 class RoomSprite:
     def __init__(self):
-        self.sprite_path = ""
+        self.texture_id = 0
         self.x = 0
         self.y = 0
         self.layer = 0
@@ -105,7 +121,7 @@ class RoomSprite:
         self.cutscene_id = 0
 
     def write(self, wtr: binary.BinaryWriter):
-        wtr.write_string(self.sprite_path, encoding="ascii")
+        wtr.write_uint8(self.texture_id)
         wtr.write_uint16(self.x)
         wtr.write_uint16(self.y)
         wtr.write_uint16(self.layer)
@@ -118,7 +134,7 @@ class RoomSprite:
     @classmethod
     def from_dict(cls, dct):
         res = cls()
-        res.sprite_path = dct["sprite_path"]
+        res.texture_id = dct["texture_id"]
         res.x = dct["x"]
         res.y = dct["y"]
         res.layer = dct.get("layer", 1)
@@ -236,6 +252,7 @@ class RoomPart:
         self.room_bg = ""
         self.music_path = ""
         self.room_exits = RoomExits()
+        self.room_textures = RoomTextures()
         self.room_sprites = RoomSprites()
         self.room_colliders = RoomColliders()
 
@@ -248,6 +265,7 @@ class RoomPart:
         wtr.write_string(self.room_bg, encoding="ascii")
         wtr.write_string(self.music_path, encoding="ascii")
         self.room_exits.write(wtr)
+        self.room_textures.write(wtr)
         self.room_sprites.write(wtr)
         self.room_colliders.write(wtr)
         end_pos = wtr.tell()
@@ -263,6 +281,7 @@ class RoomPart:
         res.room_bg = dct["room_bg"]
         res.music_path = dct["music_path"]
         res.room_exits = RoomExits.from_list(dct["exits"])
+        res.room_textures = RoomTextures.from_list(dct["textures"])
         res.room_sprites = RoomSprites.from_list(dct["sprites"])
         res.room_colliders = RoomColliders.from_list(dct["colliders"])
         return res

@@ -26,9 +26,12 @@
           "h": 51
         }
       ],
+      "textures": [
+        "nitro:/spr/room_sprites/flowey.cspr"
+      ],
       "sprites": [
         {
-          "sprite_path": "nitro:/spr/room_sprites/flowey.cspr",
+          "texture_id": 0,
           "x": 151,
           "y": 227,
           "animation": "idle",
@@ -70,6 +73,7 @@
           "h": 51
         }
       ],
+      "textures": [],
       "sprites": [],
       "colliders": []
     }

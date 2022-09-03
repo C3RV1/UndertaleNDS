@@ -11,7 +11,7 @@ struct ROOMHeader {
     char header[4] = {'R', 'O', 'O', 'M'};
     uint32_t fileSize = 0;
 
-    uint32_t version = 3;
+    uint32_t version = 4;
 };
 
 struct ROOMExit {
@@ -27,8 +27,13 @@ struct ROOMExits {
     ROOMExit* roomExits = nullptr;
 };
 
+struct ROOMTextures {
+    uint8_t textureCount = 0;
+    char** texturePaths = nullptr;
+};
+
 struct ROOMSprite {
-    char* spritePath = nullptr;
+    int8_t textureId = 0;
     uint16_t x = 0, y = 0, layer = 0;
     char* animation = nullptr;
     bool canInteract = false;
@@ -66,6 +71,7 @@ struct ROOMPart {
     char roomBg[50] = {0};
     char musicBg[50] = {0};
     ROOMExits roomExits;
+    ROOMTextures roomTextures;
     ROOMSprites roomSprites;
     ROOMColliders roomColliders;
 };

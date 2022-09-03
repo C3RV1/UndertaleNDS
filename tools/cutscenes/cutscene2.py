@@ -16,7 +16,10 @@ def cutscene(c: Cutscene):
     c.wait_dialogue_end()
 
     c.start_battle([], 0, 24, 57, 208, 105)
-    c.load_sprite(30, (192 - 44) // 2, "speaker/flowey.cspr")
+    c.load_texture("speaker/flowey.cspr")
+    c.load_texture("cutscene/0/spr_torielflame.cspr")
+    c.load_sprite(30, (192 - 44) // 2, 0)
+
     c.wait_enter()
     c.debug("In battle!")
     c.wait_frames(60)
@@ -66,17 +69,19 @@ def cutscene(c: Cutscene):
     c.set_animation(Target(TargetType.SPRITE, 0), "skull_idle")
     c.wait_frames(80)
 
-    c.load_sprite(256 - 60, (192 - 30) // 2, "cutscene/0/spr_torielflame.png")
+    c.load_sprite(256 - 60, (192 - 30) // 2, 1)
     c.set_animation(Target(TargetType.SPRITE, 1), "flashing")
     c.wait_frames(60)
     c.set_animation(Target(TargetType.SPRITE, 1), "flying")
     c.move_in_frames(Target(TargetType.SPRITE, 1), -180, 0, 60)
     c.wait_frames(60)
     c.unload_sprite(1)
+    c.unload_texture(1)
     c.set_animation(Target(TargetType.SPRITE, 0), "hurt")
     c.move_in_frames(Target(TargetType.SPRITE, 0), -100, 0, 60)
     c.wait_frames(60)
     c.unload_sprite(0)
+    c.unload_texture(1)
 
     c.wait_frames(300)
 
@@ -89,22 +94,24 @@ def cutscene(c: Cutscene):
 
     c.move_in_frames(Target(TargetType.SPRITE, 0), -200, 0, 60)
     c.wait_frames(60)
-    c.set_shown(Target(TargetType.SPRITE, 0), False)
+    c.unload_sprite(0)
+    c.unload_texture(0)
 
-    c.load_sprite(149, 198, "room_sprites/toriel.cspr")  # Toriel world
-    c.set_animation(Target(TargetType.SPRITE, 1), "downIdle")
+    c.load_texture("room_sprites/toriel.cspr")
+    c.load_sprite(149, 198, 0)  # Toriel world
+    c.set_animation(Target(TargetType.SPRITE, 0), "downIdle")
     c.start_dialogue(10, "speaker/toriel.cspr", (256 - 50) // 2, (192 - 39) // 4, "talkIdle", "talkTalk",
-                     Target(TargetType.SPRITE, 1), "downIdle", "downTalk",
+                     Target(TargetType.SPRITE, 0), "downIdle", "downTalk",
                      "fnt_maintext.font.cfnt")
     c.wait_dialogue_end()
-    c.set_animation(Target(TargetType.SPRITE, 1), "upMove")
-    c.set_pos_in_frames(Target(TargetType.SPRITE, 1), 149, 67, 180)
-    c.move_in_frames(Target(TargetType.CAMERA, 1), 0, 67-198, 180)
+    c.set_animation(Target(TargetType.SPRITE, 0), "upMove")
+    c.set_pos_in_frames(Target(TargetType.SPRITE, 0), 149, 67, 180)
+    c.move_in_frames(Target(TargetType.CAMERA, 0), 0, 67-198, 180)
     c.wait_frames(180)
-    c.unload_sprite(1)
+    c.unload_sprite(0)
+    c.unload_texture(0)
     c.wait_frames(60 * 4)
     c.manual_camera(False)
-    c.unload_sprite(1)
     c.player_control(True)
     c.set_flag(0, 1)
     c.set_collider_enabled(0, False)

@@ -22,7 +22,7 @@ class CutsceneCommands(enum.IntEnum):
     WAIT_DIALOGUE_END = 10  # Done
     START_BATTLE = 11  # Little done
     EXIT_BATTLE = 12
-    # 13
+    LOAD_TEXTURE = 13
     BATTLE_ATTACK = 14
     WAIT_BATTLE_ATTACK = 15
     WAIT_BATTLE_ACTION = 16
@@ -41,6 +41,7 @@ class CutsceneCommands(enum.IntEnum):
     SET_FLAG = 29  # Done
     CMP_FLAG = 30  # Done
     SET_COLLIDER_ENABLED = 31  # Done
+    UNLOAD_TEXTURE = 32
     DEBUG = 0xff  # Done
 
 
@@ -85,7 +86,7 @@ class Target:
 class Cutscene:
     def __init__(self, wtr: binary.BinaryWriter):
         self.wtr: binary.BinaryWriter = wtr
-        self.version = 2
+        self.version = 3
         self.file_size_pos = 0
         self.instructions_address = []
         self.pending_address = {}
@@ -116,17 +117,27 @@ class Cutscene:
         self.wtr.write_string(string, encoding="ascii")
         return self.instructions_address[-1]
 
-    def load_sprite(self, x: float, y: float, sprite_path: str, layer=1):
+    def load_texture(self, path: str):
+        self.write_header(CutsceneCommands.LOAD_TEXTURE)
+        self.wtr.write_string(path, encoding="ascii")
+        return self.instructions_address[-1]
+
+    def unload_texture(self, texture_id: int):
+        self.write_header(CutsceneCommands.UNLOAD_TEXTURE)
+        self.wtr.write_uint8(texture_id)
+        return self.instructions_address[-1]
+
+    def load_sprite(self, x: float, y: float, tex_id: int, layer=1):
         self.write_header(CutsceneCommands.LOAD_SPRITE)
         self.wtr.write_int32(to_fixed_point(x))
         self.wtr.write_int32(to_fixed_point(y))
         self.wtr.write_int32(layer)
-        self.wtr.write_string(sprite_path, encoding="ascii")
+        self.wtr.write_uint8(tex_id)
         return self.instructions_address[-1]
 
-    def unload_sprite(self, room_sprite_id: int):
+    def unload_sprite(self, sprite_id: int):
         self.write_header(CutsceneCommands.UNLOAD_SPRITE)
-        self.wtr.write_uint8(room_sprite_id)
+        self.wtr.write_uint8(sprite_id)
         return self.instructions_address[-1]
 
     def player_control(self, control: bool):
