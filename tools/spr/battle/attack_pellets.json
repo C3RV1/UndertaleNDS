@@ -1,0 +1,14 @@
+{
+    "image": "spr/battle/attack_pellets.png",
+    "size": [14, 14],
+    "frameCount": 2,
+    "animations": [
+        {
+            "name": "gfx",
+            "frames": [
+                {"frame": 0, "duration": 4, "draw_off_y": 3},
+                {"frame": 1, "duration": 4, "draw_off_x": 3}
+            ]
+        }
+    ]
+}

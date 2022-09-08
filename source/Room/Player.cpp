@@ -17,7 +17,7 @@ Player::Player() : spriteManager(Engine::Allocated3D) {
         nocashMessage("Error opening player sprite");
     }
     fclose(f);
-    spriteManager.loadSprite(playerSpr);
+    spriteManager.loadTexture(playerSpr);
 
     upIdleId = spriteManager.nameToAnimId("upIdle");
     downIdleId = spriteManager.nameToAnimId("downIdle");

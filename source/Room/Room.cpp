@@ -313,7 +313,6 @@ void loadNewRoom(int roomId, int32_t spawnX, int32_t spawnY) {
     globalPlayer->spriteManager.wy = spawnY << 8;
 
     if (globalCutscene != nullptr) {
-        globalCutscene->update(LOAD_ROOM);
         globalCutscene->runCommands(LOAD_ROOM);
     }
     globalCamera.updatePosition(true);

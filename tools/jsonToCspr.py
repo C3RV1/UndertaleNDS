@@ -67,7 +67,7 @@ def convert(input_file, output_file):
     wtr.write(b"CSPR")
     file_size_pos = wtr.tell()
     wtr.write_uint32(0)
-    wtr.write_uint32(2)  # Version
+    wtr.write_uint32(3)  # Version
     wtr.write_uint8(tile_w)
     wtr.write_uint8(tile_h)
 
@@ -86,6 +86,8 @@ def convert(input_file, output_file):
         for frame in frames:
             wtr.write_uint8(frame["frame"])
             wtr.write_uint16(frame["duration"])
+            wtr.write_int8(frame.get("draw_off_x", 0))
+            wtr.write_int8(frame.get("draw_off_y", 0))
 
     size = wtr.tell()
     wtr.seek(file_size_pos)

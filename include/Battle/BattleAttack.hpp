@@ -5,6 +5,8 @@
 #ifndef LAYTON_BATTLEATTACK_HPP
 #define LAYTON_BATTLEATTACK_HPP
 
+class BattleAttack;
+
 #include <stdint.h>
 
 class BattleAttack {
@@ -16,6 +18,8 @@ public:
     virtual ~BattleAttack() = default;
 };
 
-void getBattleAttack(uint16_t attackId);
+#include "BattleAttacks/MovementTutorial.hpp"
+
+BattleAttack* getBattleAttack(uint16_t attackId);
 
 #endif //LAYTON_BATTLEATTACK_HPP

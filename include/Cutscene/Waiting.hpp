@@ -25,13 +25,15 @@ public:
     void waitExit();
     void waitEnter();
     void waitDialogueEnd();
-    void update(CutsceneLocation callingLocation);
+    void waitBattleAttack();
+    void update(CutsceneLocation callingLocation, bool frame);
     bool getBusy() {return currentWait != NONE;}
 private:
     WaitingType currentWait = NONE;
     int currentWaitTime = 0;
 };
 
+#include "Battle/Battle.hpp"
 #include "Dialogue.hpp"
 
 #endif //LAYTON_WAITING_HPP

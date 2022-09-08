@@ -453,9 +453,17 @@ namespace Engine {
                     oamStart[0] &= ~(1 << 8);
                 }
                 oamStart[0] &= ~0xFF;
-                oamStart[0] |= (spr.y + oamY * 64 * spr.scale_y) >> 8;
+                int32_t posX = spr.x + oamX * 64 * spr.scale_x;
+                posX %= (512 << 8);
+                if (posX < 0)
+                    posX = (512 << 8) + posX;
+                int32_t posY = spr.y + oamY * 64 * spr.scale_y;
+                posY %= (256 << 8);
+                if (posY < 0)
+                    posY = (256 << 8) + posY;
+                oamStart[0] |= posY >> 8;
                 oamStart[1] &= ~0x1FF;
-                oamStart[1] |= (spr.x + oamX * 64 * spr.scale_x) >> 8;
+                oamStart[1] |= posX >> 8;
                 oamStart[2] &= ~(3 << 10);
                 oamStart[2] |= (spr.layer & 0b11) << 10;
                 // TODO: Disable oam if out of screen

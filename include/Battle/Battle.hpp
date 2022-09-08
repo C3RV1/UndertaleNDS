@@ -6,6 +6,7 @@
 #define LAYTON_BATTLE_HPP
 
 class Battle;
+extern Battle* globalBattle;
 
 #define ARM9
 #include <nds.h>
@@ -26,6 +27,8 @@ struct Enemy {
     uint16_t maxHp = 0;
 };
 
+// TODO: Display health
+
 class Battle {
 public:
     Battle();
@@ -33,6 +36,7 @@ public:
     void draw();
     void update();
     void free_();
+    void resetBattleAttack();
     bool running = true;
     Navigation nav;
 
@@ -48,14 +52,14 @@ public:
     Engine::Background bulletBoard;
     uint8_t boardX = 0, boardY = 0, boardW = 0, boardH = 0;
 
-    const int32_t playerSpeed = (128 << 8) / 60;
+    const int32_t playerSpeed = (60 << 8) / 60;
     Engine::Texture player;
     Engine::Sprite playerManager;
 
     BattleAttack* currentBattleAttack = nullptr;
+    bool hitFlag = false;
 };
 
 void runBattle(FILE* stream);
-extern Battle* globalBattle;
 
 #endif //LAYTON_BATTLE_HPP

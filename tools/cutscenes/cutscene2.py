@@ -15,10 +15,13 @@ def cutscene(c: Cutscene):
                      Target(TargetType.SPRITE, 0), "idle", "talk", "fnt_maintext.font.cfnt")
     c.wait_dialogue_end()
 
-    c.start_battle([], 0, 24, 57, 208, 105)
+    c.start_battle([], 0, 61, 63, 134, 75)
+    c.wait_exit()
+    c.debug("Loading battle...")
     c.load_texture("speaker/flowey.cspr")
     c.load_texture("cutscene/0/spr_torielflame.cspr")
-    c.load_sprite(30, (192 - 44) // 2, 0)
+    c.load_texture("battle/attack_pellets.cspr")
+    c.load_sprite(30, (192 - 44) // 2, 0)  # Load flowey (spr 0)
 
     c.wait_enter()
     c.debug("In battle!")
@@ -26,12 +29,49 @@ def cutscene(c: Cutscene):
     c.start_dialogue_battle(1, 90, 192 // 4, Target(TargetType.SPRITE, 0), "nice1", "nice1_talk",
                             "fnt_maintext.font.cfnt")
     c.wait_dialogue_end()
+    c.battle_attack(1)
+    c.wait_frames(120)
+    c.wait_battle_attack()
+    c.start_dialogue_battle(15, 90, 192 // 4, Target(TargetType.SPRITE, 0), "nice1", "nice1_talk",
+                            "fnt_maintext.font.cfnt")
+    c.wait_dialogue_end()
     c.set_animation(Target(TargetType.SPRITE, 0), "wink")
-    c.wait_frames(180)
+    c.wait_frames(120)
+
+    # Load pellets (sprites 1, 2, 3, 4, 5)
+    c.load_sprite(40, 192 // 2, 2)
+    c.load_sprite(40, 192 // 2, 2)
+    c.load_sprite(40, 192 // 2, 2)
+    c.load_sprite(40, 192 // 2, 2)
+    c.load_sprite(40, 192 // 2, 2)
+    c.set_animation(Target(TargetType.SPRITE, 1), "gfx")
+    c.set_animation(Target(TargetType.SPRITE, 2), "gfx")
+    c.set_animation(Target(TargetType.SPRITE, 3), "gfx")
+    c.set_animation(Target(TargetType.SPRITE, 4), "gfx")
+    c.set_animation(Target(TargetType.SPRITE, 5), "gfx")
+    def set_pellet_pos():
+        c.set_pos_in_frames(Target(TargetType.SPRITE, 1), 30, 140, 120)
+        c.set_pos_in_frames(Target(TargetType.SPRITE, 2), 70, 140, 120)
+        c.set_pos_in_frames(Target(TargetType.SPRITE, 3), 110, 140, 120)
+        c.set_pos_in_frames(Target(TargetType.SPRITE, 4), 150, 140, 120)
+        c.set_pos_in_frames(Target(TargetType.SPRITE, 5), 190, 140, 120)
+        c.wait_frames(160)
+    set_pellet_pos()
+
     c.start_dialogue_battle(2, 90, 192 // 4, Target(TargetType.SPRITE, 0), "nice2", "nice2_talk",
                             "fnt_maintext.font.cfnt")
     c.wait_dialogue_end()
 
+    def pellet_attack():
+        c.move_in_frames(Target(TargetType.SPRITE, 1), 0, 70, 60)
+        c.move_in_frames(Target(TargetType.SPRITE, 2), 0, 70, 60)
+        c.move_in_frames(Target(TargetType.SPRITE, 3), 0, 70, 60)
+        c.move_in_frames(Target(TargetType.SPRITE, 4), 0, 70, 60)
+        c.move_in_frames(Target(TargetType.SPRITE, 5), 0, 70, 60)
+        c.wait_frames(60)
+
+    pellet_attack()
+    c.wait_frames(180)
     c.check_hit()
 
     c.start_dialogue_battle(3, 90, 192 // 4, Target(TargetType.SPRITE, 0), "sassy", "sassy_talk",
@@ -39,6 +79,8 @@ def cutscene(c: Cutscene):
     c.wait_dialogue_end()
     c.set_animation(Target(TargetType.SPRITE, 0), "nice1")
 
+    set_pellet_pos()
+    pellet_attack()
     c.check_hit()
 
     c.set_animation(Target(TargetType.SPRITE, 0), "annoyed")
@@ -50,6 +92,10 @@ def cutscene(c: Cutscene):
     c.start_dialogue_battle(5, 90, 192 // 4, Target(TargetType.SPRITE, 0), "nice1", "nice1_talk",
                             "fnt_maintext.font.cfnt", frames_per_letter=0)
     c.wait_dialogue_end()
+
+    set_pellet_pos()
+    pellet_attack()
+    c.check_hit()
 
     c.stop_bgm()
 
@@ -63,6 +109,14 @@ def cutscene(c: Cutscene):
                             "fnt_plainbig.font.cfnt")
     c.wait_dialogue_end()
 
+    # Unload pellets
+    c.unload_sprite(5)
+    c.unload_sprite(4)
+    c.unload_sprite(3)
+    c.unload_sprite(2)
+    c.unload_sprite(1)
+    c.unload_texture(2)
+
     c.set_animation(Target(TargetType.SPRITE, 0), "skull_laugh")
     c.wait_frames(240)
 
@@ -71,10 +125,10 @@ def cutscene(c: Cutscene):
 
     c.load_sprite(256 - 60, (192 - 30) // 2, 1)
     c.set_animation(Target(TargetType.SPRITE, 1), "flashing")
-    c.wait_frames(60)
+    c.wait_frames(40)
     c.set_animation(Target(TargetType.SPRITE, 1), "flying")
-    c.move_in_frames(Target(TargetType.SPRITE, 1), -180, 0, 60)
-    c.wait_frames(60)
+    c.set_pos_in_frames(Target(TargetType.SPRITE, 1), 30, (192 - 30) // 2, 120)
+    c.wait_frames(120)
     c.unload_sprite(1)
     c.unload_texture(1)
     c.set_animation(Target(TargetType.SPRITE, 0), "hurt")

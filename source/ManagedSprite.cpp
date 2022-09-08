@@ -8,7 +8,7 @@ void ManagedSprite::load(ROOMSprite *sprData, uint8_t textureCount,
                          Engine::Texture** textures) {
     if (sprData->textureId < textureCount) {
         texture = textures[sprData->textureId];
-        spriteManager.loadSprite(*texture);
+        spriteManager.loadTexture(*texture);
     }
     animationId = spriteManager.nameToAnimId(sprData->animation);
     spriteManager.wx = sprData->x << 8;
@@ -23,7 +23,7 @@ void ManagedSprite::spawn(uint8_t textureId, int32_t x, int32_t y, int32_t layer
                           uint8_t textureCount, Engine::Texture** textures) {
     if (textureId < textureCount) {
         texture = textures[textureId];
-        spriteManager.loadSprite(*texture);
+        spriteManager.loadTexture(*texture);
     }
     spriteManager.wx = x;
     spriteManager.wy = y;

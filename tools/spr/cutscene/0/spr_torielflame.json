@@ -6,8 +6,8 @@
     {
       "name": "flashing",
       "frames": [
-        {"frame": 0, "duration": 2},
-        {"frame": 4, "duration": 2}
+        {"frame": 0, "duration": 5},
+        {"frame": 4, "duration": 5}
       ]
     },
     {

@@ -24,7 +24,7 @@ namespace Engine {
         }
 
         fread(&version, 4, 1, f);
-        if (version != 2) {
+        if (version != 3) {
             return 3;
         }
 
@@ -55,6 +55,8 @@ namespace Engine {
             for (int j = 0; j < animations[i].frameCount; j++) {
                 fread(&animations[i].frames[j].frame, 1, 1, f);
                 fread(&animations[i].frames[j].duration, 2, 1, f);
+                fread(&animations[i].frames[j].drawOffX, 1, 1, f);
+                fread(&animations[i].frames[j].drawOffY, 1, 1, f);
             }
         }
 

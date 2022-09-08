@@ -17,12 +17,12 @@ class Cutscene;
 #include "Engine/BGM.hpp"
 #include "Save.hpp"
 #include "Battle/Battle.hpp"
+#include "Battle/BattleAttack.hpp"
 
 class Cutscene {
 public:
     explicit Cutscene(uint16_t cutsceneId_);
     static bool checkHeader(FILE *f);
-    void update(CutsceneLocation callingLocation);
     bool runCommands(CutsceneLocation callingLocation);
     bool runCommand(CutsceneLocation callingLocation);
     uint16_t cutsceneId;

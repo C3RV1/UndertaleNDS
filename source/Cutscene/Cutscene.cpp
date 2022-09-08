@@ -63,11 +63,8 @@ bool Cutscene::checkHeader(FILE *f) {
     return true;
 }
 
-void Cutscene::update(CutsceneLocation callingLocation) {
-    waiting.update(callingLocation);
-}
-
 bool Cutscene::runCommands(CutsceneLocation callingLocation) {
+    waiting.update(callingLocation, true);
     if (commandStream == nullptr)
         return true;
     if (waiting.getBusy())
@@ -77,6 +74,7 @@ bool Cutscene::runCommands(CutsceneLocation callingLocation) {
     while (!waiting.getBusy() && ftell(commandStream) != commandStreamLen) {
         if (runCommand(callingLocation))
             break;
+        waiting.update(callingLocation, false);
     }
     return false;
 }
@@ -300,12 +298,19 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
                 globalBattle->running = false;
             break;
         }
-        case CMD_BATTLE_ATTACK:
+        case CMD_BATTLE_ATTACK: {
             nocashMessage("CMD_BATTLE_ATTACK");
-            fread(buffer, 2, 1, commandStream);
+            uint16_t attackId;
+            fread(&attackId, 2, 1, commandStream);
+            if (globalBattle != nullptr) {  // just in case
+                globalBattle->resetBattleAttack();
+                globalBattle->currentBattleAttack = getBattleAttack(attackId);
+            }
             break;
+        }
         case CMD_WAIT_BATTLE_ATTACK:
             nocashMessage("CMD_WAIT_BATTLE_ATTACK");
+            waiting.waitBattleAttack();
             break;
         case CMD_WAIT_BATTLE_ACTION:
             nocashMessage("CMD_WAIT_BATTLE_ACTION");

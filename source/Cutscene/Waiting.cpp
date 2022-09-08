@@ -6,7 +6,7 @@
 
 void Waiting::waitFrames(int frames) {
     currentWait = WAIT_FRAMES;
-    currentWaitTime = frames;
+    currentWaitTime = frames + 1; // Hack to improve navigation sync
 }
 
 void Waiting::waitExit() {
@@ -21,12 +21,17 @@ void Waiting::waitDialogueEnd() {
     currentWait = WAIT_DIALOGUE_END;
 }
 
-void Waiting::update(CutsceneLocation callingLocation) {
+void Waiting::waitBattleAttack() {
+    currentWait = WAIT_BATTLE_ATTACK;
+}
+
+void Waiting::update(CutsceneLocation callingLocation, bool frame) {
     if (currentWait == NONE)
         return;
 
     if (currentWait == WAIT_FRAMES) {
-        currentWaitTime -= 1;
+        if (frame)
+            currentWaitTime -= 1;
         if (currentWaitTime <= 0) {
             currentWait = NONE;
         }
@@ -39,5 +44,13 @@ void Waiting::update(CutsceneLocation callingLocation) {
     } else if (currentWait == WAIT_DIALOGUE_END) {
         if (currentDialogue == nullptr)
             currentWait = NONE;
+    } else if (currentWait == WAIT_BATTLE_ATTACK) {
+        if (callingLocation == BATTLE || callingLocation == LOAD_BATTLE) {
+            if (globalBattle->currentBattleAttack == nullptr) {
+                currentWait = NONE;
+            }
+        } else {
+            currentWait = NONE;
+        }
     }
 }
