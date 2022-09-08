@@ -42,7 +42,7 @@ namespace Engine {
     public:
         explicit Sprite(AllocationMode allocMode_);
         void setSpriteAnim(int animId);
-        void loadSprite(Texture& sprite_);
+        void loadTexture(Texture& sprite_);
         int nameToAnimId(const char *animName) const;
         void tick();
         void setShown(bool shown_);

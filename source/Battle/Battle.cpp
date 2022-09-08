@@ -8,7 +8,7 @@ Battle* globalBattle = nullptr;
 
 Battle::Battle() : playerManager(Engine::Allocated3D) {
     char buffer[100];
-    FILE* f = fopen("nitro:/spr/battle/spr_heart.cspr", "rb");
+    FILE* f = fopen("nitro:/spr/spr_heartsmall.cspr", "rb");
     if (f) {
         int sprLoad = player.loadCSPR(f);
         if (sprLoad != 0) {
@@ -20,10 +20,10 @@ Battle::Battle() : playerManager(Engine::Allocated3D) {
     }
     fclose(f);
 
-    playerManager.loadSprite(player);
+    playerManager.loadTexture(player);
     playerManager.wx = ((256 - 16) / 2) << 8;
     playerManager.wy = ((192 - 32) / 2) << 8;
-    playerManager.layer = 1;
+    playerManager.layer = 100;
     playerManager.setShown(true);
 }
 
@@ -66,6 +66,9 @@ void Battle::loadFromStream(FILE *stream) {
     fread(&boardY, 1, 1, stream);
     fread(&boardW, 1, 1, stream);
     fread(&boardH, 1, 1, stream);
+
+    playerManager.wx = ((boardX + boardW / 2) << 8) - (9 << 8) / 2;
+    playerManager.wy = ((boardY + boardH / 2) << 8) - (9 << 8) / 2;
 }
 
 void Battle::draw() {
@@ -74,6 +77,10 @@ void Battle::draw() {
     }
     if (currentBattleAttack != nullptr)
         currentBattleAttack->draw();
+}
+
+void Battle::resetBattleAttack() {
+    hitFlag = false;
 }
 
 void Battle::update() {
@@ -96,16 +103,23 @@ void Battle::update() {
     if (keysHeld() & KEY_UP) {
         playerManager.wy -= playerSpeed;
     }
+    /*if (keysHeld() & KEY_TOUCH) {
+        touchPosition touchInfo;
+        touchRead(&touchInfo);
+        playerManager.wx = (touchInfo.px << 8) - (9 << 8) / 2;
+        playerManager.wy = (touchInfo.py << 8) - (9 << 8) / 2;
+    }*/
     if (playerManager.wx < boardX << 8) {
         playerManager.wx = boardX << 8;
-    } else if (playerManager.wx > (boardX + boardW) << 8) {
-        playerManager.wx = (boardX + boardW) << 8;
+    } else if (playerManager.wx > (boardX + boardW - 9) << 8) {
+        playerManager.wx = (boardX + boardW - 9) << 8;
     }
     if (playerManager.wy < boardY << 8) {
         playerManager.wy = boardY << 8;
-    } else if (playerManager.wy > (boardY + boardH) << 8) {
-        playerManager.wy = (boardY + boardH) << 8;
+    } else if (playerManager.wy > (boardY + boardH - 9) << 8) {
+        playerManager.wy = (boardY + boardH - 9) << 8;
     }
+    nav.update();
 }
 
 void Battle::free_() {
@@ -147,7 +161,6 @@ void runBattle(FILE* stream) {
     globalBattle->loadFromStream(stream);
 
     if (globalCutscene != nullptr) {
-        globalCutscene->update(LOAD_BATTLE);
         globalCutscene->runCommands(LOAD_BATTLE);
     }
 
@@ -168,7 +181,6 @@ void runBattle(FILE* stream) {
                     currentDialogue = nullptr;
                 }
             }
-            globalCutscene->update(BATTLE);
             if (globalCutscene->runCommands(BATTLE)) {
                 delete globalCutscene;
                 globalCutscene = nullptr;
@@ -197,7 +209,6 @@ void runBattle(FILE* stream) {
     globalInGameMenu.load();
 
     if (globalCutscene != nullptr) {
-        globalCutscene->update(LOAD_ROOM);
         globalCutscene->runCommands(LOAD_ROOM);
     }
     globalCamera.updatePosition(true);

@@ -64,7 +64,6 @@ int main() {
                     currentDialogue = nullptr;
                 }
             }
-            globalCutscene->update(ROOM);
             if (globalCutscene->runCommands(ROOM)) {
                 delete globalCutscene;
                 globalCutscene = nullptr;

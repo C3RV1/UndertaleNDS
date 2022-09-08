@@ -30,7 +30,7 @@ void InGameMenu::load() {
     }
     fclose(f);
 
-    f = fopen("nitro:/spr/ingame_menu/spr_heartsmall.cspr", "rb");
+    f = fopen("nitro:/spr/spr_heartsmall.cspr", "rb");
     if (f) {
         int sprLoad = littleHeart.loadCSPR(f);
         if (sprLoad != 0) {
@@ -54,9 +54,9 @@ void InGameMenu::load() {
     }
     fclose(f);
 
-    selectedMenuHeart.loadSprite(littleHeart);
-    listHeart.loadSprite(littleHeart);
-    itemExplainBox.loadSprite(itemExplain);
+    selectedMenuHeart.loadTexture(littleHeart);
+    listHeart.loadTexture(littleHeart);
+    itemExplainBox.loadTexture(itemExplain);
     itemExplainBox.wx = 17 << 8;
     itemExplainBox.wy = 102 << 8;
 }

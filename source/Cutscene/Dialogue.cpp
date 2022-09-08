@@ -65,7 +65,7 @@ Dialogue::Dialogue(bool isRoom_, uint16_t textId, char *speaker, int32_t speaker
     if (isRoom_) {
         getLine();
 
-        speakerManager.loadSprite(speakerSpr);
+        speakerManager.loadTexture(speakerSpr);
         speakerManager.wx = speakerX;
         speakerManager.wy = speakerY;
         speakerManager.setShown(true);

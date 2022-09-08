@@ -7,7 +7,7 @@ struct CSPRHeader {
     char header[4] = {'C', 'S', 'P', 'R'};
     uint32_t fileSize = 0;
 
-    uint32_t version = 2;
+    uint32_t version = 3;
 
     uint8_t tileWidth = 0;
     uint8_t tileHeight = 0;
@@ -26,6 +26,8 @@ struct CSPRTiles {
 struct CSPRAnimFrame {
     uint8_t frame;
     uint16_t duration;
+    int8_t drawOffX;
+    int8_t drawOffY;
 };
 
 struct CSPRAnimation {

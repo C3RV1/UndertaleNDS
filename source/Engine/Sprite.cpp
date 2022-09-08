@@ -21,7 +21,7 @@ namespace Engine {
         currentFrame = sprite->getAnims()[animId].frames[0].frame;
     }
 
-    void Sprite::loadSprite(Engine::Texture &sprite_) {
+    void Sprite::loadTexture(Engine::Texture &sprite_) {
         if (!sprite_.getLoaded())
             return;
 
@@ -31,16 +31,7 @@ namespace Engine {
     }
 
     void Sprite::tick() {
-        x = wx - cam_x;
-        y = wy - cam_y;
-        x *= cam_scale_x;
-        x >>= 8;
-        y *= cam_scale_y;
-        y >>= 8;
-        scale_x = (cam_scale_x * wscale_x) >> 8;
-        scale_y = (cam_scale_y * wscale_y) >> 8;
-
-        if (currentAnimation > 0) {
+        if (currentAnimation >= 0) {
             CSPRAnimation* current = &sprite->getAnims()[currentAnimation];
             if (current->frames[currentAnimationFrame].duration != 0) {
                 currentAnimationTimer--;
@@ -52,6 +43,21 @@ namespace Engine {
                 }
             }
         }
+
+        x = wx - cam_x;
+        y = wy - cam_y;
+        if (currentAnimation >= 0) {
+            CSPRAnimation* current = &sprite->getAnims()[currentAnimation];
+            CSPRAnimFrame* frameInfo = &current->frames[currentAnimationFrame];
+            x += frameInfo->drawOffX << 8;
+            y += frameInfo->drawOffY << 8;
+        }
+        x *= cam_scale_x;
+        x >>= 8;
+        y *= cam_scale_y;
+        y >>= 8;
+        scale_x = (cam_scale_x * wscale_x) >> 8;
+        scale_y = (cam_scale_y * wscale_y) >> 8;
     }
 
     void Sprite::setShown(bool shown_) {

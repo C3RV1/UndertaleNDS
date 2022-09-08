@@ -16,13 +16,13 @@
     },
     {
       "name": "nice2",
-      "frames": [{"frame": 2, "duration": 0}]
+      "frames": [{"frame": 2, "duration": 0, "draw_off_x": 1}]
     },
     {
       "name": "nice2_talk",
       "frames": [
-        {"frame": 2, "duration": 10},
-        {"frame": 3, "duration": 10}
+        {"frame": 2, "duration": 10, "draw_off_x": 1},
+        {"frame": 3, "duration": 10, "draw_off_x": 1}
       ]
     },
     {
@@ -101,7 +101,7 @@
       "name": "skull_laugh",
       "frames": [
         {"frame": 15, "duration": 6},
-        {"frame": 16, "duration": 6}
+        {"frame": 16, "duration": 6, "draw_off_y": 1}
       ]
     },
     {
