@@ -4,9 +4,7 @@
 #include "Battle/BattleAttacks/MovementTutorial.hpp"
 
 namespace BtlAttacks {
-    MovementTutorial::MovementTutorial() : tutorialSpr(Engine::Allocated3D) {}
-
-    void MovementTutorial::load() {
+    MovementTutorial::MovementTutorial() : tutorialSpr(Engine::Allocated3D) {
         FILE *f = fopen("nitro:/spr/cutscene/0/spr_guidearrows.cspr", "rb");
         if (f) {
             int loadTex = tutorialTex.loadCSPR(f);
@@ -35,7 +33,7 @@ namespace BtlAttacks {
         return false;
     }
 
-    void MovementTutorial::free_() {
+    MovementTutorial::~MovementTutorial() noexcept {
         tutorialSpr.setShown(false);
         tutorialTex.free_();
     }

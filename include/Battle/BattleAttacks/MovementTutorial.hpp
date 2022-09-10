@@ -5,6 +5,10 @@
 #ifndef LAYTON_MOVEMENTTUTORIAL_HPP
 #define LAYTON_MOVEMENTTUTORIAL_HPP
 
+namespace BtlAttacks {
+    class MovementTutorial;
+}
+
 #include "Battle/BattleAttack.hpp"
 #include "Battle/Battle.hpp"
 #include "Engine/Sprite.hpp"
@@ -14,9 +18,8 @@ namespace BtlAttacks {
     class MovementTutorial : public BattleAttack {
     public:
         MovementTutorial();
-        void load() override;
+        ~MovementTutorial() noexcept override;
         bool update() override;
-        void free_() override;
     private:
         Engine::Texture tutorialTex;
         Engine::Sprite tutorialSpr;

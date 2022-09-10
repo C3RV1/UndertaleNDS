@@ -98,6 +98,13 @@
       ]
     },
     {
+      "name": "skull_talk",
+      "frames": [
+        {"frame": 15, "duration": 10},
+        {"frame": 16, "duration": 10, "draw_off_y": 1}
+      ]
+    },
+    {
       "name": "skull_laugh",
       "frames": [
         {"frame": 15, "duration": 6},
