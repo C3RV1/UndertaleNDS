@@ -1,0 +1,28 @@
+{
+  "size": [32, 32],
+  "frameCount": 32,
+  "animations": [
+    {
+      "name": "worried_side",
+      "frames": [{"frame": 21, "duration": 0}]
+    },
+    {
+      "name": "worried_side_talk",
+      "frames": [
+        {"frame": 21, "duration": 10},
+        {"frame": 22, "duration": 10}
+      ]
+    },
+    {
+      "name": "neutral",
+      "frames": [{"frame": 0, "duration": 0}]
+    },
+    {
+      "name": "neutral_talk",
+      "frames": [
+        {"frame": 0, "duration": 10},
+        {"frame": 1, "duration": 10}
+      ]
+    }
+  ]
+}

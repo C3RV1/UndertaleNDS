@@ -247,7 +247,7 @@ class Cutscene:
                               x: float, y: float,
                               speaker_target: Target,
                               idle_anim: str, talk_anim: str,
-                              font: str, frames_per_letter=3):
+                              font: str, frames_per_letter=2):
         return self.start_dialogue(dialogue_text_id, "", x, y,
                                    "", "", speaker_target, idle_anim, talk_anim,
                                    font, frames_per_letter=frames_per_letter)

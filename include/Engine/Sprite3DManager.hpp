@@ -29,6 +29,7 @@ namespace Engine {
         void freeSprite(Sprite& spr);
 
         void draw();
+        void updateTextures();
     private:
         int loadSpriteFrame(Sprite& spr, int frame);
 

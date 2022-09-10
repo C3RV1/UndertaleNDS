@@ -9,6 +9,8 @@ BattleAttack* getBattleAttack(uint16_t attackId) {
             return new BtlAttacks::MovementTutorial();
         case 2:
             return new BtlAttacks::FloweyAttack();
+        case 3:
+            return new BtlAttacks::FloweyAttack2();
         default:
             return nullptr;
     }

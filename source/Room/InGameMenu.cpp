@@ -126,9 +126,9 @@ void InGameMenu::show() {
             for (itemCount = 0; saveGlobal.items[itemCount] != 0; itemCount++);
             pageCount = ((itemCount - 1) / 2) + 1;
             if (itemPage > pageCount - 1)
-                itemPage = 0;
-            if (itemSelected > itemCount - itemPage * 2)
-                itemSelected = 0;
+                itemPage = pageCount - 1;
+            if (itemSelected > itemCount - itemPage * 2 - 1)
+                itemSelected = itemCount - itemPage * 2 - 1;
             if (itemPage > 0) {
                 x = 5;
                 Engine::textSub.drawGlyph(fnt, '<', x, pageChangeY);

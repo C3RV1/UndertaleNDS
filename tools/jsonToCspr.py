@@ -13,7 +13,7 @@ def convert(input_file, output_file):
     with open(input_file, "r") as f:
         data = json.loads(f.read())
 
-    image = Image.open(data["image"])
+    image = Image.open(os.path.splitext(input_file)[0] + ".png")
 
     np_array = np.array(image)
     np_array_palette = np.zeros((np_array.shape[0], np_array.shape[1]), dtype=np.uint8)
@@ -104,8 +104,11 @@ def compileSprites():
             path_dest = os.path.splitext(os.path.join("../nitrofs", path))[0] + ".cspr"
             if os.path.isfile(path_dest):
                 src_time = os.path.getmtime(path)
+                src_time2 = os.path.getmtime(os.path.splitext(path)[0] + ".png")
                 dst_time = os.path.getmtime(path_dest)
                 if src_time > dst_time:
+                    convert(path, path_dest)
+                elif src_time2 > dst_time:
                     convert(path, path_dest)
             else:
                 pathlib.Path(os.path.split(path_dest)[0]).mkdir(exist_ok=True, parents=True)

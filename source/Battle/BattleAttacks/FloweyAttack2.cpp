@@ -1,11 +1,16 @@
 //
 // Created by cervi on 10/09/2022.
 //
+#include "Battle/BattleAttacks/FloweyAttack2.hpp"
+
+//
+// Created by cervi on 10/09/2022.
+//
 
 #include "Battle/BattleAttacks/FloweyAttack.hpp"
 
 namespace BtlAttacks {
-    FloweyAttack::FloweyAttack() {
+    FloweyAttack2::FloweyAttack2() {
         FILE *f = fopen("nitro:spr/battle/attack_pellets.cspr", "rb");
         if (f) {
             int texLoad = pelletTex.loadCSPR(f);
@@ -18,57 +23,58 @@ namespace BtlAttacks {
             nocashMessage("Error opening attack pellets");
         }
 
-        int x = pelletX;
+        int i = 0;
         for (auto & pellet : pellets) {
             pellet = new Engine::Sprite(Engine::Allocated3D);
             pellet->loadTexture(pelletTex);
-            pellet->wx = x << 8;
-            pellet->wy = pelletY << 8;
-            x += pelletSpacing;
-            pellet->setShown(true);
+            // Set pellets in clockwise order
+            // Two rows, one at top and one at bottom
+            // Of pellets
+            if (i < pelletW) {
+                pellet->wx = (pelletX + i * pelletSpacingX) << 8;
+                pellet->wy = pelletY << 8;
+            } else if (i - pelletW < pelletW) {
+                int i2 = i - pelletW;
+                pellet->wx = ((pelletX + (pelletW - 1 - i2) * pelletSpacingX) << 8);
+                pellet->wy = (pelletY + pelletSpacingY) << 8;
+            }
+            pellet->setShown(false);
+            i++;
         }
     }
 
-    bool FloweyAttack::update() {
+    bool FloweyAttack2::update() {
         if (stage == 0) {
             counter++;
-            if (counter > firstStageFrames) {
-                stage++;
-                // TODO: Improve move precision (maybe offset error?)
-                int diffY = globalBattle->playerManager.wy + (9 << 8) / 2 - ((pelletY + pelletMoveY) << 8) - (4 << 8);
-                int ySteps = (diffY << 8) / pelletSpeedY;
-                for (int i = 0; i < 5; i++) {
-                    auto pellet = pellets[i];
-                    pelletVecX[i] = ((globalBattle->playerManager.wx + (9 << 8) / 2 - pellet->wx - (4 << 8)) << 8) / ySteps;
-                }
-            } else {
-                for (auto & pellet : pellets) {
-                    pellet->wy = (pelletY << 8) + ((pelletMoveY * counter) << 8 / firstStageFrames);
-                }
+            if (counter < showFrames)
+                return false;
+            counter = 0;
+            pellets[currentPelletShown]->setShown(true);
+            currentPelletShown++;
+            if (currentPelletShown == pelletW * 2) {
+                stage = 1;
             }
         } else {
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < pelletW * 2; i++) {
                 auto pellet = pellets[i];
-                pellet->wx += pelletVecX[i];
-                pellet->wy += pelletSpeedY;
+                if (i < pelletW) {
+                    pellet->wy += pelletSpeed;
+                } else if (i - pelletW < pelletW) {
+                    pellet->wy -= pelletSpeed;
+                }
                 if (distSquared_fp(pellet->wx + (4 << 8),
                                    pellet->wy + (4 << 8),
                                    globalBattle->playerManager.wx + (9 << 8) / 2,
                                    globalBattle->playerManager.wy + (9 << 8) / 2) <= (pelletRadius * pelletRadius) << 8) {
-                    globalBattle->hitFlag = true;
-                    saveGlobal.hp = 1;
+                    saveGlobal.hp = 20;
                     return true;
                 }
-            }
-            if (pellets[0]->wy > 180 << 8) {
-                globalBattle->hitFlag = false;
-                return true;
             }
         }
         return false;
     }
 
-    FloweyAttack::~FloweyAttack() noexcept {
+    FloweyAttack2::~FloweyAttack2() noexcept {
         for (auto& pellet : pellets) {
             pellet->setShown(false);
             delete pellet;
