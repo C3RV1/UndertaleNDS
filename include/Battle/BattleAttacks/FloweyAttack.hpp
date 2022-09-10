@@ -9,6 +9,7 @@
 #include "Battle/Battle.hpp"
 #include "Engine/Sprite.hpp"
 #include "Engine/Texture.hpp"
+#include "Engine/math.hpp"
 
 namespace BtlAttacks {
     class FloweyAttack : public BattleAttack {
@@ -17,9 +18,10 @@ namespace BtlAttacks {
         ~FloweyAttack() noexcept override;
         bool update() override;
     private:
-        const int firstStageFrames = 200;
-        const int pelletX = 30, pelletY = -30, pelletSpacing = 40, pelletMoveY = 60;
-        const int pelletSpeedY = (10 << 8) / 60;
+        static const int firstStageFrames = 120;
+        static const int pelletX = 30, pelletY = -30, pelletSpacing = 40, pelletMoveY = 60;
+        static const int pelletSpeedY = (60 << 8) / 60;
+        static const int pelletRadius = 12;
         int counter = 0, stage = 0;
         Engine::Texture pelletTex;
         Engine::Sprite* pellets[5] = {nullptr}; // 5 pellets

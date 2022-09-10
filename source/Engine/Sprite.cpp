@@ -28,6 +28,10 @@ namespace Engine {
         currentFrame = 0;
         sprite = &sprite_;
         loaded = true;
+
+        int animId = nameToAnimId("gfx");  // default animation
+        if (animId != -1)
+            setSpriteAnim(animId);
     }
 
     void Sprite::tick() {

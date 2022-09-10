@@ -186,8 +186,6 @@ namespace Engine {
             return -2;
         spr.memory.loadedFrame = frame;
 
-        vramSetBankB(VRAM_B_LCD);
-
         uint8_t *tileRamStart = (uint8_t *) VRAM_B + spr.memory.tileStart;
 
         uint8_t tileWidth, tileHeight;
@@ -205,8 +203,6 @@ namespace Engine {
                 *(uint16_t*)(tileRamStart + y * spr.memory.allocX + x) |= (spr.sprite->getTiles()[tileOffset] & 0xFF) << (8 * (x & 1));
             }
         }
-
-        vramSetBankB(VRAM_B_TEXTURE_SLOT0);
         return 0;
     }
 
@@ -215,9 +211,6 @@ namespace Engine {
             Sprite* spr = activeSprites[i];
 
             spr->tick();
-
-            if (spr->currentFrame != spr->memory.loadedFrame)
-                loadSpriteFrame(*spr, spr->currentFrame);
 
             if (spr->memory.loadedFrame == -1)
                 continue;
@@ -258,6 +251,17 @@ namespace Engine {
             GFX_VERTEX_XY = x2 + (y << 16);
             GFX_END = 0;
         }
+    }
+
+    void Sprite3DManager::updateTextures() {
+        vramSetBankB(VRAM_B_LCD);
+        for (int i = 0; i < activeSpriteCount; i++) {
+            Sprite* spr = activeSprites[i];
+
+            if (spr->currentFrame != spr->memory.loadedFrame)
+                loadSpriteFrame(*spr, spr->currentFrame);
+        }
+        vramSetBankB(VRAM_B_TEXTURE_SLOT0);
     }
 
     Sprite3DManager main3dSpr;

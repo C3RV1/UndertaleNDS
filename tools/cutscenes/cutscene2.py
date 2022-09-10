@@ -44,11 +44,6 @@ def cutscene(c: Cutscene):
     c.load_sprite(40, 192 // 2, 2)
     c.load_sprite(40, 192 // 2, 2)
     c.load_sprite(40, 192 // 2, 2)
-    c.set_animation(Target(TargetType.SPRITE, 1), "gfx")
-    c.set_animation(Target(TargetType.SPRITE, 2), "gfx")
-    c.set_animation(Target(TargetType.SPRITE, 3), "gfx")
-    c.set_animation(Target(TargetType.SPRITE, 4), "gfx")
-    c.set_animation(Target(TargetType.SPRITE, 5), "gfx")
     def set_pellet_pos():
         c.set_pos_in_frames(Target(TargetType.SPRITE, 1), 30, 140, 120)
         c.set_pos_in_frames(Target(TargetType.SPRITE, 2), 70, 140, 120)
@@ -107,6 +102,9 @@ def cutscene(c: Cutscene):
 
     c.bind(hit_1)
     c.bind(hit_2)
+    c.debug("Player got hit!")
+
+    c.stop_bgm()
 
     c.start_dialogue_battle(71, 90, 192 // 4, Target(TargetType.SPRITE, 0), "skull_idle", "skull_talk",
                             "fnt_maintext.font.cfnt")
@@ -117,6 +115,7 @@ def cutscene(c: Cutscene):
     c.bind(not_hit)
     c.stop_bgm()
 
+    c.debug("Player avoided getting hit!")
     c.set_animation(Target(TargetType.SPRITE, 0), "evil")
     c.wait_frames(40)
     c.start_dialogue_battle(70, 90, 192 // 4, Target(TargetType.SPRITE, 0), "evil", "evil_talk",
@@ -124,8 +123,9 @@ def cutscene(c: Cutscene):
     c.wait_dialogue_end()
 
     c.bind(post_no_hit)
+    c.debug("Branch merge reached!")
 
-    c.start_dialogue_battle(7, 80, 192 // 4, Target(TargetType.SPRITE, 0), "evil", "evil_talk",
+    c.start_dialogue_battle(80, 80, 192 // 4, Target(TargetType.SPRITE, 0), "evil", "evil_talk",
                             "fnt_plainbig.font.cfnt")
     c.wait_dialogue_end()
 
@@ -138,43 +138,60 @@ def cutscene(c: Cutscene):
     c.unload_texture(2)
 
     c.set_animation(Target(TargetType.SPRITE, 0), "skull_laugh")
-    c.wait_frames(240)
+    c.battle_attack(3)
+    c.wait_battle_attack()
 
     c.set_animation(Target(TargetType.SPRITE, 0), "skull_idle")
     c.wait_frames(80)
 
+    c.set_animation(Target(TargetType.SPRITE, 0), "annoyed_open_mouth")
+    c.wait_frames(80)
+
     c.load_sprite(256 - 60, (192 - 30) // 2, 1)
     c.set_animation(Target(TargetType.SPRITE, 1), "flashing")
-    c.wait_frames(40)
+    c.wait_frames(60)
     c.set_animation(Target(TargetType.SPRITE, 1), "flying")
-    c.set_pos_in_frames(Target(TargetType.SPRITE, 1), 30, (192 - 30) // 2, 120)
-    c.wait_frames(120)
+    c.set_pos_in_frames(Target(TargetType.SPRITE, 1), 30, (192 - 30) // 2, 60)
+    c.wait_frames(60)
     c.unload_sprite(1)
     c.unload_texture(1)
     c.set_animation(Target(TargetType.SPRITE, 0), "hurt")
     c.move_in_frames(Target(TargetType.SPRITE, 0), -100, 0, 60)
     c.wait_frames(60)
     c.unload_sprite(0)
-    c.unload_texture(1)
+    c.unload_texture(0)
 
-    c.wait_frames(300)
+    c.wait_frames(120)
+    c.start_bgm("mus_fallendown2.wav", True)
+    c.load_texture("speaker/toriel_face.cspr")
+    c.load_texture("speaker/toriel_bodyonly.cspr")
+    c.load_sprite(256, 192 // 4, 0)
+    c.load_sprite(256, 192 // 4, 1)
+    c.set_animation(Target(TargetType.SPRITE, 0), "worried_side")
+    c.move_in_frames(Target(TargetType.SPRITE, 0), -220, 0, 180)
+    c.move_in_frames(Target(TargetType.SPRITE, 1), -220, 0, 180)
+    c.wait_frames(180)
+    c.start_dialogue_battle(90, 100, 192 // 4, Target(TargetType.SPRITE, 0),
+                            "worried_side", "worried_side_talk",
+                            "fnt_maintext.font.cfnt")
+    c.wait_dialogue_end()
+    c.wait_frames(60)
 
     c.exit_battle()
     c.wait_exit()
     c.debug("Loading room!")
-    c.wait_enter()
-    c.debug("Entered room again")
-    c.wait_frames(180)
 
-    c.move_in_frames(Target(TargetType.SPRITE, 0), -200, 0, 60)
-    c.wait_frames(60)
+    # Unload flowey and load toriel world
     c.unload_sprite(0)
     c.unload_texture(0)
-
     c.load_texture("room_sprites/toriel.cspr")
     c.load_sprite(149, 198, 0)  # Toriel world
     c.set_animation(Target(TargetType.SPRITE, 0), "downIdle")
-    c.start_dialogue(10, "speaker/toriel.cspr", (256 - 50) // 2, (192 - 39) // 4, "talkIdle", "talkTalk",
+
+    c.wait_enter()
+    c.debug("Entered room!")
+
+    c.start_dialogue(100, "speaker/toriel.cspr", (256 - 50) // 2, (192 - 39) // 4, "talkIdle", "talkTalk",
                      Target(TargetType.SPRITE, 0), "downIdle", "downTalk",
                      "fnt_maintext.font.cfnt")
     c.wait_dialogue_end()
@@ -189,4 +206,4 @@ def cutscene(c: Cutscene):
     c.player_control(True)
     c.set_flag(0, 1)
     c.set_collider_enabled(0, False)
-    c.debug("Cutscene 2 end!")
+    c.debug("Meet flowey cutscene end!")

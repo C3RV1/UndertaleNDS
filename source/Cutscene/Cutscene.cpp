@@ -326,6 +326,8 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             break;
         case CMD_CHECK_HIT:
             nocashMessage("CMD_CHECK_HIT");
+            if (callingLocation == BATTLE || callingLocation == LOAD_BATTLE)
+                flag = globalBattle->hitFlag;
             break;
         case CMD_JUMP_IF:
             nocashMessage("CMD_JUMP_IF");

@@ -18,6 +18,7 @@ public:
 
 #include "BattleAttacks/MovementTutorial.hpp"
 #include "BattleAttacks/FloweyAttack.hpp"
+#include "BattleAttacks/FloweyAttack2.hpp"
 
 BattleAttack* getBattleAttack(uint16_t attackId);
 
