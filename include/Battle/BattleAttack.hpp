@@ -11,14 +11,13 @@ class BattleAttack;
 
 class BattleAttack {
 public:
-    virtual void load() {};
-    virtual void free_() {};
     virtual bool update() {return true;};
     virtual void draw() {};
     virtual ~BattleAttack() = default;
 };
 
 #include "BattleAttacks/MovementTutorial.hpp"
+#include "BattleAttacks/FloweyAttack.hpp"
 
 BattleAttack* getBattleAttack(uint16_t attackId);
 

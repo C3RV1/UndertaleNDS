@@ -86,7 +86,6 @@ void Battle::resetBattleAttack() {
 void Battle::update() {
     if (currentBattleAttack != nullptr) {
         if (currentBattleAttack->update()) {
-            currentBattleAttack->free_();
             delete currentBattleAttack;
             currentBattleAttack = nullptr;
         }

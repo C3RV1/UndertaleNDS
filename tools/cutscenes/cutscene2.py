@@ -11,7 +11,7 @@ def cutscene(c: Cutscene):
     c.wait_frames(120)
     c.start_bgm("mus_flowey.wav", True)
     c.set_animation(Target(TargetType.PLAYER), "upIdle")
-    c.start_dialogue(0, "speaker/flowey.cspr", 128 - 21, (192 - 44) // 4 - 5, "nice1", "nice1_talk",
+    c.start_dialogue(10, "speaker/flowey.cspr", 128 - 21, (192 - 44) // 4 - 5, "nice1", "nice1_talk",
                      Target(TargetType.SPRITE, 0), "idle", "talk", "fnt_maintext.font.cfnt")
     c.wait_dialogue_end()
 
@@ -26,13 +26,13 @@ def cutscene(c: Cutscene):
     c.wait_enter()
     c.debug("In battle!")
     c.wait_frames(60)
-    c.start_dialogue_battle(1, 90, 192 // 4, Target(TargetType.SPRITE, 0), "nice1", "nice1_talk",
+    c.start_dialogue_battle(20, 90, 192 // 4, Target(TargetType.SPRITE, 0), "nice1", "nice1_talk",
                             "fnt_maintext.font.cfnt")
     c.wait_dialogue_end()
     c.battle_attack(1)
     c.wait_frames(120)
     c.wait_battle_attack()
-    c.start_dialogue_battle(15, 90, 192 // 4, Target(TargetType.SPRITE, 0), "nice1", "nice1_talk",
+    c.start_dialogue_battle(25, 90, 192 // 4, Target(TargetType.SPRITE, 0), "nice1", "nice1_talk",
                             "fnt_maintext.font.cfnt")
     c.wait_dialogue_end()
     c.set_animation(Target(TargetType.SPRITE, 0), "wink")
@@ -58,9 +58,10 @@ def cutscene(c: Cutscene):
         c.wait_frames(160)
     set_pellet_pos()
 
-    c.start_dialogue_battle(2, 90, 192 // 4, Target(TargetType.SPRITE, 0), "nice2", "nice2_talk",
+    c.start_dialogue_battle(30, 90, 192 // 4, Target(TargetType.SPRITE, 0), "nice2", "nice2_talk",
                             "fnt_maintext.font.cfnt")
     c.wait_dialogue_end()
+    c.wait_frames(60)
 
     def pellet_attack():
         c.move_in_frames(Target(TargetType.SPRITE, 1), 0, 70, 60)
@@ -69,43 +70,62 @@ def cutscene(c: Cutscene):
         c.move_in_frames(Target(TargetType.SPRITE, 4), 0, 70, 60)
         c.move_in_frames(Target(TargetType.SPRITE, 5), 0, 70, 60)
         c.wait_frames(60)
+        c.battle_attack(2)
+        c.wait_battle_attack()
 
     pellet_attack()
-    c.wait_frames(180)
     c.check_hit()
+    hit_1 = c.jump_if()
 
-    c.start_dialogue_battle(3, 90, 192 // 4, Target(TargetType.SPRITE, 0), "sassy", "sassy_talk",
+    c.start_dialogue_battle(40, 90, 192 // 4, Target(TargetType.SPRITE, 0), "sassy", "sassy_talk",
                             "fnt_maintext.font.cfnt")
     c.wait_dialogue_end()
+    c.wait_frames(60)
     c.set_animation(Target(TargetType.SPRITE, 0), "nice1")
 
     set_pellet_pos()
+    c.wait_frames(60)
     pellet_attack()
     c.check_hit()
+    hit_2 = c.jump_if()
 
     c.set_animation(Target(TargetType.SPRITE, 0), "annoyed")
     c.wait_frames(60)
-    c.start_dialogue_battle(4, 90, 192 // 4, Target(TargetType.SPRITE, 0), "annoyed", "annoyed_talk",
+    c.start_dialogue_battle(50, 90, 192 // 4, Target(TargetType.SPRITE, 0), "annoyed", "annoyed_talk",
                             "fnt_maintext.font.cfnt")
     c.wait_dialogue_end()
     c.wait_frames(40)
-    c.start_dialogue_battle(5, 90, 192 // 4, Target(TargetType.SPRITE, 0), "nice1", "nice1_talk",
+    c.start_dialogue_battle(60, 90, 192 // 4, Target(TargetType.SPRITE, 0), "nice1", "nice1_talk",
                             "fnt_maintext.font.cfnt", frames_per_letter=0)
     c.wait_dialogue_end()
 
     set_pellet_pos()
+    c.wait_frames(60)
     pellet_attack()
     c.check_hit()
+    not_hit = c.jump_if_not()
 
+    c.bind(hit_1)
+    c.bind(hit_2)
+
+    c.start_dialogue_battle(71, 90, 192 // 4, Target(TargetType.SPRITE, 0), "skull_idle", "skull_talk",
+                            "fnt_maintext.font.cfnt")
+    c.wait_dialogue_end()
+
+    post_no_hit = c.jump()
+
+    c.bind(not_hit)
     c.stop_bgm()
 
     c.set_animation(Target(TargetType.SPRITE, 0), "evil")
     c.wait_frames(40)
-    c.start_dialogue_battle(6, 90, 192 // 4, Target(TargetType.SPRITE, 0), "evil", "evil_talk",
+    c.start_dialogue_battle(70, 90, 192 // 4, Target(TargetType.SPRITE, 0), "evil", "evil_talk",
                             "fnt_maintext.font.cfnt")
     c.wait_dialogue_end()
 
-    c.start_dialogue_battle(7, 90, 192 // 4, Target(TargetType.SPRITE, 0), "evil", "evil_talk",
+    c.bind(post_no_hit)
+
+    c.start_dialogue_battle(7, 80, 192 // 4, Target(TargetType.SPRITE, 0), "evil", "evil_talk",
                             "fnt_plainbig.font.cfnt")
     c.wait_dialogue_end()
 

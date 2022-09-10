@@ -4,16 +4,12 @@
 #include "Battle/BattleAttack.hpp"
 
 BattleAttack* getBattleAttack(uint16_t attackId) {
-    BattleAttack* btlAtk = nullptr;
-
     switch (attackId) {
         case 1:
-            btlAtk = new BtlAttacks::MovementTutorial();
-            break;
+            return new BtlAttacks::MovementTutorial();
+        case 2:
+            return new BtlAttacks::FloweyAttack();
+        default:
+            return nullptr;
     }
-
-    if (btlAtk != nullptr) {
-        btlAtk->load();
-    }
-    return btlAtk;
 }
