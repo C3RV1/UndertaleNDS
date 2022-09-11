@@ -2,8 +2,8 @@
 // Created by cervi on 29/08/2022.
 //
 
-#ifndef LAYTON_CUTSCENE_HPP
-#define LAYTON_CUTSCENE_HPP
+#ifndef UNDERTALE_CUTSCENE_HPP
+#define UNDERTALE_CUTSCENE_HPP
 
 class Cutscene;
 
@@ -35,4 +35,4 @@ private:
 
 extern Cutscene* globalCutscene;
 
-#endif //LAYTON_CUTSCENE_HPP
+#endif //UNDERTALE_CUTSCENE_HPP

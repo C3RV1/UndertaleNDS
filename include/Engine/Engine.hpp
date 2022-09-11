@@ -1,5 +1,5 @@
-#ifndef LAYTON_ENGINE_HPP
-#define LAYTON_ENGINE_HPP
+#ifndef UNDERTALE_ENGINE_HPP
+#define UNDERTALE_ENGINE_HPP
 
 #define ARM9
 #include <nds.h>

@@ -2,8 +2,8 @@
 // Created by cervi on 31/08/2022.
 //
 
-#ifndef LAYTON_DIALOGUE_HPP
-#define LAYTON_DIALOGUE_HPP
+#ifndef UNDERTALE_DIALOGUE_HPP
+#define UNDERTALE_DIALOGUE_HPP
 
 class Dialogue;
 
@@ -56,4 +56,4 @@ private:
 
 extern Dialogue* currentDialogue;
 
-#endif //LAYTON_DIALOGUE_HPP
+#endif //UNDERTALE_DIALOGUE_HPP

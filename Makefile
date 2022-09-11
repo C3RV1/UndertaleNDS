@@ -166,7 +166,7 @@ else
 #---------------------------------------------------------------------------------
 # main targets
 #---------------------------------------------------------------------------------
-$(OUTPUT).nds: $(OUTPUT).elf $(GAME_ICON)
+$(OUTPUT).nds: $(OUTPUT).elf $(GAME_ICON) $(NITRO_FILES)/stamp_file.txt
 $(OUTPUT).elf: $(OFILES)
 
 # need to build soundbank first

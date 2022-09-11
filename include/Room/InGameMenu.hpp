@@ -2,8 +2,8 @@
 // Created by cervi on 01/09/2022.
 //
 
-#ifndef LAYTON_INGAMEMENU_HPP
-#define LAYTON_INGAMEMENU_HPP
+#ifndef UNDERTALE_INGAMEMENU_HPP
+#define UNDERTALE_INGAMEMENU_HPP
 
 #include "Font.hpp"
 #include "Save.hpp"
@@ -54,4 +54,4 @@ private:
 
 extern InGameMenu globalInGameMenu;
 
-#endif //LAYTON_INGAMEMENU_HPP
+#endif //UNDERTALE_INGAMEMENU_HPP

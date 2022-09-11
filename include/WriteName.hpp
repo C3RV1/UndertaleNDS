@@ -2,8 +2,8 @@
 // Created by cervi on 24/08/2022.
 //
 
-#ifndef LAYTON_WRITENAME_HPP
-#define LAYTON_WRITENAME_HPP
+#ifndef UNDERTALE_WRITENAME_HPP
+#define UNDERTALE_WRITENAME_HPP
 
 #include "Engine/Font.hpp"
 #include "Engine/Background.hpp"
@@ -13,4 +13,4 @@
 
 void writeNameMenu();
 
-#endif //LAYTON_WRITENAME_HPP
+#endif //UNDERTALE_WRITENAME_HPP

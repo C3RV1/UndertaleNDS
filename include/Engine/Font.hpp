@@ -2,8 +2,8 @@
 // Created by cervi on 23/08/2022.
 //
 
-#ifndef LAYTON_FONT_HPP
-#define LAYTON_FONT_HPP
+#ifndef UNDERTALE_FONT_HPP
+#define UNDERTALE_FONT_HPP
 
 #include <stdio.h>
 #include <string.h>
@@ -62,4 +62,4 @@ namespace Engine {
     extern TextBGManager textSub;
 }
 
-#endif //LAYTON_FONT_HPP
+#endif //UNDERTALE_FONT_HPP

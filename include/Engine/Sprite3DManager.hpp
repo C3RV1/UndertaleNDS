@@ -2,8 +2,8 @@
 // Created by cervi on 25/08/2022.
 //
 
-#ifndef LAYTON_SPRITE3DMANAGER_HPP
-#define LAYTON_SPRITE3DMANAGER_HPP
+#ifndef UNDERTALE_SPRITE3DMANAGER_HPP
+#define UNDERTALE_SPRITE3DMANAGER_HPP
 
 namespace Engine {
     class Sprite3DManager;
@@ -43,4 +43,4 @@ namespace Engine {
     };
 }
 
-#endif //LAYTON_SPRITE3DMANAGER_HPP
+#endif //UNDERTALE_SPRITE3DMANAGER_HPP

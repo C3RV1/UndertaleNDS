@@ -2,8 +2,8 @@
 // Created by cervi on 27/08/2022.
 //
 
-#ifndef LAYTON_CAMERA_HPP
-#define LAYTON_CAMERA_HPP
+#ifndef UNDERTALE_CAMERA_HPP
+#define UNDERTALE_CAMERA_HPP
 
 class Camera;
 
@@ -23,4 +23,4 @@ public:
 
 extern Camera globalCamera;
 
-#endif //LAYTON_CAMERA_HPP
+#endif //UNDERTALE_CAMERA_HPP

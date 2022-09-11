@@ -2,8 +2,8 @@
 // Created by cervi on 23/08/2022.
 //
 
-#ifndef LAYTON_BGM_HPP
-#define LAYTON_BGM_HPP
+#ifndef UNDERTALE_BGM_HPP
+#define UNDERTALE_BGM_HPP
 
 #include <stdio.h>
 #include <string.h>
@@ -63,4 +63,4 @@ namespace BGM {
     extern WAV globalWAV;
 }
 
-#endif //LAYTON_BGM_HPP
+#endif //UNDERTALE_BGM_HPP

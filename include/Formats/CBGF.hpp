@@ -1,6 +1,6 @@
 // Cervi BackGround Format
-#ifndef LAYTON_CBGF_HPP
-#define LAYTON_CBGF_HPP
+#ifndef UNDERTALE_CBGF_HPP
+#define UNDERTALE_CBGF_HPP
 
 #include <stdint.h>
 #include <stdio.h>
