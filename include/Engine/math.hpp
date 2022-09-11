@@ -2,8 +2,8 @@
 // Created by cervi on 27/08/2022.
 //
 
-#ifndef LAYTON_MATH_HPP
-#define LAYTON_MATH_HPP
+#ifndef UNDERTALE_MATH_HPP
+#define UNDERTALE_MATH_HPP
 
 #include <stdint.h>
 #include <math.h>
@@ -21,4 +21,4 @@ int distSquared_fp(int32_t x1, int32_t y1, int32_t x2, int32_t y2); // fixed poi
 
 int mod(int a, int b);
 
-#endif //LAYTON_MATH_HPP
+#endif //UNDERTALE_MATH_HPP

@@ -2,8 +2,8 @@
 // Created by cervi on 25/08/2022.
 //
 
-#ifndef LAYTON_PLAYER_HPP
-#define LAYTON_PLAYER_HPP
+#ifndef UNDERTALE_PLAYER_HPP
+#define UNDERTALE_PLAYER_HPP
 
 class Player;
 
@@ -50,4 +50,4 @@ private:
 
 extern Player* globalPlayer;
 
-#endif //LAYTON_PLAYER_HPP
+#endif //UNDERTALE_PLAYER_HPP

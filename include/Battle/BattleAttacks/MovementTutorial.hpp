@@ -2,8 +2,8 @@
 // Created by cervi on 08/09/2022.
 //
 
-#ifndef LAYTON_MOVEMENTTUTORIAL_HPP
-#define LAYTON_MOVEMENTTUTORIAL_HPP
+#ifndef UNDERTALE_MOVEMENTTUTORIAL_HPP
+#define UNDERTALE_MOVEMENTTUTORIAL_HPP
 
 namespace BtlAttacks {
     class MovementTutorial;
@@ -26,4 +26,4 @@ namespace BtlAttacks {
     };
 }
 
-#endif //LAYTON_MOVEMENTTUTORIAL_HPP
+#endif //UNDERTALE_MOVEMENTTUTORIAL_HPP

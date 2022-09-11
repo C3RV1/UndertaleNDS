@@ -1,5 +1,5 @@
-#ifndef LAYTON_TEXTURE_HPP
-#define LAYTON_TEXTURE_HPP
+#ifndef UNDERTALE_TEXTURE_HPP
+#define UNDERTALE_TEXTURE_HPP
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -38,4 +38,4 @@ namespace Engine {
     };
 }
 
-#endif //LAYTON_TEXTURE_HPP
+#endif //UNDERTALE_TEXTURE_HPP

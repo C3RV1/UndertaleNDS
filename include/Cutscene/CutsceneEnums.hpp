@@ -2,8 +2,8 @@
 // Created by cervi on 30/08/2022.
 //
 
-#ifndef LAYTON_CUTSCENEENUMS_HPP
-#define LAYTON_CUTSCENEENUMS_HPP
+#ifndef UNDERTALE_CUTSCENEENUMS_HPP
+#define UNDERTALE_CUTSCENEENUMS_HPP
 
 enum CutsceneCommands {
     CMD_LOAD_SPRITE = 0,
@@ -55,4 +55,4 @@ enum ComparisonOperator {
     LESS_THAN = 2
 };
 
-#endif //LAYTON_CUTSCENEENUMS_HPP
+#endif //UNDERTALE_CUTSCENEENUMS_HPP

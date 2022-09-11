@@ -2,8 +2,8 @@
 // Created by cervi on 24/08/2022.
 //
 
-#ifndef LAYTON_SAVE_HPP
-#define LAYTON_SAVE_HPP
+#ifndef UNDERTALE_SAVE_HPP
+#define UNDERTALE_SAVE_HPP
 
 #define FLAG_COUNT 256
 #define ITEM_COUNT 8
@@ -24,4 +24,4 @@ struct SaveData {
 
 extern SaveData saveGlobal;
 
-#endif //LAYTON_SAVE_HPP
+#endif //UNDERTALE_SAVE_HPP

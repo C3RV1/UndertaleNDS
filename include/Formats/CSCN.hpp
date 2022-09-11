@@ -2,8 +2,8 @@
 // Created by cervi on 30/08/2022.
 //
 
-#ifndef LAYTON_CSCN_HPP
-#define LAYTON_CSCN_HPP
+#ifndef UNDERTALE_CSCN_HPP
+#define UNDERTALE_CSCN_HPP
 
 #include <stdint.h>
 
@@ -14,4 +14,4 @@ struct CSCN {
     uint8_t* commands = nullptr;
 };
 
-#endif //LAYTON_CSCN_HPP
+#endif //UNDERTALE_CSCN_HPP

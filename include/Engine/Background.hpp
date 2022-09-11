@@ -2,8 +2,8 @@
 // Created by cervi on 19/08/2022.
 //
 
-#ifndef LAYTON_BACKGROUND_HPP
-#define LAYTON_BACKGROUND_HPP
+#ifndef UNDERTALE_BACKGROUND_HPP
+#define UNDERTALE_BACKGROUND_HPP
 
 #include <stdio.h>
 #include <string.h>
@@ -44,4 +44,4 @@ namespace Engine {
     };
 }
 
-#endif //LAYTON_BACKGROUND_HPP
+#endif //UNDERTALE_BACKGROUND_HPP

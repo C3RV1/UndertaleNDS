@@ -2,8 +2,8 @@
 // Created by cervi on 02/09/2022.
 //
 
-#ifndef LAYTON_BATTLEATTACK_HPP
-#define LAYTON_BATTLEATTACK_HPP
+#ifndef UNDERTALE_BATTLEATTACK_HPP
+#define UNDERTALE_BATTLEATTACK_HPP
 
 class BattleAttack;
 
@@ -22,4 +22,4 @@ public:
 
 BattleAttack* getBattleAttack(uint16_t attackId);
 
-#endif //LAYTON_BATTLEATTACK_HPP
+#endif //UNDERTALE_BATTLEATTACK_HPP

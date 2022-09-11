@@ -2,8 +2,8 @@
 // Created by cervi on 27/08/2022.
 //
 
-#ifndef LAYTON_ROOM_FILE_HPP
-#define LAYTON_ROOM_FILE_HPP
+#ifndef UNDERTALE_ROOM_FILE_HPP
+#define UNDERTALE_ROOM_FILE_HPP
 
 #include <stdint.h>
 
@@ -82,4 +82,4 @@ struct ROOMFile {
     ROOMPart* parts = nullptr;
 };
 
-#endif //LAYTON_ROOM_FILE_HPP
+#endif //UNDERTALE_ROOM_FILE_HPP

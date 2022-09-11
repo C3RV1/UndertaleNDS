@@ -2,8 +2,8 @@
 // Created by cervi on 29/08/2022.
 //
 
-#ifndef LAYTON_WAITING_HPP
-#define LAYTON_WAITING_HPP
+#ifndef UNDERTALE_WAITING_HPP
+#define UNDERTALE_WAITING_HPP
 
 class Waiting;
 
@@ -36,4 +36,4 @@ private:
 #include "Battle/Battle.hpp"
 #include "Dialogue.hpp"
 
-#endif //LAYTON_WAITING_HPP
+#endif //UNDERTALE_WAITING_HPP

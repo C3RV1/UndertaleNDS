@@ -2,8 +2,8 @@
 // Created by cervi on 10/09/2022.
 //
 
-#ifndef LAYTON_FLOWEYATTACK_HPP
-#define LAYTON_FLOWEYATTACK_HPP
+#ifndef UNDERTALE_FLOWEYATTACK_HPP
+#define UNDERTALE_FLOWEYATTACK_HPP
 
 #include "Battle/BattleAttack.hpp"
 #include "Battle/Battle.hpp"
@@ -29,4 +29,4 @@ namespace BtlAttacks {
     };
 }
 
-#endif //LAYTON_FLOWEYATTACK_HPP
+#endif //UNDERTALE_FLOWEYATTACK_HPP

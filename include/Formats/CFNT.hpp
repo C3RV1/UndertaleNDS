@@ -2,8 +2,8 @@
 // Created by cervi on 23/08/2022.
 //
 
-#ifndef LAYTON_CFNT_HPP
-#define LAYTON_CFNT_HPP
+#ifndef UNDERTALE_CFNT_HPP
+#define UNDERTALE_CFNT_HPP
 
 #include <stdint.h>
 
@@ -31,4 +31,4 @@ struct CFNTMap {
     uint8_t glyphMap[256];  // 0 == not defined, else glyphIdx + 1
 };
 
-#endif //LAYTON_CFNT_HPP
+#endif //UNDERTALE_CFNT_HPP

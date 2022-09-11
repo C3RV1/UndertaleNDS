@@ -1,5 +1,5 @@
-#ifndef LAYTON_CSPR_HPP
-#define LAYTON_CSPR_HPP
+#ifndef UNDERTALE_CSPR_HPP
+#define UNDERTALE_CSPR_HPP
 
 #include <stdint.h>
 
@@ -41,4 +41,4 @@ struct CSPRAnimations {
     CSPRAnimation* animations;
 };
 
-#endif //LAYTON_CSPR_HPP
+#endif //UNDERTALE_CSPR_HPP

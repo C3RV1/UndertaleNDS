@@ -2,8 +2,8 @@
 // Created by cervi on 29/08/2022.
 //
 
-#ifndef LAYTON_NAVIGATION_HPP
-#define LAYTON_NAVIGATION_HPP
+#ifndef UNDERTALE_NAVIGATION_HPP
+#define UNDERTALE_NAVIGATION_HPP
 
 class Navigation;
 
@@ -70,4 +70,4 @@ private:
 
 #include "Room/Room.hpp"
 
-#endif //LAYTON_NAVIGATION_HPP
+#endif //UNDERTALE_NAVIGATION_HPP

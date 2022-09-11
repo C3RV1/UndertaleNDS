@@ -2,8 +2,8 @@
 // Created by cervi on 25/08/2022.
 //
 
-#ifndef LAYTON_ROOM_HPP
-#define LAYTON_ROOM_HPP
+#ifndef UNDERTALE_ROOM_HPP
+#define UNDERTALE_ROOM_HPP
 
 class Room;
 
@@ -57,4 +57,4 @@ void loadNewRoom(int roomId, int32_t spawnX, int32_t spawnY);
 
 extern Room* globalRoom;
 
-#endif //LAYTON_ROOM_HPP
+#endif //UNDERTALE_ROOM_HPP

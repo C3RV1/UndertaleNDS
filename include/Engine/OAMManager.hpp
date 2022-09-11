@@ -2,8 +2,8 @@
 // Created by cervi on 20/08/2022.
 //
 
-#ifndef LAYTON_OAMMANAGER_HPP
-#define LAYTON_OAMMANAGER_HPP
+#ifndef UNDERTALE_OAMMANAGER_HPP
+#define UNDERTALE_OAMMANAGER_HPP
 
 #define ARM9
 #include <nds.h>
@@ -65,4 +65,4 @@ namespace Engine {
     extern OAMManager OAMManagerSub;
 }
 
-#endif //LAYTON_OAMMANAGER_HPP
+#endif //UNDERTALE_OAMMANAGER_HPP

@@ -2,8 +2,8 @@
 // Created by cervi on 28/08/2022.
 //
 
-#ifndef LAYTON_SPRITE_HPP
-#define LAYTON_SPRITE_HPP
+#ifndef UNDERTALE_SPRITE_HPP
+#define UNDERTALE_SPRITE_HPP
 
 namespace Engine {
     class Sprite;
@@ -72,4 +72,4 @@ namespace Engine {
     };
 }
 
-#endif //LAYTON_SPRITE_HPP
+#endif //UNDERTALE_SPRITE_HPP

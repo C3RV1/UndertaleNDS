@@ -4,6 +4,7 @@ from gmxToCfnt import compileFonts
 from jsonToCspr import compileSprites
 from jsonToRoom import compileRooms
 from pngToCbgf import compileBackgrounds
+import time
 
 
 def main():
@@ -13,6 +14,9 @@ def main():
     compileSprites()
     compileRooms()
     compileBackgrounds()
+    # Hack to allow make to detect the changes
+    with open("../nitrofs/stamp_file.txt", "w") as f:
+        f.write(str(time.time()))
 
 
 if __name__ == '__main__':
