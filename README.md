@@ -6,6 +6,11 @@ Note: A little bit of spaghetti code. Somewhaaat actually. Tbh, a lot. Too much 
 Intro & Screen Name Clip: [https://youtu.be/p_8BHBVBwFQ](https://youtu.be/p_8BHBVBwFQ)
 
 ## Installation
+I recommend you run the game on MelonDS if you're using an emulator. It yiels
+the best results in terms of audio and performance. Real hardware
+might have some visual bugs. The reasons are still unknown as no
+emulator replicates those bugs.
+
 To compile the game or use the rom, you will need to provide the `data.win` file from the
 original UNDERTALE game. This file can be located at
 `C:\Program Files (x86)\Steam\steamapps\common\Undertale\data.win` or
@@ -19,7 +24,7 @@ You should download the AES-encrypted files (`Undertale.nds.aes`, `tools.zip.aes
 `nitrofs.zip.aes`) from the latest release and also copy them to the project root.
 
 Once you have all files at the root of the directory (`data.win`, `Undertale.nds.aes`, `tools.zip.aes`,
-`nitrofs.zip.aes`) run `./decrypt_all.py` to decrypt the AES-encrypted files to the corresponding
+`nitrofs.zip.aes`) run `./decrypt_all.sh` to decrypt the AES-encrypted files to the corresponding
 project files (`Undertale.nds`, `tools`, `nitrofs`).
 
 ## Compiling
