@@ -279,7 +279,7 @@ bool Room::evaluateCondition(FILE *f) {
     cond.cmpOperator = cond.cmpOperator & 3;
     fread(&cond.cmpValue, 2, 1, f);
 
-    uint16_t flagValue = saveGlobal.flags[cond.flagId];
+    uint16_t flagValue = globalSave.flags[cond.flagId];
     bool flag = false;
     if (cond.cmpOperator == ComparisonOperator::EQUALS)
         flag = (flagValue == cond.cmpValue);

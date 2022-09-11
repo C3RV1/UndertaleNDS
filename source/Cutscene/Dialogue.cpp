@@ -44,7 +44,7 @@ Dialogue::Dialogue(bool isRoom_, uint16_t textId, char *speaker, int32_t speaker
         fclose(speakerCspr);
     }
 
-    sprintf(buffer, "nitro:/data/dialogue/dialogue_%d_%d.txt",
+    sprintf(buffer, "nitro:/data/dialogue/d%d_%d.txt",
             globalCutscene->cutsceneId, textId);
     textStream = fopen(buffer, "rb");
     fseek(textStream, 0, SEEK_END);

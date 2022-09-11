@@ -56,7 +56,7 @@ namespace BtlAttacks {
                                    globalBattle->playerManager.wx + (9 << 8) / 2,
                                    globalBattle->playerManager.wy + (9 << 8) / 2) <= (pelletRadius * pelletRadius) << 8) {
                     globalBattle->hitFlag = true;
-                    saveGlobal.hp = 1;
+                    globalSave.hp = 1;
                     return true;
                 }
             }

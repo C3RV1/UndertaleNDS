@@ -7,6 +7,7 @@ else:
 
 def cutscene(c: Cutscene):
     c.manual_camera(True)
+    c.player_control(False)
     c.move_in_frames(Target(TargetType.CAMERA), 0, -30, 60)
     c.wait_frames(120)
     c.start_bgm("mus_flowey.wav", True)

@@ -95,35 +95,35 @@ void InGameMenu::show() {
 
     char buffer[200];
     int x = nameX, y = nameY;
-    for (char* pName = saveGlobal.name; *pName != 0; pName++) {
+    for (char* pName = globalSave.name; *pName != 0; pName++) {
         Engine::textSub.drawGlyph(fnt, *pName, x, y);
     }
 
-    sprintf(buffer, "%d/%d", saveGlobal.hp, saveGlobal.maxHp);
+    sprintf(buffer, "%d/%d", globalSave.hp, globalSave.maxHp);
     x = hpX, y = hpY;
     for (char* pName = buffer; *pName != 0; pName++) {
         Engine::textSub.drawGlyph(fnt, *pName, x, y);
     }
 
-    sprintf(buffer, "%d", saveGlobal.lv);
+    sprintf(buffer, "%d", globalSave.lv);
     x = lvX, y = lvY;
     for (char* pName = buffer; *pName != 0; pName++) {
         Engine::textSub.drawGlyph(fnt, *pName, x, y);
     }
 
-    sprintf(buffer, "%d", saveGlobal.exp);
+    sprintf(buffer, "%d", globalSave.exp);
     x = expX, y = expY;
     for (char* pName = buffer; *pName != 0; pName++) {
         Engine::textSub.drawGlyph(fnt, *pName, x, y);
     }
 
     if (selectedMenu == MENU_ITEMS) {
-        if (saveGlobal.items[0] == 0) {
+        if (globalSave.items[0] == 0) {
             listHeart.setShown(false);
             itemExplainBox.setShown(false);
         } else {
             y = itemsY;
-            for (itemCount = 0; saveGlobal.items[itemCount] != 0; itemCount++);
+            for (itemCount = 0; globalSave.items[itemCount] != 0; itemCount++);
             pageCount = ((itemCount - 1) / 2) + 1;
             if (itemPage > pageCount - 1)
                 itemPage = pageCount - 1;
@@ -141,7 +141,7 @@ void InGameMenu::show() {
                 int itemIdx = (itemPage * 2) + i;
                 if (itemIdx >= itemCount)
                     break;
-                int item = saveGlobal.items[itemIdx];
+                int item = globalSave.items[itemIdx];
 
                 sprintf(buffer, "nitro:/data/items/name%d.txt", item);
                 FILE* f = fopen(buffer, "rb");
@@ -164,7 +164,7 @@ void InGameMenu::show() {
 
             // TODO: Make descriptions have multiple pages (ex. temmie armor)
             int itemIdx = itemPage * 2 + itemSelected;
-            int item = saveGlobal.items[itemIdx];
+            int item = globalSave.items[itemIdx];
             sprintf(buffer, "nitro:/data/items/desc%d.txt", item);
             FILE* f = fopen(buffer, "rb");
             int len = strlen_file(f, '\0');

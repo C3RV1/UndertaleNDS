@@ -286,11 +286,11 @@ void writeNameMenu() {
     }
     BGM::stopWAV();
 
-    if (saveGlobal.name != nullptr)
-        free(saveGlobal.name);
-    saveGlobal.name = new char[currentLen + 1];
-    memset(saveGlobal.name, 0, currentLen + 1);
-    memcpy(saveGlobal.name, currentName, currentLen);
-    sprintf(buffer, "Selected name: %s", saveGlobal.name);
+    if (globalSave.name != nullptr)
+        free(globalSave.name);
+    globalSave.name = new char[currentLen + 1];
+    memset(globalSave.name, 0, currentLen + 1);
+    memcpy(globalSave.name, currentName, currentLen);
+    sprintf(buffer, "Selected name: %s", globalSave.name);
     nocashMessage(buffer);
 }

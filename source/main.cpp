@@ -27,17 +27,11 @@ int main() {
     if (Engine::init() != 0)
         return 0;
 
-    for (;;) {
-        Engine::tick();
-        if (keysDown() & KEY_START)
-            break;
-    }
-
     runTitleScreen();
     writeNameMenu();
 
     for (int i = 0; i < 5; i++) {
-        saveGlobal.items[i] = 1 + (i % 3 == 0);
+        globalSave.items[i] = 1 + (i % 3 == 0);
     }
 
     Engine::textMain.clear();

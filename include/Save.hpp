@@ -22,6 +22,6 @@ struct SaveData {
     uint8_t items[ITEM_COUNT + 1] = {0};  // Terminal 0
 };
 
-extern SaveData saveGlobal;
+extern SaveData globalSave;
 
 #endif //UNDERTALE_SAVE_HPP

@@ -12,7 +12,6 @@ Cutscene::Cutscene(uint16_t cutsceneId_) : cutsceneId(cutsceneId_) {
     FILE* f = fopen(buffer, "rb");
     if (f) {
         if (checkHeader(f)) {
-            globalPlayer->playerControl = false;
             long pos = ftell(f);
             fseek(f, 0, SEEK_END);
             commandStreamLen = ftell(f);
@@ -134,6 +133,10 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             bool playerControl;
             fread(&playerControl, 1, 1, commandStream);
             globalPlayer->playerControl = playerControl;
+            if (playerControl)
+                globalInGameMenu.show();
+            else
+                globalInGameMenu.hide();
             break;
         }
         case CMD_MANUAL_CAMERA: {
@@ -368,7 +371,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             uint16_t flagId, flagValue;
             fread(&flagId, 2, 1, commandStream);
             fread(&flagValue, 2, 1, commandStream);
-            saveGlobal.flags[flagId] = flagValue;
+            globalSave.flags[flagId] = flagValue;
             break;
         }
         case CMD_CMP_FLAG: {
@@ -378,7 +381,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             fread(&flagId, 2, 1, commandStream);
             fread(&comparator, 1, 1, commandStream);
             fread(&cmpValue, 2, 1, commandStream);
-            flagValue = saveGlobal.flags[flagId];
+            flagValue = globalSave.flags[flagId];
             if (comparator == ComparisonOperator::EQUALS)
                 flag = (flagValue == cmpValue);
             else if (comparator == ComparisonOperator::GREATER_THAN)

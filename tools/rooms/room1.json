@@ -44,8 +44,8 @@
           "y": 278,
           "w": 318,
           "h": 16,
-          "collider_action": "trigger",
-          "cutscene_id": 2
+          "action": "trigger",
+          "cutscene_id": 100
         }
       ]
     },

@@ -4,4 +4,4 @@
 
 #include "Save.hpp"
 
-SaveData saveGlobal;
+SaveData globalSave;

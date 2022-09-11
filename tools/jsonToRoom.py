@@ -194,7 +194,7 @@ class RoomCollider:
         res.collider_action = {
             "wall": 0,
             "trigger": 1
-        }[dct.get("collider_action", "wall")]
+        }[dct.get("action", "wall")]
         res.enabled = dct.get("enabled", True)
         if res.collider_action == 1:
             res.cutscene_id = dct["cutscene_id"]

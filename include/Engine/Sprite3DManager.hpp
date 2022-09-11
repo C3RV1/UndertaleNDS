@@ -34,7 +34,7 @@ namespace Engine {
         int loadSpriteFrame(Sprite& spr, int frame);
 
         uint16_t tileFreeZoneCount;
-        uint16_t* tileFreeZones = nullptr;
+        uint16_t* tileFreeZones;
 
         bool paletteUsed[96] = {false};
 
