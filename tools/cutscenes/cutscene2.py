@@ -175,7 +175,7 @@ def cutscene(c: Cutscene):
                             "worried_side", "worried_side_talk",
                             "fnt_maintext.font.cfnt")
     c.wait_dialogue_end()
-    c.wait_frames(60)
+    c.wait_frames(30)
 
     c.exit_battle()
     c.wait_exit()

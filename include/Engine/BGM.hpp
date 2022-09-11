@@ -38,17 +38,27 @@ namespace BGM {
         uint32_t dataStart = 0;
     };
 
-    // TODO: loop (data start, fseek and parameter?)
+    // TODO: Progress on multiple wav playback
+    struct WAVLinkedList {
+        WAVLinkedList* prevWav = nullptr;
+        WAV* currentWav = nullptr;
+        uint32_t co = 44100;
+        uint16_t values[2] = {0};
+        WAVLinkedList* nextWav = nullptr;
+    };
+
+    void initAudioStream();
+    mm_word fillAudioStream(mm_word length, mm_addr dest, mm_stream_formats format);
+    void fillAudioStreamWav(WAVLinkedList* wavLL, mm_word length, uint16_t* dest, mm_stream_formats format);
+
     void playWAV(WAV& wav);
     void stopWAV();
     mm_word fillWAV(mm_word length, mm_addr dest, mm_stream_formats format);
 
     extern WAV* currentlyPlayingWav;
-    extern FILE* currentStream;
-    extern uint32_t currentDataEnd;
-    extern uint32_t currentDataStart;
-    extern bool currentLoop;
     extern bool shouldClose;
+
+    extern WAVLinkedList* playingWavs;
 
     extern WAV globalWAV;
 }

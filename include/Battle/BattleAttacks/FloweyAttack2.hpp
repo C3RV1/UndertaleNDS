@@ -18,7 +18,7 @@ namespace BtlAttacks {
         ~FloweyAttack2() noexcept override;
         bool update() override;
     private:
-        static const int showFrames = 8;
+        static const int showFrames = 4;
         int counter = 0;
         int stage = 0;
         int currentPelletShown = 0;
