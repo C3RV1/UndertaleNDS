@@ -5,12 +5,11 @@
 
 namespace BGM {
     WAV* currentlyPlayingWav = nullptr;
-    FILE* currentStream = nullptr;
-    uint32_t currentDataEnd = 0;
-    uint32_t currentDataStart = 0;
-    bool currentLoop = false;
     bool shouldClose = false;
     WAV globalWAV;
+
+    int playingWavCount = 0;
+    WAVLinkedList* playingWavs = nullptr;
 
     int WAV::loadWAV(const char *name) {
         free_();
@@ -93,7 +92,7 @@ namespace BGM {
     void WAV::free_() {
         if (!loaded)
             return;
-        if (stream == currentStream)
+        if (this == currentlyPlayingWav)
             stopWAV();
         delete[] filename;
         filename = nullptr;
@@ -102,16 +101,71 @@ namespace BGM {
         loaded = false;
     }
 
+    void initAudioStream() {
+        mm_stream stream;
+
+        stream.sampling_rate = 44100;
+        stream.buffer_length = 8000;
+        stream.callback = fillAudioStream;
+        stream.format = MM_STREAM_16BIT_STEREO;
+        stream.timer = MM_TIMER0;
+        stream.manual = 1;
+
+        mmStreamOpen(&stream);
+    }
+
+    mm_word fillAudioStream(mm_word length, mm_addr dest, mm_stream_formats format) {
+        WAVLinkedList* currentLL = playingWavs;
+        memset(dest, 0, 4 * length);
+        fillAudioStreamWav(currentLL, length, (uint16_t*)dest, format);
+        return length;
+    }
+
+    void fillAudioStreamWav(WAVLinkedList* wavLL, mm_word length, uint16_t* dest, mm_stream_formats format) {
+        if (wavLL == nullptr)
+            return;
+        WAV* wav = wavLL->currentWav;
+        FILE* stream = wav->getStream();
+        // do not convert bit depth for now
+        if (wav->getBitsPerSample() != ((format & 2) >> 1) + 1 || wav->getBitsPerSample() != 2)
+            return;
+        // convert channels & sample rate
+        uint32_t dstI = 0;
+
+        // current sample rate, target sample rate
+        uint32_t csr = wav->getSampleRate();
+        // current channel count, target channel count
+        uint8_t ccc = wav->getStereo() + 1;
+        while (dstI < length) {
+            while (wavLL->co >= 44100) {
+                if (ftell(stream) == wav->getDataEnd()) {
+                    // TODO: no loop
+                    fseek(stream, wav->getDataStart(), SEEK_SET);
+                }
+                for (int i = 0; i < ccc && i < 2; i++) {
+                    if (i >= ccc) {
+                        wavLL->values[i] = wavLL->values[i - 1];
+                    } else {
+                        fread(&wavLL->values[i], 2, 1, stream);
+                    }
+                }
+                wavLL->co -= 44100;
+            }
+            for (int i = 0; i < 2; i++) {
+                dest[dstI * 2 + i] += wavLL->values[i];
+            }
+            wavLL->co += csr;
+            dstI++;
+        }
+        fillAudioStreamWav(wavLL->nextWav, length, dest, format);
+    }
+
     void playWAV(WAV& wav) {
         stopWAV();
         if (!wav.getLoaded())
             return;
 
         currentlyPlayingWav = &wav;
-        currentStream = wav.getStream();
-        currentDataEnd = wav.getDataEnd();
-        currentDataStart = wav.getDataStart();
-        currentLoop = wav.getLoop();
         shouldClose = false;
 
         mm_stream stream;
@@ -146,26 +200,28 @@ namespace BGM {
     mm_word fillWAV(mm_word length, mm_addr dest, mm_stream_formats format) {
         if (currentlyPlayingWav == nullptr)
             return 0;
-        FILE* stream = currentStream;
+        FILE* stream = currentlyPlayingWav->getStream();
         int readLength = 1;
         if (format & 2)
             readLength = 2;
         if (format & 1)
             readLength *= 2;
-        uint32_t maxLength = (currentDataEnd - ftell(stream)) / readLength;
+        uint32_t maxLength = (currentlyPlayingWav->getDataEnd() - ftell(stream)) / readLength;
         if (maxLength == 0) {
-            if (!currentLoop) {
+            if (!currentlyPlayingWav->getLoop()) {
                 shouldClose = true;
                 return 0;
             }
             else {
-                fseek(currentStream, currentDataStart, SEEK_SET);
+                fseek(currentlyPlayingWav->getStream(), currentlyPlayingWav->getDataStart(), SEEK_SET);
                 return fillWAV(length, dest, format);
             }
         }
         if (length > maxLength)
             length = maxLength;
-        fread(dest, readLength, length, stream);
+        mm_word buff[length];
+        fread(buff, readLength, length, stream);
+        memcpy(dest, buff, readLength * length);
         return length;
     }
 }
