@@ -5,10 +5,11 @@
 #include "Room/Camera.hpp"
 
 void Camera::updatePosition(bool roomChange) {
+    const int offsetX = 0, offsetY = -20;
     int xTilePrev = (prevX >> 8) / 8, yTilePrev = (prevY >> 8) / 8;
     if (!manual) {
-        pos.wx = globalPlayer->spriteManager.wx - ((256 / 2 - 9) << 8);
-        pos.wy = globalPlayer->spriteManager.wy - ((192 / 2 - 14) << 8);
+        pos.wx = globalPlayer->spriteManager.wx - ((256 / 2 - 9) << 8) + (offsetX << 8);
+        pos.wy = globalPlayer->spriteManager.wy - ((192 / 2 - 14) << 8) + (offsetY << 8);
     }
     uint16_t roomW, roomH;
     globalRoom->bg.getSize(roomW, roomH);

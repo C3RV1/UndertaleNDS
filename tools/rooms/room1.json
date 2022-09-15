@@ -34,8 +34,7 @@
           "texture_id": 0,
           "x": 151,
           "y": 227,
-          "animation": "idle",
-          "can_interact": false
+          "animation": "idle"
         }
       ],
       "colliders": [

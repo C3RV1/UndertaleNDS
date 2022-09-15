@@ -1,0 +1,14 @@
+{
+  "size": [16, 14],
+  "frameCount": 2,
+  "animations": [
+    {
+      "name": "not_pressed",
+      "frames": [{"frame": 0, "duration": 0}]
+    },
+    {
+      "name": "pressed",
+      "frames": [{"frame": 1, "duration": 0}]
+    }
+  ]
+}

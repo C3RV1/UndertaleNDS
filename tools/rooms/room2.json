@@ -34,15 +34,14 @@
           "texture_id": 0,
           "x": 127,
           "y": 326,
-          "animation": "downIdle",
-          "can_interact": false
+          "animation": "downIdle"
         }
       ],
       "colliders": [
-        {"x": 100, "y": 381, "w": 80, "h": 7, "action": "trigger", "cutscene_id": 200},
-        {"x": 40, "y": 292, "w": 200, "h": 12, "action": "trigger", "cutscene_id": 201},
-        {"x": 40, "y": 179, "w": 200, "h": 9, "action": "trigger", "cutscene_id": 202},
-        {"x": 65, "y": 100, "w": 150, "h": 20, "action": "trigger", "cutscene_id": 203},
+        {"x": 100, "y": 0, "w": 80, "h": 388, "action": "trigger", "cutscene_id": 200},
+        {"x": 40, "y": 0, "w": 200, "h": 304, "action": "trigger", "cutscene_id": 201},
+        {"x": 40, "y": 0, "w": 200, "h": 188, "action": "trigger", "cutscene_id": 202},
+        {"x": 65, "y": 0, "w": 150, "h": 120, "action": "trigger", "cutscene_id": 203},
         {"x": 0, "y": 0, "w": 20, "h": 401},
         {"x": 260, "y": 0, "w": 20, "h": 401},
         {"x": 20, "y": 0, "w": 107, "h": 100},

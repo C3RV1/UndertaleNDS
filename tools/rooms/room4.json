@@ -1,0 +1,21 @@
+{
+  "parts": [
+    {
+      "conditions": [],
+      "room_bg": "rooms/room4.cbgf",
+      "music_path": "",
+      "exits": [
+        {
+          "exit_type": "side",
+          "room_id": 3,
+          "spawn_x": 98,
+          "spawn_y": 56,
+          "side": "down"
+        }
+      ],
+      "textures": [],
+      "sprites": [],
+      "colliders": []
+    }
+  ]
+}

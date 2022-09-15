@@ -139,7 +139,7 @@ class RoomSprite:
         res.y = dct["y"]
         res.layer = dct.get("layer", 1)
         res.animation = dct["animation"]
-        res.can_interact = dct["can_interact"]
+        res.can_interact = dct.get("can_interact", False)
         if res.can_interact:
             res.interact_action = dct["interact_action"]
             if res.interact_action == 1:
