@@ -58,12 +58,12 @@ namespace Engine {
         if (BGM::shouldClose) {
             BGM::stopWAV();
         }
-        main3dSpr.draw();
-        // main3dSpr.updateTextures();  // Don't update textures while rendering
-        glFlush(0);
         swiWaitForVBlank();
+        // Render post v-blank
         OAMManagerSub.draw();  // Update oam in v-blank
-        main3dSpr.updateTextures();  // Don't update textures while rendering
+        main3dSpr.draw();
+        main3dSpr.updateTextures();  // Update textures in v-blank
+        glFlush(0);
         mmStreamUpdate();
         scanKeys();
     }
