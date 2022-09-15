@@ -37,7 +37,7 @@ struct ROOMSprite {
     uint16_t x = 0, y = 0, layer = 0;
     char* animation = nullptr;
     bool canInteract = false;
-    uint8_t interactAction = 0;  // 0 - save, 1 - cutscene
+    uint8_t interactAction = 0;  // 0 - none, 1 - cutscene
     uint16_t cutsceneId = 0;  // only when interactAction == 1
 };
 

@@ -17,6 +17,9 @@ void ManagedSprite::load(ROOMSprite *sprData, uint8_t textureCount,
     spriteManager.setSpriteAnim(animationId);
 
     spriteManager.setShown(true);
+
+    interactAction = sprData->interactAction;
+    cutsceneId = sprData->cutsceneId;
 }
 
 void ManagedSprite::spawn(uint8_t textureId, int32_t x, int32_t y, int32_t layer,

@@ -24,6 +24,9 @@ public:
 private:
     Engine::Texture* texture = nullptr;
     int animationId = -1;
+    
+    uint8_t interactAction = 0;
+    uint16_t cutsceneId = 0;
 };
 
 #endif //UNDERTALE_MANAGEDSPRITE_HPP

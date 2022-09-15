@@ -204,8 +204,8 @@ void runBattle(FILE* stream) {
 
     lcdMainOnTop();
 
-    globalRoom->pop();
     globalInGameMenu.load();
+    globalRoom->pop();
 
     if (globalCutscene != nullptr) {
         globalCutscene->runCommands(LOAD_ROOM);

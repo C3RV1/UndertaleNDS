@@ -292,14 +292,15 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             break;
         case CMD_START_BATTLE: {
             nocashMessage("CMD_START_BATTLE");
-            runBattle(commandStream);
+            if (callingLocation == ROOM || callingLocation == LOAD_ROOM)
+                runBattle(commandStream);
             return true;
         }
         case CMD_EXIT_BATTLE: {
             nocashMessage("CMD_EXIT_BATTLE");
             if (globalBattle != nullptr)
                 globalBattle->running = false;
-            break;
+            return true;
         }
         case CMD_BATTLE_ATTACK: {
             nocashMessage("CMD_BATTLE_ATTACK");
@@ -410,4 +411,9 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             return true;
     }
     return false;
+}
+
+Cutscene::~Cutscene() {
+    if (commandStream != nullptr)
+        fclose(commandStream);
 }

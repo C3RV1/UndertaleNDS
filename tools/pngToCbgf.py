@@ -110,7 +110,7 @@ def compileBackgrounds():
     for root, _, files in os.walk("bg"):
         for file in files:
             path = os.path.join(root, file)
-            if file.startswith("_"):
+            if file.startswith("_") or not file.endswith(".png"):
                 continue
             path_dest = os.path.splitext(os.path.join("../nitrofs", path))[0] + ".cbgf"
             if os.path.isfile(path_dest):

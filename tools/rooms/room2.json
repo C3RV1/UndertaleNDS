@@ -33,7 +33,7 @@
         {
           "texture_id": 0,
           "x": 127,
-          "y": 336,
+          "y": 326,
           "animation": "downIdle",
           "can_interact": false
         }

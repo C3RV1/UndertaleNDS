@@ -36,15 +36,16 @@ int main() {
 
     Engine::textMain.clear();
     Engine::textSub.clear();
-    globalInGameMenu.load();
-    globalInGameMenu.show();
 
     globalPlayer = new Player();
     globalPlayer->spriteManager.setShown(true);
     globalPlayer->spriteManager.wx = 144 << 8;
     globalPlayer->spriteManager.wy = 121 << 8;
+    globalInGameMenu.load();
+    globalInGameMenu.show();
     globalRoom = new Room(0);
     globalCamera.updatePosition(true);
+    globalSave.flags[0] = 1;
 
     for (;;) {
         Engine::tick();

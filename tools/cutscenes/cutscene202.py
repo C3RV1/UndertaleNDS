@@ -7,7 +7,10 @@ else:
 
 def cutscene(c: Cutscene):
     c.set_animation(Target(TargetType.SPRITE, 0), "upMove")
-    c.set_pos_in_frames(Target(TargetType.SPRITE, 0), 127, 62, 120)
-    c.set_collider_enabled(2, False)
-    c.wait_frames(120)
+    c.move_in_frames(Target(TargetType.SPRITE, 0), -20, -25, 20)
+    c.wait_frames(20)
+    c.set_animation(Target(TargetType.SPRITE, 0), 'leftMove')
+    c.set_pos_in_frames(Target(TargetType.SPRITE, 0), 127, 62, 60)
+    c.wait_frames(60)
     c.set_animation(Target(TargetType.SPRITE, 0), "downIdle")
+    c.set_collider_enabled(2, False)

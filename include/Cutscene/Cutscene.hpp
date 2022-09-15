@@ -26,6 +26,7 @@ public:
     bool runCommands(CutsceneLocation callingLocation);
     bool runCommand(CutsceneLocation callingLocation);
     uint16_t cutsceneId;
+    ~Cutscene();
 private:
     Waiting waiting;
     bool flag = false;
