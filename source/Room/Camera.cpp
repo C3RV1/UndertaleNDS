@@ -28,17 +28,17 @@ void Camera::updatePosition(bool roomChange) {
     if (!roomChange) {
         // 3D engine lags behind 1 frame for some reason
         if (prevX != pos.wx || prevY != pos.wy) {
-            REG_BG3X = mod(pos.wx, 512 << 8);
-            REG_BG3Y = mod(pos.wy, 512 << 8);
+            Engine::bg3ScrollX = mod(pos.wx, 512 << 8);
+            Engine::bg3ScrollY = mod(pos.wy, 512 << 8);
         }
     } else {
-        REG_BG3X = mod(pos.wx, 512 << 8);
-        REG_BG3Y = mod(pos.wy, 512 << 8);
+        Engine::bg3ScrollX = mod(pos.wx, 512 << 8);
+        Engine::bg3ScrollY = mod(pos.wy, 512 << 8);
     }
-    REG_BG3PA = (1 << 16) / pos.wscale_x;
-    REG_BG3PB = 0;
-    REG_BG3PC = 0;
-    REG_BG3PD = (1 << 16) / pos.wscale_y;
+    Engine::bg3Pa = (1 << 16) / pos.wscale_x;
+    Engine::bg3Pb = 0;
+    Engine::bg3Pc = 0;
+    Engine::bg3Pd = (1 << 16) / pos.wscale_y;
     int xTilePost = (pos.wx >> 8) / 8, yTilePost = (pos.wy >> 8) / 8;
     if ((xTilePrev != xTilePost || yTilePrev != yTilePost) && !roomChange) {
         int incrementX = xTilePost > xTilePrev ? 1 : -1;

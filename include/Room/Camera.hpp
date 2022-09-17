@@ -7,6 +7,7 @@
 
 class Camera;
 
+#include "Engine/Engine.hpp"
 #include "Room.hpp"
 #include "Player.hpp"
 #include "math.hpp"

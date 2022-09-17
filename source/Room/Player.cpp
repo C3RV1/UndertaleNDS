@@ -60,6 +60,14 @@ void Player::update() {
             setAnim = false;
     }
 
+    if (moveDirection != 0) {
+        char buffer[100];
+        sprintf(buffer, "fraction part x: %02X y: %02X",
+                spriteManager.wx & ((1 << 8) - 1),
+                spriteManager.wy & ((1 << 8) - 1));
+        nocashMessage(buffer);
+    }
+
     if (prevX != spriteManager.wx || prevY != spriteManager.wy) {
         check_exits();
         int x2 = spriteManager.wx, y2 = spriteManager.wy;

@@ -35,6 +35,9 @@ namespace Engine {
     void clearMain();
     void clearSub();
     void clearEngine(vu16* bg3Reg, u16* tileRam, u16* mapRam);
+
+    extern int32_t bg3ScrollX, bg3ScrollY;
+    extern int16_t bg3Pa, bg3Pb, bg3Pc, bg3Pd;
 }
 
 #endif

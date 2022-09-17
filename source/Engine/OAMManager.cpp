@@ -1,6 +1,8 @@
 #include "Engine/OAMManager.hpp"
 
 namespace Engine {
+    uint8_t tmpRam[64*64];
+
     int OAMManager::loadSprite(Sprite& res) {
         if (!res.loaded)
             return -1;
@@ -87,6 +89,7 @@ namespace Engine {
 
         res.memory.allocated = AllocatedOAM;
         res.memory.loadedFrame = -1;
+        res.memory.loadedOAM = false;
         return 0;
     }
 
@@ -101,15 +104,10 @@ namespace Engine {
         uint8_t oamW = (tileWidth + 7) / 8;
         uint8_t oamH = (tileHeight + 7) / 8;
 
-        auto* tmpRam = new uint8_t[64*64];
-
         // Copy tile into memory (replacing colors)
         for (int oamY = 0; oamY < oamH; oamY++) {
             for (int oamX = 0; oamX < oamW; oamX++) {
                 int oamId = spr.memory.oamEntries[oamY * oamW + oamX];
-                auto* oamStart = (uint16_t*) ((uint8_t*) oamRam + oamId * 8);
-                oamStart[0] += 64 * oamY;
-                oamStart[1] += 64 * oamX;
                 OAMEntry* oamEntry = &oamEntries[oamId];
                 uint8_t* tileRamStart = (uint8_t*) tileRam + oamEntry->tileStart * 8 * 8;
                 uint8_t neededTiles = oamEntry->tileWidth * oamEntry->tileHeight;
@@ -147,7 +145,6 @@ namespace Engine {
                 dmaCopyWords(3, tmpRam, tileRamStart, 8 * 8 * neededTiles);
             }
         }
-        delete[] tmpRam;
         return 0;
     }
 
@@ -216,59 +213,6 @@ namespace Engine {
         }
 
         oamEntry->tileStart = start;
-
-        auto* oamStart = (uint16_t*) ((uint8_t*) oamRam + oamId * 8);
-        oamStart[0] = 1 << 13; // set 256 color mode
-        oamStart[1] = 0;
-        oamStart[2] = start + (0 << 10);  // set start tile and priority 0
-        // set size mode
-        if (oamEntry->tileWidth == oamEntry->tileHeight) {
-            switch (oamEntry->tileWidth) {
-                case 2:
-                    oamStart[1] |= 1 << 14;
-                    break;
-                case 4:
-                    oamStart[1] |= 2 << 14;
-                    break;
-                case 8:
-                    oamStart[1] |= 3 << 14;
-                    break;
-                default:
-                    break;
-            }
-        }
-        else if (oamEntry->tileWidth > oamEntry->tileHeight) {
-            oamStart[0] |= 1 << 14;
-            switch (oamEntry->tileWidth) {
-                case 4:
-                    if (oamEntry->tileHeight == 1)
-                        oamStart[1] |= 1 << 14;
-                    else
-                        oamStart[1] |= 2 << 14;
-                    break;
-                case 8:
-                    oamStart[1] |= 3 << 14;
-                    break;
-                default:
-                    break;
-            }
-        }
-        else {
-            oamStart[0] |= 2 << 14;
-            switch (oamEntry->tileHeight) {
-                case 4:
-                    if (oamEntry->tileWidth == 1)
-                        oamStart[1] |= 1 << 14;
-                    else
-                        oamStart[1] |= 2 << 14;
-                    break;
-                case 8:
-                    oamStart[1] |= 3 << 14;
-                    break;
-                default:
-                    break;
-            }
-        }
         // dumpOamState();
 
         return oamId;
@@ -413,7 +357,69 @@ namespace Engine {
             if (spr->memory.loadedFrame == -1)
                 continue;
 
+            if (!spr->memory.loadedOAM)
+                setOAMState(*spr);
+
             setSpritePosAndScale(*spr);
+        }
+    }
+
+    void OAMManager::setOAMState(Engine::Sprite &spr) {
+        for (int i = 0; i < spr.memory.oamEntryCount; i++) {
+            uint8_t oamId = spr.memory.oamEntries[i];
+            OAMEntry* oamEntry = &oamEntries[oamId];
+            auto* oamStart = (uint16_t*) ((uint8_t*) oamRam + oamId * 8);
+            oamStart[0] = 1 << 13; // set 256 color mode
+            oamStart[1] = 0;
+            oamStart[2] = oamEntry->tileStart + (0 << 10);  // set start tile and priority 0
+            // set size mode
+            if (oamEntry->tileWidth == oamEntry->tileHeight) {
+                switch (oamEntry->tileWidth) {
+                    case 2:
+                        oamStart[1] |= 1 << 14;
+                        break;
+                    case 4:
+                        oamStart[1] |= 2 << 14;
+                        break;
+                    case 8:
+                        oamStart[1] |= 3 << 14;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else if (oamEntry->tileWidth > oamEntry->tileHeight) {
+                oamStart[0] |= 1 << 14;
+                switch (oamEntry->tileWidth) {
+                    case 4:
+                        if (oamEntry->tileHeight == 1)
+                            oamStart[1] |= 1 << 14;
+                        else
+                            oamStart[1] |= 2 << 14;
+                        break;
+                    case 8:
+                        oamStart[1] |= 3 << 14;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else {
+                oamStart[0] |= 2 << 14;
+                switch (oamEntry->tileHeight) {
+                    case 4:
+                        if (oamEntry->tileWidth == 1)
+                            oamStart[1] |= 1 << 14;
+                        else
+                            oamStart[1] |= 2 << 14;
+                        break;
+                    case 8:
+                        oamStart[1] |= 3 << 14;
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
     }
 

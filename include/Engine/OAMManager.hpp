@@ -44,6 +44,7 @@ namespace Engine {
     private:
         void setSpritePosAndScale(Sprite& spr);
         int loadSpriteFrame(Sprite& spr, int frame);
+        void setOAMState(Sprite& spr);
         void allocateOamScaleEntry(Sprite& spr);
         void freeOamScaleEntry(Sprite& spr);
 
@@ -63,6 +64,7 @@ namespace Engine {
     };
 
     extern OAMManager OAMManagerSub;
+    extern uint8_t tmpRam[64*64];
 }
 
 #endif //UNDERTALE_OAMMANAGER_HPP

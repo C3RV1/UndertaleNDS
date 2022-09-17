@@ -1,6 +1,9 @@
 #include "Engine/Engine.hpp"
 
 namespace Engine {
+    int32_t bg3ScrollX = 0, bg3ScrollY = 0;
+    int16_t bg3Pa = 0, bg3Pb = 0, bg3Pc = 0, bg3Pd = 0;
+
     int init() {
         powerOn(POWER_ALL);
         if (!nitroFSInit(nullptr)) {
@@ -61,8 +64,16 @@ namespace Engine {
         main3dSpr.draw();
         glFlush(0);
         swiWaitForVBlank();
+        REG_BG3X = bg3ScrollX;
+        REG_BG3Y = bg3ScrollY;
+        REG_BG3PA = bg3Pa;
+        REG_BG3PB = bg3Pb;
+        REG_BG3PC = bg3Pc;
+        REG_BG3PD = bg3Pd;
         // Render post v-blank
+        REG_DISPCNT_SUB |= (1 << 7) | (1 << 5);
         OAMManagerSub.draw();  // Update oam in v-blank
+        REG_DISPCNT_SUB &= ~(1 << 7);
         main3dSpr.updateTextures();  // Update textures in v-blank
         mmStreamUpdate();
         scanKeys();
