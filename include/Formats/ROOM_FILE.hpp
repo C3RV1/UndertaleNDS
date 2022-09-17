@@ -11,7 +11,7 @@ struct ROOMHeader {
     char header[4] = {'R', 'O', 'O', 'M'};
     uint32_t fileSize = 0;
 
-    uint32_t version = 4;
+    uint32_t version = 5;
 };
 
 struct ROOMExit {
@@ -78,6 +78,7 @@ struct ROOMPart {
 
 struct ROOMFile {
     ROOMHeader header;
+    uint16_t spawnX = 0, spawnY = 0;
     uint8_t partCount = 0;
     ROOMPart* parts = nullptr;
 };

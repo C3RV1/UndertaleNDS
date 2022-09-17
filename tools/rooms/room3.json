@@ -1,4 +1,5 @@
 {
+  "spawn_x": 120, "spawn_y": 210,
   "parts": [
     {
       "comment": "toriel show",
@@ -128,13 +129,13 @@
           "texture_id": 0,
           "x": 151,
           "y": 103,
-          "animation": "not_pressed"
+          "animation": "pressed"
         },
         {
           "texture_id": 0,
           "x": 191,
           "y": 103,
-          "animation": "not_pressed"
+          "animation": "pressed"
         },
         {
           "texture_id": 0,
@@ -146,13 +147,13 @@
           "texture_id": 0,
           "x": 151,
           "y": 143,
-          "animation": "not_pressed"
+          "animation": "pressed"
         },
         {
           "texture_id": 0,
           "x": 191,
           "y": 143,
-          "animation": "not_pressed"
+          "animation": "pressed"
         },
         {
           "texture_id": 0,

@@ -42,6 +42,7 @@ public:
     ManagedSprite** sprites = nullptr;
 
     ROOMPart roomData;
+    uint16_t spawnX = 0, spawnY = 0;
 
     ROOMExit* exitTop = nullptr;
     ROOMExit* exitBtm = nullptr;

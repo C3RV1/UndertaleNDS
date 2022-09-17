@@ -85,10 +85,12 @@ int Room::loadRoom(FILE *f) {
     }
 
     fread(&roomFile.header.version, 4, 1, f);
-    if (roomFile.header.version != 4) {
+    if (roomFile.header.version != 5) {
         return 3;
     }
 
+    fread(&spawnX, 2, 1, f);
+    fread(&spawnY, 2, 1, f);
     fread(&roomFile.partCount, 1, 1, f);
 
     bool valid = false;

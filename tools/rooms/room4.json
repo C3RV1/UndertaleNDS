@@ -1,9 +1,10 @@
 {
+  "spawn_x": 99, "spawn_y": 207,
   "parts": [
     {
       "conditions": [],
       "room_bg": "rooms/room4.cbgf",
-      "music_path": "",
+      "music_path": "mus_ruins.wav",
       "exits": [
         {
           "exit_type": "side",

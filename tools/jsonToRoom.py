@@ -11,7 +11,7 @@ class RoomHeader:
     def __init__(self):
         self.header = b"ROOM"
         self.file_size_pos = 0
-        self.version = 4
+        self.version = 5
 
     def write(self, wtr: binary.BinaryWriter):
         wtr.write(self.header)
@@ -290,10 +290,14 @@ class RoomPart:
 class RoomFile:
     def __init__(self):
         self.header = RoomHeader()
+        self.spawn_x = 0
+        self.spawn_y = 0
         self.parts: List[RoomPart] = []
 
     def write(self, wtr: binary.BinaryWriter):
         self.header.write(wtr)
+        wtr.write_uint16(self.spawn_x)
+        wtr.write_uint16(self.spawn_y)
         wtr.write_uint8(len(self.parts))
         for part in self.parts:
             part.write(wtr)
@@ -302,6 +306,8 @@ class RoomFile:
     @classmethod
     def from_dict(cls, dct):
         res = cls()
+        res.spawn_x = dct.get("spawn_x")
+        res.spawn_y = dct.get("spawn_y")
         for part in dct["parts"]:
             res.parts.append(RoomPart.from_dict(part))
         return res

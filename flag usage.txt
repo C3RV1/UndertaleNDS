@@ -2,3 +2,4 @@
     0 - hasn't met flowey
     1 - following toriel to room 2
     2 - following toriel to room 3
+    3 - following toriel to room 4

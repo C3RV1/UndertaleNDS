@@ -37,15 +37,20 @@ int main() {
     Engine::textMain.clear();
     Engine::textSub.clear();
 
+    uint16_t roomSpawn = 0;
+
+    // DEBUG
+    roomSpawn = 2;
+    globalSave.flags[0] = 1;
+
     globalPlayer = new Player();
     globalPlayer->spriteManager.setShown(true);
-    globalPlayer->spriteManager.wx = 144 << 8;
-    globalPlayer->spriteManager.wy = 121 << 8;
     globalInGameMenu.load();
     globalInGameMenu.show();
-    globalRoom = new Room(0);
+    globalRoom = new Room(roomSpawn);
     globalCamera.updatePosition(true);
-    globalSave.flags[0] = 1;
+    globalPlayer->spriteManager.wx = globalRoom->spawnX << 8;
+    globalPlayer->spriteManager.wy = globalRoom->spawnY << 8;
 
     for (;;) {
         Engine::tick();
