@@ -421,6 +421,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
                         sprite->cutsceneId = cutsceneId_;
                 }
             }
+            break;
         }
         default:
             sprintf(buffer, "Error cmd %d unknown pos: %ld", cmd, ftell(commandStream));
