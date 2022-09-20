@@ -9,10 +9,10 @@ namespace Engine {
         if (res.memory.allocated != NoAlloc)
             return -2;
 
-        res.memory.paletteColors = new uint8_t[res.sprite->getColorCount()];
-        uint16_t* colors = res.sprite->getColors();
+        res.memory.paletteColors = new uint8_t[res.texture->getColorCount()];
+        uint16_t* colors = res.texture->getColors();
 
-        for (int i = 0; i < res.sprite->getColorCount(); i++) {
+        for (int i = 0; i < res.texture->getColorCount(); i++) {
             int result = -1;
             bool foundColor = false;
 
@@ -37,7 +37,7 @@ namespace Engine {
 
         // Reserve oam tiles
         uint8_t tileWidth, tileHeight;
-        res.sprite->getSizeTiles(tileWidth, tileHeight);
+        res.texture->getSizeTiles(tileWidth, tileHeight);
         uint8_t oamW = (tileWidth + 7) / 8;
         uint8_t oamH = (tileHeight + 7) / 8;
         res.memory.oamEntryCount = oamW * oamH;
@@ -96,11 +96,11 @@ namespace Engine {
     int OAMManager::loadSpriteFrame(Engine::Sprite &spr, int frame) {
         if (spr.memory.loadedFrame == frame)
             return -1;
-        if (frame >= spr.sprite->getFrameCount() || frame < 0)
+        if (frame >= spr.texture->getFrameCount() || frame < 0)
             return -2;
         spr.memory.loadedFrame = frame;
         uint8_t tileWidth, tileHeight;
-        spr.sprite->getSizeTiles(tileWidth, tileHeight);
+        spr.texture->getSizeTiles(tileWidth, tileHeight);
         uint8_t oamW = (tileWidth + 7) / 8;
         uint8_t oamH = (tileHeight + 7) / 8;
 
@@ -131,7 +131,7 @@ namespace Engine {
                             for (int pixelX = 0; pixelX < 8; pixelX++) {
                                 uint32_t resultOffset = (tileY * oamEntry->tileWidth + tileX) * 8 * 8 + pixelY * 8 + pixelX;
                                 uint32_t tilesOffset = tileOffset + pixelY * 8 + pixelX;
-                                uint8_t pixel = spr.sprite->getTiles()[tilesOffset];
+                                uint8_t pixel = spr.texture->getTiles()[tilesOffset];
                                 if (pixel == 0) {
                                     tmpRam[resultOffset] = 0;
                                     continue;
@@ -315,7 +315,7 @@ namespace Engine {
         if (sprIdx == -1)
             return;
 
-        for (int colorIdx = 0; colorIdx < spr.sprite->getColorCount(); colorIdx++) {
+        for (int colorIdx = 0; colorIdx < spr.texture->getColorCount(); colorIdx++) {
             uint8_t paletteColor = spr.memory.paletteColors[colorIdx];
             paletteRefCounts[paletteColor - 1]--;
         }
@@ -425,7 +425,7 @@ namespace Engine {
 
     void OAMManager::setSpritePosAndScale(Engine::Sprite &spr) {
         uint8_t tileWidth, tileHeight;
-        spr.sprite->getSizeTiles(tileWidth, tileHeight);
+        spr.texture->getSizeTiles(tileWidth, tileHeight);
         uint8_t oamW = (tileWidth + 7) / 8;
         uint8_t oamH = (tileHeight + 7) / 8;
         for (int oamY = 0; oamY < oamH; oamY++) {

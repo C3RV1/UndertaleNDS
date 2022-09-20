@@ -20,8 +20,18 @@ namespace Engine {
         uint8_t getAnimCount() const { return animationCount; }
         CSPRAnimation* getAnims() const { return animations;  }
         void getSizeTiles(uint8_t& tileWidth_, uint8_t& tileHeight_) const {
-            tileWidth_ = tileWidth;
-            tileHeight_ = tileHeight;
+            tileWidth_ = (width + 7) / 8;
+            tileHeight_ = (height + 7) / 8;
+        }
+        uint16_t getWidth() const {
+            return width;
+        }
+        uint16_t getHeight() const {
+            return height;
+        }
+        void getSize(uint16_t& width_, uint16_t& height_) {
+            width_ = width;
+            height_ = height;
         }
         uint8_t* getTiles() const { return tiles; }
         void free_();
@@ -30,7 +40,7 @@ namespace Engine {
         bool loaded = false;
         uint8_t colorCount = 0;
         uint16_t* colors = nullptr;
-        uint8_t tileWidth = 0, tileHeight = 0; // each tile is 8x8 (max of 64x64)
+        uint16_t width = 0, height = 0;
         uint8_t frameCount = 0;
         uint8_t animationCount = 0;
         CSPRAnimation* animations = nullptr;

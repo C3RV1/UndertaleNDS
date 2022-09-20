@@ -403,6 +403,25 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             }
             break;
         }
+        case CMD_SET_INTERACT_ACTION: {
+            nocashMessage("CMD_SET_INTERACT_ACTION");
+            uint8_t interactAction;
+            uint16_t cutsceneId_;
+            fread(&targetType, 1, 1, commandStream);
+            if (targetType == TargetType::SPRITE)
+                fread(&targetId, 1, 1, commandStream);
+            fread(&interactAction, 1, 1, commandStream);
+            if (interactAction == 1)
+                fread(&cutsceneId_, 2, 1, commandStream);
+            if (callingLocation == ROOM || callingLocation == LOAD_ROOM) {
+                if (targetType == TargetType::SPRITE && targetId < globalRoom->spriteCount) {
+                    ManagedSprite* sprite = globalRoom->sprites[targetId];
+                    sprite->interactAction = interactAction;
+                    if (interactAction == 1)
+                        sprite->cutsceneId = cutsceneId_;
+                }
+            }
+        }
         default:
             sprintf(buffer, "Error cmd %d unknown pos: %ld", cmd, ftell(commandStream));
             nocashMessage(buffer);

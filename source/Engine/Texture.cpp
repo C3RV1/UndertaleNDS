@@ -24,12 +24,13 @@ namespace Engine {
         }
 
         fread(&version, 4, 1, f);
-        if (version != 3) {
+        if (version != 4) {
             return 3;
         }
 
-        fread(&tileWidth, 1, 1, f);
-        fread(&tileHeight, 1, 1, f);
+        fread(&width, 2, 1, f);
+        fread(&height, 2, 1, f);
+        uint16_t tileWidth = (width + 7) / 8, tileHeight = (height + 7) / 8;
 
         fread(&colorCount, 1, 1, f);
         colors = new uint16_t[colorCount];

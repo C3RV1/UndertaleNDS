@@ -39,6 +39,7 @@ enum CutsceneCommands {
     CMD_CMP_FLAG = 30,
     CMD_SET_COLLIDER_ENABLED = 31,
     CMD_UNLOAD_TEXTURE = 32,
+    CMD_SET_INTERACT_ACTION = 33,
     CMD_DEBUG = 0xff
 };
 

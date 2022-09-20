@@ -11,7 +11,7 @@ class RoomHeader:
     def __init__(self):
         self.header = b"ROOM"
         self.file_size_pos = 0
-        self.version = 5
+        self.version = 6
 
     def write(self, wtr: binary.BinaryWriter):
         wtr.write(self.header)
@@ -116,7 +116,6 @@ class RoomSprite:
         self.y = 0
         self.layer = 0
         self.animation = ""
-        self.can_interact = False
         self.interact_action = 0
         self.cutscene_id = 0
 
@@ -126,7 +125,6 @@ class RoomSprite:
         wtr.write_uint16(self.y)
         wtr.write_uint16(self.layer)
         wtr.write_string(self.animation, encoding="ascii")
-        wtr.write_bool(self.can_interact)
         wtr.write_uint8(self.interact_action)
         if self.interact_action == 1:
             wtr.write_uint16(self.cutscene_id)
@@ -139,11 +137,12 @@ class RoomSprite:
         res.y = dct["y"]
         res.layer = dct.get("layer", 1)
         res.animation = dct["animation"]
-        res.can_interact = dct.get("can_interact", False)
-        if res.can_interact:
-            res.interact_action = dct["interact_action"]
-            if res.interact_action == 1:
-                res.cutscene_id = dct["cutscene_id"]
+        res.interact_action = {
+            "none": 0,
+            "cutscene": 1
+        }[dct.get("interact_action", "none")]
+        if res.interact_action == 1:
+            res.cutscene_id = dct["cutscene_id"]
         return res
 
 

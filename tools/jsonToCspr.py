@@ -67,9 +67,9 @@ def convert(input_file, output_file):
     wtr.write(b"CSPR")
     file_size_pos = wtr.tell()
     wtr.write_uint32(0)
-    wtr.write_uint32(3)  # Version
-    wtr.write_uint8(tile_w)
-    wtr.write_uint8(tile_h)
+    wtr.write_uint32(4)  # Version
+    wtr.write_uint16(width)
+    wtr.write_uint16(height)
 
     wtr.write_uint8(len(palette))
     wtr.write(palette.tobytes())

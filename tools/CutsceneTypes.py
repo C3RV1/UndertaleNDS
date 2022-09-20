@@ -41,7 +41,8 @@ class CutsceneCommands(enum.IntEnum):
     SET_FLAG = 29  # Done
     CMP_FLAG = 30  # Done
     SET_COLLIDER_ENABLED = 31  # Done
-    UNLOAD_TEXTURE = 32
+    UNLOAD_TEXTURE = 32  # Done
+    SET_INTERACT_ACTION = 33
     DEBUG = 0xff  # Done
 
 
@@ -221,6 +222,17 @@ class Cutscene:
         self.wtr.write_int32(to_fixed_point(y))
         self.wtr.write_uint16(frames)
         return self.instructions_address[-1]
+
+    def set_interact_action(self, target: Target, interact_action, cutscene_id=0):
+        self.write_header(CutsceneCommands.SET_INTERACT_ACTION)
+        target.write(self.wtr)
+        interact_action = {
+            "none": 0,
+            "cutscene": 1
+        }[interact_action]
+        self.wtr.write_uint8(interact_action)
+        if interact_action == 1:
+            self.wtr.write_uint16(cutscene_id)
 
     # == DIALOGUE ==
     def start_dialogue(self, dialogue_text_id: int,

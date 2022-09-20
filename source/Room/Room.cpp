@@ -85,7 +85,7 @@ int Room::loadRoom(FILE *f) {
     }
 
     fread(&roomFile.header.version, 4, 1, f);
-    if (roomFile.header.version != 5) {
+    if (roomFile.header.version != 6) {
         return 3;
     }
 
@@ -213,7 +213,6 @@ int Room::loadRoom(FILE *f) {
             return 5;
         roomSprites[i].animation = new char[animLen + 1];
         fread(roomSprites[i].animation, animLen + 1, 1, f);
-        fread(&roomSprites[i].canInteract, 1, 1, f);
         fread(&roomSprites[i].interactAction, 1, 1, f);
         if (roomSprites[i].interactAction == 1) {
             fread(&roomSprites[i].cutsceneId, 2, 1, f);

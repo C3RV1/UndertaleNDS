@@ -51,7 +51,7 @@ namespace Engine {
         void pop();
 
         bool loaded = false;
-        Texture* sprite = nullptr;
+        Texture* texture = nullptr;
 
         int32_t x = 0, y = 0;  // 1 bit sign, 22 bit integer, 8 bit fraction, screen
         int32_t wx = 0, wy = 0;  // 1 bit sign, 22 bit integer, 8 bit fraction, world

@@ -27,6 +27,7 @@ public:
     Player();
     void update();
     bool check_collisions() const;
+    void check_interact() const;
     void check_exits();
     void draw();
 

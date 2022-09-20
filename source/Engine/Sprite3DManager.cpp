@@ -28,12 +28,12 @@ namespace Engine {
         vramSetBankE(VRAM_E_LCD);
         char buffer[100];
         u16* paletteBase = (u16*) ((u8*) VRAM_E + (256 * res.memory.paletteIdx + 1) * 2);
-        dmaCopyHalfWords(3, res.sprite->getColors(), paletteBase, res.sprite->getColorCount() * 2);
+        dmaCopyHalfWords(3, res.texture->getColors(), paletteBase, res.texture->getColorCount() * 2);
         vramSetBankE(VRAM_E_TEX_PALETTE);
 
         res.memory.allocX = 8, res.memory.allocY = 8;
         uint8_t tileWidth, tileHeight;
-        res.sprite->getSizeTiles(tileWidth, tileHeight);
+        res.texture->getSizeTiles(tileWidth, tileHeight);
         while (res.memory.allocX < tileWidth * 8)
             res.memory.allocX <<= 1;
         while (res.memory.allocY < tileHeight * 8)
@@ -182,14 +182,14 @@ namespace Engine {
     int Sprite3DManager::loadSpriteFrame(Engine::Sprite &spr, int frame) {
         if (spr.memory.loadedFrame == frame)
             return -1;
-        if (frame >= spr.sprite->getFrameCount() || frame < 0)
+        if (frame >= spr.texture->getFrameCount() || frame < 0)
             return -2;
         spr.memory.loadedFrame = frame;
 
         uint8_t *tileRamStart = (uint8_t *) VRAM_B + spr.memory.tileStart;
 
         uint8_t tileWidth, tileHeight;
-        spr.sprite->getSizeTiles(tileWidth, tileHeight);
+        spr.texture->getSizeTiles(tileWidth, tileHeight);
         for (int y = 0; y < tileHeight * 8; y++) {
             for (int x = 0; x < tileWidth * 8; x++) {
                 int tileX = x / 8;
@@ -200,7 +200,7 @@ namespace Engine {
                 tileOffset *= 64;
                 tileOffset += (y % 8) * 8 + (x % 8);
                 *(uint16_t*)(tileRamStart + y * spr.memory.allocX + x) &= ~(0xFF << (8 * (x & 1)));
-                *(uint16_t*)(tileRamStart + y * spr.memory.allocX + x) |= (spr.sprite->getTiles()[tileOffset] & 0xFF) << (8 * (x & 1));
+                *(uint16_t*)(tileRamStart + y * spr.memory.allocX + x) |= (spr.texture->getTiles()[tileOffset] & 0xFF) << (8 * (x & 1));
             }
         }
         return 0;
@@ -230,7 +230,7 @@ namespace Engine {
             MATRIX_CONTROL = GL_MODELVIEW;
             MATRIX_IDENTITY = 0;
             uint8_t tileWidth, tileHeight;
-            spr->sprite->getSizeTiles(tileWidth, tileHeight);
+            spr->texture->getSizeTiles(tileWidth, tileHeight);
             uint32_t x = ((spr->x - (1 << 4)) >> 8) + 1;
             uint32_t x2 = x + ((tileWidth * 8 * spr->scale_x) >> 8);
             uint32_t w = tileWidth * 8;

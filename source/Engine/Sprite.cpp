@@ -11,23 +11,24 @@ namespace Engine {
     void Sprite::setSpriteAnim(int animId) {
         if (!loaded)
             return;
-        if (animId >= sprite->getAnimCount())
+        if (animId >= texture->getAnimCount())
             return;
         if (currentAnimation == animId)
             return;
         currentAnimation = animId;
         currentAnimationFrame = 0;
-        currentAnimationTimer = sprite->getAnims()[animId].frames[0].duration;
-        currentFrame = sprite->getAnims()[animId].frames[0].frame;
+        currentAnimationTimer = texture->getAnims()[animId].frames[0].duration;
+        currentFrame = texture->getAnims()[animId].frames[0].frame;
     }
 
     void Sprite::loadTexture(Engine::Texture &sprite_) {
         if (!sprite_.getLoaded())
             return;
 
-        currentFrame = 0;
-        sprite = &sprite_;
+        texture = &sprite_;
         loaded = true;
+        currentFrame = 0;
+        currentAnimation = -1;
 
         int animId = nameToAnimId("gfx");  // default animation
         if (animId != -1)
@@ -35,8 +36,10 @@ namespace Engine {
     }
 
     void Sprite::tick() {
+        if (!loaded)
+            return;
         if (currentAnimation >= 0) {
-            CSPRAnimation* current = &sprite->getAnims()[currentAnimation];
+            CSPRAnimation* current = &texture->getAnims()[currentAnimation];
             if (current->frames[currentAnimationFrame].duration != 0) {
                 currentAnimationTimer--;
                 if (currentAnimationTimer == 0) {
@@ -51,7 +54,7 @@ namespace Engine {
         x = wx - cam_x;
         y = wy - cam_y;
         if (currentAnimation >= 0) {
-            CSPRAnimation* current = &sprite->getAnims()[currentAnimation];
+            CSPRAnimation* current = &texture->getAnims()[currentAnimation];
             CSPRAnimFrame* frameInfo = &current->frames[currentAnimationFrame];
             x += frameInfo->drawOffX << 8;
             y += frameInfo->drawOffY << 8;
@@ -88,8 +91,8 @@ namespace Engine {
     int Sprite::nameToAnimId(const char *animName) const {
         if (!loaded)
             return -1;
-        for (int i = 0; i < sprite->getAnimCount(); i++) {
-            if (strcmp(animName, sprite->getAnims()[i].name) == 0) {
+        for (int i = 0; i < texture->getAnimCount(); i++) {
+            if (strcmp(animName, texture->getAnims()[i].name) == 0) {
                 return i;
             }
         }

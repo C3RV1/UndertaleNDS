@@ -51,7 +51,10 @@ Dialogue::Dialogue(bool isRoom_, uint16_t textId, char *speaker, int32_t speaker
     textLen = ftell(textStream);
     fseek(textStream, 0, SEEK_SET);
     if (isRoom_) {
-        startingY = 192 / 2;
+        if (strlen(speaker) != 0)
+            startingY = 192 / 2;
+        else
+            startingY = 192 / 4;
         y = startingY;
     }
     else {
@@ -74,8 +77,10 @@ Dialogue::Dialogue(bool isRoom_, uint16_t textId, char *speaker, int32_t speaker
     }
 
     target = target_;
-    idleAnim2 = target_->nameToAnimId(idleAnim2Txt);
-    talkAnim2 = target_->nameToAnimId(talkAnim2Txt);
+    if (target_ != nullptr) {
+        idleAnim2 = target_->nameToAnimId(idleAnim2Txt);
+        talkAnim2 = target_->nameToAnimId(talkAnim2Txt);
+    }
 
     Engine::textSub.clear();
     Engine::textSub.reloadColors();

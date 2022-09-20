@@ -7,10 +7,10 @@ struct CSPRHeader {
     char header[4] = {'C', 'S', 'P', 'R'};
     uint32_t fileSize = 0;
 
-    uint32_t version = 3;
+    uint32_t version = 4;
 
-    uint8_t tileWidth = 0;
-    uint8_t tileHeight = 0;
+    uint16_t width = 0;
+    uint16_t height = 0;
 };
 
 struct CSPRColors {

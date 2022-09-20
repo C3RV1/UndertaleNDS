@@ -164,7 +164,7 @@ void Navigation::set_animation(uint8_t targetType, uint8_t targetId, char *animN
         nocashMessage("no target");
         return;
     }
-    if (spriteManager->sprite == nullptr) {
+    if (spriteManager->texture == nullptr) {
         nocashMessage("no sprite");
         return;
     }

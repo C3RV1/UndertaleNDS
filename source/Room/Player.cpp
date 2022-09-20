@@ -60,14 +60,6 @@ void Player::update() {
             setAnim = false;
     }
 
-    if (moveDirection != 0) {
-        char buffer[100];
-        sprintf(buffer, "fraction part x: %02X y: %02X",
-                spriteManager.wx & ((1 << 8) - 1),
-                spriteManager.wy & ((1 << 8) - 1));
-        nocashMessage(buffer);
-    }
-
     if (prevX != spriteManager.wx || prevY != spriteManager.wy) {
         check_exits();
         int x2 = spriteManager.wx, y2 = spriteManager.wy;
@@ -100,6 +92,10 @@ void Player::update() {
         }
     }
     spriteManager.setSpriteAnim(currentAnimation);
+
+    if (keysDown() & KEY_A) {
+        check_interact();
+    }
 }
 
 void Player::check_exits() {
@@ -146,6 +142,44 @@ void Player::check_exits() {
             loadNewRoom(rectExit->roomId,
                         rectExit->spawnX,
                         rectExit->spawnY);
+        }
+    }
+}
+
+void Player::check_interact() const {
+    int32_t x, y, w = 19, h = 9, x2, y2, w2, h2;
+    if (currentAnimation == upIdleId || currentAnimation == upMoveId) {
+        x = 0;
+        y = -9;
+        h = 19;
+    } else if (currentAnimation == downIdleId || currentAnimation == downMoveId) {
+        x = 0;
+        y = 29;
+    } else if (currentAnimation == rightIdleId || currentAnimation == rightMoveId) {
+        x = 19;
+        y = 29 - 9;
+    } else {
+        x = -19;
+        y = 29 - 9;
+    }
+    x += spriteManager.wx >> 8;
+    y += spriteManager.wy >> 8;
+    for (int i = 0; i < globalRoom->spriteCount; i++) {
+        ManagedSprite* sprite = globalRoom->sprites[i];
+        if (sprite->interactAction == 0)
+            continue;
+        x2 = sprite->spriteManager.wx >> 8;
+        y2 = sprite->spriteManager.wy >> 8;
+        if (sprite->spriteManager.texture == nullptr)
+            continue;
+        w2 = sprite->spriteManager.texture->getWidth();
+        h2 = sprite->spriteManager.texture->getHeight();
+        if (collidesRect(x, y, w, h, x2, y2, w2, h2)) {
+            if (sprite->interactAction == 1) {
+                if (sprite->cutsceneId != 0 && globalCutscene == nullptr)
+                    globalCutscene = new Cutscene(sprite->cutsceneId);
+                return;
+            }
         }
     }
 }

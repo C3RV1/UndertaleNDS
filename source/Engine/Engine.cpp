@@ -71,7 +71,8 @@ namespace Engine {
         REG_BG3PC = bg3Pc;
         REG_BG3PD = bg3Pd;
         // Render post v-blank
-        REG_DISPCNT_SUB |= (1 << 7) | (1 << 5);
+        // REG_DISPCNT_SUB |= (1 << 7) | (1 << 5);
+        REG_DISPCNT_SUB |= (1 << 7);
         OAMManagerSub.draw();  // Update oam in v-blank
         REG_DISPCNT_SUB &= ~(1 << 7);
         main3dSpr.updateTextures();  // Update textures in v-blank

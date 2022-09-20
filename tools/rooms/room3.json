@@ -29,7 +29,8 @@
       ],
       "textures": [
         "nitro:/spr/room_sprites/ground_btn_ruins.cspr",
-        "nitro:/spr/room_sprites/toriel.cspr"
+        "nitro:/spr/room_sprites/toriel.cspr",
+        "nitro:/spr/room_sprites/wall_panel_ruins.cspr"
       ],
       "sprites": [
         {
@@ -73,6 +74,14 @@
           "x": 171,
           "y": 163,
           "animation": "not_pressed"
+        },
+        {
+          "texture_id": 2,
+          "x": 49,
+          "y": 40,
+          "animation": "gfx",
+          "interact_action": "cutscene",
+          "cutscene_id": 301
         }
       ],
       "colliders": [
@@ -122,7 +131,8 @@
         }
       ],
       "textures": [
-        "nitro:/spr/room_sprites/ground_btn_ruins.cspr"
+        "nitro:/spr/room_sprites/ground_btn_ruins.cspr",
+        "nitro:/spr/room_sprites/wall_panel_ruins.cspr"
       ],
       "sprites": [
         {
@@ -160,6 +170,14 @@
           "x": 171,
           "y": 163,
           "animation": "not_pressed"
+        },
+        {
+          "texture_id": 1,
+          "x": 49,
+          "y": 40,
+          "animation": "gfx",
+          "interact_action": "cutscene",
+          "cutscene_id": 301
         }
       ],
       "colliders": [
