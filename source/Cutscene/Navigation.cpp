@@ -221,6 +221,7 @@ void Navigation::startTask(NavigationTask *navTask) {
     delete[] tasks;
     tasks = newTasks;
     taskCount++;
+    updateTask(taskCount - 1);
 }
 
 bool Navigation::updateTask(int taskId) {

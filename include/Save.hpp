@@ -10,10 +10,6 @@
 
 #include <stdint.h>
 
-enum Flags {
-    RUIN_PROGRESS = 0
-};
-
 struct SaveData {
     char* name = nullptr;
     uint16_t flags[FLAG_COUNT] = {0};

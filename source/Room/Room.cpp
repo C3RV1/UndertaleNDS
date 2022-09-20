@@ -308,6 +308,11 @@ void loadNewRoom(int roomId, int32_t spawnX, int32_t spawnY) {
     }
 
     globalRoom->free_();
+
+    for (int i = 220; i <= 229; i++) {
+        globalSave.flags[i] = 0; // clear room specific flags
+    }
+
     delete globalRoom;
     globalRoom = new Room(roomId);
     globalPlayer->spriteManager.wx = spawnX << 8;
