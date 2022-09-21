@@ -357,10 +357,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
 
             len = strlen_file(commandStream, 0);
             fread(buffer, len + 1, 1, commandStream);
-
-            BGM::globalWAV.loadWAV(buffer);
-            BGM::globalWAV.setLoop(loop);
-            BGM::playBGMusic(BGM::globalWAV);
+            BGM::playBGMusic(buffer);
             break;
         }
         case CMD_STOP_BGM:

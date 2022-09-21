@@ -46,15 +46,9 @@ Room::Room(int roomId) : roomId(roomId) {
     }
 
     if (roomData.musicBg[0] != 0) {
-        bool musicChange = BGM::globalWAV.getFilename() == nullptr;
-        if (!musicChange)
-            musicChange = strcmp(roomData.musicBg, BGM::globalWAV.getFilename()) != 0;
-        if (!musicChange)
-            musicChange = BGM::currentlyPlayingWav == nullptr;
+        bool musicChange = strcmp(roomData.musicBg, BGM::currentBGMusic.getFilename()) != 0;
         if (musicChange) {
-            BGM::globalWAV.loadWAV(roomData.musicBg);
-            BGM::globalWAV.setLoop(true);
-            BGM::playBGMusic(BGM::globalWAV);
+            BGM::playBGMusic(roomData.musicBg);
         }
     } else {
         BGM::stopBGMusic();

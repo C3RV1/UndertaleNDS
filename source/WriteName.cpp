@@ -19,10 +19,7 @@ void writeNameMenu() {
     const int letterCount = 26 * 2;
     const int maxLen = 10;
 
-    BGM::WAV music;
-    int loadMusic = music.loadWAV("mus_menu0.wav");
-    sprintf(buffer, "Load mus_menu0.wav: %d", loadMusic);
-    BGM::playBGMusic(music);
+    BGM::playBGMusic("mus_menu0.wav");
 
     Engine::clearMain();
 

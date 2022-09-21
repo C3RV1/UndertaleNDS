@@ -4,12 +4,9 @@
 #include "Engine/BGM.hpp"
 
 namespace BGM {
-    WAV* currentlyPlayingWav = nullptr;
-    bool shouldClose = false;
-    WAV globalWAV;
+    WAV currentBGMusic;
 
-    int playingWavCount = 0;
-    WAVLinkedList* playingWavs = nullptr;
+    WAV* playingWavs = nullptr;
 
     int WAV::loadWAV(const char *name) {
         free_();
@@ -92,8 +89,6 @@ namespace BGM {
     void WAV::free_() {
         if (!loaded)
             return;
-        if (this == currentlyPlayingWav)
-            stopWAV();
         delete[] filename;
         filename = nullptr;
         fclose(stream);
@@ -114,114 +109,111 @@ namespace BGM {
         mmStreamOpen(&stream);
     }
 
+    void WAV::play() {
+        if (active) {
+            stop();
+        }
+        fseek(stream, dataStart, SEEK_SET);
+        active = true;
+        nextWav = playingWavs;
+        if (playingWavs != nullptr)
+            playingWavs->prevWav = this;
+        playingWavs = this;
+        char buffer[100];
+        sprintf(buffer, "Starting wav: %s stereo %d sample rate %d", getFilename(),
+                getStereo(), getSampleRate());
+        nocashMessage(buffer);
+    }
+
+    void WAV::stop() {
+        if (!active)
+            return;
+        active = false;
+        if (prevWav != nullptr)
+            prevWav->nextWav = nextWav;
+        else
+            playingWavs = nextWav;
+        if (nextWav != nullptr)
+            nextWav->prevWav = prevWav;
+        if (freeOnStop) {
+            free_();
+            delete this;
+        }
+    }
+
     mm_word fillAudioStream(mm_word length, mm_addr dest, mm_stream_formats format) {
-        WAVLinkedList* currentLL = playingWavs;
+        WAV* current = playingWavs;
         memset(dest, 0, 4 * length);
-        fillAudioStreamWav(currentLL, length, (uint16_t*)dest, format);
+        while (current != nullptr) {
+            WAV* next = current->nextWav;
+            if (fillAudioStreamWav(current, length, (uint16_t*)dest, format)) {
+                current->stop();
+            }
+            current = next;
+        }
         return length;
     }
 
-    void fillAudioStreamWav(WAVLinkedList* wavLL, mm_word length, uint16_t* dest, mm_stream_formats format) {
-        if (wavLL == nullptr)
-            return;
-        WAV* wav = wavLL->currentWav;
+    bool fillAudioStreamWav(WAV* wav, mm_word length, uint16_t* dest, mm_stream_formats format) {
+        if (wav == nullptr)
+            return true;
+        if (!wav->active)
+            return true;
+        if (!wav->getLoaded())
+            return true;
         FILE* stream = wav->getStream();
         // do not convert bit depth for now
-        if (wav->getBitsPerSample() != ((format & 2) >> 1) + 1 || wav->getBitsPerSample() != 2)
-            return;
+        if (wav->getBitsPerSample() != 16)
+            return true;
         // convert channels & sample rate
         uint32_t dstI = 0;
 
-        // current sample rate, target sample rate
-        uint32_t csr = wav->getSampleRate();
-        // current channel count, target channel count
-        uint8_t ccc = wav->getStereo() + 1;
         while (dstI < length) {
-            while (wavLL->co >= 44100) {
-                if (ftell(stream) == wav->getDataEnd()) {
-                    // TODO: no loop
-                    fseek(stream, wav->getDataStart(), SEEK_SET);
-                }
-                for (int i = 0; i < ccc && i < 2; i++) {
-                    if (i >= ccc) {
-                        wavLL->values[i] = wavLL->values[i - 1];
-                    } else {
-                        fread(&wavLL->values[i], 2, 1, stream);
+            while (wav->co >= 44100) {
+                wav->cValueIdx += 1;
+                if (wav->cValueIdx >= wav->maxValueIdx) {
+                    if (ftell(stream) == wav->getDataEnd()) {
+                        if (wav->getLoop()) {
+                            nocashMessage("looping");
+                            fseek(stream, wav->getDataStart(), SEEK_SET);
+                        }
+                        else {
+                            return true;
+                        }
                     }
+                    if (!wav->getStereo())
+                        wav->maxValueIdx = fread(&wav->values, 2, WAVBuffer, stream) / 4;
+                    else
+                        wav->maxValueIdx = fread(&wav->values, 2, WAVBuffer * 2, stream) / 2;
+                    wav->cValueIdx = 0;
                 }
-                wavLL->co -= 44100;
+                wav->co -= 44100;
             }
             for (int i = 0; i < 2; i++) {
-                dest[dstI * 2 + i] += wavLL->values[i];
+                if (!wav->getStereo())
+                    dest[dstI * 2 + i] = wav->values[wav->cValueIdx];
+                else
+                    dest[dstI * 2 + i] = wav->values[wav->cValueIdx * 2 + i];
             }
-            wavLL->co += csr;
+            wav->co += wav->getSampleRate();
             dstI++;
         }
-        fillAudioStreamWav(wavLL->nextWav, length, dest, format);
+        return false;
     }
 
-    void playWAV(WAV& wav) {
-        stopWAV();
-        if (!wav.getLoaded())
-            return;
-
-        currentlyPlayingWav = &wav;
-        shouldClose = false;
-
-        mm_stream stream;
-
-        stream.sampling_rate = wav.getSampleRate();
-        stream.buffer_length = 8000;  // 1 seconds buffer
-        stream.callback = fillWAV;   // give wav filling routine
-        uint16_t format;
-        if (wav.getBitsPerSample() == 8) {
-            format = MM_STREAM_8BIT_MONO;
-        } else {
-            format = MM_STREAM_16BIT_MONO;
+    void playBGMusic(const char* filename) {
+        stopBGMusic();
+        currentBGMusic.loadWAV(filename);
+        currentBGMusic.setLoop(true);
+        if (currentBGMusic.getLoaded())
+            currentBGMusic.play();
+        else {
+            currentBGMusic.free_();
         }
-        if (wav.getStereo()) {
-            format |= 1;
-        }
-        stream.format = format; // select format
-        stream.timer = MM_TIMER0;             // use timer0
-        stream.manual = 1;                    // auto filling
-
-        // open the stream
-        mmStreamOpen(&stream);
     }
 
-    void stopWAV() {
-        if (currentlyPlayingWav == nullptr)
-            return;
-        mmStreamClose();
-        currentlyPlayingWav = nullptr;
-    }
-
-    mm_word fillWAV(mm_word length, mm_addr dest, mm_stream_formats format) {
-        if (currentlyPlayingWav == nullptr)
-            return 0;
-        FILE* stream = currentlyPlayingWav->getStream();
-        int readLength = 1;
-        if (format & 2)
-            readLength = 2;
-        if (format & 1)
-            readLength *= 2;
-        uint32_t maxLength = (currentlyPlayingWav->getDataEnd() - ftell(stream)) / readLength;
-        if (maxLength == 0) {
-            if (!currentlyPlayingWav->getLoop()) {
-                shouldClose = true;
-                return 0;
-            }
-            else {
-                fseek(currentlyPlayingWav->getStream(), currentlyPlayingWav->getDataStart(), SEEK_SET);
-                return fillWAV(length, dest, format);
-            }
-        }
-        if (length > maxLength)
-            length = maxLength;
-        mm_word buff[length];
-        fread(buff, readLength, length, stream);
-        memcpy(dest, buff, readLength * length);
-        return length;
+    void stopBGMusic() {
+        currentBGMusic.stop();
+        currentBGMusic.free_();
     }
 }

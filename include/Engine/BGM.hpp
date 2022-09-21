@@ -12,6 +12,8 @@
 #include <maxmod9.h>
 
 namespace BGM {
+    const int WAVBuffer = 1000;
+
     class WAV {
     public:
         int loadWAV(const char* name);
@@ -26,6 +28,11 @@ namespace BGM {
         uint32_t getDataEnd() const { return dataEnd; }
         uint32_t getDataStart() const { return dataStart; }
         void free_();
+
+        bool getActive() const {return active;}
+        void play();
+        void stop();
+        bool freeOnStop = false;
     private:
         char* filename = nullptr;
         bool loop = false;
@@ -36,31 +43,29 @@ namespace BGM {
         FILE* stream = nullptr;
         uint32_t dataEnd = 0;
         uint32_t dataStart = 0;
-    };
 
-    // TODO: Progress on multiple wav playback
-    struct WAVLinkedList {
-        WAVLinkedList* prevWav = nullptr;
-        WAV* currentWav = nullptr;
         uint32_t co = 44100;
-        uint16_t values[2] = {0};
-        WAVLinkedList* nextWav = nullptr;
+        uint16_t cValueIdx = WAVBuffer;
+        uint16_t maxValueIdx = WAVBuffer;
+        uint16_t values[WAVBuffer * 2] = {0};
+        bool active = false;
+        WAV* prevWav = nullptr;
+        WAV* nextWav = nullptr;
+    public:
+        friend mm_word fillAudioStream(mm_word, mm_addr, mm_stream_formats);
+        friend bool fillAudioStreamWav(WAV*, mm_word, uint16_t*, mm_stream_formats);
     };
 
     void initAudioStream();
     mm_word fillAudioStream(mm_word length, mm_addr dest, mm_stream_formats format);
-    void fillAudioStreamWav(WAVLinkedList* wavLL, mm_word length, uint16_t* dest, mm_stream_formats format);
+    bool fillAudioStreamWav(WAV* wav, mm_word length, uint16_t* dest, mm_stream_formats format);
 
-    void playWAV(WAV& wav);
-    void stopWAV();
-    mm_word fillWAV(mm_word length, mm_addr dest, mm_stream_formats format);
+    void playBGMusic(const char* filename);
+    void stopBGMusic();
 
-    extern WAV* currentlyPlayingWav;
-    extern bool shouldClose;
+    extern WAV currentBGMusic;
 
-    extern WAVLinkedList* playingWavs;
-
-    extern WAV globalWAV;
+    extern WAV* playingWavs;
 }
 
 #endif //UNDERTALE_BGM_HPP

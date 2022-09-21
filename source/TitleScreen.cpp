@@ -48,10 +48,7 @@ void runTitleScreen() {
     }
     fclose(f);
 
-    int loadWavResult = BGM::globalWAV.loadWAV("mus_story_mod.wav");
-    sprintf(buffer, "LOAD WAV story %d", loadWavResult);
-    nocashMessage(buffer);
-    BGM::playBGMusic(BGM::globalWAV);
+    BGM::playBGMusic("mus_story_mod.wav");
 
     setBrightness(1, -16);
     bool skip = false;
@@ -171,13 +168,9 @@ void runTitleScreen() {
     if (skip) {
         fclose(textStream);
         BGM::stopBGMusic();
-        BGM::globalWAV.free_();
         return;
     }
-    loadWavResult = BGM::globalWAV.loadWAV("mus_intronoise.wav");
-    sprintf(buffer, "LOAD WAV introsound %d", loadWavResult);
-    nocashMessage(buffer);
-    BGM::playBGMusic(BGM::globalWAV);
+    BGM::playBGMusic("mus_intronoise.wav");
 
     f = fopen("nitro:/bg/intro/title.cbgf", "rb");
     if (f) {
@@ -215,5 +208,4 @@ void runTitleScreen() {
     }
     fclose(textStream);
     BGM::stopBGMusic();
-    BGM::globalWAV.free_();
 }

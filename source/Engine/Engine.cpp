@@ -18,6 +18,8 @@ namespace Engine {
         sys.fifo_channel		= FIFO_MAXMOD;
         mmInit( &sys );
 
+        BGM::initAudioStream();
+
         lcdMainOnTop();
 
         vramSetBankA(VRAM_A_MAIN_BG_0x06000000);
@@ -58,9 +60,6 @@ namespace Engine {
     }
 
     void tick() {
-        if (BGM::shouldClose) {
-            BGM::stopWAV();
-        }
         main3dSpr.draw();
         glFlush(0);
         swiWaitForVBlank();
