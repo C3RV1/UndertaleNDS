@@ -22,7 +22,7 @@ void writeNameMenu() {
     BGM::WAV music;
     int loadMusic = music.loadWAV("mus_menu0.wav");
     sprintf(buffer, "Load mus_menu0.wav: %d", loadMusic);
-    BGM::playWAV(music);
+    BGM::playBGMusic(music);
 
     Engine::clearMain();
 
@@ -284,7 +284,7 @@ void writeNameMenu() {
             }
         }
     }
-    BGM::stopWAV();
+    BGM::stopBGMusic();
 
     if (globalSave.name != nullptr)
         free(globalSave.name);

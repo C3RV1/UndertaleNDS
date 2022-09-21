@@ -221,7 +221,6 @@ void Navigation::startTask(NavigationTask *navTask) {
     delete[] tasks;
     tasks = newTasks;
     taskCount++;
-    updateTask(taskCount - 1);
 }
 
 bool Navigation::updateTask(int taskId) {
@@ -237,6 +236,7 @@ bool Navigation::updateTask(int taskId) {
         endTask(taskId);
         return true;
     }
+    navTask->currentFrames++;
     if (navTask->currentFrames > navTask->frames) {
         endTask(taskId);
         return true;
@@ -250,7 +250,6 @@ bool Navigation::updateTask(int taskId) {
         target->wscale_x = navTask->startingX + (xRun * navTask->currentFrames) / navTask->frames;
         target->wscale_y = navTask->startingY + (yRun * navTask->currentFrames) / navTask->frames;
     }
-    navTask->currentFrames++;
     return false;
 }
 

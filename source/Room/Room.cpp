@@ -54,10 +54,10 @@ Room::Room(int roomId) : roomId(roomId) {
         if (musicChange) {
             BGM::globalWAV.loadWAV(roomData.musicBg);
             BGM::globalWAV.setLoop(true);
-            BGM::playWAV(BGM::globalWAV);
+            BGM::playBGMusic(BGM::globalWAV);
         }
     } else {
-        BGM::stopWAV();
+        BGM::stopBGMusic();
     }
 
     loadSprites();

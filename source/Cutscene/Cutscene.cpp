@@ -360,12 +360,12 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
 
             BGM::globalWAV.loadWAV(buffer);
             BGM::globalWAV.setLoop(loop);
-            BGM::playWAV(BGM::globalWAV);
+            BGM::playBGMusic(BGM::globalWAV);
             break;
         }
         case CMD_STOP_BGM:
             nocashMessage("CMD_STOP_BGM");
-            BGM::stopWAV();
+            BGM::stopBGMusic();
             break;
         case CMD_SET_FLAG: {
             nocashMessage("CMD_SET_FLAG");
