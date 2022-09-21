@@ -7,6 +7,7 @@
 Dialogue::Dialogue(bool isRoom_, uint16_t textId, char *speaker, int32_t speakerX, int32_t speakerY,
                    char *idleAnimTxt, char *talkAnimTxt,
                    Engine::Sprite *target_, char *idleAnim2Txt, char *talkAnim2Txt,
+                   char* typeSndPath,
                    char* fontTxt, uint16_t framesPerLetter) :
                    speakerManager(Engine::AllocatedOAM) {
     isRoom = isRoom_;
@@ -85,6 +86,10 @@ Dialogue::Dialogue(bool isRoom_, uint16_t textId, char *speaker, int32_t speaker
     Engine::textSub.clear();
     Engine::textSub.reloadColors();
     Engine::textSub.setCurrentColor(15);
+
+    typeSnd.loadWAV(typeSndPath);
+    typeSnd.setLoops(0);
+
     setTalk();
 }
 
@@ -222,6 +227,7 @@ void Dialogue::progressTextRoom(bool clear, bool draw) {
         return;
     }
     linePos++;
+    typeSnd.play();
 
     // clear current chars
     uint16_t width = getLineWidth(linePos - 1);
@@ -286,6 +292,7 @@ void Dialogue::progressTextBattle(bool clear, bool draw) {
     char currentChar;
     fread(&currentChar, 1, 1, textStream);
     linePos++;
+
     if (currentChar == '@') {
         fread(&currentChar, 1, 1, textStream);  // read command
         linePos++;
@@ -345,6 +352,7 @@ void Dialogue::progressTextBattle(bool clear, bool draw) {
         x = startingX;
         return;
     }
+    typeSnd.play();
 
     Engine::textSub.drawGlyph(font, currentChar, x, y);
 }

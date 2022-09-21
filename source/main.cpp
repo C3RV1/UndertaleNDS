@@ -40,8 +40,8 @@ int main() {
     uint16_t roomSpawn = 0;
 
     // DEBUG
-    roomSpawn = 2;
-    globalSave.flags[0] = 1;
+    // roomSpawn = 2;
+    // globalSave.flags[0] = 1;
 
     globalPlayer = new Player();
     globalPlayer->spriteManager.setShown(true);

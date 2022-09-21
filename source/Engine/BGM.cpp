@@ -10,7 +10,7 @@ namespace BGM {
 
     int WAV::loadWAV(const char *name) {
         free_();
-        loop = false;
+        loops = 0;
         char buffer[100];
         sprintf(buffer, "nitro:/z_audio/%s", name);
         FILE *f = fopen(buffer, "rb");
@@ -110,11 +110,16 @@ namespace BGM {
     }
 
     void WAV::play() {
+        if (!loaded)
+            return;
         if (active) {
             stop();
         }
         fseek(stream, dataStart, SEEK_SET);
         active = true;
+        co = 44100;
+        maxValueIdx = WAVBuffer;
+        cValueIdx = WAVBuffer;
         nextWav = playingWavs;
         if (playingWavs != nullptr)
             playingWavs->prevWav = this;
@@ -128,6 +133,9 @@ namespace BGM {
     void WAV::stop() {
         if (!active)
             return;
+        char buffer[100];
+        sprintf(buffer, "Stopping wav: %s", getFilename());
+        nocashMessage(buffer);
         active = false;
         if (prevWav != nullptr)
             prevWav->nextWav = nextWav;
@@ -135,7 +143,7 @@ namespace BGM {
             playingWavs = nextWav;
         if (nextWav != nullptr)
             nextWav->prevWav = prevWav;
-        if (freeOnStop) {
+        if (deleteOnStop) {
             free_();
             delete this;
         }
@@ -172,10 +180,12 @@ namespace BGM {
             while (wav->co >= 44100) {
                 wav->cValueIdx += 1;
                 if (wav->cValueIdx >= wav->maxValueIdx) {
-                    if (ftell(stream) == wav->getDataEnd()) {
-                        if (wav->getLoop()) {
-                            nocashMessage("looping");
+                    if (ftell(stream) >= wav->getDataEnd()) {
+                        if (wav->getLoops() != 0) {
+                            if (wav->getLoops() > 0)
+                                wav->setLoops(wav->getLoops() - 1);
                             fseek(stream, wav->getDataStart(), SEEK_SET);
+                            nocashMessage("looping");
                         }
                         else {
                             return true;
@@ -201,10 +211,11 @@ namespace BGM {
         return false;
     }
 
-    void playBGMusic(const char* filename) {
+    void playBGMusic(const char* filename, bool loop) {
         stopBGMusic();
         currentBGMusic.loadWAV(filename);
-        currentBGMusic.setLoop(true);
+        currentBGMusic.setLoops(loop ? -1 : 0);
+        currentBGMusic.deleteOnStop = false;
         if (currentBGMusic.getLoaded())
             currentBGMusic.play();
         else {

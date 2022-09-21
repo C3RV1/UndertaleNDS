@@ -48,7 +48,7 @@ void runTitleScreen() {
     }
     fclose(f);
 
-    BGM::playBGMusic("mus_story_mod.wav");
+    BGM::playBGMusic("mus_story_mod.wav", true);
 
     setBrightness(1, -16);
     bool skip = false;
@@ -170,7 +170,7 @@ void runTitleScreen() {
         BGM::stopBGMusic();
         return;
     }
-    BGM::playBGMusic("mus_intronoise.wav");
+    BGM::playBGMusic("mus_intronoise.wav", true);
 
     f = fopen("nitro:/bg/intro/title.cbgf", "rb");
     if (f) {

@@ -13,7 +13,8 @@ def cutscene(c: Cutscene):
     c.start_bgm("mus_flowey.wav", True)
     c.set_animation(Target(TargetType.PLAYER), "upIdle")
     c.start_dialogue(10, "speaker/flowey.cspr", 128 - 21, (192 - 44) // 4 - 5, "nice1", "nice1_talk",
-                     Target(TargetType.SPRITE, 0), "idle", "talk", "fnt_maintext.font.cfnt")
+                     Target(TargetType.SPRITE, 0), "idle", "talk",
+                     type_sound="snd_floweytalk1.wav")
     c.wait_dialogue_end()
 
     c.start_battle([], 0, 61, 63, 134, 75)
@@ -28,13 +29,13 @@ def cutscene(c: Cutscene):
     c.debug("In battle!")
     c.wait_frames(60)
     c.start_dialogue_battle(20, 90, 192 // 4, Target(TargetType.SPRITE, 0), "nice1", "nice1_talk",
-                            "fnt_maintext.font.cfnt")
+                            type_sound="snd_floweytalk1.wav")
     c.wait_dialogue_end()
     c.battle_attack(1)
     c.wait_frames(120)
     c.wait_battle_attack()
     c.start_dialogue_battle(25, 90, 192 // 4, Target(TargetType.SPRITE, 0), "nice1", "nice1_talk",
-                            "fnt_maintext.font.cfnt")
+                            type_sound="snd_floweytalk1.wav")
     c.wait_dialogue_end()
     c.set_animation(Target(TargetType.SPRITE, 0), "wink")
     c.wait_frames(120)
@@ -55,7 +56,7 @@ def cutscene(c: Cutscene):
     set_pellet_pos()
 
     c.start_dialogue_battle(30, 90, 192 // 4, Target(TargetType.SPRITE, 0), "nice2", "nice2_talk",
-                            "fnt_maintext.font.cfnt")
+                            type_sound="snd_floweytalk1.wav")
     c.wait_dialogue_end()
     c.wait_frames(60)
 
@@ -74,7 +75,7 @@ def cutscene(c: Cutscene):
     hit_1 = c.jump_if()
 
     c.start_dialogue_battle(40, 90, 192 // 4, Target(TargetType.SPRITE, 0), "sassy", "sassy_talk",
-                            "fnt_maintext.font.cfnt")
+                            type_sound="snd_floweytalk1.wav")
     c.wait_dialogue_end()
     c.wait_frames(60)
     c.set_animation(Target(TargetType.SPRITE, 0), "nice1")
@@ -88,11 +89,11 @@ def cutscene(c: Cutscene):
     c.set_animation(Target(TargetType.SPRITE, 0), "annoyed")
     c.wait_frames(60)
     c.start_dialogue_battle(50, 90, 192 // 4, Target(TargetType.SPRITE, 0), "annoyed", "annoyed_talk",
-                            "fnt_maintext.font.cfnt")
+                            type_sound="snd_floweytalk1.wav")
     c.wait_dialogue_end()
     c.wait_frames(40)
     c.start_dialogue_battle(60, 90, 192 // 4, Target(TargetType.SPRITE, 0), "nice1", "nice1_talk",
-                            "fnt_maintext.font.cfnt", frames_per_letter=0)
+                            frames_per_letter=0)
     c.wait_dialogue_end()
 
     set_pellet_pos()
@@ -108,7 +109,7 @@ def cutscene(c: Cutscene):
     c.stop_bgm()
 
     c.start_dialogue_battle(71, 90, 192 // 4, Target(TargetType.SPRITE, 0), "skull_idle", "skull_talk",
-                            "fnt_maintext.font.cfnt")
+                            type_sound="snd_floweytalk2.wav")
     c.wait_dialogue_end()
 
     post_no_hit = c.jump()
@@ -119,8 +120,7 @@ def cutscene(c: Cutscene):
     c.debug("Player avoided getting hit!")
     c.set_animation(Target(TargetType.SPRITE, 0), "evil")
     c.wait_frames(40)
-    c.start_dialogue_battle(70, 90, 192 // 4, Target(TargetType.SPRITE, 0), "evil", "evil_talk",
-                            "fnt_maintext.font.cfnt")
+    c.start_dialogue_battle(70, 90, 192 // 4, Target(TargetType.SPRITE, 0), "evil", "evil_talk")
     c.wait_dialogue_end()
 
     c.bind(post_no_hit)
@@ -139,6 +139,7 @@ def cutscene(c: Cutscene):
     c.unload_texture(2)
 
     c.set_animation(Target(TargetType.SPRITE, 0), "skull_laugh")
+    c.play_sfx("snd_floweylaugh.wav", 0)
     c.battle_attack(3)
     c.wait_battle_attack()
 
@@ -174,7 +175,7 @@ def cutscene(c: Cutscene):
     c.wait_frames(180)
     c.start_dialogue_battle(90, 100, 192 // 4, Target(TargetType.SPRITE, 0),
                             "worried_side", "worried_side_talk",
-                            "fnt_maintext.font.cfnt")
+                            type_sound="snd_txttor.wav")
     c.wait_dialogue_end()
     c.wait_frames(30)
 
@@ -194,7 +195,7 @@ def cutscene(c: Cutscene):
 
     c.start_dialogue(100, "speaker/toriel.cspr", (256 - 50) // 2, (192 - 39) // 4, "talkIdle", "talkTalk",
                      Target(TargetType.SPRITE, 0), "downIdle", "downTalk",
-                     "fnt_maintext.font.cfnt")
+                     type_sound="snd_txttor.wav")
     c.wait_dialogue_end()
     c.set_animation(Target(TargetType.SPRITE, 0), "upMove")
     c.set_pos_in_frames(Target(TargetType.SPRITE, 0), 149, 67, 180)

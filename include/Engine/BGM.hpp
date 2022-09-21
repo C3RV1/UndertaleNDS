@@ -20,8 +20,8 @@ namespace BGM {
         char* getFilename() {return filename;}
         uint16_t getSampleRate() const { return sampleRate; }
         bool getLoaded() const { return loaded; }
-        bool getLoop() const { return loop; }
-        void setLoop(bool loop_) { loop = loop_; }
+        int getLoops() const { return loops; }
+        void setLoops(int loops_) { loops = loops_; }
         FILE* getStream() const { return stream; }
         bool getStereo() const { return stereo; }
         uint16_t getBitsPerSample() const { return bitsPerSample; }
@@ -32,10 +32,10 @@ namespace BGM {
         bool getActive() const {return active;}
         void play();
         void stop();
-        bool freeOnStop = false;
+        bool deleteOnStop = false;
     private:
         char* filename = nullptr;
-        bool loop = false;
+        int loops = 0;
         bool loaded = false;
         uint16_t sampleRate = 0;
         bool stereo = false;
@@ -44,7 +44,7 @@ namespace BGM {
         uint32_t dataEnd = 0;
         uint32_t dataStart = 0;
 
-        uint32_t co = 44100;
+        uint32_t co = 44100;  // Used to linearly adjust sample rate
         uint16_t cValueIdx = WAVBuffer;
         uint16_t maxValueIdx = WAVBuffer;
         uint16_t values[WAVBuffer * 2] = {0};
@@ -60,7 +60,7 @@ namespace BGM {
     mm_word fillAudioStream(mm_word length, mm_addr dest, mm_stream_formats format);
     bool fillAudioStreamWav(WAV* wav, mm_word length, uint16_t* dest, mm_stream_formats format);
 
-    void playBGMusic(const char* filename);
+    void playBGMusic(const char* filename, bool loop);
     void stopBGMusic();
 
     extern WAV currentBGMusic;

@@ -43,7 +43,7 @@ bool Cutscene::checkHeader(FILE *f) {
     uint32_t version;
     fread(&version, 4, 1, f);
 
-    if (version != 3) {
+    if (version != 4) {
         return false;
     }
 
@@ -248,6 +248,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             char speaker[50], font[50];
             char idleAnim[50], talkAnim[50];
             char idleAnim2[50], talkAnim2[50];
+            char typeSnd[50];
 
             fread(&textId, 2, 1, commandStream);
 
@@ -274,6 +275,9 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             fread(talkAnim2, len + 1, 1, commandStream);
 
             len = strlen_file(commandStream, 0);
+            fread(typeSnd, len + 1, 1, commandStream);
+
+            len = strlen_file(commandStream, 0);
             fread(font, len + 1, 1, commandStream);
 
             fread(&framesPerLetter, 2, 1, commandStream);
@@ -282,7 +286,8 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             if (currentDialogue == nullptr) {
                 bool isRoom = callingLocation == ROOM || callingLocation == LOAD_ROOM;
                 currentDialogue = new Dialogue(isRoom, textId, speaker, x, y, idleAnim, talkAnim,
-                                               target, idleAnim2, talkAnim2, font, framesPerLetter);
+                                               target, idleAnim2, talkAnim2, typeSnd,
+                                               font, framesPerLetter);
             }
             break;
         }
@@ -357,13 +362,27 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
 
             len = strlen_file(commandStream, 0);
             fread(buffer, len + 1, 1, commandStream);
-            BGM::playBGMusic(buffer);
+            BGM::playBGMusic(buffer, loop);
             break;
         }
         case CMD_STOP_BGM:
             nocashMessage("CMD_STOP_BGM");
             BGM::stopBGMusic();
             break;
+        case CMD_PLAY_SFX: {
+            nocashMessage("CMD_PLAY_SFX");
+            int8_t loops;
+            fread(&loops, 1, 1, commandStream);
+            len = strlen_file(commandStream, 0);
+            fread(buffer, len + 1, 1, commandStream);
+
+            auto *sfxWav = new BGM::WAV;
+            sfxWav->deleteOnStop = true;
+            sfxWav->loadWAV(buffer);
+            sfxWav->setLoops(loops);
+            sfxWav->play();
+            break;
+        }
         case CMD_SET_FLAG: {
             nocashMessage("CMD_SET_FLAG");
             uint16_t flagId, flagValue;

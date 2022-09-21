@@ -42,7 +42,8 @@ class CutsceneCommands(enum.IntEnum):
     CMP_FLAG = 30  # Done
     SET_COLLIDER_ENABLED = 31  # Done
     UNLOAD_TEXTURE = 32  # Done
-    SET_INTERACT_ACTION = 33
+    SET_INTERACT_ACTION = 33  # Done
+    PLAY_SFX = 34  # Done
     DEBUG = 0xff  # Done
 
 
@@ -87,7 +88,7 @@ class Target:
 class Cutscene:
     def __init__(self, wtr: binary.BinaryWriter):
         self.wtr: binary.BinaryWriter = wtr
-        self.version = 3
+        self.version = 4
         self.file_size_pos = 0
         self.instructions_address = []
         self.pending_address = {}
@@ -240,7 +241,8 @@ class Cutscene:
                        idle_anim: str, talk_anim: str,
                        speaker_target: Target,
                        idle_anim2: str, talk_anim2: str,
-                       font: str, frames_per_letter=3):
+                       type_sound: str = "",
+                       font: str = "fnt_maintext.font.cfnt", frames_per_letter=3):
         self.write_header(CutsceneCommands.START_DIALOGUE)
         self.wtr.write_uint16(dialogue_text_id)
         self.wtr.write_string(speaker_path, encoding="ascii")
@@ -251,6 +253,7 @@ class Cutscene:
         speaker_target.write(self.wtr)
         self.wtr.write_string(idle_anim2, encoding="ascii")
         self.wtr.write_string(talk_anim2, encoding="ascii")
+        self.wtr.write_string(type_sound, encoding="ascii")
         self.wtr.write_string(font, encoding="ascii")
         self.wtr.write_uint16(frames_per_letter)
         return self.instructions_address[-1]
@@ -258,11 +261,12 @@ class Cutscene:
     def start_dialogue_battle(self, dialogue_text_id: int,
                               x: float, y: float,
                               speaker_target: Target,
-                              idle_anim: str, talk_anim: str,
-                              font: str, frames_per_letter=2):
+                              idle_anim: str, talk_anim: str, type_sound: str = "",
+                              font: str = "fnt_maintext.font.cfnt", frames_per_letter=2):
         return self.start_dialogue(dialogue_text_id, "", x, y,
                                    "", "", speaker_target, idle_anim, talk_anim,
-                                   font, frames_per_letter=frames_per_letter)
+                                   type_sound=type_sound,
+                                   font=font, frames_per_letter=frames_per_letter)
 
     def wait_dialogue_end(self):
         self.write_header(CutsceneCommands.WAIT_DIALOGUE_END)
@@ -367,4 +371,10 @@ class Cutscene:
 
     def stop_bgm(self):
         self.write_header(CutsceneCommands.STOP_BGM)
+        return self.instructions_address[-1]
+
+    def play_sfx(self, path: str, loops: int):
+        self.write_header(CutsceneCommands.PLAY_SFX)
+        self.wtr.write_uint8(loops)
+        self.wtr.write_string(path, encoding="ascii")
         return self.instructions_address[-1]

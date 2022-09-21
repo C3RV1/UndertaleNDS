@@ -18,7 +18,8 @@ class Dialogue {
 public:
     Dialogue(bool isRoom_, uint16_t textId, char* speaker, int32_t speakerX, int32_t speakerY,
              char* idleAnimTxt, char* talkAnimTxt, Engine::Sprite* target_,
-             char* idleAnim2Txt, char* talkAnim2Txt, char* fontTxt, uint16_t framesPerLetter);
+             char* idleAnim2Txt, char* talkAnim2Txt, char* typeSndPath,
+             char* fontTxt, uint16_t framesPerLetter);
     bool update();
     void free_();
 private:
@@ -50,6 +51,8 @@ private:
     FILE* textStream;
     char line[100] = {};
     uint8_t currentColor = 15;
+
+    BGM::WAV typeSnd;
 
     Engine::Font font;
 };
