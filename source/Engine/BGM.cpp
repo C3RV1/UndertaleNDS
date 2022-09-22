@@ -186,6 +186,7 @@ namespace BGM {
             return true;
         // convert channels & sample rate
         uint32_t dstI = 0;
+        int32_t addition;
 
         while (dstI < length) {
             while (wav->co >= 44100) {
@@ -212,9 +213,15 @@ namespace BGM {
             }
             for (int i = 0; i < 2; i++) {
                 if (!wav->getStereo())
-                    dest[dstI * 2 + i] += wav->values[wav->cValueIdx];
+                    addition = dest[dstI * 2 + i] + wav->values[wav->cValueIdx];
                 else
-                    dest[dstI * 2 + i] += wav->values[wav->cValueIdx * 2 + i];
+                    addition = dest[dstI * 2 + i] + wav->values[wav->cValueIdx * 2 + i];
+                // clamp to int16_t
+                if (addition > 32767)
+                    addition = 32767;
+                else if (addition < -32768)
+                    addition = -32768;
+                dest[dstI * 2 + i] = addition;
             }
             wav->co += wav->getSampleRate();
             dstI++;

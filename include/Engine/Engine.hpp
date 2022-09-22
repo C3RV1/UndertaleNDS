@@ -14,9 +14,6 @@
 #include "OAMManager.hpp"
 #include <maxmod9.h>
 
-extern bool cardRead;
-extern int ndsFileFD;
-
 namespace Engine {
     int init();
     void tick();

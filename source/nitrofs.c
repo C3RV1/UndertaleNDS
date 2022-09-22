@@ -71,9 +71,9 @@ struct nitroDIRStruct {
 static u32	fntOffset;	//offset to start of filename table
 static u32	fatOffset;	//offset to start of file alloc table
 static u16	chdirpathid;	//default dir path id...
-int	ndsFileFD = -1;
+static int	ndsFileFD = -1;
 static unsigned int ndsFileLastpos;	//Used to determine need to fseek or not
-bool cardRead = false;
+static bool cardRead = false;
 
 devoptab_t nitroFSdevoptab={
 	"nitro",
@@ -133,7 +133,8 @@ bool nitroFSInit(char **basepath) {
 	}
 
 	// test for valid nitrofs on gba cart
-	if (!nitroInit) {
+    // Cervi: disable gba card, use cardRead instead
+	if (!nitroInit && false) {
 		if (memcmp(&__NDSHeader->filenameOffset, &__gba_cart_header->filenameOffset, 16) == 0 ) {
 			nitroInit = true;
 			nitropath = strdup("nitro:/");

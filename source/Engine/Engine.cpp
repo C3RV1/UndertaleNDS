@@ -11,11 +11,6 @@ namespace Engine {
             return -1;
         }
 
-        if (!cardRead && ndsFileFD == -1) {
-            nocashMessage("Not reading from card! Forcing.");
-            cardRead = true;  // Override, do not read from GBAROM (max 32MB)
-        }
-
         mm_ds_system sys;
         sys.mod_count 			= 0;
         sys.samp_count			= 0;

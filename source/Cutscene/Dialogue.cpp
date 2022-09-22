@@ -227,7 +227,8 @@ void Dialogue::progressTextRoom(bool clear, bool draw) {
         return;
     }
     linePos++;
-    typeSnd.play();
+    if (!typeSnd.getActive())
+        typeSnd.play();
 
     // clear current chars
     uint16_t width = getLineWidth(linePos - 1);
@@ -352,7 +353,8 @@ void Dialogue::progressTextBattle(bool clear, bool draw) {
         x = startingX;
         return;
     }
-    typeSnd.play();
+    if (!typeSnd.getActive())
+        typeSnd.play();
 
     Engine::textSub.drawGlyph(font, currentChar, x, y);
 }
