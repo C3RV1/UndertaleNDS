@@ -7,13 +7,8 @@
  */
 
 #define ARM9
-#include <nds.h>
-#include <filesystem.h>
-#include <stdio.h>
 #include "Engine/Engine.hpp"
 #include "Engine/math.hpp"
-#include "Engine/Texture.hpp"
-#include "Engine/OAMManager.hpp"
 #include "TitleScreen.hpp"
 #include "WriteName.hpp"
 #include "Font.hpp"

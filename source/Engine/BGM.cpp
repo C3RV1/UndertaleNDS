@@ -2,6 +2,7 @@
 // Created by cervi on 23/08/2022.
 //
 #include "Engine/BGM.hpp"
+#include <errno.h>
 
 namespace BGM {
     WAV currentBGMusic;
@@ -16,8 +17,10 @@ namespace BGM {
         FILE *f = fopen(buffer, "rb");
         filename = new char[strlen(name) + 1];
         strcpy(filename, name);
-        if (!f)
+        if (f == nullptr) {
+            nocashMessage("1");
             return 1;
+        }
         stream = f;
 
         char header[4];
@@ -30,6 +33,8 @@ namespace BGM {
         fread(header, 4, 1, f);
         if (memcmp(header, riffHeader, 4) != 0) {
             fclose(f);
+            sprintf(buffer, "%X %X %X %X", header[0], header[1], header[2], header[3]);
+            nocashMessage(buffer);
             return 2;
         }
 
@@ -38,6 +43,7 @@ namespace BGM {
         fread(header, 4, 1, f);
         if (memcmp(header, waveHeader, 4) != 0) {
             fclose(f);
+            nocashMessage("3");
             return 3;
         }
 
@@ -45,6 +51,7 @@ namespace BGM {
         fread(header, 4, 1, f);
         if (memcmp(header, fmtHeader, 4) != 0) {
             fclose(f);
+            nocashMessage("4");
             return 4;
         }
 
@@ -60,10 +67,12 @@ namespace BGM {
 
         if (format != 1) {
             fclose(f);
+            nocashMessage("5");
             return 5;
         }
 
         if (channels > 2) {
+            nocashMessage("6");
             return 6;
         }
 
@@ -73,6 +82,7 @@ namespace BGM {
         fread(header, 4, 1, f);
         if (memcmp(header, dataHeader, 4) != 0) {
             fclose(f);
+            nocashMessage("7");
             return 7;
         }
 
@@ -110,8 +120,9 @@ namespace BGM {
     }
 
     void WAV::play() {
-        if (!loaded)
+        if (!loaded) {
             return;
+        }
         if (active) {
             stop();
         }
@@ -201,9 +212,9 @@ namespace BGM {
             }
             for (int i = 0; i < 2; i++) {
                 if (!wav->getStereo())
-                    dest[dstI * 2 + i] = wav->values[wav->cValueIdx];
+                    dest[dstI * 2 + i] += wav->values[wav->cValueIdx];
                 else
-                    dest[dstI * 2 + i] = wav->values[wav->cValueIdx * 2 + i];
+                    dest[dstI * 2 + i] += wav->values[wav->cValueIdx * 2 + i];
             }
             wav->co += wav->getSampleRate();
             dstI++;

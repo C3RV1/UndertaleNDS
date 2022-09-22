@@ -4,7 +4,8 @@
 #define ARM9
 #include <nds.h>
 #include <gl2d.h>
-#include <filesystem.h>
+#include <fat.h>
+#include "filesystem.h"
 #include "Background.hpp"
 #include "Font.hpp"
 #include "BGM.hpp"
@@ -12,6 +13,9 @@
 #include "Sprite3DManager.hpp"
 #include "OAMManager.hpp"
 #include <maxmod9.h>
+
+extern bool cardRead;
+extern int ndsFileFD;
 
 namespace Engine {
     int init();

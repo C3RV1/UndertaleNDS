@@ -55,7 +55,7 @@ LIBS := -lnds9
 
 # automatigically add libraries for NitroFS
 ifneq ($(strip $(NITRO)),)
-LIBS := -lfilesystem -lfat $(LIBS)
+LIBS := -lfat $(LIBS)
 endif
 # automagically add maxmod library
 LIBS := -lmm9 $(LIBS)
