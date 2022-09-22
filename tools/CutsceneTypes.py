@@ -224,7 +224,7 @@ class Cutscene:
         self.wtr.write_uint16(frames)
         return self.instructions_address[-1]
 
-    def set_interact_action(self, target: Target, interact_action, cutscene_id=0):
+    def set_interact_action(self, target: Target, interact_action: str, cutscene_id=0):
         self.write_header(CutsceneCommands.SET_INTERACT_ACTION)
         target.write(self.wtr)
         interact_action = {
@@ -323,10 +323,19 @@ class Cutscene:
         self.wtr.write_uint16(flag_value)
         return self.instructions_address[-1]
 
-    def cmp_flag(self, flag_id: int, operator: int, value: int):
+    def cmp_flag(self, flag_id: int, operator: str, value: int):
         self.write_header(CutsceneCommands.CMP_FLAG)
         self.wtr.write_uint16(flag_id)
-        self.wtr.write_uint8(operator)
+        op_byte = {
+            "==": 0,
+            "!=": 1,
+            ">": 2,
+            "<=": 2,
+            "<": 3,
+            ">=": 3
+        }[operator]
+        op_byte += (1 << 2) if operator in ["!=", "<=", ">="] else 0
+        self.wtr.write_uint8(op_byte)
         self.wtr.write_uint16(value)
         return self.instructions_address[-1]
 

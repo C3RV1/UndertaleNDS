@@ -47,9 +47,11 @@ def cutscene(c: Cutscene):
     c.wait_frames(10)
 
     c.set_animation(Target(TargetType.SPRITE, 0), "upIdle")
-    c.set_animation(Target(TargetType.SPRITE, 7), "down")
 
     c.wait_frames(60)
+    c.set_animation(Target(TargetType.SPRITE, 7), "down")
+    c.unload_sprite(9)
+    c.unload_texture(4)
 
     c.set_animation(Target(TargetType.SPRITE, 0), "leftMove")
     c.move_in_frames(Target(TargetType.SPRITE, 0), -70, 0, 60)

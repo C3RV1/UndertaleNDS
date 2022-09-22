@@ -3,5 +3,6 @@
     1 - following toriel to room 2
     2 - following toriel to room 3
     3 - following toriel to room 4
+    4 - following toriel to room 5
 
 220-229 - specific room flags (cleared upon entering room)

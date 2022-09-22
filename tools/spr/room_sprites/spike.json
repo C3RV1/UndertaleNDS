@@ -8,7 +8,7 @@
     },
     {
       "name": "down",
-      "frames": [{"frame": 1, "duration": 0}]
+      "frames": [{"frame": 1, "duration": 0, "draw_off_y": 7}]
     }
   ]
 }

@@ -33,7 +33,7 @@ void Player::update() {
     if (!playerControl)
         return;
     int32_t prevX = spriteManager.wx, prevY = spriteManager.wy;
-    int moveDirection = 0;
+    int moveDirection = -1;
     bool setAnim = true;
     if (keysHeld() & KEY_DOWN) {
         spriteManager.wy += MOVE_SPEED;
@@ -78,6 +78,8 @@ void Player::update() {
     }
 
     if (spriteManager.wx == prevX && prevY == spriteManager.wy) {
+        if (moveDirection != -1)
+            currentAnimation = moveDirection;
         if (currentAnimation == upMoveId)
             currentAnimation = upIdleId;
         else if (currentAnimation == downMoveId)

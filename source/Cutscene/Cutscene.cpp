@@ -399,12 +399,14 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             fread(&comparator, 1, 1, commandStream);
             fread(&cmpValue, 2, 1, commandStream);
             flagValue = globalSave.flags[flagId];
-            if (comparator == ComparisonOperator::EQUALS)
+            if ((comparator & 3) == ComparisonOperator::EQUALS)
                 flag = (flagValue == cmpValue);
-            else if (comparator == ComparisonOperator::GREATER_THAN)
+            else if ((comparator & 3) == ComparisonOperator::GREATER_THAN)
                 flag = (flagValue > cmpValue);
-            else if (comparator == ComparisonOperator::LESS_THAN)
+            else if ((comparator & 3) == ComparisonOperator::LESS_THAN)
                 flag = (flagValue < cmpValue);
+            if (comparator & 4)
+                flag = !flag;
             break;
         }
         case CMD_SET_COLLIDER_ENABLED: {

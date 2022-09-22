@@ -234,13 +234,13 @@ class RoomPartCondition:
         res.flag_id = dct["flag_id"]
         res.cmp_operator = {
             "==": 0,
-            "!=": 1,
-            ">": 2,
-            "<=": 2,
-            "<": 3,
-            ">=": 3
+            "!=": 0,
+            ">": 1,
+            "<=": 1,
+            "<": 2,
+            ">=": 2
         }[dct["op"]]
-        res.cmp_operator += (1 << 4) if dct["op"] in ["!=", "<=", ">="] else 0  # add flip bit
+        res.cmp_operator += (1 << 2) if dct["op"] in ["!=", "<=", ">="] else 0  # add flip bit
         res.cmp_value = dct["cmp_value"]
         return res
 

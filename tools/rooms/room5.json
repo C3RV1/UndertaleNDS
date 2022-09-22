@@ -1,0 +1,14 @@
+{
+  "spawn_x": 0, "spawn_y": 0,
+  "parts": [
+    {
+      "conditions": [],
+      "room_bg": "rooms/room5.cbgf",
+      "music_path": "",
+      "exits": [],
+      "textures": [],
+      "sprites": [],
+      "colliders": []
+    }
+  ]
+}

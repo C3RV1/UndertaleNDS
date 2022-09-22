@@ -31,7 +31,8 @@
         "nitro:/spr/room_sprites/ground_btn_ruins.cspr",
         "nitro:/spr/room_sprites/toriel.cspr",
         "nitro:/spr/room_sprites/wall_panel_ruins.cspr",
-        "nitro:/spr/room_sprites/lever_ruins.cspr"
+        "nitro:/spr/room_sprites/lever_ruins.cspr",
+        "nitro:/spr/room_sprites/ruinsdoor1.cspr"
       ],
       "sprites": [
         {
@@ -90,6 +91,11 @@
           "animation": "gfx",
           "interact_action": "cutscene",
           "cutscene_id": 301
+        },
+        {
+          "texture_id": 4,
+          "x": 89, "y": 20,
+          "animation": "gfx"
         }
       ],
       "colliders": [

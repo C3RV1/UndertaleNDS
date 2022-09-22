@@ -227,8 +227,7 @@ void Dialogue::progressTextRoom(bool clear, bool draw) {
         return;
     }
     linePos++;
-    if (!typeSnd.getActive())
-        typeSnd.play();
+    typeSnd.play();
 
     // clear current chars
     uint16_t width = getLineWidth(linePos - 1);
@@ -353,8 +352,7 @@ void Dialogue::progressTextBattle(bool clear, bool draw) {
         x = startingX;
         return;
     }
-    if (!typeSnd.getActive())
-        typeSnd.play();
+    typeSnd.play();
 
     Engine::textSub.drawGlyph(font, currentChar, x, y);
 }
@@ -362,6 +360,8 @@ void Dialogue::progressTextBattle(bool clear, bool draw) {
 void Dialogue::free_() {
     speakerManager.setShown(false);
     speakerSpr.free_();
+    typeSnd.stop();
+    typeSnd.free_();
 }
 
 Dialogue* currentDialogue = nullptr;

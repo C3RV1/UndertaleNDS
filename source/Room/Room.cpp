@@ -272,7 +272,7 @@ bool Room::evaluateCondition(FILE *f) {
     ROOMPartCondition cond;
     fread(&cond.flagId, 2, 1, f);
     fread(&cond.cmpOperator, 1, 1, f);
-    bool flip = (cond.cmpOperator & 0b10000) != 0;
+    bool flip = cond.cmpOperator & 4;
     cond.cmpOperator = cond.cmpOperator & 3;
     fread(&cond.cmpValue, 2, 1, f);
 

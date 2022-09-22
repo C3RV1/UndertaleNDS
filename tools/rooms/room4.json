@@ -15,6 +15,13 @@
           "spawn_x": 98,
           "spawn_y": 56,
           "side": "down"
+        },
+        {
+          "exit_type": "side",
+          "room_id": 5,
+          "spawn_x": 0,
+          "spawn_y": 0,
+          "side": "right"
         }
       ],
       "textures": [
@@ -22,7 +29,6 @@
         "nitro:/spr/room_sprites/lever_ruins.cspr",
         "nitro:/spr/room_sprites/sign_ruins.cspr",
         "nitro:/spr/room_sprites/spike.cspr",
-        "nitro:/spr/room_sprites/dummy.cspr",
         "nitro:/spr/room_sprites/toriel.cspr"
       ],
       "sprites": [
@@ -35,12 +41,14 @@
         {
           "texture_id": 1,
           "x": 357, "y": 55,
-          "animation": "down"
+          "animation": "up",
+          "interact_action": "cutscene", "cutscene_id": 403
         },
         {
           "texture_id": 1,
           "x": 557, "y": 55,
-          "animation": "down"
+          "animation": "up",
+          "interact_action": "cutscene", "cutscene_id": 404
         },
         {
           "texture_id": 1,
@@ -55,47 +63,44 @@
         },
         {
           "texture_id": 3,
-          "x": 670, "y": 147,
-          "animation": "down"
+          "x": 670, "y": 140,
+          "animation": "up"
         },
         {
           "texture_id": 3,
-          "x": 670, "y": 167,
-          "animation": "down"
+          "x": 670, "y": 160,
+          "animation": "up"
         },
         {
           "texture_id": 4,
-          "x": 908, "y": 92,
-          "animation": "idle"
-        },
-        {
-          "texture_id": 5,
-          "x": 0, "y": 0,
-          "animation": "downIdle"
+          "x": 98, "y": 110,
+          "animation": "downIdle",
+          "layer": 10
         }
       ],
       "colliders": [
+        {
+          "x": 89, "y": 195, "w": 40, "h": 28,
+          "action": "trigger", "cutscene_id": 402
+        },
+        {
+          "comment": "disabled on first lever (cutscene 403)",
+          "x": 449, "y": 140, "w": 40, "h": 40
+        },
+        {
+          "comment": "disabled on seconds lever (cutscene 404)",
+          "x": 669, "y": 140, "w": 20, "h": 40
+        },
         {"x": 0, "y": 0, "w": 9, "h": 240},
-        {"x": 9, "y": 0, "w": 739, "h": 80},
+        {"x": 9, "y": 0, "w": 711, "h": 80},
         {"x": 9, "y": 220, "w": 80, "h": 20},
-        {"x": 129, "y": 220, "w": 868, "h": 20},
+        {"x": 129, "y": 220, "w": 591, "h": 20},
         {"x": 209, "y": 80, "w": 40, "h": 60},
         {"x": 209, "y": 180, "w": 40, "h": 40},
         {"x": 449, "y": 80, "w": 40, "h": 60},
         {"x": 449, "y": 180, "w": 40, "h": 40},
-        {"x": 669, "y": 80, "w": 79, "h": 60},
-        {"x": 669, "y": 180, "w": 99, "h": 40},
-        {"x": 748, "y": 0, "w": 20, "h": 120},
-        {"x": 748, "y": 0, "w": 20, "h": 120},
-        {"x": 768, "y": 0, "w": 20, "h": 100},
-        {"x": 768, "y": 200, "w": 20, "h": 20},
-        {"x": 788, "y": 0, "w": 60, "h": 80},
-        {"x": 888, "y": 0, "w": 109, "h": 80},
-        {"x": 948, "y": 80, "w": 49, "h": 20},
-        {"x": 968, "y": 100, "w": 29, "h": 20},
-        {"x": 988, "y": 120, "w": 9, "h": 100},
-        {"x": 968, "y": 180, "w": 20, "h": 40},
-        {"x": 948, "y": 200, "w": 20, "h": 20}
+        {"x": 669, "y": 80, "w": 51, "h": 60},
+        {"x": 669, "y": 180, "w": 51, "h": 40}
       ]
     },
     {
@@ -115,8 +120,7 @@
         "nitro:/spr/room_sprites/wall_panel_ruins.cspr",
         "nitro:/spr/room_sprites/lever_ruins.cspr",
         "nitro:/spr/room_sprites/sign_ruins.cspr",
-        "nitro:/spr/room_sprites/spike.cspr",
-        "nitro:/spr/room_sprites/dummy.cspr"
+        "nitro:/spr/room_sprites/spike.cspr"
       ],
       "sprites": [
         {
@@ -148,42 +152,26 @@
         },
         {
           "texture_id": 3,
-          "x": 670, "y": 147,
+          "x": 670, "y": 140,
           "animation": "down"
         },
         {
           "texture_id": 3,
-          "x": 670, "y": 167,
+          "x": 670, "y": 160,
           "animation": "down"
-        },
-        {
-          "texture_id": 4,
-          "x": 908, "y": 92,
-          "animation": "idle"
         }
       ],
       "colliders": [
         {"x": 0, "y": 0, "w": 9, "h": 240},
-        {"x": 9, "y": 0, "w": 739, "h": 80},
+        {"x": 9, "y": 0, "w": 711, "h": 80},
         {"x": 9, "y": 220, "w": 80, "h": 20},
-        {"x": 129, "y": 220, "w": 868, "h": 20},
+        {"x": 129, "y": 220, "w": 591, "h": 20},
         {"x": 209, "y": 80, "w": 40, "h": 60},
         {"x": 209, "y": 180, "w": 40, "h": 40},
         {"x": 449, "y": 80, "w": 40, "h": 60},
         {"x": 449, "y": 180, "w": 40, "h": 40},
-        {"x": 669, "y": 80, "w": 79, "h": 60},
-        {"x": 669, "y": 180, "w": 99, "h": 40},
-        {"x": 748, "y": 0, "w": 20, "h": 120},
-        {"x": 748, "y": 0, "w": 20, "h": 120},
-        {"x": 768, "y": 0, "w": 20, "h": 100},
-        {"x": 768, "y": 200, "w": 20, "h": 20},
-        {"x": 788, "y": 0, "w": 60, "h": 80},
-        {"x": 888, "y": 0, "w": 109, "h": 80},
-        {"x": 948, "y": 80, "w": 49, "h": 20},
-        {"x": 968, "y": 100, "w": 29, "h": 20},
-        {"x": 988, "y": 120, "w": 9, "h": 100},
-        {"x": 968, "y": 180, "w": 20, "h": 40},
-        {"x": 948, "y": 200, "w": 20, "h": 20}
+        {"x": 669, "y": 80, "w": 51, "h": 60},
+        {"x": 669, "y": 180, "w": 51, "h": 40}
       ]
     }
   ]
