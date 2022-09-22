@@ -53,20 +53,22 @@ namespace Engine {
         bool loaded = false;
         Texture* texture = nullptr;
 
-        int32_t x = 0, y = 0;  // 1 bit sign, 22 bit integer, 8 bit fraction, screen
         int32_t wx = 0, wy = 0;  // 1 bit sign, 22 bit integer, 8 bit fraction, world
         int32_t wscale_x = 1 << 8, wscale_y = 1 << 8;
-        int32_t scale_x = 0, scale_y = 0;
         int32_t cam_x = 0, cam_y = 0;
         int32_t cam_scale_x = 1 << 8, cam_scale_y = 1 << 8;
         int32_t layer = 0;
         int currentFrame = 0;
         int currentAnimation = -1;
+
+        friend class OAMManager;
+        friend class Sprite3DManager;
+    private:
+        int32_t x = 0, y = 0;  // 1 bit sign, 22 bit integer, 8 bit fraction, screen
+        int32_t scale_x = 0, scale_y = 0;
         uint16_t currentAnimationTimer = 0;
         uint16_t currentAnimationFrame = 0;
-
         SpriteInternalMemory memory;
-    private:
         AllocationMode allocMode;
         bool shown = false;
         bool pushed = false;

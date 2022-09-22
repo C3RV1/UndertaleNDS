@@ -52,7 +52,7 @@ private:
     char line[100] = {};
     uint8_t currentColor = 15;
 
-    BGM::WAV typeSnd;
+    Audio::WAV typeSnd;
 
     Engine::Font font;
 };

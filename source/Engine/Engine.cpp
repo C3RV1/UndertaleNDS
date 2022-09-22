@@ -18,7 +18,7 @@ namespace Engine {
         sys.fifo_channel		= FIFO_MAXMOD;
         mmInit( &sys );
 
-        BGM::initAudioStream();
+        Audio::initAudioStream();
 
         lcdMainOnTop();
 

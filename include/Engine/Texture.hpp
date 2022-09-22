@@ -29,7 +29,7 @@ namespace Engine {
         uint16_t getHeight() const {
             return height;
         }
-        void getSize(uint16_t& width_, uint16_t& height_) {
+        void getSize(uint16_t& width_, uint16_t& height_) const {
             width_ = width;
             height_ = height;
         }

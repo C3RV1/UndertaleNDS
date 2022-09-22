@@ -46,14 +46,14 @@ Room::Room(int roomId) : roomId(roomId) {
     }
 
     if (roomData.musicBg[0] != 0) {
-        bool musicChange = BGM::currentBGMusic.getFilename() == nullptr;
+        bool musicChange = Audio::currentBGMusic.getFilename() == nullptr;
         if (!musicChange)
-            musicChange = strcmp(roomData.musicBg, BGM::currentBGMusic.getFilename()) != 0;
+            musicChange = strcmp(roomData.musicBg, Audio::currentBGMusic.getFilename()) != 0;
         if (musicChange) {
-            BGM::playBGMusic(roomData.musicBg, true);
+            Audio::playBGMusic(roomData.musicBg, true);
         }
     } else {
-        BGM::stopBGMusic();
+        Audio::stopBGMusic();
     }
 
     loadSprites();
@@ -172,7 +172,7 @@ int Room::loadRoom(FILE *f) {
 
     fread(&textureCount, 1, 1, f);
     textures = new Engine::Texture*[textureCount];
-    char path[100];
+    char path[50];
     for (int i = 0; i < textureCount; i++){
         textures[i] = new Engine::Texture;
 

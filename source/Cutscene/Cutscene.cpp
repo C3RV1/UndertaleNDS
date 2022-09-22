@@ -362,12 +362,12 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
 
             len = strlen_file(commandStream, 0);
             fread(buffer, len + 1, 1, commandStream);
-            BGM::playBGMusic(buffer, loop);
+            Audio::playBGMusic(buffer, loop);
             break;
         }
         case CMD_STOP_BGM:
             nocashMessage("CMD_STOP_BGM");
-            BGM::stopBGMusic();
+            Audio::stopBGMusic();
             break;
         case CMD_PLAY_SFX: {
             nocashMessage("CMD_PLAY_SFX");
@@ -376,7 +376,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             len = strlen_file(commandStream, 0);
             fread(buffer, len + 1, 1, commandStream);
 
-            auto *sfxWav = new BGM::WAV;
+            auto *sfxWav = new Audio::WAV;
             sfxWav->deleteOnStop = true;
             sfxWav->loadWAV(buffer);
             sfxWav->setLoops(loops);

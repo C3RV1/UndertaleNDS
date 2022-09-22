@@ -11,8 +11,9 @@
 #include <nds.h>
 #include <maxmod9.h>
 
-namespace BGM {
-    const int WAVBuffer = 1000;
+namespace Audio {
+    // Audio buffer. We do not read a sample at a time, that would take too long
+    const int WAVBuffer = 1000;  // in samples
 
     class WAV {
     public:
@@ -32,6 +33,12 @@ namespace BGM {
         bool getActive() const {return active;}
         void play();
         void stop();
+
+        // Sometimes we'll want to start a WAV without
+        // having to keep a reference.
+        // We want it to free itself once it finishes playing
+        // Then we allocate it in the heap using new and
+        // set tne following variable to true.
         bool deleteOnStop = false;
     private:
         char* filename = nullptr;
@@ -44,7 +51,7 @@ namespace BGM {
         uint32_t dataEnd = 0;
         uint32_t dataStart = 0;
 
-        uint32_t co = 44100;  // Used to linearly adjust sample rate
+        uint32_t co = 44100;  // Used to linearly convert sample rate
         uint16_t cValueIdx = WAVBuffer;
         uint16_t maxValueIdx = WAVBuffer;
         uint16_t values[WAVBuffer * 2] = {0};

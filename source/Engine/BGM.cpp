@@ -4,7 +4,7 @@
 #include "Engine/BGM.hpp"
 #include <errno.h>
 
-namespace BGM {
+namespace Audio {
     WAV currentBGMusic;
 
     WAV* playingWavs = nullptr;
