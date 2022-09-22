@@ -35,13 +35,13 @@ int main() {
     uint16_t roomSpawn = 0;
 
     // DEBUG
-    // roomSpawn = 2;
-    // globalSave.flags[0] = 1;
+    roomSpawn = 3;
+    globalSave.flags[0] = 3;
 
     globalPlayer = new Player();
     globalPlayer->spriteManager.setShown(true);
     globalInGameMenu.load();
-    globalInGameMenu.show();
+    globalInGameMenu.show(true);
     globalRoom = new Room(roomSpawn);
     globalCamera.updatePosition(true);
     globalPlayer->spriteManager.wx = globalRoom->spawnX << 8;
@@ -62,7 +62,7 @@ int main() {
             if (globalCutscene->runCommands(ROOM)) {
                 delete globalCutscene;
                 globalCutscene = nullptr;
-                globalInGameMenu.show();
+                globalInGameMenu.show(false);
                 globalPlayer->playerControl = true;
                 globalCamera.manual = false;
             }

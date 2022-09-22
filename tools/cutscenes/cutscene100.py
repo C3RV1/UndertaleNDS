@@ -120,14 +120,15 @@ def cutscene(c: Cutscene):
     c.debug("Player avoided getting hit!")
     c.set_animation(Target(TargetType.SPRITE, 0), "evil")
     c.wait_frames(40)
-    c.start_dialogue_battle(70, 90, 192 // 4, Target(TargetType.SPRITE, 0), "evil", "evil_talk")
+    c.start_dialogue_battle(70, 90, 192 // 4, Target(TargetType.SPRITE, 0), "evil", "evil_talk",
+                            type_sound="snd_floweytalk2.wav")
     c.wait_dialogue_end()
 
     c.bind(post_no_hit)
     c.debug("Branch merge reached!")
 
     c.start_dialogue_battle(80, 80, 192 // 4, Target(TargetType.SPRITE, 0), "evil", "evil_talk",
-                            "fnt_plainbig.font.cfnt")
+                            font="fnt_plainbig.font.cfnt")
     c.wait_dialogue_end()
 
     # Unload pellets
@@ -144,7 +145,9 @@ def cutscene(c: Cutscene):
     c.wait_battle_attack()
 
     c.set_animation(Target(TargetType.SPRITE, 0), "skull_idle")
-    c.wait_frames(80)
+    c.wait_frames(20)
+    c.play_sfx("snd_heal_c.wav", 0)
+    c.wait_frames(60)
 
     c.set_animation(Target(TargetType.SPRITE, 0), "annoyed_open_mouth")
     c.wait_frames(80)

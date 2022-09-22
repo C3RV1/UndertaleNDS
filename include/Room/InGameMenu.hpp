@@ -23,7 +23,7 @@ public:
     itemExplainBox(Engine::AllocatedOAM){}
     void load();
     void unload();
-    void show();
+    void show(bool update);
     void hide();
     void update();
 private:

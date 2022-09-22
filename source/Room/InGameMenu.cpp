@@ -79,11 +79,13 @@ void InGameMenu::hide() {
     itemExplainBox.setShown(false);
 }
 
-void InGameMenu::show() {
+void InGameMenu::show(bool update) {
     // TODO: Make Font so we don't have to render all text again
     //       when we change the selected menu (consumes a lot)
     //       Or maybe optimize? Or maybe don't do anything, it
     //       only runs for a single frame so who cares?
+    if (shown && !update)
+        return;
 
     shown = true;
     Engine::loadBgTextSub(bg);
@@ -200,12 +202,12 @@ void InGameMenu::update() {
                     selectedMenu = MENU_ITEMS;
                     itemSelected = 0;
                     itemPage = 0;
-                    show();
+                    show(true);
                 }
             } else if (touch.px > 140 && touch.px < 140 + 58) {
                 if (selectedMenu != MENU_CELL) {
                     selectedMenu = MENU_CELL;
-                    show();
+                    show(true);
                 }
             }
         } else if (touch.py > 35 + 19 && touch.py < itemsY + itemSpacingY * 2) {
@@ -216,19 +218,19 @@ void InGameMenu::update() {
                     int itemIdx = itemY;
                     if (itemIdx != itemSelected && itemPage * 2 + itemSelected < itemCount) {
                         itemSelected = itemIdx;
-                        show();
+                        show(true);
                     }
                 } else if (touch.py > pageChangeY - 5 && touch.py < pageChangeY + 20) {
                     if (touch.px < 15) {
                         if (itemPage > 0) {
                             itemPage--;
-                            show();
+                            show(true);
                         }
                     }
                     else if (touch.px > 256 - 25) {
                         if (itemPage < pageCount - 1) {
                             itemPage++;
-                            show();
+                            show(true);
                         }
                     }
                 }

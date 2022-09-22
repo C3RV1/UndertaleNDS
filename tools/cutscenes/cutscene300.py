@@ -15,7 +15,7 @@ def cutscene(c: Cutscene):
     c.start_dialogue(10, "speaker/toriel.cspr", (256 - 50) // 2, (192 - 39) // 4 - 5,
                      "talkIdle", "talkTalk",
                      Target(TargetType.SPRITE, 0),
-                     "downIdle", "downTalk", "fnt_maintext.font.cfnt")
+                     "downIdle", "downTalk", type_sound="snd_txttor.wav")
     c.wait_dialogue_end()
 
     c.set_animation(Target(TargetType.SPRITE, 0), "rightMove")
@@ -47,7 +47,7 @@ def cutscene(c: Cutscene):
     c.wait_frames(10)
 
     c.set_animation(Target(TargetType.SPRITE, 0), "upIdle")
-    # TODO: Lever
+    c.set_animation(Target(TargetType.SPRITE, 7), "down")
 
     c.wait_frames(60)
 
@@ -63,7 +63,7 @@ def cutscene(c: Cutscene):
     c.start_dialogue(20, "speaker/toriel.cspr", (256 - 50) // 2, (192 - 39) // 4 - 5,
                      "talkIdle", "talkTalk",
                      Target(TargetType.SPRITE, 0),
-                     "downIdle", "downTalk", "fnt_maintext.font.cfnt")
+                     "downIdle", "downTalk", type_sound="snd_txttor.wav")
     c.wait_dialogue_end()
 
     c.wait_frames(30)

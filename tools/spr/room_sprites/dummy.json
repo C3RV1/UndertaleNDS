@@ -1,0 +1,10 @@
+{
+  "size": [17, 28],
+  "frameCount": 1,
+  "animations": [
+    {
+      "name": "idle",
+      "frames": [{"frame": 0, "duration": 0}]
+    }
+  ]
+}

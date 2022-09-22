@@ -134,7 +134,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             fread(&playerControl, 1, 1, commandStream);
             globalPlayer->playerControl = playerControl;
             if (playerControl)
-                globalInGameMenu.show();
+                globalInGameMenu.show(false);
             else
                 globalInGameMenu.hide();
             break;

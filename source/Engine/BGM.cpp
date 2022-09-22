@@ -213,15 +213,9 @@ namespace Audio {
             }
             for (int i = 0; i < 2; i++) {
                 if (!wav->getStereo())
-                    addition = dest[dstI * 2 + i] + wav->values[wav->cValueIdx];
+                    dest[dstI * 2 + i] += wav->values[wav->cValueIdx];
                 else
-                    addition = dest[dstI * 2 + i] + wav->values[wav->cValueIdx * 2 + i];
-                // clamp to int16_t
-                if (addition > 32767)
-                    addition = 32767;
-                else if (addition < -32768)
-                    addition = -32768;
-                dest[dstI * 2 + i] = addition;
+                    dest[dstI * 2 + i] += wav->values[wav->cValueIdx * 2 + i];
             }
             wav->co += wav->getSampleRate();
             dstI++;

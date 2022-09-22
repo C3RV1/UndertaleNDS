@@ -61,7 +61,7 @@ Room::Room(int roomId) : roomId(roomId) {
 
 int Room::loadRoom(FILE *f) {
     ROOMFile roomFile;
-    char buffer[100];
+    char buffer[200];
 
     fread(roomFile.header.header, 4, 1, f);
     char expectedHeader[4] = {'R', 'O', 'O', 'M'};
@@ -172,7 +172,7 @@ int Room::loadRoom(FILE *f) {
 
     fread(&textureCount, 1, 1, f);
     textures = new Engine::Texture*[textureCount];
-    char path[50];
+    char path[100];
     for (int i = 0; i < textureCount; i++){
         textures[i] = new Engine::Texture;
 
