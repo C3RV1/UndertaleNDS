@@ -3,6 +3,9 @@
 //
 
 #include "Cutscene/Dialogue.hpp"
+#include "Engine/OAMManager.hpp"
+#include "Cutscene/Cutscene.hpp"
+#include "Formats/utils.hpp"
 
 Dialogue::Dialogue(bool isRoom_, uint16_t textId, char *speaker, int32_t speakerX, int32_t speakerY,
                    char *idleAnimTxt, char *talkAnimTxt,
@@ -45,8 +48,8 @@ Dialogue::Dialogue(bool isRoom_, uint16_t textId, char *speaker, int32_t speaker
         fclose(speakerCspr);
     }
 
-    sprintf(buffer, "nitro:/data/dialogue/c%d/d%d.txt",
-            globalCutscene->cutsceneId, textId);
+    sprintf(buffer, "nitro:/data/dialogue/r%d/c%d/d%d.txt",
+            globalCutscene->roomId, globalCutscene->cutsceneId, textId);
     textStream = fopen(buffer, "rb");
     fseek(textStream, 0, SEEK_END);
     textLen = ftell(textStream);
@@ -111,12 +114,12 @@ bool Dialogue::update() {
         progressText(true, true);
         if ((keysDown() & (KEY_TOUCH | KEY_A)) || letterFrames == 0) {
             progressText(true, false);
-            while (!paused && !(ftell(textStream) == textLen && (linePos > lineLen || !isRoom)))
+            while (!paused && !(ftell(textStream) == textLen && (linePos >= lineLen || !isRoom)))
                 progressText(false, false);
             linePos--;
             progressText(false, true);
         }
-        if (ftell(textStream) == textLen && (linePos > lineLen || !isRoom)) {
+        if (ftell(textStream) == textLen && (linePos >= lineLen || !isRoom)) {
             setNoTalk();
             fclose(textStream);
             return true;
@@ -166,7 +169,7 @@ void Dialogue::progressTextRoom(bool clear, bool draw) {
         return;
     }
     currentTimer = letterFrames;
-    if (linePos > lineLen) {
+    if (linePos == lineLen) {
         if (ftell(textStream) == textLen) {
             return;
         }
@@ -227,7 +230,8 @@ void Dialogue::progressTextRoom(bool clear, bool draw) {
         return;
     }
     linePos++;
-    typeSnd.play();
+    if (draw && linePos < lineLen)
+        typeSnd.play();
 
     // clear current chars
     uint16_t width = getLineWidth(linePos - 1);
@@ -270,12 +274,12 @@ void Dialogue::progressTextRoom(bool clear, bool draw) {
             lineEndColor = Engine::textSub.getCurrentColor();
             continue;
         }
-        if (draw || linePos > lineLen)
+        if (draw || linePos == lineLen)
             Engine::textSub.drawGlyph(font, *pLine, startingX, y);
         startingX += 1;
     }
 
-    if (linePos > lineLen)
+    if (linePos == lineLen)
         currentColor = lineEndColor;
 }
 
@@ -352,7 +356,8 @@ void Dialogue::progressTextBattle(bool clear, bool draw) {
         x = startingX;
         return;
     }
-    typeSnd.play();
+    if (draw)
+        typeSnd.play();
 
     Engine::textSub.drawGlyph(font, currentChar, x, y);
 }

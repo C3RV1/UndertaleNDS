@@ -5,12 +5,7 @@
 #ifndef UNDERTALE_MOVEMENTTUTORIAL_HPP
 #define UNDERTALE_MOVEMENTTUTORIAL_HPP
 
-namespace BtlAttacks {
-    class MovementTutorial;
-}
-
 #include "Battle/BattleAttack.hpp"
-#include "Battle/Battle.hpp"
 #include "Engine/Sprite.hpp"
 #include "Engine/Texture.hpp"
 

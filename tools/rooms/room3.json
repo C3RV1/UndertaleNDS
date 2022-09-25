@@ -90,7 +90,7 @@
           "y": 40,
           "animation": "gfx",
           "interact_action": "cutscene",
-          "cutscene_id": 301
+          "cutscene_id": 1
         },
         {
           "texture_id": 4,
@@ -101,7 +101,7 @@
       "colliders": [
         {
           "x": 0, "y": 0, "w": 258, "h": 240,
-          "action": "trigger", "cutscene_id": 300
+          "action": "trigger", "cutscene_id": 0
         },
         {"x": 0, "y": 0, "w": 29, "h": 100},
         {"x": 29, "y": 0, "w": 60, "h": 80},
@@ -198,7 +198,7 @@
           "y": 40,
           "animation": "gfx",
           "interact_action": "cutscene",
-          "cutscene_id": 301
+          "cutscene_id": 1
         }
       ],
       "colliders": [

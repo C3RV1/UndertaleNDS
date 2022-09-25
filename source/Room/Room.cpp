@@ -3,6 +3,13 @@
 //
 
 #include "Room/Room.hpp"
+#include "Engine/Engine.hpp"
+#include "Engine/Audio.hpp"
+#include "Save.hpp"
+#include "Cutscene/Cutscene.hpp"
+#include "Room/Player.hpp"
+#include "Formats/utils.hpp"
+#include "Room/Camera.hpp"
 
 Room::Room(int roomId) : roomId(roomId) {
     char buffer[100];

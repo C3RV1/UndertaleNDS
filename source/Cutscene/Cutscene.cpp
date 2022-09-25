@@ -3,12 +3,25 @@
 //
 
 #include "Cutscene/Cutscene.hpp"
+#include "Cutscene/Navigation.hpp"
+#include "Cutscene/CutsceneEnums.hpp"
+#include "Cutscene/Dialogue.hpp"
+#include "Engine/Engine.hpp"
+#include "Save.hpp"
+#include "Battle/Battle.hpp"
+#include "Battle/BattleAttack.hpp"
+#include "Room/Room.hpp"
+#include "Formats/utils.hpp"
+#include "Room/Player.hpp"
+#include "Room/InGameMenu.hpp"
+#include "Room/Camera.hpp"
 
 Cutscene* globalCutscene = nullptr;
 
 Cutscene::Cutscene(uint16_t cutsceneId_) : cutsceneId(cutsceneId_) {
     char buffer[100];
-    sprintf(buffer, "nitro:/data/cutscenes/cutscene%d.cscn", cutsceneId);
+    roomId = globalRoom->roomId;
+    sprintf(buffer, "nitro:/data/cutscenes/r%d/c%d.cscn", roomId, cutsceneId);
     FILE* f = fopen(buffer, "rb");
     if (f) {
         if (checkHeader(f)) {

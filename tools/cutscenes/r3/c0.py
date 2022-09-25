@@ -1,6 +1,6 @@
 import typing
 if typing.TYPE_CHECKING:
-    from ..CutsceneTypes import Cutscene, Target, TargetType
+    from tools.CutsceneTypes import Cutscene, Target, TargetType
 else:
     from CutsceneTypes import Cutscene, Target, TargetType
 
@@ -73,7 +73,7 @@ def cutscene(c: Cutscene):
     c.move_in_frames(Target(TargetType.SPRITE, 0), 0, -50, 40)
     c.wait_frames(40)
     c.unload_sprite(0)
-    c.unload_texture(0)
+    c.unload_texture(1)
     c.wait_frames(30)
 
     c.move_in_frames(Target(TargetType.CAMERA), 0, 20, 60)

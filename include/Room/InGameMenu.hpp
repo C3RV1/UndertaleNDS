@@ -5,10 +5,9 @@
 #ifndef UNDERTALE_INGAMEMENU_HPP
 #define UNDERTALE_INGAMEMENU_HPP
 
-#include "Font.hpp"
-#include "Save.hpp"
-#include "Background.hpp"
-#include "Engine.hpp"
+#include "Engine/Sprite.hpp"
+#include "Engine/Font.hpp"
+#include "Engine/Background.hpp"
 
 enum SelectedMenu {
     MENU_ITEMS,

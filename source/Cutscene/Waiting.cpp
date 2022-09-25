@@ -3,6 +3,8 @@
 //
 
 #include "Cutscene/Waiting.hpp"
+#include "Battle/Battle.hpp"
+#include "Dialogue.hpp"
 
 void Waiting::waitFrames(int frames) {
     currentWait = WAIT_FRAMES;

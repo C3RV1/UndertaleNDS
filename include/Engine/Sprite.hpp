@@ -11,9 +11,9 @@ namespace Engine {
 
 #define ARM9
 #include <nds.h>
-#include "Texture.hpp"
-#include "OAMManager.hpp"
-#include "Sprite3DManager.hpp"
+#include "Engine/Texture.hpp"
+#include "Engine/OAMManager.hpp"
+#include "Engine/Sprite3DManager.hpp"
 
 namespace Engine {
     enum AllocationMode {

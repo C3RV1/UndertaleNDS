@@ -5,9 +5,7 @@
 #include <stdio.h>
 #define ARM9
 #include <nds.h>
-#include "Background.hpp"
 #include "Formats/CSPR.hpp"
-#include "Formats/utils.hpp"
 
 namespace Engine {
     class Texture {

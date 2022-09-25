@@ -1,4 +1,5 @@
 #include "Engine/Texture.hpp"
+#include "Formats/utils.hpp"
 
 namespace Engine {
     int Texture::loadCSPR(FILE *f) {

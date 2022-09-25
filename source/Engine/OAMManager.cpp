@@ -1,4 +1,5 @@
 #include "Engine/OAMManager.hpp"
+#include "Engine/Texture.hpp"
 
 namespace Engine {
     uint8_t tmpRam[64*64];

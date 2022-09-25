@@ -45,7 +45,7 @@
           "w": 318,
           "h": 16,
           "action": "trigger",
-          "cutscene_id": 100
+          "cutscene_id": 0
         }
       ]
     },

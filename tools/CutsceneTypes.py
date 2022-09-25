@@ -382,7 +382,7 @@ class Cutscene:
         self.write_header(CutsceneCommands.STOP_BGM)
         return self.instructions_address[-1]
 
-    def play_sfx(self, path: str, loops: int):
+    def play_sfx(self, path: str, loops: int = 0):
         self.write_header(CutsceneCommands.PLAY_SFX)
         self.wtr.write_uint8(loops)
         self.wtr.write_string(path, encoding="ascii")

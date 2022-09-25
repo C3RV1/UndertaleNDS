@@ -3,6 +3,14 @@
 //
 
 #include "Battle/Battle.hpp"
+#include "Room/Room.hpp"
+#include "Engine/Engine.hpp"
+#include "Cutscene/Dialogue.hpp"
+#include "Room/Player.hpp"
+#include "Cutscene/Cutscene.hpp"
+#include "Room/Camera.hpp"
+#include "Room/InGameMenu.hpp"
+#include "Formats/utils.hpp"
 
 Battle* globalBattle = nullptr;
 
@@ -71,7 +79,7 @@ void Battle::loadFromStream(FILE *stream) {
     playerManager.wy = ((boardY + boardH / 2) << 8) - (9 << 8) / 2;
 }
 
-void Battle::draw() {
+void Battle::draw() const {
     for (int i = 0; i < spriteCount; i++) {
         sprites[i]->draw(false);
     }

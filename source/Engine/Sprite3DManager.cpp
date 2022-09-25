@@ -3,6 +3,7 @@
 //
 
 #include "Sprite3DManager.hpp"
+#include "Texture.hpp"
 
 namespace Engine {
     int Sprite3DManager::loadSprite(Engine::Sprite &res) {

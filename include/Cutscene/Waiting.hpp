@@ -5,8 +5,6 @@
 #ifndef UNDERTALE_WAITING_HPP
 #define UNDERTALE_WAITING_HPP
 
-class Waiting;
-
 #include "CutsceneEnums.hpp"
 
 enum WaitingType {
@@ -32,8 +30,5 @@ private:
     WaitingType currentWait = NONE;
     int currentWaitTime = 0;
 };
-
-#include "Battle/Battle.hpp"
-#include "Dialogue.hpp"
 
 #endif //UNDERTALE_WAITING_HPP

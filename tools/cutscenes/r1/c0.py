@@ -1,6 +1,6 @@
 import typing
 if typing.TYPE_CHECKING:
-    from ..CutsceneTypes import Cutscene, Target, TargetType
+    from tools.CutsceneTypes import Cutscene, Target, TargetType
 else:
     from CutsceneTypes import Cutscene, Target, TargetType
 
@@ -140,13 +140,13 @@ def cutscene(c: Cutscene):
     c.unload_texture(2)
 
     c.set_animation(Target(TargetType.SPRITE, 0), "skull_laugh")
-    c.play_sfx("snd_floweylaugh.wav", 0)
+    c.play_sfx("snd_floweylaugh.wav")
     c.battle_attack(3)
     c.wait_battle_attack()
 
     c.set_animation(Target(TargetType.SPRITE, 0), "skull_idle")
     c.wait_frames(20)
-    c.play_sfx("snd_heal_c.wav", 0)
+    c.play_sfx("snd_heal_c.wav")
     c.wait_frames(60)
 
     c.set_animation(Target(TargetType.SPRITE, 0), "annoyed_open_mouth")
@@ -161,6 +161,7 @@ def cutscene(c: Cutscene):
     c.unload_sprite(1)
     c.unload_texture(1)
     c.set_animation(Target(TargetType.SPRITE, 0), "hurt")
+    c.play_sfx("snd_ehurt1.wav")
     c.move_in_frames(Target(TargetType.SPRITE, 0), -100, 0, 60)
     c.wait_frames(60)
     c.unload_sprite(0)

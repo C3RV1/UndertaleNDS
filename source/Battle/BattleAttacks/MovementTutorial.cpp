@@ -2,6 +2,7 @@
 // Created by cervi on 08/09/2022.
 //
 #include "Battle/BattleAttacks/MovementTutorial.hpp"
+#include "Battle/Battle.hpp"
 
 namespace BtlAttacks {
     MovementTutorial::MovementTutorial() : tutorialSpr(Engine::Allocated3D) {

@@ -6,10 +6,8 @@
 #define UNDERTALE_FLOWEYATTACK2_HPP
 
 #include "Battle/BattleAttack.hpp"
-#include "Battle/Battle.hpp"
 #include "Engine/Sprite.hpp"
 #include "Engine/Texture.hpp"
-#include "Engine/math.hpp"
 
 namespace BtlAttacks {
     class FloweyAttack2 : public BattleAttack {

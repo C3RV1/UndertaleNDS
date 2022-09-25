@@ -2,6 +2,9 @@
 // Created by cervi on 08/09/2022.
 //
 #include "Battle/BattleAttack.hpp"
+#include "Battle/BattleAttacks/MovementTutorial.hpp"
+#include "Battle/BattleAttacks/FloweyAttack.hpp"
+#include "Battle/BattleAttacks/FloweyAttack2.hpp"
 
 BattleAttack* getBattleAttack(uint16_t attackId) {
     switch (attackId) {

@@ -5,13 +5,11 @@
 #ifndef UNDERTALE_DIALOGUE_HPP
 #define UNDERTALE_DIALOGUE_HPP
 
-class Dialogue;
-
 #define ARM9
 #include <nds.h>
-#include "OAMManager.hpp"
-#include "Cutscene.hpp"
-#include "Font.hpp"
+#include "Engine/Audio.hpp"
+#include "Engine/Sprite.hpp"
+#include "Engine/Font.hpp"
 #include <stdio.h>
 
 class Dialogue {

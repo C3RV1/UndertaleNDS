@@ -3,6 +3,7 @@
 //
 
 #include "ManagedSprite.hpp"
+#include "Room/Camera.hpp"
 
 void ManagedSprite::load(ROOMSprite *sprData, uint8_t textureCount,
                          Engine::Texture** textures) {

@@ -5,18 +5,10 @@
 #ifndef UNDERTALE_PLAYER_HPP
 #define UNDERTALE_PLAYER_HPP
 
-class Player;
-
-#include "Texture.hpp"
+#include "Sprite.hpp"
 #include <stdio.h>
 #define ARM9
 #include <nds.h>
-#include "Sprite3DManager.hpp"
-#include "Room/Camera.hpp"
-#include "Room.hpp"
-#include "math.hpp"
-#include "Cutscene/Cutscene.hpp"
-#include "Room/InGameMenu.hpp"
 
 class Player {
 public:

@@ -5,20 +5,13 @@
 #ifndef UNDERTALE_BATTLE_HPP
 #define UNDERTALE_BATTLE_HPP
 
-class Battle;
-extern Battle* globalBattle;
-
 #define ARM9
 #include <nds.h>
 #include <stdio.h>
-#include "Room/Room.hpp"
-#include "Background.hpp"
-#include "Texture.hpp"
-#include "Sprite.hpp"
+#include "Engine/Engine.hpp"
 #include "ManagedSprite.hpp"
 #include "Cutscene/Navigation.hpp"
 #include "BattleAttack.hpp"
-#include "Engine.hpp"
 
 struct Enemy {
     uint16_t enemyId = 0;
@@ -33,7 +26,7 @@ class Battle {
 public:
     Battle();
     void loadFromStream(FILE* stream);
-    void draw();
+    void draw() const;
     void update();
     void free_();
     void resetBattleAttack();
@@ -61,5 +54,6 @@ public:
 };
 
 void runBattle(FILE* stream);
+extern Battle* globalBattle;
 
 #endif //UNDERTALE_BATTLE_HPP

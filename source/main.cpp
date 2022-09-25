@@ -8,14 +8,16 @@
 
 #define ARM9
 #include "Engine/Engine.hpp"
-#include "Engine/math.hpp"
+#include "Engine/Font.hpp"
 #include "TitleScreen.hpp"
 #include "WriteName.hpp"
-#include "Font.hpp"
 #include "Room/Room.hpp"
 #include "Room/Player.hpp"
 #include "Room/Camera.hpp"
 #include "Room/InGameMenu.hpp"
+#include "Cutscene/Dialogue.hpp"
+#include "Cutscene/Cutscene.hpp"
+#include "Save.hpp"
 
 int main() {
     /* Configure the VRAM and background control registers. */

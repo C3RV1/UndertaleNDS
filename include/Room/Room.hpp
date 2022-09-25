@@ -5,17 +5,10 @@
 #ifndef UNDERTALE_ROOM_HPP
 #define UNDERTALE_ROOM_HPP
 
-class Room;
-
 #include <stdio.h>
 #include <string.h>
-#include "Engine/Background.hpp"
 #include "Engine/Engine.hpp"
-#include "Engine/Texture.hpp"
-#include "Room/Camera.hpp"
-#include "Room/Player.hpp"
 #include "Formats/ROOM_FILE.hpp"
-#include "Formats/utils.hpp"
 #include "ManagedSprite.hpp"
 #include "Cutscene/Navigation.hpp"
 

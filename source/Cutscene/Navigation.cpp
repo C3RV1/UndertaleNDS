@@ -3,6 +3,10 @@
 //
 
 #include "Cutscene/Navigation.hpp"
+#include "Battle/Battle.hpp"
+#include "Room/Room.hpp"
+#include "Room/Player.hpp"
+#include "Room/Camera.hpp"
 
 void Navigation::load_texture(char *path, CutsceneLocation callingLocation) {
     char buffer[100];

@@ -3,6 +3,10 @@
 //
 
 #include "Room/Player.hpp"
+#include "Room/Room.hpp"
+#include "Cutscene/Cutscene.hpp"
+#include "Room/Camera.hpp"
+#include "Engine/math.hpp"
 
 Player::Player() : spriteManager(Engine::Allocated3D) {
     char buffer[100];
@@ -178,7 +182,7 @@ void Player::check_interact() const {
         h2 = sprite->spriteManager.texture->getHeight();
         if (collidesRect(x, y, w, h, x2, y2, w2, h2)) {
             if (sprite->interactAction == 1) {
-                if (sprite->cutsceneId != 0 && globalCutscene == nullptr)
+                if (globalCutscene == nullptr)
                     globalCutscene = new Cutscene(sprite->cutsceneId);
                 return;
             }

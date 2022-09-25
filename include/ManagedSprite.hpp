@@ -7,10 +7,8 @@
 
 class ManagedSprite;
 
-#include "Engine/Texture.hpp"
-#include "Engine/Sprite3DManager.hpp"
+#include "Engine/Sprite.hpp"
 #include "Formats/ROOM_FILE.hpp"
-#include "Room/Camera.hpp"
 
 class ManagedSprite {
 public:

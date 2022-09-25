@@ -1,13 +1,11 @@
 //
 // Created by cervi on 10/09/2022.
 //
+
 #include "Battle/BattleAttacks/FloweyAttack2.hpp"
-
-//
-// Created by cervi on 10/09/2022.
-//
-
-#include "Battle/BattleAttacks/FloweyAttack.hpp"
+#include "Battle/Battle.hpp"
+#include "Engine/math.hpp"
+#include "Save.hpp"
 
 namespace BtlAttacks {
     FloweyAttack2::FloweyAttack2() {

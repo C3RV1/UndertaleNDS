@@ -7,7 +7,6 @@
 
 #define ARM9
 #include <nds.h>
-#include "Texture.hpp"
 #include "Sprite.hpp"
 
 namespace Engine {

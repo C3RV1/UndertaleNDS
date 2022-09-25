@@ -5,8 +5,6 @@
 #ifndef UNDERTALE_NAVIGATION_HPP
 #define UNDERTALE_NAVIGATION_HPP
 
-class Navigation;
-
 #include "Sprite.hpp"
 #include "CutsceneEnums.hpp"
 
@@ -65,9 +63,5 @@ private:
     uint8_t taskCount = 0;
     NavigationTask** tasks = nullptr;
 };
-
-#include "Battle/Battle.hpp"
-
-#include "Room/Room.hpp"
 
 #endif //UNDERTALE_NAVIGATION_HPP

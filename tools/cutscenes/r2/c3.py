@@ -1,6 +1,6 @@
 import typing
 if typing.TYPE_CHECKING:
-    from ..CutsceneTypes import Cutscene, Target, TargetType
+    from tools.CutsceneTypes import Cutscene, Target, TargetType
 else:
     from CutsceneTypes import Cutscene, Target, TargetType
 

@@ -5,12 +5,7 @@
 #ifndef UNDERTALE_CAMERA_HPP
 #define UNDERTALE_CAMERA_HPP
 
-class Camera;
-
-#include "Engine/Engine.hpp"
-#include "Room.hpp"
-#include "Player.hpp"
-#include "math.hpp"
+#include "Engine/Sprite.hpp"
 
 class Camera {
 public:

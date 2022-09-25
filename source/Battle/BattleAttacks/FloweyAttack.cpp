@@ -3,6 +3,9 @@
 //
 
 #include "Battle/BattleAttacks/FloweyAttack.hpp"
+#include "Battle/Battle.hpp"
+#include "Engine/math.hpp"
+#include "Save.hpp"
 
 namespace BtlAttacks {
     FloweyAttack::FloweyAttack() {

@@ -2,6 +2,11 @@
 // Created by cervi on 22/08/2022.
 //
 #include "TitleScreen.hpp"
+#include "Engine/Audio.hpp"
+#include "Engine/Background.hpp"
+#include "Engine/Font.hpp"
+#include "Engine/Engine.hpp"
+#include "Formats/utils.hpp"
 
 void runTitleScreen() {
     const int fadeInFrames = 30;

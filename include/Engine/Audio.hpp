@@ -2,8 +2,8 @@
 // Created by cervi on 23/08/2022.
 //
 
-#ifndef UNDERTALE_BGM_HPP
-#define UNDERTALE_BGM_HPP
+#ifndef UNDERTALE_AUDIO_HPP
+#define UNDERTALE_AUDIO_HPP
 
 #include <stdio.h>
 #include <string.h>
@@ -75,4 +75,4 @@ namespace Audio {
     extern WAV* playingWavs;
 }
 
-#endif //UNDERTALE_BGM_HPP
+#endif //UNDERTALE_AUDIO_HPP

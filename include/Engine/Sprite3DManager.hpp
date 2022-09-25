@@ -5,12 +5,6 @@
 #ifndef UNDERTALE_SPRITE3DMANAGER_HPP
 #define UNDERTALE_SPRITE3DMANAGER_HPP
 
-namespace Engine {
-    class Sprite3DManager;
-    extern Sprite3DManager main3dSpr;
-}
-
-#include "Texture.hpp"
 #include "Sprite.hpp"
 #define ARM9
 #include <nds.h>
@@ -41,6 +35,8 @@ namespace Engine {
         uint8_t activeSpriteCount = 0;
         Sprite** activeSprites = nullptr;
     };
+
+    extern Sprite3DManager main3dSpr;
 }
 
 #endif //UNDERTALE_SPRITE3DMANAGER_HPP

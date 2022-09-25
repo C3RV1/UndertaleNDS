@@ -3,6 +3,9 @@
 //
 
 #include "Room/Camera.hpp"
+#include "Engine/math.hpp"
+#include "Room/Room.hpp"
+#include "Room/Player.hpp"
 
 void Camera::updatePosition(bool roomChange) {
     const int offsetX = 0, offsetY = -20;

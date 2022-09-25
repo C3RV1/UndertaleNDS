@@ -1,6 +1,6 @@
 import typing
 if typing.TYPE_CHECKING:
-    from ..CutsceneTypes import Cutscene, Target, TargetType
+    from tools.CutsceneTypes import Cutscene, Target, TargetType
 else:
     from CutsceneTypes import Cutscene, Target, TargetType
 
@@ -18,5 +18,8 @@ def cutscene(c: Cutscene):
     jump_end = c.jump()
 
     c.bind(toriel_not_in_room)
+
+    c.start_dialogue(10, "", 0, 0, "", "", Target(TargetType.NULL), "", "",
+                     type_sound="SND_TXT1.wav")
 
     c.bind(jump_end)

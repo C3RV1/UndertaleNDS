@@ -2,6 +2,9 @@
 // Created by cervi on 01/09/2022.
 //
 #include "Room/InGameMenu.hpp"
+#include "Engine/Engine.hpp"
+#include "Formats/utils.hpp"
+#include "Save.hpp"
 
 void InGameMenu::load() {
     char buffer[100];
