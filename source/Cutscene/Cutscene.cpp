@@ -56,7 +56,7 @@ bool Cutscene::checkHeader(FILE *f) {
     u32 version;
     fread(&version, 4, 1, f);
 
-    if (version != 4) {
+    if (version != 5) {
         return false;
     }
 
@@ -169,14 +169,19 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             globalCamera.manual = manualCamera;
             break;
         }
-        case CMD_WAIT_EXIT:
+        case CMD_WAIT: {
             nocashMessage("CMD_WAIT_EXIT");
-            waiting.waitExit();
+            u8 waitType;
+            fread(&waitType, 1, 1, commandStream);
+            if (waitType == WAIT_FRAMES) {
+                u16 frames;
+                fread(&frames, 2, 1, commandStream);
+                waiting.waitFrames(frames);
+                break;
+            }
+            waiting.wait((WaitingType)(waitType));
             break;
-        case CMD_WAIT_ENTER:
-            nocashMessage("CMD_WAIT_ENTER");
-            waiting.waitEnter();
-            break;
+        }
         case CMD_SET_SHOWN: {
             nocashMessage("CMD_SET_SHOWN");
             fread(&targetType, 1, 1, commandStream);
@@ -196,13 +201,6 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             fread(buffer, len + 1, 1, commandStream);
             Navigation::set_animation(targetType, targetId, buffer, callingLocation);
             break;
-        case CMD_WAIT_FRAMES: {
-            nocashMessage("CMD_WAIT_FRAMES");
-            u16 frameCount;
-            fread(&frameCount, 2, 1, commandStream);
-            waiting.waitFrames(frameCount);
-            break;
-        }
         case CMD_SET_POS: {
             nocashMessage("CMD_SET_POS");
             fread(&targetType, 1, 1, commandStream);
@@ -314,10 +312,6 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             }
             break;
         }
-        case CMD_WAIT_DIALOGUE_END:
-            nocashMessage("CMD_WAIT_DIALOGUE_END");
-            waiting.waitDialogueEnd();
-            break;
         case CMD_START_BATTLE: {
             nocashMessage("CMD_START_BATTLE");
             if (callingLocation == ROOM || callingLocation == LOAD_ROOM)
@@ -340,18 +334,6 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             }
             break;
         }
-        case CMD_WAIT_BATTLE_ATTACK:
-            nocashMessage("CMD_WAIT_BATTLE_ATTACK");
-            waiting.waitBattleAttack();
-            break;
-        case CMD_WAIT_BATTLE_ACTION:
-            nocashMessage("CMD_WAIT_BATTLE_ACTION");
-            fread(&count, 1, 1, commandStream);
-            for (int i = 0; i < count; i++) {
-                len = strlen_file(commandStream, 0);
-                fread(buffer, len + 1, 1, commandStream);
-            }
-            break;
         case CMD_CMP_BATTLE_ACTION:
             nocashMessage("CMD_CMP_BATTLE_ACTION");
             fread(buffer, 1, 1, commandStream);

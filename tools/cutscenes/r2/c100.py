@@ -7,6 +7,10 @@ else:
 
 def cutscene(c: Cutscene):
     c.player_control(False)
-    c.start_dialogue(10, "", 0, 0, "", "", Target(TargetType.NULL), "", "",
+    c.start_dialogue(10, "", 0, 0, "", "",
+                     Target(TargetType.NULL), "", "",
                      type_sound="SND_TXT1.wav")
     c.wait(WaitTypes.DIALOGUE)
+    c.save_menu()
+    c.wait(WaitTypes.SAVE_MENU)
+    c.save_menu()

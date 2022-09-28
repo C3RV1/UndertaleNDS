@@ -1,8 +1,8 @@
 import typing
 if typing.TYPE_CHECKING:
-    from tools.CutsceneTypes import Cutscene, Target, TargetType
+    from tools.CutsceneTypes import Cutscene, Target, TargetType, WaitTypes
 else:
-    from CutsceneTypes import Cutscene, Target, TargetType
+    from CutsceneTypes import Cutscene, Target, TargetType, WaitTypes
 
 
 def cutscene(c: Cutscene):
@@ -12,7 +12,7 @@ def cutscene(c: Cutscene):
 
     c.set_animation(Target(TargetType.SPRITE, 7), "rightMove")
     c.move_in_frames(Target(TargetType.SPRITE, 7), 640-425, 0, 180)
-    c.wait_frames(180)
+    c.wait(WaitTypes.FRAMES, 180)
     c.set_animation(Target(TargetType.SPRITE, 7), "leftIdle")
     c.set_interact_action(Target(TargetType.SPRITE, 7), "cutscene",
                           cutscene_id=11)

@@ -4,27 +4,19 @@
 
 #include "Cutscene/Waiting.hpp"
 #include "Battle/Battle.hpp"
-#include "Dialogue.hpp"
+#include "Cutscene/Cutscene.hpp"
+
+void Waiting::wait(WaitingType waitingType) {
+    if (waitingType == WAIT_FRAMES) {
+        nocashMessage("Wait called with wait frames?");
+        return;
+    }
+    currentWait = waitingType;
+}
 
 void Waiting::waitFrames(int frames) {
     currentWait = WAIT_FRAMES;
     currentWaitTime = frames + 1; // Hack to improve navigation sync
-}
-
-void Waiting::waitExit() {
-    currentWait = WAIT_EXIT;
-}
-
-void Waiting::waitEnter() {
-    currentWait = WAIT_ENTER;
-}
-
-void Waiting::waitDialogueEnd() {
-    currentWait = WAIT_DIALOGUE_END;
-}
-
-void Waiting::waitBattleAttack() {
-    currentWait = WAIT_BATTLE_ATTACK;
 }
 
 void Waiting::update(CutsceneLocation callingLocation, bool frame) {
@@ -44,7 +36,9 @@ void Waiting::update(CutsceneLocation callingLocation, bool frame) {
         if (callingLocation == ROOM || callingLocation == BATTLE)
             currentWait = NONE;
     } else if (currentWait == WAIT_DIALOGUE_END) {
-        if (currentDialogue == nullptr)
+        if (globalCutscene == nullptr)
+            currentWait = NONE;
+        else if (globalCutscene->cDialogue == nullptr)
             currentWait = NONE;
     } else if (currentWait == WAIT_BATTLE_ATTACK) {
         if (callingLocation == BATTLE || callingLocation == LOAD_BATTLE) {

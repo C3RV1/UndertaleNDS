@@ -1,8 +1,8 @@
 import typing
 if typing.TYPE_CHECKING:
-    from tools.CutsceneTypes import Cutscene, Target, TargetType
+    from tools.CutsceneTypes import Cutscene, Target, TargetType, WaitTypes
 else:
-    from CutsceneTypes import Cutscene, Target, TargetType
+    from CutsceneTypes import Cutscene, Target, TargetType, WaitTypes
 
 
 def cutscene(c: Cutscene):
@@ -19,12 +19,12 @@ def cutscene(c: Cutscene):
                      "talkIdle", "talkTalk",
                      Target(TargetType.SPRITE, 7),
                      "leftIdle", "leftTalk", type_sound="snd_txttor.wav")
-    c.wait_dialogue_end()
+    c.wait(WaitTypes.DIALOGUE)
     c.player_control(True)
 
     c.set_animation(Target(TargetType.SPRITE, 7), "rightMove")
     c.move_in_frames(Target(TargetType.SPRITE, 7), 700 - 640, 0, 60)
-    c.wait_frames(60)
+    c.wait(WaitTypes.FRAMES, 60)
     c.unload_sprite(7)
     c.unload_texture(4)
 

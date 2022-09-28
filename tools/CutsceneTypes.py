@@ -11,41 +11,47 @@ def to_fixed_point(f: float):
 class CutsceneCommands(enum.IntEnum):
     LOAD_SPRITE = 0  # Done
     PLAYER_CONTROL = 1  # Done
-    WAIT_EXIT = 2  # Done
-    WAIT_ENTER = 3  # Done
-    SET_SHOWN = 4  # Done
-    SET_ANIMATION = 5  # Done
-    WAIT_FRAMES = 6  # Done
-    SET_POS = 7  # Done
-    MOVE_IN_FRAMES = 8  # Done
-    START_DIALOGUE = 9  # Done
-    WAIT_DIALOGUE_END = 10  # Done
-    START_BATTLE = 11  # Little done
-    EXIT_BATTLE = 12  # Done
-    LOAD_TEXTURE = 13  # Done
-    BATTLE_ATTACK = 14  # Done (requires implementing attacks)
-    WAIT_BATTLE_ATTACK = 15  # Done
-    WAIT_BATTLE_ACTION = 16
-    CMP_BATTLE_ACTION = 17
-    CHECK_HIT = 18  # Done
-    JUMP_IF = 19  # Done
-    JUMP_IF_NOT = 20  # Done
-    JUMP = 21  # Done
-    MANUAL_CAMERA = 22  # Done
-    UNLOAD_SPRITE = 23  # Done
-    SCALE_IN_FRAMES = 24  # Done
-    SET_SCALE = 25  # Done
-    START_BGM = 26  # Done
-    STOP_BGM = 27  # Done
-    SET_POS_IN_FRAMES = 28  # Done
-    SET_FLAG = 29  # Done
-    CMP_FLAG = 30  # Done
-    SET_COLLIDER_ENABLED = 31  # Done
-    UNLOAD_TEXTURE = 32  # Done
-    SET_INTERACT_ACTION = 33  # Done
-    PLAY_SFX = 34  # Done
-    SAVE_MENU = 35
+    WAIT = 2  # Done
+    SET_SHOWN = 3  # Done
+    SET_ANIMATION = 4  # Done
+    SET_POS = 5  # Done
+    MOVE_IN_FRAMES = 6  # Done
+    START_DIALOGUE = 7  # Done
+    START_BATTLE = 8  # Little done
+    EXIT_BATTLE = 9  # Done
+    LOAD_TEXTURE = 10  # Done
+    BATTLE_ATTACK = 11  # Done (requires implementing attacks)
+    CMP_BATTLE_ACTION = 12
+    CHECK_HIT = 13  # Done
+    JUMP_IF = 14  # Done
+    JUMP_IF_NOT = 15  # Done
+    JUMP = 16  # Done
+    MANUAL_CAMERA = 17  # Done
+    UNLOAD_SPRITE = 18  # Done
+    SCALE_IN_FRAMES = 19  # Done
+    SET_SCALE = 20  # Done
+    START_BGM = 21  # Done
+    STOP_BGM = 22  # Done
+    SET_POS_IN_FRAMES = 23  # Done
+    SET_FLAG = 24  # Done
+    CMP_FLAG = 25  # Done
+    SET_COLLIDER_ENABLED = 26  # Done
+    UNLOAD_TEXTURE = 27  # Done
+    SET_INTERACT_ACTION = 28  # Done
+    PLAY_SFX = 29  # Done
+    SAVE_MENU = 30
     DEBUG = 0xff  # Done
+
+
+class WaitTypes(enum.IntEnum):
+    NONE = 0  # Done
+    FRAMES = 1  # Done
+    EXIT = 2  # Done
+    ENTER = 3  # Done
+    DIALOGUE = 4  # Done
+    BATTLE_ATTACK = 5  # Done
+    SAVE_MENU = 6
+    BATTLE_ACTION = 7
 
 
 class Enemy:
@@ -89,7 +95,7 @@ class Target:
 class Cutscene:
     def __init__(self, wtr: binary.BinaryWriter):
         self.wtr: binary.BinaryWriter = wtr
-        self.version = 4
+        self.version = 5
         self.file_size_pos = 0
         self.instructions_address = []
         self.pending_address = {}
@@ -159,12 +165,11 @@ class Cutscene:
         self.wtr.write_bool(enabled)
         return self.instructions_address[-1]
 
-    def wait_exit(self):
-        self.write_header(CutsceneCommands.WAIT_EXIT)
-        return self.instructions_address[-1]
-
-    def wait_enter(self):
-        self.write_header(CutsceneCommands.WAIT_ENTER)
+    def wait(self, wait_type: WaitTypes, value: int = 0):
+        self.write_header(CutsceneCommands.WAIT)
+        self.wtr.write_uint8(wait_type)
+        if wait_type == WaitTypes.FRAMES:
+            self.wtr.write_uint16(value)
         return self.instructions_address[-1]
 
     def set_shown(self, target: Target, shown: bool):
@@ -177,11 +182,6 @@ class Cutscene:
         self.write_header(CutsceneCommands.SET_ANIMATION)
         target.write(self.wtr)
         self.wtr.write_string(animation, encoding="ascii")
-        return self.instructions_address[-1]
-
-    def wait_frames(self, frames: int):
-        self.write_header(CutsceneCommands.WAIT_FRAMES)
-        self.wtr.write_uint16(frames)
         return self.instructions_address[-1]
 
     # == NAVIGATION ==
@@ -269,10 +269,6 @@ class Cutscene:
                                    type_sound=type_sound,
                                    font=font, frames_per_letter=frames_per_letter)
 
-    def wait_dialogue_end(self):
-        self.write_header(CutsceneCommands.WAIT_DIALOGUE_END)
-        return self.instructions_address[-1]
-
     # == BATTLE ==
     def start_battle(self, enemies: List[Enemy], board_id: int,
                      board_x: int, board_y: int, board_w: int, board_h: int):
@@ -296,12 +292,10 @@ class Cutscene:
         self.wtr.write_uint16(attack_pattern_id)
         return self.instructions_address[-1]
 
-    def wait_battle_attack(self):
-        self.write_header(CutsceneCommands.WAIT_BATTLE_ATTACK)
-        return self.instructions_address[-1]
-
+    # TODO: Integrate into wait
     def wait_battle_action(self, text_id, act_actions):
-        self.write_header(CutsceneCommands.WAIT_BATTLE_ACTION)
+        return
+        self.write_header(CutsceneCommands.WAIT)
         self.wtr.write_uint8(text_id)
         self.wtr.write_uint8(len(act_actions))
         for act_action in act_actions:
@@ -387,4 +381,8 @@ class Cutscene:
         self.write_header(CutsceneCommands.PLAY_SFX)
         self.wtr.write_uint8(loops)
         self.wtr.write_string(path, encoding="ascii")
+        return self.instructions_address[-1]
+
+    def save_menu(self):
+        self.write_header(CutsceneCommands.SAVE_MENU)
         return self.instructions_address[-1]

@@ -21,8 +21,8 @@ public:
     u16 cutsceneId;
     u16 roomId;
     ~Cutscene();
-private:
     Dialogue* cDialogue = nullptr;
+private:
     Waiting waiting;
     bool flag = false;
     FILE* commandStream = nullptr;
