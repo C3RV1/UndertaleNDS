@@ -40,6 +40,7 @@ class CutsceneCommands(enum.IntEnum):
     SET_INTERACT_ACTION = 28  # Done
     PLAY_SFX = 29  # Done
     SAVE_MENU = 30
+    MAX_HEALTH = 31
     DEBUG = 0xff  # Done
 
 
@@ -385,4 +386,8 @@ class Cutscene:
 
     def save_menu(self):
         self.write_header(CutsceneCommands.SAVE_MENU)
+        return self.instructions_address[-1]
+
+    def max_health(self):
+        self.write_header(CutsceneCommands.MAX_HEALTH)
         return self.instructions_address[-1]

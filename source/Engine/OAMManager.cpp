@@ -187,11 +187,7 @@ namespace Engine {
             return -2;
         }
 
-        char buffer[100];
         if (length == neededTiles) {
-            sprintf(buffer, "remove free zone change idx %d start %d length %d",
-                    freeZoneIdx, tileFreeZones[freeZoneIdx * 2], tileFreeZones[freeZoneIdx * 2 + 1]);
-            nocashMessage(buffer);
             // Remove free zone
             tileFreeZoneCount--;
             auto* newFreeZones = new u16[tileFreeZoneCount * 2];
@@ -208,9 +204,6 @@ namespace Engine {
         else {
             tileFreeZones[freeZoneIdx * 2] += neededTiles;
             tileFreeZones[freeZoneIdx * 2 + 1] -= neededTiles;
-            sprintf(buffer, "reduce change idx %d start %d length %d",
-                    freeZoneIdx, tileFreeZones[freeZoneIdx * 2], tileFreeZones[freeZoneIdx * 2 + 1]);
-            nocashMessage(buffer);
         }
 
         oamEntry->tileStart = start;

@@ -48,5 +48,10 @@ void Waiting::update(CutsceneLocation callingLocation, bool frame) {
         } else {
             currentWait = NONE;
         }
+    } else if (currentWait == WAIT_SAVE_MENU) {
+        if (globalCutscene == nullptr)
+            currentWait = NONE;
+        else if (globalCutscene->cSaveMenu == nullptr)
+            currentWait = NONE;
     }
 }

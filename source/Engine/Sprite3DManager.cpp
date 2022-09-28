@@ -59,7 +59,6 @@ namespace Engine {
         }
 
         if (length == neededTiles) {
-            nocashMessage("alloc change");
             // Remove free zone
             tileFreeZoneCount--;
             auto* newFreeZones = new u16[tileFreeZoneCount * 2];
@@ -76,9 +75,6 @@ namespace Engine {
         else {
             tileFreeZones[freeZoneIdx * 2] += neededTiles;
             tileFreeZones[freeZoneIdx * 2 + 1] -= neededTiles;
-            sprintf(buffer, "reduce change idx %d start %d length %d",
-                    freeZoneIdx, tileFreeZones[freeZoneIdx * 2], tileFreeZones[freeZoneIdx * 2 + 1]);
-            nocashMessage(buffer);
         }
 
         res.memory.tileStart = start;

@@ -16,7 +16,6 @@
 #include "Room/Player.hpp"
 #include "Room/Camera.hpp"
 #include "Room/InGameMenu.hpp"
-#include "Cutscene/Dialogue.hpp"
 #include "Cutscene/Cutscene.hpp"
 #include "Save.hpp"
 
@@ -32,7 +31,7 @@ int main() {
     if (!globalSave.saveExists) {
         runWriteNameMenu();
     } else {
-        runMainMenu();
+        // runMainMenu();
     }
 
     for (int i = 0; i < 5; i++) {

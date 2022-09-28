@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include "Waiting.hpp"
 #include "Dialogue.hpp"
+#include "SaveMenu.hpp"
 
 class Cutscene {
 public:
@@ -22,6 +23,7 @@ public:
     u16 roomId;
     ~Cutscene();
     Dialogue* cDialogue = nullptr;
+    SaveMenu* cSaveMenu = nullptr;
 private:
     Waiting waiting;
     bool flag = false;

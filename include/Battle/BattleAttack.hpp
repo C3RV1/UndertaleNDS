@@ -5,7 +5,8 @@
 #ifndef UNDERTALE_BATTLEATTACK_HPP
 #define UNDERTALE_BATTLEATTACK_HPP
 
-#include <stdint.h>
+#define ARM9
+#include <nds.h>
 
 class BattleAttack {
 public:

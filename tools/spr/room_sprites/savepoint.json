@@ -6,7 +6,7 @@
             "name": "gfx",
             "frames": [
                 {"frame": 0, "duration": 30},
-                {"frame": 1, "duration": 30}
+                {"frame": 1, "duration": 30, "draw_off_x": 4, "draw_off_y": 5}
             ]
         }
     ]

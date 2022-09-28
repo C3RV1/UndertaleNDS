@@ -28,7 +28,8 @@
         }
       ],
       "textures": [
-        "nitro:/spr/room_sprites/toriel.cspr"
+        "nitro:/spr/room_sprites/toriel.cspr",
+        "nitro:/spr/room_sprites/savepoint.cspr"
       ],
       "sprites": [
         {
@@ -36,6 +37,14 @@
           "x": 127,
           "y": 326,
           "animation": "downIdle"
+        },
+        {
+          "texture_id": 1,
+          "x": 130,
+          "y": 175,
+          "animation": "gfx",
+          "interact_action": "cutscene",
+          "cutscene_id": 100
         }
       ],
       "colliders": [

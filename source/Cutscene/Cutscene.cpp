@@ -82,6 +82,12 @@ void Cutscene::update() {
             delete cDialogue;
             cDialogue = nullptr;
         }
+    } else if (cSaveMenu != nullptr) {
+        if (cSaveMenu->update()) {
+            cSaveMenu->free_();
+            delete cSaveMenu;
+            cSaveMenu = nullptr;
+        }
     }
 }
 
@@ -106,7 +112,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
     u8 cmd;
     fread(&cmd, 1, 1, commandStream);
     int len;
-    u8 targetType, targetId = 0, count;
+    u8 targetType, targetId = 0;
     u32 address;
     Navigation* nav;
     if (callingLocation == ROOM || callingLocation == LOAD_ROOM) {
@@ -170,7 +176,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             break;
         }
         case CMD_WAIT: {
-            nocashMessage("CMD_WAIT_EXIT");
+            nocashMessage("CMD_WAIT");
             u8 waitType;
             fread(&waitType, 1, 1, commandStream);
             if (waitType == WAIT_FRAMES) {
@@ -446,6 +452,15 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             }
             break;
         }
+        case CMD_SAVE_MENU:
+            nocashMessage("CMD_SAVE_MENU");
+            if (cSaveMenu == nullptr)
+                cSaveMenu = new SaveMenu();
+            break;
+        case CMD_MAX_HEALTH:
+            nocashMessage("CMD_MAX_HEALTH");
+            globalSave.hp = globalSave.maxHp;
+            break;
         default:
             sprintf(buffer, "Error cmd %d unknown pos: %ld", cmd, ftell(commandStream));
             nocashMessage(buffer);

@@ -35,7 +35,8 @@ void SaveData::loadData() {
     hp = maxHp;
     fCard.read(&lv, 1);
     fCard.read(&exp, 1);
-    fCard.read(items, ITEM_COUNT + 1);
+    fCard.read(items, ITEM_COUNT);
+    items[ITEM_COUNT] = 0;
 
     saveExists = true;
 
@@ -52,8 +53,11 @@ void SaveData::saveData(u16 roomId) {
     fCard.write(&maxHp, 1);
     fCard.write(&lv, 1);
     fCard.write(&exp, 1);
-    fCard.write(items, ITEM_COUNT + 1);
+    fCard.write(items, ITEM_COUNT);
+    items[ITEM_COUNT] = 0;
 
     lastSavedRoom = roomId;
     fCard.write(&lastSavedRoom, 2);
+
+    saveExists = true;
 }
