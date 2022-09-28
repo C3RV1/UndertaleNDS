@@ -21,10 +21,10 @@ class CutsceneCommands(enum.IntEnum):
     START_DIALOGUE = 9  # Done
     WAIT_DIALOGUE_END = 10  # Done
     START_BATTLE = 11  # Little done
-    EXIT_BATTLE = 12
-    LOAD_TEXTURE = 13
-    BATTLE_ATTACK = 14
-    WAIT_BATTLE_ATTACK = 15
+    EXIT_BATTLE = 12  # Done
+    LOAD_TEXTURE = 13  # Done
+    BATTLE_ATTACK = 14  # Done (requires implementing attacks)
+    WAIT_BATTLE_ATTACK = 15  # Done
     WAIT_BATTLE_ACTION = 16
     CMP_BATTLE_ACTION = 17
     CHECK_HIT = 18  # Done
@@ -44,6 +44,7 @@ class CutsceneCommands(enum.IntEnum):
     UNLOAD_TEXTURE = 32  # Done
     SET_INTERACT_ACTION = 33  # Done
     PLAY_SFX = 34  # Done
+    SAVE_MENU = 35
     DEBUG = 0xff  # Done
 
 

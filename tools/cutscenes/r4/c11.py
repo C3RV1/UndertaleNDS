@@ -26,4 +26,3 @@ def cutscene(c: Cutscene):
 
     c.bind(jump_end)
     c.set_flag(220, 1)
-

@@ -14,6 +14,7 @@ void SaveData::clear() {
     hp = 20; maxHp = 20;
     lv = 1; exp = 0;
     memset(items, 0, ITEM_COUNT + 1);
+    lastSavedRoom = 0;
 }
 
 void SaveData::loadData() {
@@ -30,25 +31,29 @@ void SaveData::loadData() {
 
     fCard.read(name, MAX_NAME_LEN + 1);
     fCard.read(flags, 2 * FLAG_COUNT);
-    fCard.read(&hp, 1);
     fCard.read(&maxHp, 1);
+    hp = maxHp;
     fCard.read(&lv, 1);
     fCard.read(&exp, 1);
     fCard.read(items, ITEM_COUNT + 1);
 
     saveExists = true;
+
+    fCard.read(&lastSavedRoom, 2);
 }
 
-void SaveData::saveData() {
+void SaveData::saveData(u16 roomId) {
     char header[4] = {'U', 'S', 'A', 'V'};
 
     fCard.seek(0, SEEK_SET);
     fCard.write(header, 4);
     fCard.write(name, MAX_NAME_LEN + 1);
     fCard.write(flags, 2 * FLAG_COUNT);
-    fCard.write(&hp, 1);
     fCard.write(&maxHp, 1);
     fCard.write(&lv, 1);
     fCard.write(&exp, 1);
     fCard.write(items, ITEM_COUNT + 1);
+
+    lastSavedRoom = roomId;
+    fCard.write(&lastSavedRoom, 2);
 }

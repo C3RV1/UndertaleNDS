@@ -41,6 +41,7 @@ enum CutsceneCommands {
     CMD_UNLOAD_TEXTURE = 32,
     CMD_SET_INTERACT_ACTION = 33,
     CMD_PLAY_SFX = 34,
+    CMD_SAVE_MENU = 35,
     CMD_DEBUG = 0xff
 };
 

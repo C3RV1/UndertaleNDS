@@ -9,6 +9,5 @@
 #include "card.hpp"
 
 int strlen_file(FILE *f, char terminator);
-int strlen_card(char terminator);
 
 #endif //UNDERTALE_UTILS_HPP

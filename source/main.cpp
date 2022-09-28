@@ -42,7 +42,7 @@ int main() {
     Engine::textMain.clear();
     Engine::textSub.clear();
 
-    u16 roomSpawn = 0;
+    u16 roomSpawn = globalSave.lastSavedRoom;
 
     // DEBUG
     // roomSpawn = 3;

@@ -18,7 +18,7 @@ class SaveData {
 public:
     void clear();
     void loadData();
-    void saveData();
+    void saveData(u16 roomId);
 
     bool saveExists = false;
     char name[MAX_NAME_LEN + 1] = {0};
@@ -26,6 +26,8 @@ public:
     u8 hp = 20, maxHp = 20;
     u8 lv = 1, exp = 0;
     u8 items[ITEM_COUNT + 1] = {0};  // Terminal 0
+
+    u16 lastSavedRoom = 0;
 };
 
 extern SaveData globalSave;
