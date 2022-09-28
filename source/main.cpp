@@ -62,13 +62,7 @@ int main() {
         globalPlayer->update();
         globalRoom->update();
         if (globalCutscene != nullptr) {
-            if (currentDialogue != nullptr) {
-                if (currentDialogue->update()) {
-                    currentDialogue->free_();
-                    delete currentDialogue;
-                    currentDialogue = nullptr;
-                }
-            }
+            globalCutscene->update();
             if (globalCutscene->runCommands(ROOM)) {
                 delete globalCutscene;
                 globalCutscene = nullptr;

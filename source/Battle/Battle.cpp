@@ -181,13 +181,7 @@ void runBattle(FILE* stream) {
     while (globalBattle->running) {
         Engine::tick();
         if (globalCutscene != nullptr) {
-            if (currentDialogue != nullptr) {
-                if (currentDialogue->update()) {
-                    currentDialogue->free_();
-                    delete currentDialogue;
-                    currentDialogue = nullptr;
-                }
-            }
+            globalCutscene->update();
             if (globalCutscene->runCommands(BATTLE)) {
                 delete globalCutscene;
                 globalCutscene = nullptr;

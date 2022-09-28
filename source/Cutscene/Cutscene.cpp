@@ -75,6 +75,16 @@ bool Cutscene::checkHeader(FILE *f) {
     return true;
 }
 
+void Cutscene::update() {
+    if (cDialogue != nullptr) {
+        if (cDialogue->update()) {
+            cDialogue->free_();
+            delete cDialogue;
+            cDialogue = nullptr;
+        }
+    }
+}
+
 bool Cutscene::runCommands(CutsceneLocation callingLocation) {
     waiting.update(callingLocation, true);
     if (commandStream == nullptr)
@@ -296,11 +306,11 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             fread(&framesPerLetter, 2, 1, commandStream);
 
             Engine::Sprite* target = Navigation::getTarget(targetType, targetId, callingLocation);
-            if (currentDialogue == nullptr) {
+            if (cDialogue == nullptr) {
                 bool isRoom = callingLocation == ROOM || callingLocation == LOAD_ROOM;
-                currentDialogue = new Dialogue(isRoom, textId, speaker, x, y, idleAnim, talkAnim,
-                                               target, idleAnim2, talkAnim2, typeSnd,
-                                               font, framesPerLetter);
+                cDialogue = new Dialogue(isRoom, textId, speaker, x, y, idleAnim, talkAnim,
+                                         target, idleAnim2, talkAnim2, typeSnd,
+                                         font, framesPerLetter);
             }
             break;
         }
@@ -467,4 +477,9 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
 Cutscene::~Cutscene() {
     if (commandStream != nullptr)
         fclose(commandStream);
+    if (cDialogue != nullptr) {
+        cDialogue->free_();
+        delete cDialogue;
+        cDialogue = nullptr;
+    }
 }

@@ -368,5 +368,3 @@ void Dialogue::free_() {
     typeSnd.stop();
     typeSnd.free_();
 }
-
-Dialogue* currentDialogue = nullptr;

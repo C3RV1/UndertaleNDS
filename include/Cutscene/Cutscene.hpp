@@ -9,17 +9,20 @@
 #include <nds.h>
 #include <stdio.h>
 #include "Waiting.hpp"
+#include "Dialogue.hpp"
 
 class Cutscene {
 public:
     explicit Cutscene(u16 cutsceneId_);
     static bool checkHeader(FILE *f);
+    void update();
     bool runCommands(CutsceneLocation callingLocation);
     bool runCommand(CutsceneLocation callingLocation);
     u16 cutsceneId;
     u16 roomId;
     ~Cutscene();
 private:
+    Dialogue* cDialogue = nullptr;
     Waiting waiting;
     bool flag = false;
     FILE* commandStream = nullptr;

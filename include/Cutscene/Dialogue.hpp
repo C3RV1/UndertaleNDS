@@ -55,6 +55,4 @@ private:
     Engine::Font font;
 };
 
-extern Dialogue* currentDialogue;
-
 #endif //UNDERTALE_DIALOGUE_HPP
