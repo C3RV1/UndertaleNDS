@@ -10,4 +10,3 @@ def cutscene(c: Cutscene):
     c.start_dialogue(10, "", 0, 0, "", "", Target(TargetType.NULL), "", "",
                      type_sound="SND_TXT1.wav")
     c.wait_dialogue_end()
-    c.player_control(True)

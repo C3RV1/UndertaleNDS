@@ -5,19 +5,19 @@
 #include "Engine/math.hpp"
 
 namespace Engine {
-    int32_t bg3ScrollX = 0, bg3ScrollY = 0;
-    int16_t bg3Pa = 0, bg3Pb = 0, bg3Pc = 0, bg3Pd = 0;
+    s32 bg3ScrollX = 0, bg3ScrollY = 0;
+    s16 bg3Pa = 0, bg3Pb = 0, bg3Pc = 0, bg3Pd = 0;
 
     int Background::loadCBGF(FILE *f) {
         free_();
         char header[4];
-        uint32_t fileSize;
-        uint32_t version;
-        uint8_t fileFormat;
+        u32 fileSize;
+        u32 version;
+        u8 fileFormat;
         fread(header, 4, 1, f);
-        uint32_t pos = ftell(f);
+        u32 pos = ftell(f);
         fseek(f, 0, SEEK_END);
-        uint32_t size = ftell(f);
+        u32 size = ftell(f);
         fseek(f, pos, SEEK_SET);
 
         const char expectedChar[4] = {'C', 'B', 'G', 'F'};
@@ -44,22 +44,22 @@ namespace Engine {
             return 4;
         }
 
-        colors = new uint16_t[colorCount];
+        colors = new u16[colorCount];
         fread(colors, 2, colorCount, f);
 
         fread(&tileCount, 2, 1, f);
 
-        uint32_t tileDataSize = 32;
+        u32 tileDataSize = 32;
         if (color8bit)
             tileDataSize = 64;
 
-        tiles = new uint8_t[tileCount * tileDataSize];
+        tiles = new u8[tileCount * tileDataSize];
         fread(tiles, tileDataSize, tileCount, f);
 
         fread(&width, 2, 1, f);
         fread(&height, 2, 1, f);
 
-        map = new uint16_t[width * height];
+        map = new u16[width * height];
         fread(map, 2, width * height, f);
 
         loaded = true;
@@ -101,9 +101,9 @@ namespace Engine {
         *bg3Reg = (*bg3Reg & (~0x2080)) + (color8bit << 7);
 
         // skip first color (2 bytes)
-        dmaCopy(bg.getColors(), (uint8_t*)paletteRam + 2, 2 * bg.getColorCount());
+        dmaCopy(bg.getColors(), (u8*)paletteRam + 2, 2 * bg.getColorCount());
 
-        uint32_t tileDataSize;
+        u32 tileDataSize;
         if (color8bit) {
             tileDataSize = 64;
         } else {
@@ -115,9 +115,9 @@ namespace Engine {
 
         dmaCopyWords(3, bg.getTiles(), tileRam, tileDataSize * bg.getTileCount());
 
-        uint16_t sizeFlag = 0;
-        uint16_t mapRamUsage = 0x800;
-        uint16_t width, height;
+        u16 sizeFlag = 0;
+        u16 mapRamUsage = 0x800;
+        u16 width, height;
         bg.getSize(width, height);
         if (width > 32) {
             sizeFlag += 1 << 14;  // bit 14 for 64 tile width
@@ -136,10 +136,10 @@ namespace Engine {
             if (mapX == (width + 31) / 32)
                 copyWidth = (width + 31) - 32 * mapX;
             for (int mapY = 0; mapY < (height + 31) / 32; mapY++) {
-                uint8_t* mapStart = (uint8_t*)mapRam + (mapY * ((width + 31) / 32) + mapX) * 2048;
+                u8* mapStart = (u8*)mapRam + (mapY * ((width + 31) / 32) + mapX) * 2048;
                 memset(mapStart, 0, 0x800);
                 for (int row = mapY*32; row < height && row < (mapY + 1) * 32; row++) {
-                    dmaCopyHalfWords(3, (uint8_t *) bg.getMap() + (row * width + mapX * 32) * 2,
+                    dmaCopyHalfWords(3, (u8 *) bg.getMap() + (row * width + mapX * 32) * 2,
                                      mapStart + (row - mapY * 32) * 32 * 2, copyWidth * 2);
                 }
             }
@@ -179,13 +179,13 @@ namespace Engine {
         *bg3Reg = (*bg3Reg & (~0x2080)) | (1 << 13);
 
         // skip first color (2 bytes)
-        dmaCopy(bg.getColors(), (uint8_t *) paletteRam + 2, 2 * bg.getColorCount());
+        dmaCopy(bg.getColors(), (u8 *) paletteRam + 2, 2 * bg.getColorCount());
 
-        uint16_t sizeFlag = 0;
-        uint16_t mapRamUsage = 0x200;
-        uint16_t width, height;
+        u16 sizeFlag = 0;
+        u16 mapRamUsage = 0x200;
+        u16 width, height;
         bg.getSize(width, height);
-        uint8_t mapW = width, mapH = height;
+        u8 mapW = width, mapH = height;
         if (forceSize != 0) {
             mapW = forceSize;
             mapH = forceSize;
@@ -222,7 +222,7 @@ namespace Engine {
     }
 
     void clearEngine(vu16* bg3Reg, u16* tileRam, u16* mapRam) {
-        uint16_t mapRamUsage = 0x800;
+        u16 mapRamUsage = 0x800;
         memset(mapRam, 0, mapRamUsage);
         *bg3Reg = (*bg3Reg & (~0xE080)); // size 32x32
         *tileRam = 0;
@@ -245,7 +245,7 @@ namespace Engine {
         bool color8bit = bg.getColor8bit();
 
         int mapSize = 16 << ((*bg3Reg >> 14) & 3);
-        uint16_t width, height;
+        u16 width, height;
         bg.getSize(width, height);
         for (int row = y; row < y + h; row++) {
             for (int col = x; col < x + w; col++) {
@@ -253,18 +253,18 @@ namespace Engine {
                 int srcCol = mod(col, width);
                 int dstRow = mod(row, mapSize);
                 int dstCol = mod(col, mapSize);
-                auto* mapRes = (uint16_t*)((uint8_t*)mapRam + (dstRow * mapSize + dstCol) * 2);
+                auto* mapRes = (u16*)((u8*)mapRam + (dstRow * mapSize + dstCol) * 2);
                 int tileDst = mod(row, 26) * 34 + mod(col, 34);
                 *mapRes = tileDst;
-                auto* tileRes = (uint16_t*)((uint8_t*)tileRam + tileDst * 64);
-                auto* mapSrc = (uint16_t*)((uint8_t *) bg.getMap() + (srcRow * width + srcCol) * 2);
+                auto* tileRes = (u16*)((u8*)tileRam + tileDst * 64);
+                auto* mapSrc = (u16*)((u8 *) bg.getMap() + (srcRow * width + srcCol) * 2);
 
                 if (color8bit) {
-                    uint8_t *src = (uint8_t *) bg.getTiles() + (*mapSrc) * 64;
+                    u8 *src = (u8 *) bg.getTiles() + (*mapSrc) * 64;
                     dmaCopyHalfWords(3, src, tileRes, 64);
                 }
                 else {
-                    uint8_t *src = (uint8_t *) bg.getTiles() + (*mapSrc) * 32;
+                    u8 *src = (u8 *) bg.getTiles() + (*mapSrc) * 32;
                     for (int i = 0; i < 64; i++) {
                         bool highBits = i & 1;
                         tileRes[i / 2] &= ~(0xFF << (8 * highBits));

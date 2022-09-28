@@ -5,6 +5,6 @@
 #ifndef UNDERTALE_WRITENAME_HPP
 #define UNDERTALE_WRITENAME_HPP
 
-void writeNameMenu();
+void runWriteNameMenu();
 
 #endif //UNDERTALE_WRITENAME_HPP

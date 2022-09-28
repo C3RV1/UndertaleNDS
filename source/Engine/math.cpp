@@ -24,7 +24,7 @@ int distSquared(int x1, int y1, int x2, int y2) {
     return (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2);
 }
 
-int distSquared_fp(int32_t x1, int32_t y1, int32_t x2, int32_t y2) {
+int distSquared_fp(s32 x1, s32 y1, s32 x2, s32 y2) {
     // fixed point w/ 8 bits decimal
     return ((x1-x2)*(x1-x2) >> 8) + ((y1-y2)*(y1-y2) >> 8);
 }

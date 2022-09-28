@@ -13,36 +13,36 @@ namespace Engine {
         int loadCSPR(FILE* f);
         bool getLoaded() const { return loaded; }
         int getColorCount() const { return colorCount; }
-        uint16_t* getColors() const { return colors; }
-        uint8_t getFrameCount() const { return frameCount; }
-        uint8_t getAnimCount() const { return animationCount; }
+        u16* getColors() const { return colors; }
+        u8 getFrameCount() const { return frameCount; }
+        u8 getAnimCount() const { return animationCount; }
         CSPRAnimation* getAnims() const { return animations;  }
-        void getSizeTiles(uint8_t& tileWidth_, uint8_t& tileHeight_) const {
+        void getSizeTiles(u8& tileWidth_, u8& tileHeight_) const {
             tileWidth_ = (width + 7) / 8;
             tileHeight_ = (height + 7) / 8;
         }
-        uint16_t getWidth() const {
+        u16 getWidth() const {
             return width;
         }
-        uint16_t getHeight() const {
+        u16 getHeight() const {
             return height;
         }
-        void getSize(uint16_t& width_, uint16_t& height_) const {
+        void getSize(u16& width_, u16& height_) const {
             width_ = width;
             height_ = height;
         }
-        uint8_t* getTiles() const { return tiles; }
+        u8* getTiles() const { return tiles; }
         void free_();
         ~Texture() { free_(); }
     private:
         bool loaded = false;
-        uint8_t colorCount = 0;
-        uint16_t* colors = nullptr;
-        uint16_t width = 0, height = 0;
-        uint8_t frameCount = 0;
-        uint8_t animationCount = 0;
+        u8 colorCount = 0;
+        u16* colors = nullptr;
+        u16 width = 0, height = 0;
+        u8 frameCount = 0;
+        u8 animationCount = 0;
         CSPRAnimation* animations = nullptr;
-        uint8_t* tiles = nullptr;
+        u8* tiles = nullptr;
     };
 }
 

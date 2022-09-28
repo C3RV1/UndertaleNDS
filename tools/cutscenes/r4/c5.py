@@ -19,7 +19,8 @@ def cutscene(c: Cutscene):
 
     c.bind(toriel_not_in_room)
 
-    c.start_dialogue(10, "", 0, 0, "", "", Target(TargetType.NULL), "", "",
+    c.start_dialogue(11, "", 0, 0, "", "", Target(TargetType.NULL), "", "",
                      type_sound="SND_TXT1.wav")
+    c.wait_dialogue_end()
 
     c.bind(jump_end)

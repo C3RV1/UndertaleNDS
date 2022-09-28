@@ -12,7 +12,7 @@
 #include "Formats/utils.hpp"
 
 
-void writeNameMenu() {
+void runWriteNameMenu() {
     char buffer[100];
 
     // letter selection
@@ -24,7 +24,7 @@ void writeNameMenu() {
     const int line3x = 65, line3y = 160;
 
     const int letterCount = 26 * 2;
-    const int maxLen = 10;
+    const int maxLen = MAX_NAME_LEN;
 
     Audio::playBGMusic("mus_menu0.wav", true);
 
@@ -96,7 +96,7 @@ void writeNameMenu() {
 
     fclose(textStream);
 
-    char currentName[maxLen] = {0};
+    char currentName[maxLen + 1] = {0};
     int currentLen = 0;
 
     int x, y;
@@ -185,7 +185,7 @@ void writeNameMenu() {
             }
 
             if (confirm || keysDown() & KEY_A) {
-                if (currentLetter < letterCount && currentLen < maxLen) {
+                if (currentLetter < letterCount && currentLen <= maxLen) {
                     // letter
                     char glyph;
                     if (currentLetter < 26) {
@@ -193,11 +193,11 @@ void writeNameMenu() {
                     } else {
                         glyph = (char) (currentLetter - 26) + 'a';
                     }
+                    currentName[currentLen] = glyph;
                     currentLen++;
-                    currentName[currentLen - 1] = glyph;
                     x = nameX;
                     y = nameY;
-                    for (char *src = currentName; src < currentName + currentLen; src++) {
+                    for (char *src = currentName; src <= currentName + currentLen; src++) {
                         Engine::textMain.drawGlyph(mainFont, *src, x, y);
                     }
                 }
@@ -290,11 +290,8 @@ void writeNameMenu() {
     }
     Audio::stopBGMusic();
 
-    if (globalSave.name != nullptr)
-        free(globalSave.name);
-    globalSave.name = new char[currentLen + 1];
     memset(globalSave.name, 0, currentLen + 1);
-    memcpy(globalSave.name, currentName, currentLen);
+    memcpy(globalSave.name, currentName, currentLen + 1);
     sprintf(buffer, "Selected name: %s", globalSave.name);
     nocashMessage(buffer);
 }

@@ -24,16 +24,16 @@ namespace Engine {
 
     struct SpriteInternalMemory {
         AllocationMode allocated = NoAlloc;
-        uint8_t oamEntryCount = 0;
-        uint8_t oamScaleIdx = 0xff;  // all oam entries can share scale
+        u8 oamEntryCount = 0;
+        u8 oamScaleIdx = 0xff;  // all oam entries can share scale
         union {
-            uint8_t * oamEntries = nullptr;
-            uint16_t tileStart;
+            u8 * oamEntries = nullptr;
+            u16 tileStart;
         };
-        uint16_t allocX = 0, allocY = 0;
+        u16 allocX = 0, allocY = 0;
         union {
-            uint8_t *paletteColors = nullptr;
-            uint8_t paletteIdx;
+            u8 *paletteColors = nullptr;
+            u8 paletteIdx;
         };
         int loadedFrame = -1;
         bool loadedOAM = false;
@@ -53,21 +53,21 @@ namespace Engine {
         bool loaded = false;
         Texture* texture = nullptr;
 
-        int32_t wx = 0, wy = 0;  // 1 bit sign, 22 bit integer, 8 bit fraction, world
-        int32_t wscale_x = 1 << 8, wscale_y = 1 << 8;
-        int32_t cam_x = 0, cam_y = 0;
-        int32_t cam_scale_x = 1 << 8, cam_scale_y = 1 << 8;
-        int32_t layer = 0;
+        s32 wx = 0, wy = 0;  // 1 bit sign, 22 bit integer, 8 bit fraction, world
+        s32 wscale_x = 1 << 8, wscale_y = 1 << 8;
+        s32 cam_x = 0, cam_y = 0;
+        s32 cam_scale_x = 1 << 8, cam_scale_y = 1 << 8;
+        s32 layer = 0;
         int currentFrame = 0;
         int currentAnimation = -1;
 
         friend class OAMManager;
         friend class Sprite3DManager;
     private:
-        int32_t x = 0, y = 0;  // 1 bit sign, 22 bit integer, 8 bit fraction, screen
-        int32_t scale_x = 0, scale_y = 0;
-        uint16_t currentAnimationTimer = 0;
-        uint16_t currentAnimationFrame = 0;
+        s32 x = 0, y = 0;  // 1 bit sign, 22 bit integer, 8 bit fraction, screen
+        s32 scale_x = 0, scale_y = 0;
+        u16 currentAnimationTimer = 0;
+        u16 currentAnimationFrame = 0;
         SpriteInternalMemory memory;
         AllocationMode allocMode;
         bool shown = false;

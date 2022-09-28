@@ -9,9 +9,9 @@
 
 struct CSCN {
     char header[4] = {'C', 'S', 'C', 'N'};
-    uint32_t version = 1;
-    uint32_t fileSize = 0;
-    uint8_t* commands = nullptr;
+    u32 version = 1;
+    u32 fileSize = 0;
+    u8* commands = nullptr;
 };
 
 #endif //UNDERTALE_CSCN_HPP

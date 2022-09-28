@@ -44,7 +44,7 @@ void Navigation::load_texture(char *path, CutsceneLocation callingLocation) {
     }
 }
 
-void Navigation::unload_texture(uint8_t textureId, CutsceneLocation callingLocation) {
+void Navigation::unload_texture(u8 textureId, CutsceneLocation callingLocation) {
     if (callingLocation == LOAD_ROOM || callingLocation == ROOM) {
         if (textureId >= globalRoom->textureCount)
             return;
@@ -76,7 +76,7 @@ void Navigation::unload_texture(uint8_t textureId, CutsceneLocation callingLocat
     }
 }
 
-void Navigation::spawn_sprite(uint8_t textureId, int32_t x, int32_t y, int32_t layer,
+void Navigation::spawn_sprite(u8 textureId, s32 x, s32 y, s32 layer,
                               CutsceneLocation callingLocation) {
     if (callingLocation == LOAD_ROOM || callingLocation == ROOM) {
         auto* newSprites = new ManagedSprite*[globalRoom->spriteCount + 1];
@@ -105,7 +105,7 @@ void Navigation::spawn_sprite(uint8_t textureId, int32_t x, int32_t y, int32_t l
     }
 }
 
-void Navigation::unload_sprite(uint8_t sprId, CutsceneLocation callingLocation) {
+void Navigation::unload_sprite(u8 sprId, CutsceneLocation callingLocation) {
     if (callingLocation == LOAD_ROOM || callingLocation == ROOM) {
         if (sprId >= globalRoom->spriteCount)
             return;
@@ -137,7 +137,7 @@ void Navigation::unload_sprite(uint8_t sprId, CutsceneLocation callingLocation) 
     }
 }
 
-void Navigation::set_position(uint8_t targetType, uint8_t targetId, int32_t x, int32_t y,
+void Navigation::set_position(u8 targetType, u8 targetId, s32 x, s32 y,
                               CutsceneLocation callingLocation) {
     Engine::Sprite* spriteManager = getTarget(targetType, targetId, callingLocation);
     if (spriteManager == nullptr)
@@ -146,7 +146,7 @@ void Navigation::set_position(uint8_t targetType, uint8_t targetId, int32_t x, i
     spriteManager->wy = y;
 }
 
-void Navigation::set_scale(uint8_t targetType, uint8_t targetId, int32_t x, int32_t y,
+void Navigation::set_scale(u8 targetType, u8 targetId, s32 x, s32 y,
                            CutsceneLocation callingLocation) {
     Engine::Sprite* spriteManager = getTarget(targetType, targetId, callingLocation);
     if (spriteManager == nullptr)
@@ -155,14 +155,14 @@ void Navigation::set_scale(uint8_t targetType, uint8_t targetId, int32_t x, int3
     spriteManager->wscale_y = y;
 }
 
-void Navigation::set_shown(uint8_t targetType, uint8_t targetId, bool shown, CutsceneLocation callingLocation) {
+void Navigation::set_shown(u8 targetType, u8 targetId, bool shown, CutsceneLocation callingLocation) {
     Engine::Sprite* spriteManager = getTarget(targetType, targetId, callingLocation);
     if (spriteManager == nullptr)
         return;
     spriteManager->setShown(shown);
 }
 
-void Navigation::set_animation(uint8_t targetType, uint8_t targetId, char *animName, CutsceneLocation callingLocation) {
+void Navigation::set_animation(u8 targetType, u8 targetId, char *animName, CutsceneLocation callingLocation) {
     Engine::Sprite* spriteManager = getTarget(targetType, targetId, callingLocation);
     if (spriteManager == nullptr) {
         nocashMessage("no target");
@@ -176,7 +176,7 @@ void Navigation::set_animation(uint8_t targetType, uint8_t targetId, char *animN
     spriteManager->setSpriteAnim(animId);
 }
 
-void Navigation::set_pos_in_frames(uint8_t targetType, uint8_t targetId, int32_t x, int32_t y, uint16_t frames,
+void Navigation::set_pos_in_frames(u8 targetType, u8 targetId, s32 x, s32 y, u16 frames,
                                    CutsceneLocation callingLocation) {
     auto* navTask = new NavigationTask;
     navTask->target = getTarget(targetType, targetId, callingLocation);
@@ -190,7 +190,7 @@ void Navigation::set_pos_in_frames(uint8_t targetType, uint8_t targetId, int32_t
     // nav task not freed as it's managed by navigation
 }
 
-void Navigation::move_in_frames(uint8_t targetType, uint8_t targetId, int32_t dx, int32_t dy, uint16_t frames,
+void Navigation::move_in_frames(u8 targetType, u8 targetId, s32 dx, s32 dy, u16 frames,
                                 CutsceneLocation callingLocation) {
     auto* navTask = new NavigationTask;
     navTask->target = getTarget(targetType, targetId, callingLocation);
@@ -204,7 +204,7 @@ void Navigation::move_in_frames(uint8_t targetType, uint8_t targetId, int32_t dx
     // nav task not freed as it's managed by navigation
 }
 
-void Navigation::scale_in_frames(uint8_t targetType, uint8_t targetId, int32_t x, int32_t y, uint16_t frames,
+void Navigation::scale_in_frames(u8 targetType, u8 targetId, s32 x, s32 y, u16 frames,
                                  CutsceneLocation callingLocation) {
     auto* navTask = new NavigationTask;
     navTask->target = getTarget(targetType, targetId, callingLocation);
@@ -245,8 +245,8 @@ bool Navigation::updateTask(int taskId) {
         endTask(taskId);
         return true;
     }
-    int32_t xRun = navTask->destX - navTask->startingX;
-    int32_t yRun = navTask->destY - navTask->startingY;
+    s32 xRun = navTask->destX - navTask->startingX;
+    s32 yRun = navTask->destY - navTask->startingY;
     if (navTask->taskType == POSITION) {
         target->wx = navTask->startingX + (xRun * navTask->currentFrames) / navTask->frames;
         target->wy = navTask->startingY + (yRun * navTask->currentFrames) / navTask->frames;
@@ -281,7 +281,7 @@ void Navigation::update() {
     }
 }
 
-Engine::Sprite* Navigation::getTarget(uint8_t targetType, uint8_t targetId,
+Engine::Sprite* Navigation::getTarget(u8 targetType, u8 targetId,
                                              CutsceneLocation callingLocation) {
     if (callingLocation == ROOM || callingLocation == LOAD_ROOM) {
         if (targetType == PLAYER) {

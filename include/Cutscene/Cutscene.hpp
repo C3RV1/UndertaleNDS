@@ -12,12 +12,12 @@
 
 class Cutscene {
 public:
-    explicit Cutscene(uint16_t cutsceneId_);
+    explicit Cutscene(u16 cutsceneId_);
     static bool checkHeader(FILE *f);
     bool runCommands(CutsceneLocation callingLocation);
     bool runCommand(CutsceneLocation callingLocation);
-    uint16_t cutsceneId;
-    uint16_t roomId;
+    u16 cutsceneId;
+    u16 roomId;
     ~Cutscene();
 private:
     Waiting waiting;

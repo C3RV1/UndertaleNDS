@@ -80,7 +80,7 @@ int Room::loadRoom(FILE *f) {
     fread(&roomFile.header.fileSize, 4, 1, f);
     long pos = ftell(f);
     fseek(f, 0, SEEK_END);
-    uint32_t size = ftell(f);
+    u32 size = ftell(f);
     fseek(f, pos, SEEK_SET);
 
     if (roomFile.header.fileSize != size) {
@@ -283,7 +283,7 @@ bool Room::evaluateCondition(FILE *f) {
     cond.cmpOperator = cond.cmpOperator & 3;
     fread(&cond.cmpValue, 2, 1, f);
 
-    uint16_t flagValue = globalSave.flags[cond.flagId];
+    u16 flagValue = globalSave.flags[cond.flagId];
     bool flag = false;
     if (cond.cmpOperator == ComparisonOperator::EQUALS)
         flag = (flagValue == cond.cmpValue);
@@ -302,7 +302,7 @@ void Room::draw() const {
     }
 }
 
-void loadNewRoom(int roomId, int32_t spawnX, int32_t spawnY) {
+void loadNewRoom(int roomId, s32 spawnX, s32 spawnY) {
     int timer = ROOM_CHANGE_FADE_FRAMES;
     while (timer >= 0) {
         Engine::tick();

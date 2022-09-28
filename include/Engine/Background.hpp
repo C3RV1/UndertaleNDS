@@ -13,7 +13,7 @@
 
 namespace Engine {
     struct Tile {
-        uint8_t* tileData = nullptr;
+        u8* tileData = nullptr;
     };
 
     class Background {
@@ -21,26 +21,26 @@ namespace Engine {
         int loadCBGF(FILE* f);
         bool getLoaded() const { return loaded; }
         bool getColor8bit() const { return color8bit; }
-        uint8_t getColorCount() const { return colorCount; }
-        uint16_t* getColors() const { return colors; }
-        uint16_t getTileCount() const { return tileCount; }
-        uint8_t* getTiles() const { return tiles; }
-        void getSize(uint16_t& l_width, uint16_t& l_height) const {
+        u8 getColorCount() const { return colorCount; }
+        u16* getColors() const { return colors; }
+        u16 getTileCount() const { return tileCount; }
+        u8* getTiles() const { return tiles; }
+        void getSize(u16& l_width, u16& l_height) const {
             l_width = width;
             l_height = height;
         }
-        uint16_t* getMap() const { return map; }
+        u16* getMap() const { return map; }
         void free_();
         ~Background() { free_(); }
     private:
         bool loaded = false;
         bool color8bit = false;
-        uint8_t colorCount = 0;
-        uint16_t* colors = nullptr;
-        uint16_t tileCount = 0;
-        uint8_t* tiles = nullptr;
-        uint16_t width = 0, height = 0;
-        uint16_t* map = nullptr;
+        u8 colorCount = 0;
+        u16* colors = nullptr;
+        u16 tileCount = 0;
+        u8* tiles = nullptr;
+        u16 width = 0, height = 0;
+        u16* map = nullptr;
     };
 
 
@@ -64,8 +64,8 @@ namespace Engine {
     void clearSub();
     void clearEngine(vu16* bg3Reg, u16* tileRam, u16* mapRam);
 
-    extern int32_t bg3ScrollX, bg3ScrollY;
-    extern int16_t bg3Pa, bg3Pb, bg3Pc, bg3Pd;
+    extern s32 bg3ScrollX, bg3ScrollY;
+    extern s16 bg3Pa, bg3Pb, bg3Pc, bg3Pd;
 }
 
 #endif //UNDERTALE_BACKGROUND_HPP

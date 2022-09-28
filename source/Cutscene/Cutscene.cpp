@@ -18,7 +18,7 @@
 
 Cutscene* globalCutscene = nullptr;
 
-Cutscene::Cutscene(uint16_t cutsceneId_) : cutsceneId(cutsceneId_) {
+Cutscene::Cutscene(u16 cutsceneId_) : cutsceneId(cutsceneId_) {
     char buffer[100];
     roomId = globalRoom->roomId;
     sprintf(buffer, "nitro:/data/cutscenes/r%d/c%d.cscn", roomId, cutsceneId);
@@ -53,19 +53,19 @@ bool Cutscene::checkHeader(FILE *f) {
         return false;
     }
 
-    uint32_t version;
+    u32 version;
     fread(&version, 4, 1, f);
 
     if (version != 4) {
         return false;
     }
 
-    uint32_t fileSize;
+    u32 fileSize;
 
     fread(&fileSize, 4, 1, f);
     long pos = ftell(f);
     fseek(f, 0, SEEK_END);
-    uint32_t size = ftell(f);
+    u32 size = ftell(f);
     fseek(f, pos, SEEK_SET);
 
     if (size != fileSize) {
@@ -93,11 +93,11 @@ bool Cutscene::runCommands(CutsceneLocation callingLocation) {
 
 bool Cutscene::runCommand(CutsceneLocation callingLocation) {
     char buffer[100];
-    uint8_t cmd;
+    u8 cmd;
     fread(&cmd, 1, 1, commandStream);
     int len;
-    uint8_t targetType, targetId = 0, count;
-    uint32_t address;
+    u8 targetType, targetId = 0, count;
+    u32 address;
     Navigation* nav;
     if (callingLocation == ROOM || callingLocation == LOAD_ROOM) {
         nav = &globalRoom->nav;
@@ -125,8 +125,8 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             break;
         case CMD_LOAD_SPRITE: {
             nocashMessage("CMD_LOAD_SPRITE");
-            int32_t x, y, layer;
-            uint8_t texId;
+            s32 x, y, layer;
+            u8 texId;
             fread(&x, 4, 1, commandStream);
             fread(&y, 4, 1, commandStream);
             fread(&layer, 4, 1, commandStream);
@@ -136,7 +136,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
         }
         case CMD_UNLOAD_SPRITE: {
             nocashMessage("CMD_UNLOAD_SPRITE");
-            uint8_t sprId;
+            u8 sprId;
             fread(&sprId, 1, 1, commandStream);
             Navigation::unload_sprite(sprId, callingLocation);
             break;
@@ -188,7 +188,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             break;
         case CMD_WAIT_FRAMES: {
             nocashMessage("CMD_WAIT_FRAMES");
-            uint16_t frameCount;
+            u16 frameCount;
             fread(&frameCount, 2, 1, commandStream);
             waiting.waitFrames(frameCount);
             break;
@@ -198,7 +198,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             fread(&targetType, 1, 1, commandStream);
             if (targetType == TargetType::SPRITE)
                 fread(&targetId, 1, 1, commandStream);
-            int32_t x, y;
+            s32 x, y;
             fread(&x, 4, 1, commandStream);
             fread(&y, 4, 1, commandStream);
             Navigation::set_position(targetType, targetId, x, y, callingLocation);
@@ -209,7 +209,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             fread(&targetType, 1, 1, commandStream);
             if (targetType == TargetType::SPRITE)
                 fread(&targetId, 1, 1, commandStream);
-            int32_t x, y;
+            s32 x, y;
             fread(&x, 4, 1, commandStream);
             fread(&y, 4, 1, commandStream);
             Navigation::set_scale(targetType, targetId, x, y, callingLocation);
@@ -220,10 +220,10 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             fread(&targetType, 1, 1, commandStream);
             if (targetType == TargetType::SPRITE)
                 fread(&targetId, 1, 1, commandStream);
-            int32_t x, y;
+            s32 x, y;
             fread(&x, 4, 1, commandStream);
             fread(&y, 4, 1, commandStream);
-            uint16_t frames;
+            u16 frames;
             fread(&frames, 2, 1, commandStream);
             nav->set_pos_in_frames(targetType, targetId, x, y, frames, callingLocation);
             break;
@@ -233,10 +233,10 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             fread(&targetType, 1, 1, commandStream);
             if (targetType == TargetType::SPRITE)
                 fread(&targetId, 1, 1, commandStream);
-            int32_t x, y;
+            s32 x, y;
             fread(&x, 4, 1, commandStream);
             fread(&y, 4, 1, commandStream);
-            uint16_t frames;
+            u16 frames;
             fread(&frames, 2, 1, commandStream);
             nav->move_in_frames(targetType, targetId, x, y, frames, callingLocation);
             break;
@@ -246,18 +246,18 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             fread(&targetType, 1, 1, commandStream);
             if (targetType == TargetType::SPRITE)
                 fread(&targetId, 1, 1, commandStream);
-            int32_t x, y;
+            s32 x, y;
             fread(&x, 4, 1, commandStream);
             fread(&y, 4, 1, commandStream);
-            uint16_t frames;
+            u16 frames;
             fread(&frames, 2, 1, commandStream);
             nav->scale_in_frames(targetType, targetId, x, y, frames, callingLocation);
             break;
         }
         case CMD_START_DIALOGUE: {
             nocashMessage("CMD_START_DIALOGUE");
-            uint16_t textId, framesPerLetter;
-            int32_t x, y;
+            u16 textId, framesPerLetter;
+            s32 x, y;
             char speaker[50], font[50];
             char idleAnim[50], talkAnim[50];
             char idleAnim2[50], talkAnim2[50];
@@ -322,7 +322,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
         }
         case CMD_BATTLE_ATTACK: {
             nocashMessage("CMD_BATTLE_ATTACK");
-            uint16_t attackId;
+            u16 attackId;
             fread(&attackId, 2, 1, commandStream);
             if (globalBattle != nullptr) {  // just in case
                 globalBattle->resetBattleAttack();
@@ -384,7 +384,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             break;
         case CMD_PLAY_SFX: {
             nocashMessage("CMD_PLAY_SFX");
-            int8_t loops;
+            s8 loops;
             fread(&loops, 1, 1, commandStream);
             len = strlen_file(commandStream, 0);
             fread(buffer, len + 1, 1, commandStream);
@@ -398,7 +398,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
         }
         case CMD_SET_FLAG: {
             nocashMessage("CMD_SET_FLAG");
-            uint16_t flagId, flagValue;
+            u16 flagId, flagValue;
             fread(&flagId, 2, 1, commandStream);
             fread(&flagValue, 2, 1, commandStream);
             globalSave.flags[flagId] = flagValue;
@@ -406,8 +406,8 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
         }
         case CMD_CMP_FLAG: {
             nocashMessage("CMD_SET_FLAG");
-            uint16_t flagId, flagValue, cmpValue;
-            uint8_t comparator;
+            u16 flagId, flagValue, cmpValue;
+            u8 comparator;
             fread(&flagId, 2, 1, commandStream);
             fread(&comparator, 1, 1, commandStream);
             fread(&cmpValue, 2, 1, commandStream);
@@ -423,7 +423,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             break;
         }
         case CMD_SET_COLLIDER_ENABLED: {
-            uint8_t colliderId;
+            u8 colliderId;
             bool enabled;
             fread(&colliderId, 1, 1, commandStream);
             fread(&enabled, 1, 1, commandStream);
@@ -436,8 +436,8 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
         }
         case CMD_SET_INTERACT_ACTION: {
             nocashMessage("CMD_SET_INTERACT_ACTION");
-            uint8_t interactAction;
-            uint16_t cutsceneId_;
+            u8 interactAction;
+            u16 cutsceneId_;
             fread(&targetType, 1, 1, commandStream);
             if (targetType == TargetType::SPRITE)
                 fread(&targetId, 1, 1, commandStream);

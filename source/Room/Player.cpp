@@ -36,7 +36,7 @@ Player::Player() : spriteManager(Engine::Allocated3D) {
 void Player::update() {
     if (!playerControl)
         return;
-    int32_t prevX = spriteManager.wx, prevY = spriteManager.wy;
+    s32 prevX = spriteManager.wx, prevY = spriteManager.wy;
     int moveDirection = -1;
     bool setAnim = true;
     if (keysHeld() & KEY_DOWN) {
@@ -105,7 +105,7 @@ void Player::update() {
 }
 
 void Player::check_exits() {
-    uint16_t width, height;
+    u16 width, height;
     globalRoom->bg.getSize(width, height);
     if (spriteManager.wx < 0) {
         spriteManager.wx = 0;
@@ -153,7 +153,7 @@ void Player::check_exits() {
 }
 
 void Player::check_interact() const {
-    int32_t x, y, w = 19, h = 9, x2, y2, w2, h2;
+    s32 x, y, w = 19, h = 9, x2, y2, w2, h2;
     if (currentAnimation == upIdleId || currentAnimation == upMoveId) {
         x = 0;
         y = -9;

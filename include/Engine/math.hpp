@@ -8,16 +8,16 @@
 #include <stdint.h>
 #include <math.h>
 
-inline uint32_t double_to_fixed(double input, uint8_t bits)
+inline u32 double_to_fixed(double input, u8 bits)
 {
-    return (uint32_t)(round(input * (1 << bits)));
+    return (u32)(round(input * (1 << bits)));
 }
 
 bool collidesRect(int x1, int y1, int w1, int h1,
                   int x2, int y2, int w2, int h2);
 
 int distSquared(int x1, int y1, int x2, int y2);
-int distSquared_fp(int32_t x1, int32_t y1, int32_t x2, int32_t y2); // fixed point distance squared
+int distSquared_fp(s32 x1, s32 y1, s32 x2, s32 y2); // fixed point distance squared
 
 int mod(int a, int b);
 

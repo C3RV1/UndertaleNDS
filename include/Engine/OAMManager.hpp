@@ -12,8 +12,8 @@
 namespace Engine {
     struct OAMEntry {
         bool free_ = true;
-        uint16_t tileStart = 0;
-        uint8_t tileWidth = 0, tileHeight = 0;
+        u16 tileStart = 0;
+        u8 tileWidth = 0, tileHeight = 0;
     };
 
     class OAMManager {
@@ -25,7 +25,7 @@ namespace Engine {
                 oamRam(oamRam),
                 tileRam(tileRam) {
             tileFreeZoneCount = 1;
-            tileFreeZones = new uint16_t[2];
+            tileFreeZones = new u16[2];
             tileFreeZones[0] = 1;
             tileFreeZones[1] = 1023;
             *paletteRam = 31 << 5;  // full green for bg
@@ -34,7 +34,7 @@ namespace Engine {
         int loadSprite(Sprite& res);
         void freeSprite(Sprite& spr);
 
-        int reserveOAMEntry(uint8_t tileW, uint8_t tileH);
+        int reserveOAMEntry(u8 tileW, u8 tileH);
         void freeOAMEntry(int oamId);
 
         void dumpOamState();
@@ -51,19 +51,19 @@ namespace Engine {
         u16* oamRam;
         u16* tileRam;
 
-        uint16_t tileFreeZoneCount;
-        uint16_t* tileFreeZones;  // pairs of (starting addr, free tiles)
+        u16 tileFreeZoneCount;
+        u16* tileFreeZones;  // pairs of (starting addr, free tiles)
 
-        uint8_t activeSpriteCount = 0;
+        u8 activeSpriteCount = 0;
         Sprite** activeSprites = nullptr;
 
-        uint8_t paletteRefCounts[255] = {0};
+        u8 paletteRefCounts[255] = {0};
         OAMEntry oamEntries[SPRITE_COUNT];
         bool oamScaleEntryUsed[32] = {false};
     };
 
     extern OAMManager OAMManagerSub;
-    extern uint8_t tmpRam[64*64];
+    extern u8 tmpRam[64*64];
 }
 
 #endif //UNDERTALE_OAMMANAGER_HPP

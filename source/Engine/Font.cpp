@@ -8,8 +8,8 @@ namespace Engine {
     int Font::loadCFNT(FILE *f) {
         free_();
         char header[4];
-        uint32_t fileSize;
-        uint32_t version;
+        u32 fileSize;
+        u32 version;
         fread(header, 4, 1, f);
 
         const char expectedChar[4] = {'C', 'F', 'N', 'T'};
@@ -18,9 +18,9 @@ namespace Engine {
         }
 
         fread(&fileSize, 4, 1, f);
-        uint32_t pos = ftell(f);
+        u32 pos = ftell(f);
         fseek(f, 0, SEEK_END);
-        uint32_t size = ftell(f);
+        u32 size = ftell(f);
         fseek(f, pos, SEEK_SET);
 
         if (fileSize != size) {
@@ -42,8 +42,8 @@ namespace Engine {
             fread(&glyph->height, 1, 1, f);
             fread(&glyph->shift, 1, 1, f);
             fread(&glyph->offset, 1, 1, f);
-            uint16_t dataBytes = ((glyph->width * glyph->height + 7) / 8);
-            glyph->glyphData = new uint8_t[dataBytes];
+            u16 dataBytes = ((glyph->width * glyph->height + 7) / 8);
+            glyph->glyphData = new u8[dataBytes];
             fread(glyph->glyphData, dataBytes, 1, f);
         }
 
@@ -66,33 +66,33 @@ namespace Engine {
         glyphs.glyphs = nullptr;
     }
 
-    void TextBGManager::drawGlyph(Font& font, uint8_t glyph, int &x, int y) {
+    void TextBGManager::drawGlyph(Font& font, u8 glyph, int &x, int y) {
         if (!font.getLoaded())
             return;
 
-        uint8_t glyphIdx = font.getGlyphMap()[glyph];
+        u8 glyphIdx = font.getGlyphMap()[glyph];
         if (glyphIdx == 0)
             return;
         CFNTGlyph* glyphObj = font.getGlyph(glyphIdx);
         int endX = x + glyphObj->shift;
         x += glyphObj->offset;
-        for (uint8_t glyphY = 0;glyphY < glyphObj->height && y < 192;) {
+        for (u8 glyphY = 0;glyphY < glyphObj->height && y < 192;) {
             int x_ = x;
-            for (uint8_t glyphX = 0;glyphX < glyphObj->width && x_ < 256;) {
-                uint8_t* tilePointer = getTile(x_, y);
-                uint8_t tileX = x_ % 8;
-                uint8_t tileY = y % 8;
-                uint8_t* tileByte = tilePointer + (((tileY * 8 + tileX) / 2) & (~1));
-                auto* tile = (uint16_t*) tileByte;
+            for (u8 glyphX = 0;glyphX < glyphObj->width && x_ < 256;) {
+                u8* tilePointer = getTile(x_, y);
+                u8 tileX = x_ % 8;
+                u8 tileY = y % 8;
+                u8* tileByte = tilePointer + (((tileY * 8 + tileX) / 2) & (~1));
+                auto* tile = (u16*) tileByte;
 
                 bool highBits = (tileX & 1) == 1;
                 bool prevByte = (((tileY * 8 + tileX) / 2) & 1) == 1;
 
-                uint32_t bitPos = glyphY * glyphObj->width + glyphX;
-                uint32_t byte = bitPos / 8;
+                u32 bitPos = glyphY * glyphObj->width + glyphX;
+                u32 byte = bitPos / 8;
                 bitPos = 7 - (bitPos % 8);
 
-                uint8_t bit = glyphObj->glyphData[byte] >> bitPos;
+                u8 bit = glyphObj->glyphData[byte] >> bitPos;
 
                 if (bit & 1) {
                     *tile &= ~(0xF << (4 * highBits) << (8 * prevByte));
@@ -108,11 +108,11 @@ namespace Engine {
         x = endX;
     }
 
-    uint8_t TextBGManager::getGlyphWidth(Font& font, uint8_t glyph) {
+    u8 TextBGManager::getGlyphWidth(Font& font, u8 glyph) {
         if (!font.getLoaded())
             return 0;
 
-        uint8_t glyphIdx = font.getGlyphMap()[glyph];
+        u8 glyphIdx = font.getGlyphMap()[glyph];
         if (glyphIdx == 0)
             return 0;
         CFNTGlyph* glyphObj = font.getGlyph(glyphIdx);
@@ -136,16 +136,16 @@ namespace Engine {
         tileReserve = 1;
     }
 
-    uint8_t* TextBGManager::getTile(int x, int y) {
+    u8* TextBGManager::getTile(int x, int y) {
         x /= 8;
         y /= 8;
-        uint16_t tileId = *((uint8_t *) mapRam + (y * 32 + x) * 2);
+        u16 tileId = *((u8 *) mapRam + (y * 32 + x) * 2);
         if (tileId == 0) {
             tileId = tileReserve++;
-            *(uint16_t*)((uint8_t *) mapRam + (y * 32 + x) * 2) = (15 << 12) + tileId;
-            memset(((uint8_t*)tileRam) + (tileId * 32), 0, 32); // Initialize tile to blank
+            *(u16*)((u8 *) mapRam + (y * 32 + x) * 2) = (15 << 12) + tileId;
+            memset(((u8*)tileRam) + (tileId * 32), 0, 32); // Initialize tile to blank
         }
-        return ((uint8_t*)tileRam) + (tileId * 32);
+        return ((u8*)tileRam) + (tileId * 32);
     }
 
     void TextBGManager::setPaletteColor256(int colorIdx, int r, int g, int b, bool color8bit) {

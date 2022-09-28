@@ -9,63 +9,63 @@
 
 struct ROOMHeader {
     char header[4] = {'R', 'O', 'O', 'M'};
-    uint32_t fileSize = 0;
+    u32 fileSize = 0;
 
-    uint32_t version = 6;
+    u32 version = 6;
 };
 
 struct ROOMExit {
-    uint8_t exitType = 0; // 0 side, 1 rect
-    uint16_t roomId = 0;
-    uint16_t spawnX = 0, spawnY = 0;
-    uint16_t x = 0, y = 0, w = 0, h = 0;  // rect
-    uint8_t side = 0;  // side 0-3, up, down, left, right
+    u8 exitType = 0; // 0 side, 1 rect
+    u16 roomId = 0;
+    u16 spawnX = 0, spawnY = 0;
+    u16 x = 0, y = 0, w = 0, h = 0;  // rect
+    u8 side = 0;  // side 0-3, up, down, left, right
 };
 
 struct ROOMExits {
-    uint8_t exitCount = 0;
+    u8 exitCount = 0;
     ROOMExit* roomExits = nullptr;
 };
 
 struct ROOMTextures {
-    uint8_t textureCount = 0;
+    u8 textureCount = 0;
     char** texturePaths = nullptr;
 };
 
 struct ROOMSprite {
-    int8_t textureId = 0;
-    uint16_t x = 0, y = 0, layer = 0;
+    s8 textureId = 0;
+    u16 x = 0, y = 0, layer = 0;
     char* animation = nullptr;
-    uint8_t interactAction = 0;  // 0 - none, 1 - cutscene
-    uint16_t cutsceneId = 0;  // only when interactAction == 1
+    u8 interactAction = 0;  // 0 - none, 1 - cutscene
+    u16 cutsceneId = 0;  // only when interactAction == 1
 };
 
 struct ROOMSprites {
-    uint8_t spriteCount = 0;
+    u8 spriteCount = 0;
     ROOMSprite* roomSprites = nullptr;
 };
 
 struct ROOMCollider {
-    uint16_t x = 0, y = 0, w = 0, h = 0;
-    uint8_t colliderAction = 0;  // 0 - wall, 1 - trigger
+    u16 x = 0, y = 0, w = 0, h = 0;
+    u8 colliderAction = 0;  // 0 - wall, 1 - trigger
     bool enabled = true;
-    uint16_t cutsceneId = 0;    // only when colliderAction == 1
+    u16 cutsceneId = 0;    // only when colliderAction == 1
 };
 
 struct ROOMColliders {
-    uint16_t colliderCount = 0;
+    u16 colliderCount = 0;
     ROOMCollider* roomColliders = nullptr;
 };
 
 struct ROOMPartCondition {
-    uint16_t flagId = 0;
-    uint8_t cmpOperator = 0;  // Same as cutscene cmp, but bit 4 is flip
-    uint16_t cmpValue = 0;
+    u16 flagId = 0;
+    u8 cmpOperator = 0;  // Same as cutscene cmp, but bit 4 is flip
+    u16 cmpValue = 0;
 };
 
 struct ROOMPart {
-    uint32_t lengthBytes = 0;
-    uint8_t conditionCount = 0;
+    u32 lengthBytes = 0;
+    u8 conditionCount = 0;
     ROOMPartCondition* conditions = nullptr;
     char roomBg[50] = {0};
     char musicBg[50] = {0};
@@ -77,8 +77,8 @@ struct ROOMPart {
 
 struct ROOMFile {
     ROOMHeader header;
-    uint16_t spawnX = 0, spawnY = 0;
-    uint8_t partCount = 0;
+    u16 spawnX = 0, spawnY = 0;
+    u8 partCount = 0;
     ROOMPart* parts = nullptr;
 };
 

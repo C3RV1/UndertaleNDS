@@ -8,14 +8,24 @@
 #define FLAG_COUNT 256
 #define ITEM_COUNT 8
 
-#include <stdint.h>
+#include <stdio.h>
+#define ARM9
+#include <nds.h>
 
-struct SaveData {
-    char* name = nullptr;
-    uint16_t flags[FLAG_COUNT] = {0};
-    uint8_t hp = 20, maxHp = 20;
-    uint8_t lv = 1, exp = 0;
-    uint8_t items[ITEM_COUNT + 1] = {0};  // Terminal 0
+const int MAX_NAME_LEN = 10;
+
+class SaveData {
+public:
+    void clear();
+    void loadData();
+    void saveData();
+
+    bool saveExists = false;
+    char name[MAX_NAME_LEN + 1] = {0};
+    u16 flags[FLAG_COUNT] = {0};
+    u8 hp = 20, maxHp = 20;
+    u8 lv = 1, exp = 0;
+    u8 items[ITEM_COUNT + 1] = {0};  // Terminal 0
 };
 
 extern SaveData globalSave;

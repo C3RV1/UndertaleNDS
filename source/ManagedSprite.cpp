@@ -5,7 +5,7 @@
 #include "ManagedSprite.hpp"
 #include "Room/Camera.hpp"
 
-void ManagedSprite::load(ROOMSprite *sprData, uint8_t textureCount,
+void ManagedSprite::load(ROOMSprite *sprData, u8 textureCount,
                          Engine::Texture** textures) {
     if (sprData->textureId < textureCount) {
         texture = textures[sprData->textureId];
@@ -23,8 +23,8 @@ void ManagedSprite::load(ROOMSprite *sprData, uint8_t textureCount,
     cutsceneId = sprData->cutsceneId;
 }
 
-void ManagedSprite::spawn(uint8_t textureId, int32_t x, int32_t y, int32_t layer,
-                          uint8_t textureCount, Engine::Texture** textures) {
+void ManagedSprite::spawn(u8 textureId, s32 x, s32 y, s32 layer,
+                          u8 textureCount, Engine::Texture** textures) {
     if (textureId < textureCount) {
         texture = textures[textureId];
         spriteManager.loadTexture(*texture);

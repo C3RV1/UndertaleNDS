@@ -17,10 +17,8 @@ namespace Audio {
         FILE *f = fopen(buffer, "rb");
         filename = new char[strlen(name) + 1];
         strcpy(filename, name);
-        if (f == nullptr) {
-            nocashMessage("1");
+        if (f == nullptr)
             return 1;
-        }
         stream = f;
 
         char header[4];
@@ -33,8 +31,6 @@ namespace Audio {
         fread(header, 4, 1, f);
         if (memcmp(header, riffHeader, 4) != 0) {
             fclose(f);
-            sprintf(buffer, "%X %X %X %X", header[0], header[1], header[2], header[3]);
-            nocashMessage(buffer);
             return 2;
         }
 
@@ -43,7 +39,6 @@ namespace Audio {
         fread(header, 4, 1, f);
         if (memcmp(header, waveHeader, 4) != 0) {
             fclose(f);
-            nocashMessage("3");
             return 3;
         }
 
@@ -51,13 +46,12 @@ namespace Audio {
         fread(header, 4, 1, f);
         if (memcmp(header, fmtHeader, 4) != 0) {
             fclose(f);
-            nocashMessage("4");
             return 4;
         }
 
         fseek(f, ftell(f) + 4, SEEK_SET); // skip chunk size == 0x10
 
-        uint16_t format, channels;
+        u16 format, channels;
         fread(&format, 2, 1, f);
         fread(&channels, 2, 1, f);
         fread(&sampleRate, 4, 1, f);
@@ -67,12 +61,10 @@ namespace Audio {
 
         if (format != 1) {
             fclose(f);
-            nocashMessage("5");
             return 5;
         }
 
         if (channels > 2) {
-            nocashMessage("6");
             return 6;
         }
 
@@ -82,11 +74,10 @@ namespace Audio {
         fread(header, 4, 1, f);
         if (memcmp(header, dataHeader, 4) != 0) {
             fclose(f);
-            nocashMessage("7");
             return 7;
         }
 
-        uint32_t chunkSize;
+        u32 chunkSize;
         fread(&chunkSize, 4, 1, f);
         dataEnd = ftell(f) + chunkSize;
         dataStart = ftell(f);
@@ -165,7 +156,7 @@ namespace Audio {
         memset(dest, 0, 4 * length);
         while (current != nullptr) {
             WAV* next = current->nextWav;
-            if (fillAudioStreamWav(current, length, (uint16_t*)dest, format)) {
+            if (fillAudioStreamWav(current, length, (u16*)dest, format)) {
                 current->stop();
             }
             current = next;
@@ -173,7 +164,7 @@ namespace Audio {
         return length;
     }
 
-    bool fillAudioStreamWav(WAV* wav, mm_word length, uint16_t* dest, mm_stream_formats format) {
+    bool fillAudioStreamWav(WAV* wav, mm_word length, u16* dest, mm_stream_formats format) {
         if (wav == nullptr)
             return true;
         if (!wav->active)
@@ -185,8 +176,8 @@ namespace Audio {
         if (wav->getBitsPerSample() != 16)
             return true;
         // convert channels & sample rate
-        uint32_t dstI = 0;
-        int32_t addition;
+        u32 dstI = 0;
+        s32 addition;
 
         while (dstI < length) {
             while (wav->co >= 44100) {

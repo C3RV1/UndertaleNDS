@@ -18,7 +18,7 @@ namespace Engine {
         int loadCFNT(FILE* f);
         bool getLoaded() const { return loaded; }
         CFNTGlyph* getGlyph(int glyphIdx) const { return &glyphs.glyphs[glyphIdx - 1]; }
-        uint8_t* getGlyphMap() { return glyphMap.glyphMap; }
+        u8* getGlyphMap() { return glyphMap.glyphMap; }
         void free_();
         ~Font() { free_(); }
     private:
@@ -41,15 +41,15 @@ namespace Engine {
             paletteRam[16 * 15 + 14] = (31 << 5) + (31 << 10);  // green + blue = turquoise
             paletteRam[16 * 15 + 15] = (31 << 10) + (31 << 5) + 31;  // full white color
         }
-        void drawGlyph(Font& font, uint8_t glyph, int &x, int y);
-        uint8_t getGlyphWidth(Font& font, uint8_t glyph);
+        void drawGlyph(Font& font, u8 glyph, int &x, int y);
+        u8 getGlyphWidth(Font& font, u8 glyph);
         void reloadColors();
         void setPaletteColor256(int colorIdx, int r, int g, int b, bool color8bit);
         void setCurrentColor(int colorIdx) { paletteColor = colorIdx; }
-        uint16_t getCurrentColor() const { return paletteColor; }
+        u16 getCurrentColor() const { return paletteColor; }
         void clear();
     private:
-        uint8_t* getTile(int x, int y);
+        u8* getTile(int x, int y);
 
         u16* paletteRam;
         u16* tileRam;

@@ -45,10 +45,10 @@ private:
     Engine::Sprite listHeart;
     Engine::Sprite itemExplainBox;
     SelectedMenu selectedMenu = MENU_ITEMS;
-    uint8_t itemCount = 0;
-    uint8_t pageCount = 0;
-    uint8_t itemSelected = 0;
-    uint8_t itemPage = 0;
+    u8 itemCount = 0;
+    u8 pageCount = 0;
+    u8 itemSelected = 0;
+    u8 itemPage = 0;
 };
 
 extern InGameMenu globalInGameMenu;

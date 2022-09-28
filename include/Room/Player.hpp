@@ -29,7 +29,7 @@ public:
 private:
     Engine::Texture playerSpr;
 
-    uint8_t currentAnimation = 0;  // 0-3 idle up, down, left, right, 4-7 move same
+    u8 currentAnimation = 0;  // 0-3 idle up, down, left, right, 4-7 move same
 
     // animation ids
     int upIdleId;

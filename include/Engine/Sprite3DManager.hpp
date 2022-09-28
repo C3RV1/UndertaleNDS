@@ -14,7 +14,7 @@ namespace Engine {
     public:
         Sprite3DManager() {
             tileFreeZoneCount = 1;
-            tileFreeZones = new uint16_t[2];
+            tileFreeZones = new u16[2];
             tileFreeZones[0] = 0;
             tileFreeZones[1] = 65536-8;
         }
@@ -27,12 +27,12 @@ namespace Engine {
     private:
         int loadSpriteFrame(Sprite& spr, int frame);
 
-        uint16_t tileFreeZoneCount;
-        uint16_t* tileFreeZones;
+        u16 tileFreeZoneCount;
+        u16* tileFreeZones;
 
         bool paletteUsed[96] = {false};
 
-        uint8_t activeSpriteCount = 0;
+        u8 activeSpriteCount = 0;
         Sprite** activeSprites = nullptr;
     };
 

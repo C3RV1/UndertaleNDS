@@ -6,7 +6,7 @@
 #include "Battle/BattleAttacks/FloweyAttack.hpp"
 #include "Battle/BattleAttacks/FloweyAttack2.hpp"
 
-BattleAttack* getBattleAttack(uint16_t attackId) {
+BattleAttack* getBattleAttack(u16 attackId) {
     switch (attackId) {
         case 1:
             return new BtlAttacks::MovementTutorial();

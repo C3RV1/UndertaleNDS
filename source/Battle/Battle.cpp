@@ -52,7 +52,7 @@ void Battle::loadFromStream(FILE *stream) {
         fclose(enemyNameFile);
     }
 
-    uint8_t boardId;
+    u8 boardId;
     fread(&boardId, 1, 1, stream);
     sprintf(buffer, "nitro:/bg/battle/board%d.cbgf", boardId);
     FILE* boardFile = fopen(buffer, "rb");

@@ -14,10 +14,10 @@
 #include "BattleAttack.hpp"
 
 struct Enemy {
-    uint16_t enemyId = 0;
+    u16 enemyId = 0;
     char enemyName[20] = {0};
-    uint16_t hp = 0;
-    uint16_t maxHp = 0;
+    u16 hp = 0;
+    u16 maxHp = 0;
 };
 
 // TODO: Display health
@@ -33,19 +33,19 @@ public:
     bool running = true;
     Navigation nav;
 
-    uint8_t enemyCount = 0;
+    u8 enemyCount = 0;
     Enemy* enemies = nullptr;
 
-    uint8_t textureCount = 0;
+    u8 textureCount = 0;
     Engine::Texture** textures = nullptr;
 
-    uint8_t spriteCount = 0;
+    u8 spriteCount = 0;
     ManagedSprite** sprites = nullptr;
 
     Engine::Background bulletBoard;
-    uint8_t boardX = 0, boardY = 0, boardW = 0, boardH = 0;
+    u8 boardX = 0, boardY = 0, boardW = 0, boardH = 0;
 
-    const int32_t playerSpeed = (60 << 8) / 60;
+    const s32 playerSpeed = (60 << 8) / 60;
     Engine::Texture player;
     Engine::Sprite playerManager;
 

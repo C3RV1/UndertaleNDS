@@ -14,6 +14,6 @@ public:
     virtual ~BattleAttack() = default;
 };
 
-BattleAttack* getBattleAttack(uint16_t attackId);
+BattleAttack* getBattleAttack(u16 attackId);
 
 #endif //UNDERTALE_BATTLEATTACK_HPP

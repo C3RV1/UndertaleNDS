@@ -175,7 +175,7 @@ void runTitleScreen() {
         Audio::stopBGMusic();
         return;
     }
-    Audio::playBGMusic("mus_intronoise.wav", true);
+    Audio::playBGMusic("mus_intronoise.wav", false);
 
     f = fopen("nitro:/bg/intro/title.cbgf", "rb");
     if (f) {

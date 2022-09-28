@@ -7,11 +7,11 @@
 #include "Cutscene/Cutscene.hpp"
 #include "Formats/utils.hpp"
 
-Dialogue::Dialogue(bool isRoom_, uint16_t textId, char *speaker, int32_t speakerX, int32_t speakerY,
+Dialogue::Dialogue(bool isRoom_, u16 textId, char *speaker, s32 speakerX, s32 speakerY,
                    char *idleAnimTxt, char *talkAnimTxt,
                    Engine::Sprite *target_, char *idleAnim2Txt, char *talkAnim2Txt,
                    char* typeSndPath,
-                   char* fontTxt, uint16_t framesPerLetter) :
+                   char* fontTxt, u16 framesPerLetter) :
                    speakerManager(Engine::AllocatedOAM) {
     isRoom = isRoom_;
     char buffer[100];
@@ -136,8 +136,8 @@ bool Dialogue::update() {
     return false;
 }
 
-uint16_t Dialogue::getLineWidth(int linePos_) {
-    uint16_t lineWidth_ = 0;
+u16 Dialogue::getLineWidth(int linePos_) {
+    u16 lineWidth_ = 0;
     for (char* pLine = line; pLine < line + linePos_; pLine++) {
         if (*pLine == '@') {
             pLine += 1;
@@ -234,7 +234,7 @@ void Dialogue::progressTextRoom(bool clear, bool draw) {
         typeSnd.play();
 
     // clear current chars
-    uint16_t width = getLineWidth(linePos - 1);
+    u16 width = getLineWidth(linePos - 1);
     startingX = 128 - width / 2;
     Engine::textSub.setCurrentColor(0); // clear color
     for (char* pLine = line; pLine < line + linePos - 1; pLine++) {

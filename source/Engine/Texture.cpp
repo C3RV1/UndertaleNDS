@@ -5,8 +5,8 @@ namespace Engine {
     int Texture::loadCSPR(FILE *f) {
         free_();
         char header[4];
-        uint32_t fileSize;
-        uint32_t version;
+        u32 fileSize;
+        u32 version;
         fread(header, 4, 1, f);
 
         const char expectedChar[4] = {'C', 'S', 'P', 'R'};
@@ -15,9 +15,9 @@ namespace Engine {
         }
 
         fread(&fileSize, 4, 1, f);
-        uint32_t pos = ftell(f);
+        u32 pos = ftell(f);
         fseek(f, 0, SEEK_END);
-        uint32_t size = ftell(f);
+        u32 size = ftell(f);
         fseek(f, pos, SEEK_SET);
 
         if (fileSize != size) {
@@ -31,15 +31,15 @@ namespace Engine {
 
         fread(&width, 2, 1, f);
         fread(&height, 2, 1, f);
-        uint16_t tileWidth = (width + 7) / 8, tileHeight = (height + 7) / 8;
+        u16 tileWidth = (width + 7) / 8, tileHeight = (height + 7) / 8;
 
         fread(&colorCount, 1, 1, f);
-        colors = new uint16_t[colorCount];
+        colors = new u16[colorCount];
         fread(colors, 2, colorCount, f);
 
         fread(&frameCount, 1, 1, f);
-        uint16_t tileCount = tileWidth * tileHeight;
-        tiles = new uint8_t[64 * tileCount * frameCount];
+        u16 tileCount = tileWidth * tileHeight;
+        tiles = new u8[64 * tileCount * frameCount];
         fread(tiles, 8 * 8 * tileCount * frameCount, 1, f);
 
         fread(&animationCount, 1, 1, f);

@@ -25,29 +25,29 @@ public:
     void push();
     void pop();
 
-    uint16_t roomId;
+    u16 roomId;
     Engine::Background bg;
 
-    uint8_t textureCount = 0;
+    u8 textureCount = 0;
     Engine::Texture** textures = nullptr;
 
-    uint8_t spriteCount = 0;
+    u8 spriteCount = 0;
     ManagedSprite** sprites = nullptr;
 
     ROOMPart roomData;
-    uint16_t spawnX = 0, spawnY = 0;
+    u16 spawnX = 0, spawnY = 0;
 
     ROOMExit* exitTop = nullptr;
     ROOMExit* exitBtm = nullptr;
     ROOMExit* exitLeft = nullptr;
     ROOMExit* exitRight = nullptr;
-    uint8_t rectExitCount = 0;
+    u8 rectExitCount = 0;
     ROOMExit** rectExits = nullptr;
     Navigation nav;
 };
 
 const int ROOM_CHANGE_FADE_FRAMES = 20;
-void loadNewRoom(int roomId, int32_t spawnX, int32_t spawnY);
+void loadNewRoom(int roomId, s32 spawnX, s32 spawnY);
 
 extern Room* globalRoom;
 

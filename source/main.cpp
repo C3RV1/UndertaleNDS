@@ -11,6 +11,7 @@
 #include "Engine/Font.hpp"
 #include "TitleScreen.hpp"
 #include "WriteName.hpp"
+#include "MainMenu.hpp"
 #include "Room/Room.hpp"
 #include "Room/Player.hpp"
 #include "Room/Camera.hpp"
@@ -19,13 +20,20 @@
 #include "Cutscene/Cutscene.hpp"
 #include "Save.hpp"
 
+
 int main() {
     /* Configure the VRAM and background control registers. */
     if (Engine::init() != 0)
         return 0;
 
+    globalSave.loadData();
+
     runTitleScreen();
-    writeNameMenu();
+    if (!globalSave.saveExists) {
+        runWriteNameMenu();
+    } else {
+        runMainMenu();
+    }
 
     for (int i = 0; i < 5; i++) {
         globalSave.items[i] = 1 + (i % 3 == 0);
@@ -34,11 +42,11 @@ int main() {
     Engine::textMain.clear();
     Engine::textSub.clear();
 
-    uint16_t roomSpawn = 0;
+    u16 roomSpawn = 0;
 
     // DEBUG
-    roomSpawn = 3;
-    globalSave.flags[0] = 3;
+    // roomSpawn = 3;
+    // globalSave.flags[0] = 3;
 
     globalPlayer = new Player();
     globalPlayer->spriteManager.setShown(true);

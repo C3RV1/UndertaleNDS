@@ -2,7 +2,7 @@
 #include "Engine/Texture.hpp"
 
 namespace Engine {
-    uint8_t tmpRam[64*64];
+    u8 tmpRam[64*64];
 
     int OAMManager::loadSprite(Sprite& res) {
         if (!res.loaded)
@@ -10,8 +10,8 @@ namespace Engine {
         if (res.memory.allocated != NoAlloc)
             return -2;
 
-        res.memory.paletteColors = new uint8_t[res.texture->getColorCount()];
-        uint16_t* colors = res.texture->getColors();
+        res.memory.paletteColors = new u8[res.texture->getColorCount()];
+        u16* colors = res.texture->getColors();
 
         for (int i = 0; i < res.texture->getColorCount(); i++) {
             int result = -1;
@@ -37,16 +37,16 @@ namespace Engine {
         }
 
         // Reserve oam tiles
-        uint8_t tileWidth, tileHeight;
+        u8 tileWidth, tileHeight;
         res.texture->getSizeTiles(tileWidth, tileHeight);
-        uint8_t oamW = (tileWidth + 7) / 8;
-        uint8_t oamH = (tileHeight + 7) / 8;
+        u8 oamW = (tileWidth + 7) / 8;
+        u8 oamH = (tileHeight + 7) / 8;
         res.memory.oamEntryCount = oamW * oamH;
-        res.memory.oamEntries = new uint8_t[res.memory.oamEntryCount];
+        res.memory.oamEntries = new u8[res.memory.oamEntryCount];
 
         for (int oamY = 0; oamY < oamH; oamY++) {
             for (int oamX = 0; oamX < oamW; oamX++) {
-                uint8_t reserveX = 8, reserveY = 8;
+                u8 reserveX = 8, reserveY = 8;
                 if (oamX == oamW - 1)
                     reserveX = tileWidth - (oamW - 1) * 8;
                 if (oamY == oamH - 1)
@@ -100,22 +100,22 @@ namespace Engine {
         if (frame >= spr.texture->getFrameCount() || frame < 0)
             return -2;
         spr.memory.loadedFrame = frame;
-        uint8_t tileWidth, tileHeight;
+        u8 tileWidth, tileHeight;
         spr.texture->getSizeTiles(tileWidth, tileHeight);
-        uint8_t oamW = (tileWidth + 7) / 8;
-        uint8_t oamH = (tileHeight + 7) / 8;
+        u8 oamW = (tileWidth + 7) / 8;
+        u8 oamH = (tileHeight + 7) / 8;
 
         // Copy tile into memory (replacing colors)
         for (int oamY = 0; oamY < oamH; oamY++) {
             for (int oamX = 0; oamX < oamW; oamX++) {
                 int oamId = spr.memory.oamEntries[oamY * oamW + oamX];
                 OAMEntry* oamEntry = &oamEntries[oamId];
-                uint8_t* tileRamStart = (uint8_t*) tileRam + oamEntry->tileStart * 8 * 8;
-                uint8_t neededTiles = oamEntry->tileWidth * oamEntry->tileHeight;
+                u8* tileRamStart = (u8*) tileRam + oamEntry->tileStart * 8 * 8;
+                u8 neededTiles = oamEntry->tileWidth * oamEntry->tileHeight;
 
                 memset(tmpRam, 0, neededTiles * 64);
 
-                uint8_t tilesX = 8, tilesY = 8;
+                u8 tilesX = 8, tilesY = 8;
                 if (oamX == oamW - 1)
                     tilesX = tileWidth - (oamW - 1) * 8;
                 if (oamY == oamH - 1)
@@ -123,16 +123,16 @@ namespace Engine {
 
                 for (int tileY = 0; tileY < tilesY; tileY++) {
                     for (int tileX = 0; tileX < tilesX; tileX++) {
-                        uint16_t framePos = frame * tileWidth * tileHeight;
-                        uint16_t tileXPos = oamX * 8 + tileX;
-                        uint16_t tileYPos = oamY * 8 + tileY;
-                        uint32_t tileOffset = framePos + tileYPos * tileWidth + tileXPos;
+                        u16 framePos = frame * tileWidth * tileHeight;
+                        u16 tileXPos = oamX * 8 + tileX;
+                        u16 tileYPos = oamY * 8 + tileY;
+                        u32 tileOffset = framePos + tileYPos * tileWidth + tileXPos;
                         tileOffset = tileOffset * 8 * 8;
                         for (int pixelY = 0; pixelY < 8; pixelY++) {
                             for (int pixelX = 0; pixelX < 8; pixelX++) {
-                                uint32_t resultOffset = (tileY * oamEntry->tileWidth + tileX) * 8 * 8 + pixelY * 8 + pixelX;
-                                uint32_t tilesOffset = tileOffset + pixelY * 8 + pixelX;
-                                uint8_t pixel = spr.texture->getTiles()[tilesOffset];
+                                u32 resultOffset = (tileY * oamEntry->tileWidth + tileX) * 8 * 8 + pixelY * 8 + pixelX;
+                                u32 tilesOffset = tileOffset + pixelY * 8 + pixelX;
+                                u8 pixel = spr.texture->getTiles()[tilesOffset];
                                 if (pixel == 0) {
                                     tmpRam[resultOffset] = 0;
                                     continue;
@@ -149,7 +149,7 @@ namespace Engine {
         return 0;
     }
 
-    int OAMManager::reserveOAMEntry(uint8_t tileW, uint8_t tileH) {
+    int OAMManager::reserveOAMEntry(u8 tileW, u8 tileH) {
         int oamId = -1;
         OAMEntry* oamEntry = nullptr;
         for (int i = 0; i < SPRITE_COUNT; i++) {
@@ -168,10 +168,10 @@ namespace Engine {
         oamEntry->tileHeight = tileH;
 
         // load tiles in groups of animations
-        uint16_t neededTiles = oamEntry->tileWidth * oamEntry->tileHeight;
+        u16 neededTiles = oamEntry->tileWidth * oamEntry->tileHeight;
         int freeZoneIdx = 0;
-        uint16_t start = 0;
-        uint16_t length = 0;
+        u16 start = 0;
+        u16 length = 0;
         for (; freeZoneIdx < tileFreeZoneCount; freeZoneIdx++) {
             start = tileFreeZones[freeZoneIdx * 2];
             length = tileFreeZones[freeZoneIdx * 2 + 1];
@@ -194,12 +194,12 @@ namespace Engine {
             nocashMessage(buffer);
             // Remove free zone
             tileFreeZoneCount--;
-            auto* newFreeZones = new uint16_t[tileFreeZoneCount * 2];
+            auto* newFreeZones = new u16[tileFreeZoneCount * 2];
             // Copy free zones up to freeZoneIdx
             memcpy(newFreeZones, tileFreeZones, freeZoneIdx * 4);
             // Copy free zones after freeZoneIdx
-            memcpy((uint8_t*)newFreeZones + freeZoneIdx * 4,
-                   (uint8_t*)tileFreeZones + (freeZoneIdx + 1) * 4,
+            memcpy((u8*)newFreeZones + freeZoneIdx * 4,
+                   (u8*)tileFreeZones + (freeZoneIdx + 1) * 4,
                    (tileFreeZoneCount - freeZoneIdx) * 4);
             // Free old tileZones and change reference
             delete[] tileFreeZones;
@@ -226,13 +226,13 @@ namespace Engine {
 
         OAMEntry* oamEntry = &oamEntries[oamId];
 
-        auto* oamStart = (uint16_t*) ((uint8_t*) oamRam + oamId * 8);
+        auto* oamStart = (u16*) ((u8*) oamRam + oamId * 8);
         oamStart[0] = 1 << 9; // Not displayed
         oamStart[1] = 0;
         oamStart[2] = 0;
 
-        uint16_t start = oamEntry->tileStart;
-        uint16_t length = oamEntry->tileWidth * oamEntry->tileHeight;
+        u16 start = oamEntry->tileStart;
+        u16 length = oamEntry->tileWidth * oamEntry->tileHeight;
 
         int freeAfterIdx = 0;
         for (; freeAfterIdx < tileFreeZoneCount; freeAfterIdx++) {
@@ -252,11 +252,11 @@ namespace Engine {
         {
             nocashMessage("merge both");
             tileFreeZoneCount--;
-            auto* newFreeZones = new uint16_t[2 * tileFreeZoneCount];
+            auto* newFreeZones = new u16[2 * tileFreeZoneCount];
             memcpy(newFreeZones, tileFreeZones, freeAfterIdx * 4);
             newFreeZones[(freeAfterIdx - 1) * 2 + 1] += length + tileFreeZones[freeAfterIdx * 2 + 1];
-            memcpy((uint8_t*)newFreeZones + freeAfterIdx * 4,
-                   (uint8_t*)tileFreeZones + (freeAfterIdx + 1) * 4,
+            memcpy((u8*)newFreeZones + freeAfterIdx * 4,
+                   (u8*)tileFreeZones + (freeAfterIdx + 1) * 4,
                    (tileFreeZoneCount - freeAfterIdx) * 4);
             delete[] tileFreeZones;
             tileFreeZones = newFreeZones;
@@ -276,11 +276,11 @@ namespace Engine {
         {
             nocashMessage("no merge");
             tileFreeZoneCount++;
-            auto* newFreeZones = new uint16_t[2 * tileFreeZoneCount];
+            auto* newFreeZones = new u16[2 * tileFreeZoneCount];
             memcpy(newFreeZones, tileFreeZones, freeAfterIdx * 4);
             newFreeZones[freeAfterIdx * 2] = start;
             newFreeZones[freeAfterIdx * 2 + 1] = length;
-            memcpy((uint8_t*)newFreeZones + (freeAfterIdx + 1) * 4,
+            memcpy((u8*)newFreeZones + (freeAfterIdx + 1) * 4,
                    tileFreeZones + freeAfterIdx * 4,
                    (tileFreeZoneCount - (freeAfterIdx + 1)) * 4);
             delete[] tileFreeZones;
@@ -317,7 +317,7 @@ namespace Engine {
             return;
 
         for (int colorIdx = 0; colorIdx < spr.texture->getColorCount(); colorIdx++) {
-            uint8_t paletteColor = spr.memory.paletteColors[colorIdx];
+            u8 paletteColor = spr.memory.paletteColors[colorIdx];
             paletteRefCounts[paletteColor - 1]--;
         }
         delete[] spr.memory.paletteColors;
@@ -328,7 +328,7 @@ namespace Engine {
             spr.memory.oamScaleIdx = 0xff;
         }
         for (int oamIdx = 0; oamIdx < spr.memory.oamEntryCount; oamIdx++) {
-            uint8_t oamId = spr.memory.oamEntries[oamIdx];
+            u8 oamId = spr.memory.oamEntries[oamIdx];
             freeOAMEntry(oamId);
         }
         delete[] spr.memory.oamEntries;
@@ -367,9 +367,9 @@ namespace Engine {
 
     void OAMManager::setOAMState(Engine::Sprite &spr) {
         for (int i = 0; i < spr.memory.oamEntryCount; i++) {
-            uint8_t oamId = spr.memory.oamEntries[i];
+            u8 oamId = spr.memory.oamEntries[i];
             OAMEntry* oamEntry = &oamEntries[oamId];
-            auto* oamStart = (uint16_t*) ((uint8_t*) oamRam + oamId * 8);
+            auto* oamStart = (u16*) ((u8*) oamRam + oamId * 8);
             oamStart[0] = 1 << 13; // set 256 color mode
             oamStart[1] = 0;
             oamStart[2] = oamEntry->tileStart + (0 << 10);  // set start tile and priority 0
@@ -425,14 +425,14 @@ namespace Engine {
     }
 
     void OAMManager::setSpritePosAndScale(Engine::Sprite &spr) {
-        uint8_t tileWidth, tileHeight;
+        u8 tileWidth, tileHeight;
         spr.texture->getSizeTiles(tileWidth, tileHeight);
-        uint8_t oamW = (tileWidth + 7) / 8;
-        uint8_t oamH = (tileHeight + 7) / 8;
+        u8 oamW = (tileWidth + 7) / 8;
+        u8 oamH = (tileHeight + 7) / 8;
         for (int oamY = 0; oamY < oamH; oamY++) {
             for (int oamX = 0; oamX < oamW; oamX++) {
                 int oamId = spr.memory.oamEntries[oamY * oamW + oamX];
-                auto* oamStart = (uint16_t*) ((uint8_t*) oamRam + oamId * 8);
+                auto* oamStart = (u16*) ((u8*) oamRam + oamId * 8);
                 bool useScale = (spr.scale_x != (1 << 8)) || (spr.scale_y != (1 << 8));
                 if (useScale) {
                     if (spr.memory.oamScaleIdx == 0xff) {
@@ -448,10 +448,10 @@ namespace Engine {
                 if (spr.memory.oamScaleIdx != 0xff) {
                     oamStart[0] |= 1 << 8;  // set scale and rotation flag
                     oamStart[1] |= spr.memory.oamScaleIdx << 9;
-                    auto* oamScaleA = (uint16_t*)((uint8_t*)oamRam + spr.memory.oamScaleIdx * 0x20 + 0x6);
-                    auto* oamScaleB = (uint16_t*)((uint8_t*)oamRam + spr.memory.oamScaleIdx * 0x20 + 0xE);
-                    auto* oamScaleC = (uint16_t*)((uint8_t*)oamRam + spr.memory.oamScaleIdx * 0x20 + 0x16);
-                    auto* oamScaleD = (uint16_t*)((uint8_t*)oamRam + spr.memory.oamScaleIdx * 0x20 + 0x1E);
+                    auto* oamScaleA = (u16*)((u8*)oamRam + spr.memory.oamScaleIdx * 0x20 + 0x6);
+                    auto* oamScaleB = (u16*)((u8*)oamRam + spr.memory.oamScaleIdx * 0x20 + 0xE);
+                    auto* oamScaleC = (u16*)((u8*)oamRam + spr.memory.oamScaleIdx * 0x20 + 0x16);
+                    auto* oamScaleD = (u16*)((u8*)oamRam + spr.memory.oamScaleIdx * 0x20 + 0x1E);
                     *oamScaleA = (1 << 16) / spr.scale_x;
                     *oamScaleB = 0;
                     *oamScaleC = 0;
@@ -460,11 +460,11 @@ namespace Engine {
                     oamStart[0] &= ~(1 << 8);
                 }
                 oamStart[0] &= ~0xFF;
-                int32_t posX = spr.x + oamX * 64 * spr.scale_x;
+                s32 posX = spr.x + oamX * 64 * spr.scale_x;
                 posX %= (512 << 8);
                 if (posX < 0)
                     posX = (512 << 8) + posX;
-                int32_t posY = spr.y + oamY * 64 * spr.scale_y;
+                s32 posY = spr.y + oamY * 64 * spr.scale_y;
                 posY %= (256 << 8);
                 if (posY < 0)
                     posY = (256 << 8) + posY;
