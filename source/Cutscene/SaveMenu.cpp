@@ -112,6 +112,7 @@ bool SaveMenu::update() {
         if (currentHoldFrames == 0) {
             return true;
         }
+        return false;
     }
     if (selectedOption == 0 && keysDown() & KEY_RIGHT)
         selectedOption = 1;

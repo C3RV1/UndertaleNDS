@@ -1,5 +1,4 @@
 {
-  "spawn_x": 99, "spawn_y": 207,
   "parts": [
     {
       "comment": "Following Toriel",
@@ -8,6 +7,7 @@
       ],
       "room_bg": "rooms/room4.cbgf",
       "music_path": "mus_ruins.wav",
+      "spawn_x": 99, "spawn_y": 207,
       "exits": [
         {
           "exit_type": "side",
@@ -19,8 +19,8 @@
         {
           "exit_type": "side",
           "room_id": 5,
-          "spawn_x": 0,
-          "spawn_y": 0,
+          "spawn_x": 2,
+          "spawn_y": 144,
           "side": "right"
         }
       ],
@@ -108,6 +108,7 @@
       "conditions": [],
       "room_bg": "rooms/room4.cbgf",
       "music_path": "mus_ruins.wav",
+      "spawn_x": 99, "spawn_y": 207,
       "exits": [
         {
           "exit_type": "side",
@@ -115,6 +116,13 @@
           "spawn_x": 98,
           "spawn_y": 56,
           "side": "down"
+        },
+        {
+          "exit_type": "side",
+          "room_id": 5,
+          "spawn_x": 2,
+          "spawn_y": 144,
+          "side": "right"
         }
       ],
       "textures": [

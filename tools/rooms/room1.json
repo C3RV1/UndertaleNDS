@@ -1,5 +1,4 @@
 {
-  "spawn_x": 152, "spawn_y": 311,
   "parts": [
     {
       "comment": "not met flowey",
@@ -8,6 +7,7 @@
       ],
       "room_bg": "rooms/room1.cbgf",
       "music_path": "",
+      "spawn_x": 152, "spawn_y": 311,
       "exits": [
         {
           "exit_type": "side",
@@ -54,6 +54,7 @@
       "conditions": [],
       "room_bg": "rooms/room1.cbgf",
       "music_path": "",
+      "spawn_x": 152, "spawn_y": 311,
       "exits": [
         {
           "exit_type": "side",

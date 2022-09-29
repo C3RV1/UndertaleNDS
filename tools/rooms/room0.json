@@ -1,10 +1,10 @@
 {
-  "spawn_x": 144, "spawn_y": 121,
   "parts": [
     {
       "conditions": [],
       "room_bg": "rooms/room0.cbgf",
       "music_path": "",
+      "spawn_x": 144, "spawn_y": 121,
       "exits": [
         {
           "exit_type": "rect",

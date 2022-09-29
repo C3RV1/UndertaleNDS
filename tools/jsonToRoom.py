@@ -11,7 +11,7 @@ class RoomHeader:
     def __init__(self):
         self.header = b"ROOM"
         self.file_size_pos = 0
-        self.version = 6
+        self.version = 7
 
     def write(self, wtr: binary.BinaryWriter):
         wtr.write(self.header)
@@ -250,6 +250,8 @@ class RoomPart:
         self.conditions: List[RoomPartCondition] = []
         self.room_bg = ""
         self.music_path = ""
+        self.spawn_x = 0
+        self.spawn_y = 0
         self.room_exits = RoomExits()
         self.room_textures = RoomTextures()
         self.room_sprites = RoomSprites()
@@ -263,6 +265,8 @@ class RoomPart:
             condition.write(wtr)
         wtr.write_string(self.room_bg, encoding="ascii")
         wtr.write_string(self.music_path, encoding="ascii")
+        wtr.write_uint16(self.spawn_x)
+        wtr.write_uint16(self.spawn_y)
         self.room_exits.write(wtr)
         self.room_textures.write(wtr)
         self.room_sprites.write(wtr)
@@ -279,6 +283,8 @@ class RoomPart:
             res.conditions.append(RoomPartCondition.from_dict(condition))
         res.room_bg = dct["room_bg"]
         res.music_path = dct["music_path"]
+        res.spawn_x = dct.get("spawn_x")
+        res.spawn_y = dct.get("spawn_y")
         res.room_exits = RoomExits.from_list(dct["exits"])
         res.room_textures = RoomTextures.from_list(dct["textures"])
         res.room_sprites = RoomSprites.from_list(dct["sprites"])
@@ -289,14 +295,10 @@ class RoomPart:
 class RoomFile:
     def __init__(self):
         self.header = RoomHeader()
-        self.spawn_x = 0
-        self.spawn_y = 0
         self.parts: List[RoomPart] = []
 
     def write(self, wtr: binary.BinaryWriter):
         self.header.write(wtr)
-        wtr.write_uint16(self.spawn_x)
-        wtr.write_uint16(self.spawn_y)
         wtr.write_uint8(len(self.parts))
         for part in self.parts:
             part.write(wtr)
@@ -305,8 +307,6 @@ class RoomFile:
     @classmethod
     def from_dict(cls, dct):
         res = cls()
-        res.spawn_x = dct.get("spawn_x")
-        res.spawn_y = dct.get("spawn_y")
         for part in dct["parts"]:
             res.parts.append(RoomPart.from_dict(part))
         return res

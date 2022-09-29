@@ -1,5 +1,4 @@
 {
-  "spawn_x": 120, "spawn_y": 210,
   "parts": [
     {
       "comment": "toriel show",
@@ -8,6 +7,7 @@
       ],
       "room_bg": "rooms/room3.cbgf",
       "music_path": "mus_ruins.wav",
+      "spawn_x": 120, "spawn_y": 210,
       "exits": [
         {
           "exit_type": "rect",
@@ -125,6 +125,7 @@
       "conditions": [],
       "room_bg": "rooms/room3.cbgf",
       "music_path": "mus_ruins.wav",
+      "spawn_x": 120, "spawn_y": 210,
       "exits": [
         {
           "exit_type": "rect",

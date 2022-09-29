@@ -120,7 +120,7 @@ void Player::check_exits() {
         if (globalRoom->exitRight != nullptr) {
             loadNewRoom(globalRoom->exitRight->roomId,
                         globalRoom->exitRight->spawnX,
-                        globalRoom->exitLeft->spawnY);
+                        globalRoom->exitRight->spawnY);
         }
     }
     if (spriteManager.wy < 0) {

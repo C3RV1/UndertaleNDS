@@ -1,5 +1,4 @@
 {
-  "spawn_x": 131, "spawn_y": 430,
   "parts": [
     {
       "comment": "toriel in room",
@@ -8,6 +7,7 @@
       ],
       "room_bg": "rooms/room2.cbgf",
       "music_path": "mus_ruins.wav",
+      "spawn_x": 131, "spawn_y": 430,
       "exits": [
         {
           "exit_type": "side",
@@ -79,6 +79,7 @@
       "conditions": [],
       "room_bg": "rooms/room2.cbgf",
       "music_path": "mus_ruins.wav",
+      "spawn_x": 132, "spawn_y": 205,
       "exits": [
         {
           "exit_type": "side",
@@ -98,8 +99,19 @@
           "h": 46
         }
       ],
-      "textures": [],
-      "sprites": [],
+      "textures": [
+        "nitro:/spr/room_sprites/savepoint.cspr"
+      ],
+      "sprites": [
+        {
+          "texture_id": 0,
+          "x": 130,
+          "y": 175,
+          "animation": "gfx",
+          "interact_action": "cutscene",
+          "cutscene_id": 100
+        }
+      ],
       "colliders": [
         {"x": 0, "y": 0, "w": 20, "h": 401},
         {"x": 260, "y": 0, "w": 20, "h": 401},
