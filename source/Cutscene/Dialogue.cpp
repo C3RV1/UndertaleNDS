@@ -16,37 +16,10 @@ Dialogue::Dialogue(bool isRoom_, u16 textId, char *speaker, s32 speakerX, s32 sp
     isRoom = isRoom_;
     char buffer[100];
 
-    sprintf(buffer, "nitro:/fnt/%s", fontTxt);
-    FILE *fontFile = fopen(buffer, "rb");
-    if (fontFile) {
-        int fntLoad = font.loadCFNT(fontFile);
-        if (fntLoad != 0) {
-            sprintf(buffer, "Error loading font %s: %d", speaker,
-                    fntLoad);
-            nocashMessage(buffer);
-        }
-    } else {
-        sprintf(buffer, "Error opening font %s", fontTxt);
-        nocashMessage(buffer);
-    }
-    fclose(fontFile);
+    font.loadPath(fontTxt);
 
-    if (strlen(speaker) != 0 && isRoom_) {
-        sprintf(buffer, "nitro:/spr/%s", speaker);
-        FILE *speakerCspr = fopen(buffer, "rb");
-        if (speakerCspr) {
-            int sprLoad = speakerSpr.loadCSPR(speakerCspr);
-            if (sprLoad != 0) {
-                sprintf(buffer, "Error loading speaker %s: %d", speaker,
-                        sprLoad);
-                nocashMessage(buffer);
-            }
-        } else {
-            sprintf(buffer, "Error opening speaker %s", speaker);
-            nocashMessage(buffer);
-        }
-        fclose(speakerCspr);
-    }
+    if (strlen(speaker) != 0 && isRoom_)
+        speakerSpr.loadPath(speaker);
 
     sprintf(buffer, "nitro:/data/dialogue/r%d/c%d/d%d.txt",
             globalCutscene->roomId, globalCutscene->cutsceneId, textId);

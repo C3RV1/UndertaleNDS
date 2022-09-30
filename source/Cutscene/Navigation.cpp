@@ -9,21 +9,8 @@
 #include "Room/Camera.hpp"
 
 void Navigation::load_texture(char *path, CutsceneLocation callingLocation) {
-    char buffer[100];
     auto* newTexture = new Engine::Texture;
-    sprintf(buffer, "nitro:/spr/%s", path);
-    FILE*f = fopen(buffer, "rb");
-    if (f) {
-        int texLoad = newTexture->loadCSPR(f);
-        if (texLoad != 0) {
-            sprintf(buffer, "Error loading texture %s: %d", path, texLoad);
-            nocashMessage(buffer);
-        }
-    } else {
-        sprintf(buffer, "Error opening texture %s", path);
-        nocashMessage(buffer);
-    }
-    fclose(f);
+    newTexture->loadPath(path);
 
     if (callingLocation == LOAD_ROOM || callingLocation == ROOM) {
         auto* newTextures = new Engine::Texture*[globalRoom->textureCount + 1];

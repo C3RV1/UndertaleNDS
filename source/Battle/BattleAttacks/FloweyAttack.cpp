@@ -9,17 +9,7 @@
 
 namespace BtlAttacks {
     FloweyAttack::FloweyAttack() {
-        FILE *f = fopen("nitro:spr/battle/attack_pellets.cspr", "rb");
-        if (f) {
-            int texLoad = pelletTex.loadCSPR(f);
-            if (texLoad != 0) {
-                char buffer[100];
-                sprintf(buffer, "Error loading attack pellets: %d", texLoad);
-                nocashMessage(buffer);
-            }
-        } else {
-            nocashMessage("Error opening attack pellets");
-        }
+        pelletTex.loadPath("battle/attack_pellets");
 
         int x = pelletX;
         for (auto & pellet : pellets) {

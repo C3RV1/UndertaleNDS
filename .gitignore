@@ -8,6 +8,7 @@ nitrofs
 *.gmx
 *.png
 *.aseprite
+*.ase
 
 # Exclude misc internal
 .idea

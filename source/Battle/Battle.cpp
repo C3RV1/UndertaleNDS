@@ -15,24 +15,17 @@
 Battle* globalBattle = nullptr;
 
 Battle::Battle() : playerManager(Engine::Allocated3D) {
-    char buffer[100];
-    FILE* f = fopen("nitro:/spr/spr_heartsmall.cspr", "rb");
-    if (f) {
-        int sprLoad = player.loadCSPR(f);
-        if (sprLoad != 0) {
-            sprintf(buffer, "Error loading battle heart spr: %d", sprLoad);
-            nocashMessage(buffer);
-        }
-    } else {
-        nocashMessage("Error opening battle heart spr");
-    }
-    fclose(f);
+    player.loadPath("spr_heartsmall");
 
     playerManager.loadTexture(player);
     playerManager.wx = ((256 - 16) / 2) << 8;
     playerManager.wy = ((192 - 32) / 2) << 8;
     playerManager.layer = 100;
     playerManager.setShown(true);
+
+    for (int i = 230; i <= 239; i++) {
+        globalSave.flags[i] = 0;
+    }
 }
 
 void Battle::loadFromStream(FILE *stream) {
@@ -54,19 +47,8 @@ void Battle::loadFromStream(FILE *stream) {
 
     u8 boardId;
     fread(&boardId, 1, 1, stream);
-    sprintf(buffer, "nitro:/bg/battle/board%d.cbgf", boardId);
-    FILE* boardFile = fopen(buffer, "rb");
-    if (boardFile) {
-        int bgLoad = bulletBoard.loadCBGF(boardFile);
-        if (bgLoad != 0) {
-            sprintf(buffer, "Error loading board %d: %d", boardId, bgLoad);
-            nocashMessage(buffer);
-        }
-    } else {
-        sprintf(buffer, "Error opening board %d", boardId);
-        nocashMessage(buffer);
-    }
-    fclose(boardFile);
+    sprintf(buffer, "battle/board%d", boardId);
+    bulletBoard.loadPath(buffer);
 
     Engine::loadBgTextMain(bulletBoard);
 

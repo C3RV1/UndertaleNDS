@@ -7,55 +7,11 @@
 #include "Save.hpp"
 
 void InGameMenu::load() {
-    char buffer[100];
-    FILE *f;
-    f = fopen("nitro:/fnt/fnt_maintext.font.cfnt", "rb");
-    if (f) {
-        int fontLoad = fnt.loadCFNT(f);
-        if (fontLoad != 0) {
-            sprintf(buffer, "Error loading font: %d", fontLoad);
-            nocashMessage(buffer);
-        }
-    } else {
-        nocashMessage("Error opening font file");
-    }
-    fclose(f);
+    fnt.loadPath("fnt_maintext.font");
+    bg.loadPath("ingame_menu/bg");
 
-    f = fopen("nitro:/bg/ingame_menu/bg.cbgf", "rb");
-    if (f) {
-        int bgLoad = bg.loadCBGF(f);
-        if (bgLoad != 0) {
-            sprintf(buffer, "Error loading in game menu bg: %d", bgLoad);
-            nocashMessage(buffer);
-        }
-    } else {
-        nocashMessage("Error opening in game menu bg");
-    }
-    fclose(f);
-
-    f = fopen("nitro:/spr/spr_heartsmall.cspr", "rb");
-    if (f) {
-        int sprLoad = littleHeart.loadCSPR(f);
-        if (sprLoad != 0) {
-            sprintf(buffer, "Error loading little heart spr: %d", sprLoad);
-            nocashMessage(buffer);
-        }
-    } else {
-        nocashMessage("Error opening little heart spr");
-    }
-    fclose(f);
-
-    f = fopen("nitro:/spr/ingame_menu/item_explain.cspr", "rb");
-    if (f) {
-        int sprLoad = itemExplain.loadCSPR(f);
-        if (sprLoad != 0) {
-            sprintf(buffer, "Error loading item explain spr: %d", sprLoad);
-            nocashMessage(buffer);
-        }
-    } else {
-        nocashMessage("Error opening item explain spr");
-    }
-    fclose(f);
+    littleHeart.loadPath("spr_heartsmall");
+    itemExplain.loadPath("ingame_menu/item_explain");
 
     selectedMenuHeart.loadTexture(littleHeart);
     listHeart.loadTexture(littleHeart);
@@ -91,7 +47,8 @@ void InGameMenu::show(bool update) {
         return;
 
     shown = true;
-    Engine::loadBgTextSub(bg);
+    if (!update)
+        Engine::loadBgTextSub(bg);
     Engine::textSub.clear();
     Engine::textSub.setCurrentColor(15);
     selectedMenuHeart.setShown(true);

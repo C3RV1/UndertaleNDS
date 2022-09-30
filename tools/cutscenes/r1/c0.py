@@ -12,7 +12,7 @@ def cutscene(c: Cutscene):
     c.wait(WaitTypes.FRAMES, 120)
     c.start_bgm("mus_flowey.wav", True)
     c.set_animation(Target(TargetType.PLAYER), "upIdle")
-    c.start_dialogue(10, "speaker/flowey.cspr", 128 - 21, (192 - 44) // 4 - 5, "nice1", "nice1_talk",
+    c.start_dialogue(10, "speaker/flowey", 128 - 21, (192 - 44) // 4 - 5, "nice1", "nice1_talk",
                      Target(TargetType.SPRITE, 0), "idle", "talk",
                      type_sound="snd_floweytalk1.wav")
     c.wait(WaitTypes.DIALOGUE)
@@ -20,9 +20,9 @@ def cutscene(c: Cutscene):
     c.start_battle([], 0, 61, 63, 134, 75)
     c.wait(WaitTypes.EXIT)
     c.debug("Loading battle...")
-    c.load_texture("speaker/flowey.cspr")
-    c.load_texture("cutscene/0/spr_torielflame.cspr")
-    c.load_texture("battle/attack_pellets.cspr")
+    c.load_texture("speaker/flowey")
+    c.load_texture("cutscene/0/spr_torielflame")
+    c.load_texture("battle/attack_pellets")
     c.load_sprite(30, (192 - 44) // 2, 0)  # Load flowey (spr 0)
 
     c.wait(WaitTypes.ENTER)
@@ -128,7 +128,7 @@ def cutscene(c: Cutscene):
     c.debug("Branch merge reached!")
 
     c.start_dialogue_battle(80, 80, 192 // 4, Target(TargetType.SPRITE, 0), "evil", "evil_talk",
-                            font="fnt_plainbig.font.cfnt")
+                            font="fnt_plainbig.font")
     c.wait(WaitTypes.DIALOGUE)
 
     # Unload pellets
@@ -169,8 +169,8 @@ def cutscene(c: Cutscene):
 
     c.wait(WaitTypes.FRAMES, 120)
     c.start_bgm("mus_fallendown2.wav", True)
-    c.load_texture("speaker/toriel_face.cspr")
-    c.load_texture("speaker/toriel_bodyonly.cspr")
+    c.load_texture("speaker/toriel_face")
+    c.load_texture("speaker/toriel_bodyonly")
     c.load_sprite(256, 192 // 4, 0)
     c.load_sprite(256, 192 // 4, 1)
     c.set_animation(Target(TargetType.SPRITE, 0), "worried_side")
@@ -190,14 +190,14 @@ def cutscene(c: Cutscene):
     # Unload flowey and load toriel world
     c.unload_sprite(0)
     c.unload_texture(0)
-    c.load_texture("room_sprites/toriel.cspr")
+    c.load_texture("room_sprites/toriel")
     c.load_sprite(149, 198, 0)  # Toriel world
     c.set_animation(Target(TargetType.SPRITE, 0), "downIdle")
 
     c.wait(WaitTypes.ENTER)
     c.debug("Entered room!")
 
-    c.start_dialogue(100, "speaker/toriel.cspr", (256 - 50) // 2, (192 - 39) // 4, "talkIdle", "talkTalk",
+    c.start_dialogue(100, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4, "talkIdle", "talkTalk",
                      Target(TargetType.SPRITE, 0), "downIdle", "downTalk",
                      type_sound="snd_txttor.wav")
     c.wait(WaitTypes.DIALOGUE)

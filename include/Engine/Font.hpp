@@ -15,6 +15,7 @@
 namespace Engine {
     class Font {
     public:
+        bool loadPath(const char* path);
         int loadCFNT(FILE* f);
         bool getLoaded() const { return loaded; }
         CFNTGlyph* getGlyph(int glyphIdx) const { return &glyphs.glyphs[glyphIdx - 1]; }
@@ -42,12 +43,13 @@ namespace Engine {
             paletteRam[16 * 15 + 15] = (31 << 10) + (31 << 5) + 31;  // full white color
         }
         void drawGlyph(Font& font, u8 glyph, int &x, int y);
-        u8 getGlyphWidth(Font& font, u8 glyph);
+        static u8 getGlyphWidth(Font& font, u8 glyph);
         void reloadColors();
         void setPaletteColor256(int colorIdx, int r, int g, int b, bool color8bit);
         void setCurrentColor(int colorIdx) { paletteColor = colorIdx; }
         u16 getCurrentColor() const { return paletteColor; }
         void clear();
+        void clearRect(int x, int y, int w, int h);
     private:
         u8* getTile(int x, int y);
 

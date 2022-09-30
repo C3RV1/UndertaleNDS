@@ -18,6 +18,7 @@ namespace Engine {
 
     class Background {
     public:
+        bool loadPath(const char* path);
         int loadCBGF(FILE* f);
         bool getLoaded() const { return loaded; }
         bool getColor8bit() const { return color8bit; }

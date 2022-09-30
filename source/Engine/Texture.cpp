@@ -2,6 +2,32 @@
 #include "Formats/utils.hpp"
 
 namespace Engine {
+    bool Texture::loadPath(const char *path) {
+        char pathFull[100];
+        char buffer[100];
+
+        sprintf(pathFull, "nitro:/spr/%s.cspr", path);
+
+        FILE* f = fopen(pathFull, "rb");
+        if (!f) {
+            sprintf(buffer, "Error opening spr %s", path);
+            nocashMessage(buffer);
+            return false;
+        }
+
+        int loadRes = loadCSPR(f);
+
+        fclose(f);
+
+        if (loadRes != 0) {
+            sprintf(buffer, "Error loading spr %s: %d", path, loadRes);
+            nocashMessage(buffer);
+            return false;
+        }
+
+        return true;
+    }
+
     int Texture::loadCSPR(FILE *f) {
         free_();
         char header[4];

@@ -22,13 +22,13 @@ struct CFNTGlyph {
 };
 
 struct CFNTGlyphs {
-    u8 lineHeight;
-    u8 glyphCount; // (0-255) glyph id 0 reserved for not defined
-    CFNTGlyph* glyphs;
+    u8 lineHeight = 0;
+    u8 glyphCount = 0; // (0-255) glyph id 0 reserved for not defined
+    CFNTGlyph* glyphs = nullptr;
 };
 
 struct CFNTMap {
-    u8 glyphMap[256];  // 0 == not defined, else glyphIdx + 1
+    u8 glyphMap[256] = {0};  // 0 == not defined, else glyphIdx + 1
 };
 
 #endif //UNDERTALE_CFNT_HPP

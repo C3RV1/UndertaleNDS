@@ -6,18 +6,7 @@
 
 namespace BtlAttacks {
     MovementTutorial::MovementTutorial() : tutorialSpr(Engine::Allocated3D) {
-        FILE *f = fopen("nitro:/spr/cutscene/0/spr_guidearrows.cspr", "rb");
-        if (f) {
-            int loadTex = tutorialTex.loadCSPR(f);
-            if (loadTex != 0) {
-                char buffer[100];
-                sprintf(buffer, "Error loading guide arrows: %d", loadTex);
-                nocashMessage(buffer);
-            }
-        } else {
-            nocashMessage("Error opening guide arrows");
-        }
-        fclose(f);
+        tutorialTex.loadPath("cutscene/0/spr_guidearrows");
 
         tutorialSpr.loadTexture(tutorialTex);
         tutorialSpr.setShown(true);

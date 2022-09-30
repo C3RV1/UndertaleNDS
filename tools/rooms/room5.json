@@ -5,7 +5,7 @@
       "conditions": [
         {"flag_id": 0, "op": "==", "cmp_value": 4}
       ],
-      "room_bg": "rooms/room5.cbgf",
+      "room_bg": "rooms/room5",
       "music_path": "mus_ruins.wav",
       "spawn_x": 0, "spawn_y": 0,
       "exits": [
@@ -17,19 +17,19 @@
         }
       ],
       "textures": [
-        "nitro:/spr/room_sprites/dummy.cspr",
-        "nitro:/spr/room_sprites/toriel.cspr"
+        "room_sprites/toriel",
+        "room_sprites/dummy"
       ],
       "sprites": [
         {
           "texture_id": 0,
-          "x": 192, "y": 96,
-          "animation": "idle"
+          "x": 49, "y": 102,
+          "animation": "downIdle"
         },
         {
           "texture_id": 1,
-          "x": 49, "y": 102,
-          "animation": "downIdle"
+          "x": 192, "y": 96,
+          "animation": "idle"
         }
       ],
       "colliders": [
@@ -55,7 +55,7 @@
     },
     {
       "conditions": [],
-      "room_bg": "rooms/room5.cbgf",
+      "room_bg": "rooms/room5",
       "music_path": "mus_ruins.wav",
       "spawn_x": 0, "spawn_y": 0,
       "exits": [

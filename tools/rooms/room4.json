@@ -5,7 +5,7 @@
       "conditions": [
         {"flag_id": 0, "op": "==", "cmp_value": 3}
       ],
-      "room_bg": "rooms/room4.cbgf",
+      "room_bg": "rooms/room4",
       "music_path": "mus_ruins.wav",
       "spawn_x": 99, "spawn_y": 207,
       "exits": [
@@ -25,11 +25,11 @@
         }
       ],
       "textures": [
-        "nitro:/spr/room_sprites/wall_panel_ruins.cspr",
-        "nitro:/spr/room_sprites/lever_ruins.cspr",
-        "nitro:/spr/room_sprites/sign_ruins.cspr",
-        "nitro:/spr/room_sprites/spike.cspr",
-        "nitro:/spr/room_sprites/toriel.cspr"
+        "room_sprites/wall_panel_ruins",
+        "room_sprites/lever_ruins",
+        "room_sprites/sign_ruins",
+        "room_sprites/spike",
+        "room_sprites/toriel"
       ],
       "sprites": [
         {
@@ -106,7 +106,7 @@
     },
     {
       "conditions": [],
-      "room_bg": "rooms/room4.cbgf",
+      "room_bg": "rooms/room4",
       "music_path": "mus_ruins.wav",
       "spawn_x": 99, "spawn_y": 207,
       "exits": [
@@ -126,10 +126,10 @@
         }
       ],
       "textures": [
-        "nitro:/spr/room_sprites/wall_panel_ruins.cspr",
-        "nitro:/spr/room_sprites/lever_ruins.cspr",
-        "nitro:/spr/room_sprites/sign_ruins.cspr",
-        "nitro:/spr/room_sprites/spike.cspr"
+        "room_sprites/wall_panel_ruins",
+        "room_sprites/lever_ruins",
+        "room_sprites/sign_ruins",
+        "room_sprites/spike"
       ],
       "sprites": [
         {

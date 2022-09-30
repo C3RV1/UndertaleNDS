@@ -30,21 +30,7 @@ Room::Room(int roomId) : roomId(roomId) {
     }
     fclose(f);
 
-    sprintf(buffer, "nitro:/bg/%s", roomData.roomBg);
-    f = fopen(buffer, "rb");
-    if (f) {
-        int bgLoad = bg.loadCBGF(f);
-        if (bgLoad != 0) {
-            sprintf(buffer, "Error loading room %d bg %s: %d", roomId,
-                    roomData.roomBg, bgLoad);
-            nocashMessage(buffer);
-            fclose(f);
-        }
-    } else {
-        sprintf(buffer, "Error opening room %d bg %s", roomId, roomData.roomBg);
-        nocashMessage(buffer);
-    }
-    fclose(f);
+    bg.loadPath(roomData.roomBg);
 
     int bgLoad = Engine::loadBgExtendedMain(bg, 512 / 8);
     if (bgLoad != 0) {
@@ -68,7 +54,6 @@ Room::Room(int roomId) : roomId(roomId) {
 
 int Room::loadRoom(FILE *f) {
     ROOMFile roomFile;
-    char buffer[200];
 
     fread(roomFile.header.header, 4, 1, f);
     char expectedHeader[4] = {'R', 'O', 'O', 'M'};
@@ -189,18 +174,7 @@ int Room::loadRoom(FILE *f) {
             return 5;
         fread(path, sprPathLen + 1, 1, f);
 
-        FILE* textureFile = fopen(path, "rb");
-        if (textureFile) {
-            int texLoad = textures[i]->loadCSPR(textureFile);
-            if (texLoad != 0) {
-                sprintf(buffer, "Error loading texture %s: %d", path, texLoad);
-                nocashMessage(buffer);
-            }
-        } else {
-            sprintf(buffer, "Error opening texture %s", path);
-            nocashMessage(buffer);
-        }
-        fclose(textureFile);
+        textures[i]->loadPath(path);
     }
 
     fread(&spriteCount, 1, 1, f);
@@ -351,21 +325,7 @@ void Room::push() {
 
 void Room::pop() {
     char buffer[100];
-    sprintf(buffer, "nitro:/bg/%s", roomData.roomBg);
-    FILE* f = fopen(buffer, "rb");
-    if (f) {
-        int bgLoad = bg.loadCBGF(f);
-        if (bgLoad != 0) {
-            sprintf(buffer, "Error loading room %d bg %s: %d", roomId,
-                    roomData.roomBg, bgLoad);
-            nocashMessage(buffer);
-            fclose(f);
-        }
-    } else {
-        sprintf(buffer, "Error opening room %d bg %s", roomId, roomData.roomBg);
-        nocashMessage(buffer);
-    }
-    fclose(f);
+    bg.loadPath(roomData.roomBg);
 
     int bgLoad = Engine::loadBgExtendedMain(bg, 512 / 8);
     if (bgLoad != 0) {

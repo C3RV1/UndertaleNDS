@@ -31,18 +31,7 @@ void runWriteNameMenu() {
     Engine::clearMain();
 
     Engine::Font mainFont;
-    FILE *f;
-    f = fopen("nitro:/fnt/fnt_maintext.font.cfnt", "rb");
-    if (f) {
-        int font_load = mainFont.loadCFNT(f);
-        if (font_load != 0) {
-            sprintf(buffer, "Error loading font: %d", font_load);
-            nocashMessage(buffer);
-        }
-    } else {
-        nocashMessage("Error opening font file");
-    }
-    fclose(f);
+    mainFont.loadPath("fnt_maintext.font");
 
     FILE* textStream = fopen("nitro:/data/write_name.txt", "rb");
     if (textStream == nullptr)

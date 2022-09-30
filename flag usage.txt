@@ -4,5 +4,11 @@
     2 - following toriel to room 3
     3 - following toriel to room 4
     4 - following toriel to room 5
+1 - dummy behaviour
+    0 - killed
+    1 - talked
+    2 - fled
+    3 - bored
 
 220-229 - specific room flags (cleared upon entering room)
+230-239 - specific battle flags (cleared upon entering battle)

@@ -10,6 +10,7 @@
 namespace Engine {
     class Texture {
     public:
+        bool loadPath(const char* path);
         int loadCSPR(FILE* f);
         bool getLoaded() const { return loaded; }
         int getColorCount() const { return colorCount; }

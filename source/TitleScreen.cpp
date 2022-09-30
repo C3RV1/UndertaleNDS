@@ -38,20 +38,9 @@ void runTitleScreen() {
 
     Engine::Background currentBackground;
     char buffer[100];
-    FILE *f;
 
     Engine::Font mainFont;
-    f = fopen("nitro:/fnt/fnt_maintext.font.cfnt", "rb");
-    if (f) {
-        int font_load = mainFont.loadCFNT(f);
-        if (font_load != 0) {
-            sprintf(buffer, "Error loading font: %d", font_load);
-            nocashMessage(buffer);
-        }
-    } else {
-        nocashMessage("Error opening font file");
-    }
-    fclose(f);
+    mainFont.loadPath("fnt_maintext.font");
 
     Audio::playBGMusic("mus_story_mod.wav", true);
 
@@ -59,20 +48,8 @@ void runTitleScreen() {
     bool skip = false;
 
     for (int introIdx = 0; introIdx < 11 && !skip; introIdx++) {
-        sprintf(buffer, "nitro:/bg/intro/intro%d.cbgf", introIdx);
-        f = fopen(buffer, "rb");
-        if (f) {
-            int bgLoad = currentBackground.loadCBGF(f);
-            if (bgLoad != 0) {
-                sprintf(buffer, "Error loading bg/intro/intro%d.cbgf: %d",
-                        introIdx, bgLoad);
-                nocashMessage(buffer);
-            }
-        } else {
-            sprintf(buffer, "Error opening bg/intro/intro%d.cbgf", introIdx);
-            nocashMessage(buffer);
-        }
-        fclose(f);
+        sprintf(buffer, "intro/intro%d", introIdx);
+        currentBackground.loadPath(buffer);
 
         Engine::loadBgTextMain(currentBackground);
         if (introIdx == 10)  // Intro last has scrolling
@@ -95,7 +72,7 @@ void runTitleScreen() {
 
         int textTimer = letterFrames;
 
-        if (f) {
+        if (textStream) {
             int textLen = strlen_file(textStream, '@');
             fread(textBuffer, textLen + 2, 1, textStream);  // read @\n characters
             textBuffer[textLen] = '\0'; // replace @ terminator with 0 byte
@@ -177,17 +154,7 @@ void runTitleScreen() {
     }
     Audio::playBGMusic("mus_intronoise.wav", false);
 
-    f = fopen("nitro:/bg/intro/title.cbgf", "rb");
-    if (f) {
-        int titleLoad = currentBackground.loadCBGF(f);
-        if (titleLoad != 0) {
-            sprintf(buffer, "Error loading bg/intro/title.cbgf: %d", titleLoad);
-            nocashMessage(buffer);
-        }
-    } else {
-        nocashMessage("Error opening bg/intro/title.cbgf");
-    }
-    fclose(f);
+    currentBackground.loadPath("intro/title");
 
     Engine::loadBgTextMain(currentBackground);
     setBrightness(3, 0);  // set brightness to full bright

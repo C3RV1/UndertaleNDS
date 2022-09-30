@@ -5,7 +5,7 @@
       "conditions": [
         {"flag_id": 0, "op": "==", "cmp_value": 1}
       ],
-      "room_bg": "rooms/room2.cbgf",
+      "room_bg": "rooms/room2",
       "music_path": "mus_ruins.wav",
       "spawn_x": 131, "spawn_y": 430,
       "exits": [
@@ -28,8 +28,8 @@
         }
       ],
       "textures": [
-        "nitro:/spr/room_sprites/toriel.cspr",
-        "nitro:/spr/room_sprites/savepoint.cspr"
+        "room_sprites/toriel",
+        "room_sprites/savepoint"
       ],
       "sprites": [
         {
@@ -77,7 +77,7 @@
     {
       "comment": "toriel not in room",
       "conditions": [],
-      "room_bg": "rooms/room2.cbgf",
+      "room_bg": "rooms/room2",
       "music_path": "mus_ruins.wav",
       "spawn_x": 132, "spawn_y": 205,
       "exits": [
@@ -100,7 +100,7 @@
         }
       ],
       "textures": [
-        "nitro:/spr/room_sprites/savepoint.cspr"
+        "room_sprites/savepoint"
       ],
       "sprites": [
         {

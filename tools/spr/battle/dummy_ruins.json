@@ -1,0 +1,14 @@
+{
+  "size": [78, 104],
+  "frameCount": 2,
+  "animations": [
+    {
+      "name": "idle",
+      "frames": [{"frame": 0, "duration": 0}]
+    },
+    {
+      "name": "hurt",
+      "frames": [{"frame": 1, "duration": 0}]
+    }
+  ]
+}

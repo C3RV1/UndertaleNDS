@@ -5,7 +5,7 @@
       "conditions": [
         { "flag_id": 0, "op": "==", "cmp_value": 0 }
       ],
-      "room_bg": "rooms/room1.cbgf",
+      "room_bg": "rooms/room1",
       "music_path": "",
       "spawn_x": 152, "spawn_y": 311,
       "exits": [
@@ -28,7 +28,7 @@
         }
       ],
       "textures": [
-        "nitro:/spr/room_sprites/flowey.cspr"
+        "room_sprites/flowey"
       ],
       "sprites": [
         {
@@ -52,7 +52,7 @@
     {
       "comment": "already met flowey",
       "conditions": [],
-      "room_bg": "rooms/room1.cbgf",
+      "room_bg": "rooms/room1",
       "music_path": "",
       "spawn_x": 152, "spawn_y": 311,
       "exits": [

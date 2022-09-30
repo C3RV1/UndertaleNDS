@@ -8,6 +8,32 @@ namespace Engine {
     s32 bg3ScrollX = 0, bg3ScrollY = 0;
     s16 bg3Pa = 0, bg3Pb = 0, bg3Pc = 0, bg3Pd = 0;
 
+    bool Background::loadPath(const char *path) {
+        char pathFull[100];
+        char buffer[100];
+
+        sprintf(pathFull, "nitro:/bg/%s.cbgf", path);
+
+        FILE* f = fopen(pathFull, "rb");
+        if (!f) {
+            sprintf(buffer, "Error opening bg %s", path);
+            nocashMessage(buffer);
+            return false;
+        }
+
+        int loadRes = loadCBGF(f);
+
+        fclose(f);
+
+        if (loadRes != 0) {
+            sprintf(buffer, "Error loading bg %s: %d", path, loadRes);
+            nocashMessage(buffer);
+            return false;
+        }
+
+        return true;
+    }
+
     int Background::loadCBGF(FILE *f) {
         free_();
         char header[4];

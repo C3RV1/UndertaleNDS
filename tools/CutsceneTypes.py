@@ -39,8 +39,10 @@ class CutsceneCommands(enum.IntEnum):
     UNLOAD_TEXTURE = 27  # Done
     SET_INTERACT_ACTION = 28  # Done
     PLAY_SFX = 29  # Done
-    SAVE_MENU = 30
-    MAX_HEALTH = 31
+    SAVE_MENU = 30  # Done
+    MAX_HEALTH = 31  # Done
+    MOD_FLAG = 32  # Done
+    CMP_ENEMY_HP = 33
     DEBUG = 0xff  # Done
 
 
@@ -51,7 +53,7 @@ class WaitTypes(enum.IntEnum):
     ENTER = 3  # Done
     DIALOGUE = 4  # Done
     BATTLE_ATTACK = 5  # Done
-    SAVE_MENU = 6
+    SAVE_MENU = 6  # Done
     BATTLE_ACTION = 7
 
 
@@ -80,6 +82,14 @@ class ComparisonOperator(enum.IntEnum):
 
 class SaveFlags(enum.IntEnum):
     RUINS_PROGRESS = 0
+
+
+class AttackOffset(enum.IntEnum):
+    FIGHT = 0
+    ACT = 10
+    ITEMS = 20
+    MERCY = 30
+    FLEE = 40
 
 
 class Target:
@@ -244,7 +254,7 @@ class Cutscene:
                        speaker_target: Target,
                        idle_anim2: str, talk_anim2: str,
                        type_sound: str = "",
-                       font: str = "fnt_maintext.font.cfnt", frames_per_letter=3):
+                       font: str = "fnt_maintext.font", frames_per_letter=3):
         self.write_header(CutsceneCommands.START_DIALOGUE)
         self.wtr.write_uint16(dialogue_text_id)
         self.wtr.write_string(speaker_path, encoding="ascii")
@@ -264,7 +274,7 @@ class Cutscene:
                               x: float, y: float,
                               speaker_target: Target,
                               idle_anim: str, talk_anim: str, type_sound: str = "",
-                              font: str = "fnt_maintext.font.cfnt", frames_per_letter=2):
+                              font: str = "fnt_maintext.font", frames_per_letter=2):
         return self.start_dialogue(dialogue_text_id, "", x, y,
                                    "", "", speaker_target, idle_anim, talk_anim,
                                    type_sound=type_sound,
@@ -293,14 +303,15 @@ class Cutscene:
         self.wtr.write_uint16(attack_pattern_id)
         return self.instructions_address[-1]
 
-    # TODO: Integrate into wait
-    def wait_battle_action(self, text_id, act_actions):
-        return
+    # TODO: Integrate into wait (?)
+    def wait_battle_action(self, text_id: int, act_pos: List[List[int]]):
         self.write_header(CutsceneCommands.WAIT)
+        self.wtr.write_uint8(WaitTypes.BATTLE_ACTION)
         self.wtr.write_uint8(text_id)
-        self.wtr.write_uint8(len(act_actions))
-        for act_action in act_actions:
-            self.wtr.write_uint8(act_action)
+        self.wtr.write_uint8(len(act_pos))
+        for act_action in act_pos:
+            self.wtr.write_uint16(act_action[0])
+            self.wtr.write_uint16(act_action[1])
         return self.instructions_address[-1]
 
     def cmp_battle_action(self, compare_action):
@@ -319,6 +330,12 @@ class Cutscene:
         self.wtr.write_uint16(flag_value)
         return self.instructions_address[-1]
 
+    def mod_flag(self, flag_id: int, flag_mod: int):
+        self.write_header(CutsceneCommands.MOD_FLAG)
+        self.wtr.write_uint16(flag_id)
+        self.wtr.write_int16(flag_mod)
+        return self.instructions_address[-1]
+
     def cmp_flag(self, flag_id: int, operator: str, value: int):
         self.write_header(CutsceneCommands.CMP_FLAG)
         self.wtr.write_uint16(flag_id)
@@ -335,33 +352,55 @@ class Cutscene:
         self.wtr.write_uint16(value)
         return self.instructions_address[-1]
 
+    def cmp_enemy_hp(self, enemy_id: int, operator: str, value: int):
+        self.write_header(CutsceneCommands.CMP_ENEMY_HP)
+        self.wtr.write_uint8(enemy_id)
+        op_byte = {
+            "==": 0,
+            "!=": 1,
+            ">": 2,
+            "<=": 2,
+            "<": 3,
+            ">=": 3
+        }[operator]
+        op_byte += (1 << 2) if operator in ["!=", "<=", ">="] else 0
+        self.wtr.write_uint8(op_byte)
+        self.wtr.write_uint16(value)
+        return self.instructions_address[-1]
+
     # == LOGIC ==
-    def jump_if(self):
+    def jump_if(self, dst=None):
         self.write_header(CutsceneCommands.JUMP_IF)
-        self.pending_address[self.instructions_address[-1]] = self.wtr.tell()
-        self.wtr.write_uint32(0)
+        if dst is None:
+            self.pending_address[self.instructions_address[-1]] = self.wtr.tell()
+            self.wtr.write_uint32(0)
+        else:
+            self.wtr.write_uint32(dst)
         return self.instructions_address[-1]
 
-    def jump_if_not(self):
+    def jump_if_not(self, dst=None):
         self.write_header(CutsceneCommands.JUMP_IF_NOT)
-        self.pending_address[self.instructions_address[-1]] = self.wtr.tell()
-        self.wtr.write_uint32(0)
+        if dst is None:
+            self.pending_address[self.instructions_address[-1]] = self.wtr.tell()
+            self.wtr.write_uint32(0)
+        else:
+            self.wtr.write_uint32(dst)
         return self.instructions_address[-1]
 
-    def jump(self):
+    def jump(self, dst=None):
         self.write_header(CutsceneCommands.JUMP)
-        self.pending_address[self.instructions_address[-1]] = self.wtr.tell()
-        self.wtr.write_uint32(0)
+        if dst is None:
+            self.pending_address[self.instructions_address[-1]] = self.wtr.tell()
+            self.wtr.write_uint32(0)
+        else:
+            self.wtr.write_uint32(dst)
         return self.instructions_address[-1]
 
-    def bind(self, jump_id, dst=None):
+    def bind(self, jump_id):
         if jump_id in self.pending_address:
             pos = self.wtr.tell()
             self.wtr.seek(self.pending_address[jump_id])
-            if dst is None:
-                self.wtr.write_uint32(pos)
-            else:
-                self.wtr.write_uint32(dst)
+            self.wtr.write_uint32(pos)
             self.wtr.seek(pos)
             del self.pending_address[jump_id]
         else:

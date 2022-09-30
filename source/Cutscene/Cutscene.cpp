@@ -402,6 +402,15 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             globalSave.flags[flagId] = flagValue;
             break;
         }
+        case CMD_MOD_FLAG: {
+            nocashMessage("CMD_MOD_FLAG");
+            u16 flagId;
+            s16 flagMod;
+            fread(&flagId, 2, 1, commandStream);
+            fread(&flagMod, 2, 1, commandStream);
+            globalSave.flags[flagId] += flagMod;
+            break;
+        }
         case CMD_CMP_FLAG: {
             nocashMessage("CMD_SET_FLAG");
             u16 flagId, flagValue, cmpValue;

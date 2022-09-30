@@ -9,18 +9,7 @@
 #include "Engine/math.hpp"
 
 Player::Player() : spriteManager(Engine::Allocated3D) {
-    char buffer[100];
-    FILE *f = fopen("nitro:/spr/mainchara.cspr", "rb");
-    if (f) {
-        int playerLoad = playerSpr.loadCSPR(f);
-        if (playerLoad != 0) {
-            sprintf(buffer, "Error loading player sprite: %d", playerLoad);
-            nocashMessage(buffer);
-        }
-    } else {
-        nocashMessage("Error opening player sprite");
-    }
-    fclose(f);
+    playerSpr.loadPath("mainchara");
     spriteManager.loadTexture(playerSpr);
 
     upIdleId = spriteManager.nameToAnimId("upIdle");

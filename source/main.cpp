@@ -50,7 +50,7 @@ int main() {
     globalPlayer = new Player();
     globalPlayer->spriteManager.setShown(true);
     globalInGameMenu.load();
-    globalInGameMenu.show(true);
+    globalInGameMenu.show(false);
     globalRoom = new Room(roomSpawn);
     globalCamera.updatePosition(true);
     globalPlayer->spriteManager.wx = globalRoom->spawnX << 8;

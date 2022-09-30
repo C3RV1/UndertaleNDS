@@ -8,7 +8,7 @@ else:
 def cutscene(c: Cutscene):
     c.player_control(False)
     c.set_animation(Target(TargetType.PLAYER), "upIdle")
-    c.start_dialogue(10, "speaker/toriel.cspr", (256 - 50) // 2, (192 - 39) // 4,
+    c.start_dialogue(10, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4,
                      "talkIdle", "talkTalk",
                      Target(TargetType.SPRITE, 7),
                      "downIdle", "downTalk",

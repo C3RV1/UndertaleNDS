@@ -38,6 +38,7 @@ enum CutsceneCommands {
     CMD_PLAY_SFX = 29,
     CMD_SAVE_MENU = 30,
     CMD_MAX_HEALTH = 31,
+    CMD_MOD_FLAG = 32,
     CMD_DEBUG = 0xff
 };
 

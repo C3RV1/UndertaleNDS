@@ -6,43 +6,12 @@
 #include "Formats/utils.hpp"
 
 SaveMenu::SaveMenu() : optionsHeart(Engine::AllocatedOAM) {
-    char buffer[100];
-    FILE *f = fopen("nitro:/fnt/fnt_maintext.font.cfnt", "rb");
-    if (f) {
-        int fontLoad = font.loadCFNT(f);
-        if (fontLoad != 0) {
-            sprintf(buffer, "Error loading font: %d", fontLoad);
-            nocashMessage(buffer);
-        }
-    } else {
-        nocashMessage("Error opening font file");
-    }
-    fclose(f);
+    font.loadPath("fnt_maintext.font");
 
-    f = fopen("nitro:/bg/save_menu_bg.cbgf", "rb");
-    if (f) {
-        int bgLoad = saveMenuBg.loadCBGF(f);
-        if (bgLoad != 0) {
-            sprintf(buffer, "Error loading bg: %d", bgLoad);
-            nocashMessage(buffer);
-        }
-    } else {
-        nocashMessage("Error opening bg file");
-    }
-    fclose(f);
+    saveMenuBg.loadPath("save_menu_bg");
     Engine::loadBgTextSub(saveMenuBg);
 
-    f = fopen("nitro:/spr/spr_heartsmall.cspr", "rb");
-    if (f) {
-        int sprLoad = optionsHeartTex.loadCSPR(f);
-        if (sprLoad != 0) {
-            sprintf(buffer, "Error loading spr: %d", sprLoad);
-            nocashMessage(buffer);
-        }
-    } else {
-        nocashMessage("Error opening heart spr file");
-    }
-    fclose(f);
+    optionsHeartTex.loadPath("spr_heartsmall");
     optionsHeart.loadTexture(optionsHeartTex);
     optionsHeart.setShown(true);
     optionsHeart.wx = hrtSaveX << 8;

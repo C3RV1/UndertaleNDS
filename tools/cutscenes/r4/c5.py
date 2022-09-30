@@ -10,7 +10,7 @@ def cutscene(c: Cutscene):
     c.cmp_flag(0, "==", 3)
     toriel_not_in_room = c.jump_if_not()
 
-    c.start_dialogue(10, "speaker/toriel.cspr", (256 - 50) // 2, (192 - 39) // 4 - 5,
+    c.start_dialogue(10, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4 - 5,
                      "talkIdle", "talkTalk",
                      Target(TargetType.SPRITE, 7),
                      "leftIdle", "leftTalk", type_sound="snd_txttor.wav")
