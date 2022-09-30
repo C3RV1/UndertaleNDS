@@ -1,4 +1,4 @@
-0 - ruins progress
+0 - progress
     0 - hasn't met flowey
     1 - following toriel to room 2
     2 - following toriel to room 3
@@ -12,3 +12,4 @@
 
 220-229 - specific room flags (cleared upon entering room)
 230-239 - specific battle flags (cleared upon entering battle)
+240-249 - persistent flags

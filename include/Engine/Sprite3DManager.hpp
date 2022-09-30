@@ -24,6 +24,7 @@ namespace Engine {
 
         void draw();
         void updateTextures();
+        static void loadPalette(Sprite& spr);
     private:
         int loadSpriteFrame(Sprite& spr, int frame);
 

@@ -13,7 +13,7 @@ def cutscene(c: Cutscene):
     c.start_bgm("mus_flowey.wav", True)
     c.set_animation(Target(TargetType.PLAYER), "upIdle")
     c.start_dialogue(10, "speaker/flowey", 128 - 21, (192 - 44) // 4 - 5, "nice1", "nice1_talk",
-                     Target(TargetType.SPRITE, 0), "idle", "talk",
+                     Target(TargetType.SPRITE, 0), "gfx", "talk",
                      type_sound="snd_floweytalk1.wav")
     c.wait(WaitTypes.DIALOGUE)
 
@@ -207,7 +207,7 @@ def cutscene(c: Cutscene):
     c.wait(WaitTypes.FRAMES, 180)
     c.unload_sprite(0)
     c.unload_texture(0)
-    c.wait(WaitTypes.FRAMES, 60 * 4)
+    c.wait(WaitTypes.FRAMES, 60 * 2)
     c.manual_camera(False)
     c.player_control(True)
     c.set_flag(0, 1)

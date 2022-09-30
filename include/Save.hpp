@@ -14,9 +14,15 @@
 
 const int MAX_NAME_LEN = 10;
 
+enum ClearType {
+    INTERNAL_RESET,
+    PLAYER_RESET,
+    PLAYER_TRUE_RESET
+};
+
 class SaveData {
 public:
-    void clear();
+    void clear(ClearType clearType);
     void loadData();
     void saveData(u16 roomId);
 

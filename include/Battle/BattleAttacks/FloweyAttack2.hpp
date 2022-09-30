@@ -22,7 +22,7 @@ namespace BtlAttacks {
         int currentPelletShown = 0;
         static const int pelletW = 14;
         static const int pelletX = 55, pelletY = 50, pelletSpacingX = 10, pelletSpacingY = 90;
-        static const int pelletSpeed = (20 << 8) / 60;
+        static const int pelletSpeed = (10 << 8) / 60;
         static const int pelletRadius = 15;
         Engine::Texture pelletTex;
         Engine::Sprite* pellets[pelletW * 2] = {nullptr};

@@ -25,12 +25,7 @@ namespace Engine {
             return -3;
         }
 
-        // copy palette
-        vramSetBankE(VRAM_E_LCD);
         char buffer[100];
-        u16* paletteBase = (u16*) ((u8*) VRAM_E + (256 * res.memory.paletteIdx + 1) * 2);
-        dmaCopyHalfWords(3, res.texture->getColors(), paletteBase, res.texture->getColorCount() * 2);
-        vramSetBankE(VRAM_E_TEX_PALETTE);
 
         res.memory.allocX = 8, res.memory.allocY = 8;
         u8 tileWidth, tileHeight;
@@ -93,6 +88,7 @@ namespace Engine {
 
         res.memory.allocated = Allocated3D;
         res.memory.loadedFrame = -1;
+        res.memory.loadedPalette = false;
         return 0;
     }
 
@@ -255,10 +251,21 @@ namespace Engine {
         for (int i = 0; i < activeSpriteCount; i++) {
             Sprite* spr = activeSprites[i];
 
+            if (!spr->memory.loadedPalette)
+                loadPalette(*spr);
+
             if (spr->currentFrame != spr->memory.loadedFrame)
                 loadSpriteFrame(*spr, spr->currentFrame);
         }
         vramSetBankB(VRAM_B_TEXTURE_SLOT0);
+    }
+
+    void Sprite3DManager::loadPalette(Engine::Sprite &spr) {
+        vramSetBankE(VRAM_E_LCD);
+        u16* paletteBase = (u16*) ((u8*) VRAM_E + (256 * spr.memory.paletteIdx + 1) * 2);
+        dmaCopyHalfWords(3, spr.texture->getColors(), paletteBase, spr.texture->getColorCount() * 2);
+        vramSetBankE(VRAM_E_TEX_PALETTE);
+        spr.memory.loadedPalette = true;
     }
 
     Sprite3DManager main3dSpr;

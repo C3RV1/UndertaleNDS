@@ -17,7 +17,7 @@ def cutscene(c: Cutscene):
 
     c.player_control(True)
 
-    c.set_animation(Target(TargetType.SPRITE, 0), "moveRight")
+    c.set_animation(Target(TargetType.SPRITE, 0), "rightMove")
     c.set_pos_in_frames(Target(TargetType.SPRITE, 0),
                         136, 41, 40)
     c.wait(WaitTypes.FRAMES, 40)

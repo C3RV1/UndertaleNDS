@@ -145,6 +145,7 @@ void runTitleScreen() {
     }
 
     REG_BG3VOFS = 0;
+    setBrightness(3, 0);  // set brightness to full bright
     Engine::textSub.clear();
 
     if (skip) {
@@ -157,7 +158,6 @@ void runTitleScreen() {
     currentBackground.loadPath("intro/title");
 
     Engine::loadBgTextMain(currentBackground);
-    setBrightness(3, 0);  // set brightness to full bright
 
     timer = introLogoFrames;
     int textLen = strlen_file(textStream, '@');

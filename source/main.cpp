@@ -31,7 +31,7 @@ int main() {
     if (!globalSave.saveExists) {
         runWriteNameMenu();
     } else {
-        // runMainMenu();
+        runMainMenu();
     }
 
     for (int i = 0; i < 5; i++) {

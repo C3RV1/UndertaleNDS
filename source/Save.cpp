@@ -7,14 +7,22 @@
 
 SaveData globalSave;
 
-void SaveData::clear() {
-    memset(name, 0, MAX_NAME_LEN + 1);
-    saveExists = false;
-    memset(flags, 0, 2 * FLAG_COUNT);
-    hp = 20; maxHp = 20;
-    lv = 1; exp = 0;
-    memset(items, 0, ITEM_COUNT + 1);
-    lastSavedRoom = 0;
+void SaveData::clear(ClearType clearType) {
+    if (clearType == INTERNAL_RESET || clearType == PLAYER_TRUE_RESET) {
+        memset(name, 0, MAX_NAME_LEN + 1);
+        saveExists = false;
+        memset(flags, 0, 2 * FLAG_COUNT);
+        hp = 20; maxHp = 20;
+        lv = 1; exp = 0;
+        memset(items, 0, ITEM_COUNT + 1);
+        lastSavedRoom = 0;
+    } else if (clearType == PLAYER_RESET) {
+        memset(flags, 0, 2 * 240);  // reset all but persistent flags
+        hp = 20; maxHp = 20;
+        lv = 1; exp = 0;
+        memset(items, 0, ITEM_COUNT + 1);
+        lastSavedRoom = 0;
+    }
 }
 
 void SaveData::loadData() {
@@ -25,7 +33,7 @@ void SaveData::loadData() {
     fCard.read(header, 4);
 
     if (memcmp(header, expectedHeader, 4) != 0) {
-        clear();
+        clear(INTERNAL_RESET);
         return;
     }
 

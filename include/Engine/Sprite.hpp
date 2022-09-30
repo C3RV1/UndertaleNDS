@@ -37,6 +37,7 @@ namespace Engine {
         };
         int loadedFrame = -1;
         bool loadedOAM = false;
+        bool loadedPalette = false;
     };
 
     class Sprite {
@@ -49,6 +50,7 @@ namespace Engine {
         void setShown(bool shown_);
         void push();
         void pop();
+        ~Sprite() { setShown(false); }
 
         bool loaded = false;
         Texture* texture = nullptr;
