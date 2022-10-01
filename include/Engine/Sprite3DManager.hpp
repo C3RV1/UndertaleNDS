@@ -24,9 +24,9 @@ namespace Engine {
 
         void draw();
         void updateTextures();
-        static void loadPalette(Sprite& spr);
     private:
-        int loadSpriteFrame(Sprite& spr, int frame);
+        static void loadSpriteTexture(Sprite& spr);
+        static void loadPalette(Sprite& spr);
 
         u16 tileFreeZoneCount;
         u16* tileFreeZones;

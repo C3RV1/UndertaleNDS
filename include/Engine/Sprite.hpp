@@ -36,8 +36,7 @@ namespace Engine {
             u8 paletteIdx;
         };
         int loadedFrame = -1;
-        bool loadedOAM = false;
-        bool loadedPalette = false;
+        bool loadedIntoMemory = false;
     };
 
     class Sprite {

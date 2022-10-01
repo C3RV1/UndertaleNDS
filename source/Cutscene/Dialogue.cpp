@@ -85,7 +85,7 @@ bool Dialogue::update() {
     if (!paused) {
         setTalk();
         progressText(true, true);
-        if ((keysDown() & (KEY_TOUCH | KEY_A)) || letterFrames == 0) {
+        if ((keysDown() & (KEY_TOUCH | KEY_B)) || letterFrames == 0) {
             progressText(true, false);
             while (!paused && !(ftell(textStream) == textLen && (linePos >= lineLen || !isRoom)))
                 progressText(false, false);

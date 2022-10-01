@@ -5,8 +5,8 @@
         {
             "name": "gfx",
             "frames": [
-                {"frame": 0, "duration": 15},
-                {"frame": 1, "duration": 15, "draw_off_x": 4, "draw_off_y": 5}
+                {"frame": 0, "duration": 12},
+                {"frame": 1, "duration": 12, "draw_off_x": 4, "draw_off_y": 5}
             ]
         }
     ]

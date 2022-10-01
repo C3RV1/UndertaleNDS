@@ -90,7 +90,7 @@ namespace Engine {
 
         res.memory.allocated = AllocatedOAM;
         res.memory.loadedFrame = -1;
-        res.memory.loadedOAM = false;
+        res.memory.loadedIntoMemory = false;
         return 0;
     }
 
@@ -351,7 +351,7 @@ namespace Engine {
             if (spr->memory.loadedFrame == -1)
                 continue;
 
-            if (!spr->memory.loadedOAM)
+            if (!spr->memory.loadedIntoMemory)
                 setOAMState(*spr);
 
             setSpritePosAndScale(*spr);
@@ -415,6 +415,7 @@ namespace Engine {
                 }
             }
         }
+        spr.memory.loadedIntoMemory = true;
     }
 
     void OAMManager::setSpritePosAndScale(Engine::Sprite &spr) {

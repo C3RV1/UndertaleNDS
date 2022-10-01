@@ -139,7 +139,7 @@ namespace Engine {
         if (bg.getTileCount() > 1024)
             return 2;
 
-        dmaCopyWords(3, bg.getTiles(), tileRam, tileDataSize * bg.getTileCount());
+        memcpy(tileRam, bg.getTiles(), tileDataSize * bg.getTileCount());
 
         u16 sizeFlag = 0;
         u16 mapRamUsage = 0x800;

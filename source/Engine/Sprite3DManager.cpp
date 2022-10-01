@@ -35,7 +35,7 @@ namespace Engine {
         while (res.memory.allocY < tileHeight * 8)
             res.memory.allocY <<= 1;
 
-        u16 neededTiles = res.memory.allocX * res.memory.allocY;
+        u16 neededTiles = res.memory.allocX * res.memory.allocY * res.texture->getFrameCount();
         int freeZoneIdx = 0;
         u16 start = 0;
         u16 length = 0;
@@ -73,10 +73,7 @@ namespace Engine {
         }
 
         res.memory.tileStart = start;
-        vramSetBankB(VRAM_B_LCD);
-        u8 *tileRamStart = (u8 *) VRAM_B + res.memory.tileStart;
-        memset(tileRamStart, 0, neededTiles);
-        vramSetBankB(VRAM_B_TEXTURE_SLOT0);
+
 
         auto** activeSpriteNew = new Sprite*[activeSpriteCount + 1];
         memcpy(activeSpriteNew, activeSprites, sizeof(Sprite**) * activeSpriteCount);
@@ -88,7 +85,7 @@ namespace Engine {
 
         res.memory.allocated = Allocated3D;
         res.memory.loadedFrame = -1;
-        res.memory.loadedPalette = false;
+        res.memory.loadedIntoMemory = false;
         return 0;
     }
 
@@ -108,7 +105,7 @@ namespace Engine {
         paletteUsed[spr.memory.paletteIdx] = false;
 
         u16 start = spr.memory.tileStart;
-        u16 length = spr.memory.allocX * spr.memory.allocY;
+        u16 length = spr.memory.allocX * spr.memory.allocY * spr.texture->getFrameCount();
 
         int freeAfterIdx = 0;
         for (; freeAfterIdx < tileFreeZoneCount; freeAfterIdx++) {
@@ -172,31 +169,27 @@ namespace Engine {
         spr.memory.allocated = NoAlloc;
     }
 
-    int Sprite3DManager::loadSpriteFrame(Engine::Sprite &spr, int frame) {
-        if (spr.memory.loadedFrame == frame)
-            return -1;
-        if (frame >= spr.texture->getFrameCount() || frame < 0)
-            return -2;
-        spr.memory.loadedFrame = frame;
-
-        u8 *tileRamStart = (u8 *) VRAM_B + spr.memory.tileStart;
-
+    void Sprite3DManager::loadSpriteTexture(Engine::Sprite &spr) {
+        vramSetBankB(VRAM_B_LCD);
         u8 tileWidth, tileHeight;
         spr.texture->getSizeTiles(tileWidth, tileHeight);
-        for (int y = 0; y < tileHeight * 8; y++) {
-            for (int x = 0; x < tileWidth * 8; x++) {
-                int tileX = x / 8;
-                int tileY = y / 8;
+        for (int frame = 0; frame < spr.texture->getFrameCount(); frame++) {
+            u8 *tileRamStart = (u8 *) VRAM_B + spr.memory.tileStart + frame * spr.memory.allocX * spr.memory.allocY;
+            for (int y = 0; y < tileHeight * 8; y++) {
+                for (int x = 0; x < tileWidth * 8; x++) {
+                    int tileX = x / 8;
+                    int tileY = y / 8;
 
-                u16 framePos = frame * tileWidth * tileHeight;
-                u32 tileOffset = framePos + tileY * tileWidth + tileX;
-                tileOffset *= 64;
-                tileOffset += (y % 8) * 8 + (x % 8);
-                *(u16*)(tileRamStart + y * spr.memory.allocX + x) &= ~(0xFF << (8 * (x & 1)));
-                *(u16*)(tileRamStart + y * spr.memory.allocX + x) |= (spr.texture->getTiles()[tileOffset] & 0xFF) << (8 * (x & 1));
+                    u16 framePos = frame * tileWidth * tileHeight;
+                    u32 tileOffset = framePos + tileY * tileWidth + tileX;
+                    tileOffset *= 64;
+                    tileOffset += (y % 8) * 8 + (x % 8);
+                    *(u16*)(tileRamStart + y * spr.memory.allocX + x) &= ~(0xFF << (8 * (x & 1)));
+                    *(u16*)(tileRamStart + y * spr.memory.allocX + x) |= (spr.texture->getTiles()[tileOffset] & 0xFF) << (8 * (x & 1));
+                }
             }
         }
-        return 0;
+        vramSetBankB(VRAM_B_TEXTURE_SLOT0);
     }
 
     void Sprite3DManager::draw() {
@@ -205,7 +198,7 @@ namespace Engine {
 
             spr->tick();
 
-            if (spr->memory.loadedFrame == -1)
+            if (!spr->memory.loadedIntoMemory)
                 continue;
 
             glColor( RGB15(31,31,31) );
@@ -230,7 +223,8 @@ namespace Engine {
             u32 y = (((spr->y - (1 << 4)) >> 8)) + 1;
             u32 y2 = y + ((tileHeight * 8 * spr->scale_y) >> 8);
             u32 h = tileHeight * 8;
-            GFX_TEX_FORMAT = (allocXFmt << 20) + (allocYFmt << 23) + (4 << 26) + (1 << 29) + spr->memory.tileStart / 8;
+            GFX_TEX_FORMAT = (allocXFmt << 20) + (allocYFmt << 23) + (4 << 26) + (1 << 29) +
+                    (spr->memory.tileStart + spr->currentFrame * spr->memory.allocX * spr->memory.allocY) / 8;
             GFX_PAL_FORMAT = spr->memory.paletteIdx * 2 * 256 / 16;
             GFX_BEGIN = GL_QUADS;
             GFX_TEX_COORD = 0;
@@ -247,25 +241,30 @@ namespace Engine {
     }
 
     void Sprite3DManager::updateTextures() {
-        vramSetBankB(VRAM_B_LCD);
+        bool setBank = false;
         for (int i = 0; i < activeSpriteCount; i++) {
             Sprite* spr = activeSprites[i];
 
-            if (!spr->memory.loadedPalette)
+            if (!spr->memory.loadedIntoMemory) {
+                spr->memory.loadedIntoMemory = true;
+                if (!setBank) {
+                    vramSetBankB(VRAM_B_LCD);
+                    vramSetBankE(VRAM_E_LCD);
+                    setBank = true;
+                }
                 loadPalette(*spr);
-
-            if (spr->currentFrame != spr->memory.loadedFrame)
-                loadSpriteFrame(*spr, spr->currentFrame);
+                loadSpriteTexture(*spr);
+            }
         }
-        vramSetBankB(VRAM_B_TEXTURE_SLOT0);
+        if (setBank) {
+            vramSetBankB(VRAM_B_TEXTURE_SLOT0);
+            vramSetBankE(VRAM_E_TEX_PALETTE);
+        }
     }
 
     void Sprite3DManager::loadPalette(Engine::Sprite &spr) {
-        vramSetBankE(VRAM_E_LCD);
         u16* paletteBase = (u16*) ((u8*) VRAM_E + (256 * spr.memory.paletteIdx + 1) * 2);
         dmaCopyHalfWords(3, spr.texture->getColors(), paletteBase, spr.texture->getColorCount() * 2);
-        vramSetBankE(VRAM_E_TEX_PALETTE);
-        spr.memory.loadedPalette = true;
     }
 
     Sprite3DManager main3dSpr;
