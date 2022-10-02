@@ -11,7 +11,6 @@
 class BattleAttack {
 public:
     virtual bool update() {return true;};
-    virtual void draw() {};
     virtual ~BattleAttack() = default;
 };
 

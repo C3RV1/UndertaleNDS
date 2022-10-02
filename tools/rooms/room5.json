@@ -29,13 +29,14 @@
         {
           "texture_id": 1,
           "x": 192, "y": 96,
-          "animation": "idle"
+          "animation": "idle",
+          "action": "cutscene", "cutscene_id": 10
         }
       ],
       "colliders": [
         {
           "x": 0, "y": 140, "w": 55, "h": 40,
-          "action": "trigger", "cutscene_id": 0
+          "action": "cutscene", "cutscene_id": 0
         },
 
         {"x": 0, "y": 0, "w": 28, "h": 140},

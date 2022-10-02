@@ -21,7 +21,7 @@ def cutscene(c: Cutscene):
     c.wait(WaitTypes.FRAMES, 180)
 
     c.set_animation(Target(TargetType.SPRITE, 7), "leftIdle")
-    c.set_interact_action(Target(TargetType.SPRITE, 7), "cutscene",
+    c.set_action(Target(TargetType.SPRITE, 7), "cutscene",
                           cutscene_id=10)
 
     c.set_collider_enabled(0, False)

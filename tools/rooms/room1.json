@@ -44,7 +44,7 @@
           "y": 278,
           "w": 318,
           "h": 16,
-          "action": "trigger",
+          "action": "cutscene",
           "cutscene_id": 0
         }
       ]

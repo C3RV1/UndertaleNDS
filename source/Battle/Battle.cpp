@@ -21,9 +21,8 @@ Battle::Battle() : playerManager(Engine::Allocated3D) {
     playerManager.wx = ((256 - 16) / 2) << 8;
     playerManager.wy = ((192 - 32) / 2) << 8;
     playerManager.layer = 100;
-    playerManager.setShown(true);
 
-    for (int i = 230; i <= 239; i++) {
+    for (int i = 220; i <= 229; i++) {
         globalSave.flags[i] = 0;
     }
 }
@@ -39,18 +38,33 @@ void Battle::loadFromStream(FILE *stream) {
 
         sprintf(buffer, "nitro:/data/enemies/name%d.txt", enemies[i].enemyId);
         FILE* enemyNameFile = fopen(buffer, "rb");
-        int len = strlen_file(enemyNameFile, '\0');
-        fread(&enemies[i].enemyName, len + 1, 1, stream);
-        enemies[i].enemyName[len] = '\0';
+        if (enemyNameFile) {
+            int len = strlen_file(enemyNameFile, '\n');
+            fread(enemies[i].enemyName, len + 1, 1, stream);
+            enemies[i].enemyName[len] = '\0';
+        }
         fclose(enemyNameFile);
+
+        u16 actTextId = 0;
+        fread(&actTextId, 2, 1, stream);
+        fread(&enemies[i].actOptionCount, 1, 1, stream);
+
+        sprintf(buffer, "nitro:/data/battle_act_txt/%d.txt", actTextId);
+        FILE* actTextFile = fopen(buffer, "rb");
+        if (actTextFile) {
+            int len = strlen_file(enemyNameFile, '@');
+            delete[] enemies[i].actText;
+            enemies[i].actText = new char[len + 1];
+            fread(enemies[i].actText, len + 1, 1, stream);
+            enemies[i].actText[len] = '\0';
+        }
+        fclose(actTextFile);
     }
 
     u8 boardId;
     fread(&boardId, 1, 1, stream);
     sprintf(buffer, "battle/board%d", boardId);
     bulletBoard.loadPath(buffer);
-
-    Engine::loadBgTextMain(bulletBoard);
 
     fread(&boardX, 1, 1, stream);
     fread(&boardY, 1, 1, stream);
@@ -61,12 +75,16 @@ void Battle::loadFromStream(FILE *stream) {
     playerManager.wy = ((boardY + boardH / 2) << 8) - (9 << 8) / 2;
 }
 
-void Battle::draw() const {
-    for (int i = 0; i < spriteCount; i++) {
-        sprites[i]->draw(false);
-    }
-    if (currentBattleAttack != nullptr)
-        currentBattleAttack->draw();
+void Battle::show() {
+    Engine::loadBgTextMain(bulletBoard);
+    playerManager.setShown(true);
+    shown = true;
+}
+
+void Battle::hide() {
+    Engine::clearMain();
+    playerManager.setShown(false);
+    shown = false;
 }
 
 void Battle::resetBattleAttack() {
@@ -74,12 +92,24 @@ void Battle::resetBattleAttack() {
 }
 
 void Battle::update() {
+    nav.update();
     if (currentBattleAttack != nullptr) {
         if (currentBattleAttack->update()) {
             delete currentBattleAttack;
             currentBattleAttack = nullptr;
         }
     }
+    if (currentBattleAction != nullptr) {
+        if (currentBattleAction->update()) {
+            delete currentBattleAction;
+            currentBattleAction = nullptr;
+            show();
+        } else {
+            return;
+        }
+    }
+    if (!shown)
+        return;
     if (keysHeld() & KEY_RIGHT) {
         playerManager.wx += playerSpeed;
     }
@@ -108,13 +138,15 @@ void Battle::update() {
     } else if (playerManager.wy > (boardY + boardH - 9) << 8) {
         playerManager.wy = (boardY + boardH - 9) << 8;
     }
-    nav.update();
 }
 
 void Battle::free_() {
     bulletBoard.free_();
     playerManager.setShown(false);
     player.free_();
+    for (int i = 0; i < enemyCount; i++) {
+        delete[] enemies[i].actText;
+    }
     delete[] enemies;
     enemies = nullptr;
     enemyCount = 0;
@@ -148,6 +180,7 @@ void runBattle(FILE* stream) {
 
     globalBattle = new Battle();
     globalBattle->loadFromStream(stream);
+    globalBattle->show();
 
     if (globalCutscene != nullptr) {
         globalCutscene->runCommands(LOAD_BATTLE);
@@ -173,7 +206,6 @@ void runBattle(FILE* stream) {
             }
         }
         globalBattle->update();
-        globalBattle->draw();
     }
 
     timer = ROOM_CHANGE_FADE_FRAMES;

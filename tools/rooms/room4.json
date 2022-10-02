@@ -36,31 +36,31 @@
           "texture_id": 0,
           "x": 69, "y": 40,
           "animation": "gfx",
-          "interact_action": "cutscene", "cutscene_id": 0
+          "action": "cutscene", "cutscene_id": 0
         },
         {
           "texture_id": 1,
           "x": 357, "y": 55,
           "animation": "up",
-          "interact_action": "cutscene", "cutscene_id": 3
+          "action": "cutscene", "cutscene_id": 3
         },
         {
           "texture_id": 1,
           "x": 557, "y": 55,
           "animation": "up",
-          "interact_action": "cutscene", "cutscene_id": 4
+          "action": "cutscene", "cutscene_id": 4
         },
         {
           "texture_id": 1,
           "x": 595, "y": 55,
           "animation": "up",
-          "interact_action": "cutscene", "cutscene_id": 5
+          "action": "cutscene", "cutscene_id": 5
         },
         {
           "texture_id": 2,
           "x": 99, "y": 120,
           "animation": "gfx",
-          "interact_action": "cutscene", "cutscene_id": 1
+          "action": "cutscene", "cutscene_id": 1
         },
         {
           "texture_id": 3,
@@ -82,7 +82,7 @@
       "colliders": [
         {
           "x": 89, "y": 195, "w": 40, "h": 28,
-          "action": "trigger", "cutscene_id": 2
+          "action": "cutscene", "cutscene_id": 2
         },
         {
           "comment": "disabled on first lever (cutscene 403)",
@@ -136,7 +136,7 @@
           "texture_id": 0,
           "x": 69, "y": 40,
           "animation": "gfx",
-          "interact_action": "cutscene", "cutscene_id": 0
+          "action": "cutscene", "cutscene_id": 0
         },
         {
           "texture_id": 1,
@@ -152,13 +152,13 @@
           "texture_id": 1,
           "x": 595, "y": 55,
           "animation": "up",
-          "interact_action": "cutscene", "cutscene_id": 4
+          "action": "cutscene", "cutscene_id": 4
         },
         {
           "texture_id": 2,
           "x": 99, "y": 120,
           "animation": "gfx",
-          "interact_action": "cutscene", "cutscene_id": 1
+          "action": "cutscene", "cutscene_id": 1
         },
         {
           "texture_id": 3,

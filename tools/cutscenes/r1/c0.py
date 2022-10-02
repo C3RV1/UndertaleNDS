@@ -1,8 +1,8 @@
 import typing
 if typing.TYPE_CHECKING:
-    from tools.CutsceneTypes import Cutscene, Target, TargetType, WaitTypes
+    from tools.CutsceneTypes import *
 else:
-    from CutsceneTypes import Cutscene, Target, TargetType, WaitTypes
+    from CutsceneTypes import *
 
 
 def cutscene(c: Cutscene):
@@ -210,6 +210,6 @@ def cutscene(c: Cutscene):
     c.wait(WaitTypes.FRAMES, 60 * 2)
     c.manual_camera(False)
     c.player_control(True)
-    c.set_flag(0, 1)
+    c.set_flag(FlagOffsets.PROGRESS, 1)
     c.set_collider_enabled(0, False)
     c.debug("Meet flowey cutscene end!")

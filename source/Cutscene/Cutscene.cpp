@@ -340,9 +340,15 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             }
             break;
         }
-        case CMD_CMP_BATTLE_ACTION:
-            nocashMessage("CMD_CMP_BATTLE_ACTION");
-            fread(buffer, 1, 1, commandStream);
+        case CMD_BATTLE_ACTION:
+            nocashMessage("CMD_BATTLE_ACTION");
+            if (globalBattle == nullptr) // just in case
+                break;
+            if (globalBattle->currentBattleAction != nullptr)
+                break;
+            globalBattle->hide();
+            globalBattle->currentBattleAction = new BattleAction(globalBattle->enemyCount,
+                                                                 globalBattle->enemies);
             break;
         case CMD_CHECK_HIT:
             nocashMessage("CMD_CHECK_HIT");
@@ -441,8 +447,8 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             }
             break;
         }
-        case CMD_SET_INTERACT_ACTION: {
-            nocashMessage("CMD_SET_INTERACT_ACTION");
+        case CMD_SET_ACTION: {
+            nocashMessage("CMD_SET_ACTION");
             u8 interactAction;
             u16 cutsceneId_;
             fread(&targetType, 1, 1, commandStream);

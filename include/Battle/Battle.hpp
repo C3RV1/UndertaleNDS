@@ -12,13 +12,8 @@
 #include "ManagedSprite.hpp"
 #include "Cutscene/Navigation.hpp"
 #include "BattleAttack.hpp"
-
-struct Enemy {
-    u16 enemyId = 0;
-    char enemyName[20] = {0};
-    u16 hp = 0;
-    u16 maxHp = 0;
-};
+#include "BattleAction.hpp"
+#include "Enemy.hpp"
 
 // TODO: Display health
 
@@ -26,10 +21,12 @@ class Battle {
 public:
     Battle();
     void loadFromStream(FILE* stream);
-    void draw() const;
+    void show();
+    void hide();
     void update();
     void free_();
     void resetBattleAttack();
+    bool shown = false;
     bool running = true;
     Navigation nav;
 
@@ -50,6 +47,7 @@ public:
     Engine::Sprite playerManager;
 
     BattleAttack* currentBattleAttack = nullptr;
+    BattleAction* currentBattleAction = nullptr;
     bool hitFlag = false;
 };
 

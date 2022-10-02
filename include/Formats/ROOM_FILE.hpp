@@ -47,7 +47,7 @@ struct ROOMSprites {
 
 struct ROOMCollider {
     u16 x = 0, y = 0, w = 0, h = 0;
-    u8 colliderAction = 0;  // 0 - wall, 1 - trigger
+    u8 colliderAction = 0;  // 0 - wall, 1 - cutscene
     bool enabled = true;
     u16 cutsceneId = 0;    // only when colliderAction == 1
 };

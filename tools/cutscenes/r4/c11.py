@@ -1,13 +1,13 @@
 import typing
 if typing.TYPE_CHECKING:
-    from tools.CutsceneTypes import Cutscene, Target, TargetType, WaitTypes
+    from tools.CutsceneTypes import *
 else:
-    from CutsceneTypes import Cutscene, Target, TargetType, WaitTypes
+    from CutsceneTypes import *
 
 
 def cutscene(c: Cutscene):
     c.player_control(False)
-    c.cmp_flag(220, "==", 1)
+    c.cmp_flag(FlagOffsets.ROOM_FLAGS, "==", 1)
     jump_repeated_dialogue = c.jump_if()
 
     c.start_dialogue(10, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4 - 5,
@@ -25,4 +25,4 @@ def cutscene(c: Cutscene):
     c.wait(WaitTypes.DIALOGUE)
 
     c.bind(jump_end)
-    c.set_flag(220, 1)
+    c.set_flag(FlagOffsets.ROOM_FLAGS, 1)

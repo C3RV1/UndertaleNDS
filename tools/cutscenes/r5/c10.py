@@ -1,15 +1,15 @@
 import typing
 if typing.TYPE_CHECKING:
-    from tools.CutsceneTypes import Cutscene, Target, TargetType, WaitTypes, Enemy, AttackOffset
+    from tools.CutsceneTypes import *
 else:
-    from CutsceneTypes import Cutscene, Target, TargetType, WaitTypes, Enemy, AttackOffset
+    from CutsceneTypes import *
 
 
 def cutscene(c: Cutscene):
     # Dummy battle
     c.player_control(False)
 
-    c.start_battle([Enemy(0, 15)], 0, 61, 63, 134, 75)
+    c.start_battle([Enemy(0, 15, 0, 2)], 0, 61, 63, 134, 75)
     c.wait(WaitTypes.EXIT)
 
     # == LOAD BATTLE ==
@@ -17,10 +17,11 @@ def cutscene(c: Cutscene):
     c.debug("Loading battle...")
     c.load_texture("battle/dummy_ruins")
     c.load_sprite(30, (192 - 104) // 2, 0)
+    c.start_bgm("mus_prebattle1.wav", True)
 
     c.wait(WaitTypes.ENTER)
 
-    c.start_dialogue_battle(10, 128 + 20, 192 // 4,
+    c.start_dialogue_battle(10, 128, 192 // 4,
                             Target(TargetType.NULL), "", "",
                             type_sound="SND_TXT1.wav")
     c.wait(WaitTypes.DIALOGUE)
@@ -29,30 +30,30 @@ def cutscene(c: Cutscene):
 
     loop_start = c.debug("Battle loop!")
 
-    c.wait_battle_action(0, [[0, 0], [0, 0]])
+    c.battle_action()
     c.wait(WaitTypes.BATTLE_ACTION)
 
     c.cmp_enemy_hp(0, "<", 15)
     fight_jump = c.jump_if()
 
-    c.cmp_battle_action(AttackOffset.ACT + 1)
+    c.cmp_flag(FlagOffsets.BATTLE_ACTION, "==", BtlActionOff.ACT + 1)
     talk_jump = c.jump_if()
 
-    c.cmp_battle_action(AttackOffset.FLEE)
+    c.cmp_flag(FlagOffsets.BATTLE_ACTION, "==", BtlActionOff.FLEE)
     flee_jump = c.jump_if()
 
-    c.mod_flag(230, 1)
-    c.cmp_flag(230, ">=", 8)
+    c.mod_flag(FlagOffsets.BATTLE_FLAGS, 1)
+    c.cmp_flag(FlagOffsets.BATTLE_FLAGS, ">=", 8)
     bored_dummy_jump = c.jump_if()
 
     c.jump(dst=loop_start)
 
     # == FIGHT ==
 
-    c.debug("Dummy killed")
-    c.set_flag(1, 0)
-
     c.bind(fight_jump)
+    c.debug("Dummy killed")
+    c.set_flag(FlagOffsets.DUMMY, 0)
+
     c.start_dialogue_battle(20, 128 + 20, 192 // 4,
                             Target(TargetType.NULL), "", "",
                             type_sound="SND_TXT1.wav")
@@ -78,10 +79,10 @@ def cutscene(c: Cutscene):
 
     # == TALK ==
 
-    c.debug("Talked to dummy")
-    c.set_flag(1, 1)
-
     c.bind(talk_jump)
+    c.debug("Talked to dummy")
+    c.set_flag(FlagOffsets.DUMMY, 1)
+
     c.start_dialogue_battle(40, 128 + 20, 192 // 4,
                             Target(TargetType.NULL), "", "",
                             type_sound="SND_TXT1.wav")
@@ -92,10 +93,10 @@ def cutscene(c: Cutscene):
 
     # == FLEE ==
 
-    c.debug("Flee from dummy")
-    c.set_flag(1, 2)
-
     c.bind(flee_jump)
+    c.debug("Flee from dummy")
+    c.set_flag(FlagOffsets.DUMMY, 2)
+
     c.exit_battle()
     c.wait(WaitTypes.EXIT)
     c.wait(WaitTypes.ENTER)
@@ -103,10 +104,10 @@ def cutscene(c: Cutscene):
 
     # == BORED ==
 
-    c.debug("Dummy got bored")
-    c.set_flag(1, 3)
-
     c.bind(bored_dummy_jump)
+    c.debug("Dummy got bored")
+    c.set_flag(FlagOffsets.DUMMY, 3)
+
     c.start_dialogue_battle(60, 128 + 20, 192 // 4,
                             Target(TargetType.NULL), "", "",
                             type_sound="SND_TXT1.wav")

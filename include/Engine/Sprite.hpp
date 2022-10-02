@@ -27,8 +27,8 @@ namespace Engine {
         u8 oamEntryCount = 0;
         u8 oamScaleIdx = 0xff;  // all oam entries can share scale
         union {
-            u8 * oamEntries = nullptr;
-            u16 tileStart;
+            u16 * tileStart = nullptr;
+            u8 * oamEntries;
         };
         u16 allocX = 0, allocY = 0;
         union {

@@ -89,7 +89,7 @@
           "x": 49,
           "y": 40,
           "animation": "gfx",
-          "interact_action": "cutscene",
+          "action": "cutscene",
           "cutscene_id": 1
         },
         {
@@ -101,7 +101,7 @@
       "colliders": [
         {
           "x": 0, "y": 0, "w": 258, "h": 240,
-          "action": "trigger", "cutscene_id": 0
+          "action": "cutscene", "cutscene_id": 0
         },
         {"x": 0, "y": 0, "w": 29, "h": 100},
         {"x": 29, "y": 0, "w": 60, "h": 80},
@@ -198,7 +198,7 @@
           "x": 49,
           "y": 40,
           "animation": "gfx",
-          "interact_action": "cutscene",
+          "action": "cutscene",
           "cutscene_id": 1
         }
       ],

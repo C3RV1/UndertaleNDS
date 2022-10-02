@@ -5,6 +5,15 @@
 #include "Sprite3DManager.hpp"
 #include "Texture.hpp"
 
+int getOnesInBin(int x) {
+    int count = 0;
+    while (x > 0) {
+        count += x & 1;
+        x >>= 1;
+    }
+    return count;
+}
+
 namespace Engine {
     int Sprite3DManager::loadSprite(Engine::Sprite &res) {
         if (!res.loaded)
@@ -25,35 +34,64 @@ namespace Engine {
             return -3;
         }
 
-        char buffer[100];
-
-        res.memory.allocX = 8, res.memory.allocY = 8;
         u8 tileWidth, tileHeight;
         res.texture->getSizeTiles(tileWidth, tileHeight);
-        while (res.memory.allocX < tileWidth * 8)
-            res.memory.allocX <<= 1;
-        while (res.memory.allocY < tileHeight * 8)
-            res.memory.allocY <<= 1;
+        res.memory.allocX = getOnesInBin(tileWidth);
+        res.memory.allocY = getOnesInBin(tileHeight);
+        res.memory.tileStart = new u16[res.memory.allocX * res.memory.allocY];
+        int tileIdx = 0;
+        while (tileHeight > 0) {
+            u8 subTileHeight = 1;
+            while (subTileHeight << 1 <= tileHeight)
+                subTileHeight <<= 1;
+            int tileWidth_ = tileWidth;
+            while (tileWidth_ > 0) {
+                u8 subTileWidth = 1;
+                while (subTileWidth << 1 <= tileWidth_)
+                    subTileWidth <<= 1;
+                u16 neededTiles = subTileWidth * subTileHeight * res.texture->getFrameCount() * 64;
+                if (reserveTiles(neededTiles, res.memory.tileStart[tileIdx]) == 1) {
+                    return -4;
+                }
+                tileIdx++;
+                tileWidth_ -= subTileWidth;
+            }
+            tileHeight -= subTileHeight;
+        }
 
-        u16 neededTiles = res.memory.allocX * res.memory.allocY * res.texture->getFrameCount();
+        auto** activeSpriteNew = new Sprite*[activeSpriteCount + 1];
+        memcpy(activeSpriteNew, activeSprites, sizeof(Sprite**) * activeSpriteCount);
+        activeSpriteNew[activeSpriteCount] = &res;
+        delete[] activeSprites;
+        activeSprites = activeSpriteNew;
+
+        activeSpriteCount++;
+
+        res.memory.allocated = Allocated3D;
+        res.memory.loadedFrame = -1;
+        res.memory.loadedIntoMemory = false;
+        return 0;
+    }
+
+    int Sprite3DManager::reserveTiles(u16 length, u16& start) {
         int freeZoneIdx = 0;
-        u16 start = 0;
-        u16 length = 0;
+        u16 length_ = 0;
         for (; freeZoneIdx < tileFreeZoneCount; freeZoneIdx++) {
             start = tileFreeZones[freeZoneIdx * 2];
-            length = tileFreeZones[freeZoneIdx * 2 + 1];
-            if (length >= neededTiles) {
+            length_ = tileFreeZones[freeZoneIdx * 2 + 1];
+            if (length_ >= length) {
                 break;
             }
         }
         if (freeZoneIdx >= tileFreeZoneCount) {
+            char buffer[100];
             sprintf(buffer, "-2 start %d length %d needed %d",
-                    start, length, neededTiles);
+                    start, length_, length);
             nocashMessage(buffer);
-            return -4;
+            return 1;
         }
 
-        if (length == neededTiles) {
+        if (length == length_) {
             // Remove free zone
             tileFreeZoneCount--;
             auto* newFreeZones = new u16[tileFreeZoneCount * 2];
@@ -68,24 +106,13 @@ namespace Engine {
             tileFreeZones = newFreeZones;
         }
         else {
-            tileFreeZones[freeZoneIdx * 2] += neededTiles;
-            tileFreeZones[freeZoneIdx * 2 + 1] -= neededTiles;
+            tileFreeZones[freeZoneIdx * 2] += length;
+            tileFreeZones[freeZoneIdx * 2 + 1] -= length;
         }
-
-        res.memory.tileStart = start;
-
-
-        auto** activeSpriteNew = new Sprite*[activeSpriteCount + 1];
-        memcpy(activeSpriteNew, activeSprites, sizeof(Sprite**) * activeSpriteCount);
-        activeSpriteNew[activeSpriteCount] = &res;
-        delete[] activeSprites;
-        activeSprites = activeSpriteNew;
-
-        activeSpriteCount++;
-
-        res.memory.allocated = Allocated3D;
-        res.memory.loadedFrame = -1;
-        res.memory.loadedIntoMemory = false;
+        char buffer[100];
+        sprintf(buffer, "3dalloc start %d length %d",
+                start, length);
+        nocashMessage(buffer);
         return 0;
     }
 
@@ -104,8 +131,45 @@ namespace Engine {
 
         paletteUsed[spr.memory.paletteIdx] = false;
 
-        u16 start = spr.memory.tileStart;
-        u16 length = spr.memory.allocX * spr.memory.allocY * spr.texture->getFrameCount();
+        u8 tileWidth, tileHeight;
+        spr.texture->getSizeTiles(tileWidth, tileHeight);
+        int tileIdx = 0;
+        while (tileHeight > 0) {
+            u8 subTileHeight = 1;
+            while (subTileHeight << 1 <= tileHeight)
+                subTileHeight <<= 1;
+            int tileWidth_ = tileWidth;
+            while (tileWidth_ > 0) {
+                u8 subTileWidth = 1;
+                while (subTileWidth << 1 <= tileWidth_)
+                    subTileWidth <<= 1;
+                u16 neededTiles = subTileWidth * subTileHeight * spr.texture->getFrameCount() * 64;
+                freeTiles(neededTiles, spr.memory.tileStart[tileIdx]);
+                tileIdx++;
+                tileWidth_ -= subTileWidth;
+            }
+            tileHeight -= subTileHeight;
+        }
+
+        delete[] spr.memory.tileStart;
+
+        auto** activeSpriteNew = new Sprite*[activeSpriteCount - 1];
+        memcpy(activeSpriteNew, activeSprites, sizeof(Sprite**) * sprIdx);
+        memcpy(&activeSpriteNew[sprIdx], &activeSprites[sprIdx + 1],
+               sizeof(Sprite**) * (activeSpriteCount - sprIdx - 1));
+        delete[] activeSprites;
+        activeSprites = activeSpriteNew;
+
+        activeSpriteCount--;
+
+        spr.memory.allocated = NoAlloc;
+    }
+
+    void Sprite3DManager::freeTiles(u16 length, u16& start) {
+        char buffer[100];
+        sprintf(buffer, "3dfree start %d length %d",
+                start, length);
+        nocashMessage(buffer);
 
         int freeAfterIdx = 0;
         for (; freeAfterIdx < tileFreeZoneCount; freeAfterIdx++) {
@@ -156,40 +220,53 @@ namespace Engine {
             delete[] tileFreeZones;
             tileFreeZones = newFreeZones;
         }
-
-        auto** activeSpriteNew = new Sprite*[activeSpriteCount - 1];
-        memcpy(activeSpriteNew, activeSprites, sizeof(Sprite**) * sprIdx);
-        memcpy(&activeSpriteNew[sprIdx], &activeSprites[sprIdx + 1],
-               sizeof(Sprite**) * (activeSpriteCount - sprIdx - 1));
-        delete[] activeSprites;
-        activeSprites = activeSpriteNew;
-
-        activeSpriteCount--;
-
-        spr.memory.allocated = NoAlloc;
     }
 
     void Sprite3DManager::loadSpriteTexture(Engine::Sprite &spr) {
-        vramSetBankB(VRAM_B_LCD);
         u8 tileWidth, tileHeight;
         spr.texture->getSizeTiles(tileWidth, tileHeight);
-        for (int frame = 0; frame < spr.texture->getFrameCount(); frame++) {
-            u8 *tileRamStart = (u8 *) VRAM_B + spr.memory.tileStart + frame * spr.memory.allocX * spr.memory.allocY;
-            for (int y = 0; y < tileHeight * 8; y++) {
-                for (int x = 0; x < tileWidth * 8; x++) {
-                    int tileX = x / 8;
-                    int tileY = y / 8;
 
-                    u16 framePos = frame * tileWidth * tileHeight;
-                    u32 tileOffset = framePos + tileY * tileWidth + tileX;
-                    tileOffset *= 64;
-                    tileOffset += (y % 8) * 8 + (x % 8);
-                    *(u16*)(tileRamStart + y * spr.memory.allocX + x) &= ~(0xFF << (8 * (x & 1)));
-                    *(u16*)(tileRamStart + y * spr.memory.allocX + x) |= (spr.texture->getTiles()[tileOffset] & 0xFF) << (8 * (x & 1));
+        int tileIdx = 0;
+
+        int tilePosY = 0;
+        int tileHeight_ = tileHeight;
+        while (tileHeight_ > 0) {
+            u8 subTileHeight = 1;
+            while (subTileHeight << 1 <= tileHeight_)
+                subTileHeight <<= 1;
+
+            int tileWidth_ = tileWidth;
+            int tilePosX = 0;
+            while (tileWidth_ > 0) {
+                u8 subTileWidth = 1;
+                while (subTileWidth << 1 <= tileWidth_)
+                    subTileWidth <<= 1;
+
+                for (int frame = 0; frame < spr.texture->getFrameCount(); frame++) {
+                    for (int y = tilePosY * 8, y2 = 0; y < (tilePosY + subTileHeight) * 8; y++, y2++) {
+                        for (int x = tilePosX * 8, x2 = 0; x < (tilePosX + subTileWidth) * 8; x++, x2++) {
+                            int tileX = x / 8;
+                            int tileY = y / 8;
+                            u8 *tileRamStart = (u8 *) VRAM_B + spr.memory.tileStart[tileIdx] +
+                                               frame * subTileWidth * subTileHeight * 64;
+
+                            u16 framePos = frame * tileWidth * tileHeight;
+                            u32 tileOffset = framePos + tileY * tileWidth + tileX;
+                            tileOffset *= 64;
+                            tileOffset += (y % 8) * 8 + (x % 8);
+                            *(u16 *) (tileRamStart + y2 * subTileWidth * 8 + x2) &= ~(0xFF << (8 * (x2 & 1)));
+                            *(u16 *) (tileRamStart + y2 * subTileWidth * 8 + x2) |=
+                                    (spr.texture->getTiles()[tileOffset] & 0xFF) << (8 * (x2 & 1));
+                        }
+                    }
                 }
+                tileIdx++;
+                tileWidth_ -= subTileWidth;
+                tilePosX += subTileWidth;
             }
+            tileHeight_ -= subTileHeight;
+            tilePosY += subTileHeight;
         }
-        vramSetBankB(VRAM_B_TEXTURE_SLOT0);
     }
 
     void Sprite3DManager::draw() {
@@ -204,48 +281,73 @@ namespace Engine {
             glColor( RGB15(31,31,31) );
             glPolyFmt( POLY_ALPHA(31) | POLY_CULL_NONE);
 
-            u8 allocXFmt = 0;
-            for (int x = spr->memory.allocX; x > 8; x >>= 1) {
-                allocXFmt += 1;
-            }
-            u8 allocYFmt = 0;
-            for (int x = spr->memory.allocY; x > 8; x >>= 1) {
-                allocYFmt += 1;
-            }
-
-            MATRIX_CONTROL = GL_MODELVIEW;
-            MATRIX_IDENTITY = 0;
             u8 tileWidth, tileHeight;
             spr->texture->getSizeTiles(tileWidth, tileHeight);
-            u32 x = ((spr->x - (1 << 4)) >> 8) + 1;
-            u32 x2 = x + ((tileWidth * 8 * spr->scale_x) >> 8);
-            u32 w = tileWidth * 8;
-            u32 y = (((spr->y - (1 << 4)) >> 8)) + 1;
-            u32 y2 = y + ((tileHeight * 8 * spr->scale_y) >> 8);
-            u32 h = tileHeight * 8;
-            GFX_TEX_FORMAT = (allocXFmt << 20) + (allocYFmt << 23) + (4 << 26) + (1 << 29) +
-                    (spr->memory.tileStart + spr->currentFrame * spr->memory.allocX * spr->memory.allocY) / 8;
-            GFX_PAL_FORMAT = spr->memory.paletteIdx * 2 * 256 / 16;
-            GFX_BEGIN = GL_QUADS;
-            GFX_TEX_COORD = 0;
-            GFX_VERTEX16 = x + (y << 16);
-            GFX_VERTEX16 = spr->layer;
-            GFX_TEX_COORD = h << (4 + 16);
-            GFX_VERTEX_XY = x + (y2 << 16);
-            GFX_TEX_COORD = (h << (4 + 16)) + (w << 4);
-            GFX_VERTEX_XY = x2 + (y2 << 16);
-            GFX_TEX_COORD = (w << 4);
-            GFX_VERTEX_XY = x2 + (y << 16);
-            GFX_END = 0;
+
+            int tileIdx = 0;
+            int tilePosY = 0;
+            while (tileHeight > 0) {
+                u8 subTileHeight = 1;
+                u8 allocYFmt = 0;
+                while (subTileHeight << 1 <= tileHeight) {
+                    subTileHeight <<= 1;
+                    allocYFmt += 1;
+                }
+
+                int tileWidth_ = tileWidth;
+                int tilePosX = 0;
+                while (tileWidth_ > 0) {
+                    u8 subTileWidth = 1;
+                    u8 allocXFmt = 0;
+                    while (subTileWidth << 1 <= tileWidth_) {
+                        subTileWidth <<= 1;
+                        allocXFmt += 1;
+                    }
+
+                    MATRIX_CONTROL = GL_MODELVIEW;
+                    MATRIX_IDENTITY = 0;
+                    u32 x = ((spr->x - (1 << 4)) >> 8) + 1;
+                    x += (tilePosX * 8 * spr->scale_x) >> 8;
+                    u32 x2 = x + ((subTileWidth * 8 * spr->scale_x) >> 8);
+                    u32 w = subTileWidth * 8;
+                    u32 y = (((spr->y - (1 << 4)) >> 8)) + 1;
+                    y += (tilePosY * 8 * spr->scale_y) >> 8;
+                    u32 y2 = y + ((subTileHeight * 8 * spr->scale_y) >> 8);
+                    u32 h = subTileHeight * 8;
+                    GFX_TEX_FORMAT = (allocXFmt << 20) + (allocYFmt << 23) + (4 << 26) + (1 << 29) +
+                                     (spr->memory.tileStart[tileIdx] + spr->currentFrame * subTileWidth * subTileHeight * 64) / 8;
+                    GFX_PAL_FORMAT = spr->memory.paletteIdx * 2 * 256 / 16;
+                    GFX_BEGIN = GL_QUADS;
+                    GFX_TEX_COORD = 0;
+                    GFX_VERTEX16 = x + (y << 16);
+                    GFX_VERTEX16 = spr->layer;
+                    GFX_TEX_COORD = h << (4 + 16);
+                    GFX_VERTEX_XY = x + (y2 << 16);
+                    GFX_TEX_COORD = (h << (4 + 16)) + (w << 4);
+                    GFX_VERTEX_XY = x2 + (y2 << 16);
+                    GFX_TEX_COORD = (w << 4);
+                    GFX_VERTEX_XY = x2 + (y << 16);
+                    GFX_END = 0;
+
+                    tileIdx++;
+                    tileWidth_ -= subTileWidth;
+                    tilePosX += subTileWidth;
+                }
+                tileHeight -= subTileHeight;
+                tilePosY += subTileHeight;
+            }
         }
     }
 
     void Sprite3DManager::updateTextures() {
         bool setBank = false;
+        char buffer[100];
         for (int i = 0; i < activeSpriteCount; i++) {
             Sprite* spr = activeSprites[i];
 
             if (!spr->memory.loadedIntoMemory) {
+                sprintf(buffer, "Loading sprite %d out of %d", i + 1, activeSpriteCount);
+                nocashMessage(buffer);
                 spr->memory.loadedIntoMemory = true;
                 if (!setBank) {
                     vramSetBankB(VRAM_B_LCD);

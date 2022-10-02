@@ -53,5 +53,13 @@ void Waiting::update(CutsceneLocation callingLocation, bool frame) {
             currentWait = NONE;
         else if (globalCutscene->cSaveMenu == nullptr)
             currentWait = NONE;
+    } else if (currentWait == WAIT_BATTLE_ACTION) {
+        if (callingLocation == BATTLE || callingLocation == LOAD_BATTLE) {
+            if (globalBattle->currentBattleAction == nullptr) {
+                currentWait = NONE;
+            }
+        } else {
+            currentWait = NONE;
+        }
     }
 }

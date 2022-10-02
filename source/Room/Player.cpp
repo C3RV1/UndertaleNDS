@@ -189,7 +189,7 @@ bool Player::check_collisions() const {
                          collider->w, collider->h)) {
             if (collider->colliderAction == 0)  // Wall
                 return true;
-            if (collider->colliderAction == 1 && globalCutscene == nullptr) {  // Trigger
+            if (collider->colliderAction == 1 && globalCutscene == nullptr) {  // Cutscene
                 globalCutscene = new Cutscene(collider->cutsceneId);
             }
         }

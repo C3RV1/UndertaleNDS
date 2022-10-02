@@ -1,13 +1,13 @@
 import typing
 if typing.TYPE_CHECKING:
-    from tools.CutsceneTypes import Cutscene, Target, TargetType, WaitTypes
+    from tools.CutsceneTypes import *
 else:
-    from CutsceneTypes import Cutscene, Target, TargetType, WaitTypes
+    from CutsceneTypes import *
 
 
 def cutscene(c: Cutscene):
     c.player_control(False)
-    c.cmp_flag(0, "==", 3)
+    c.cmp_flag(FlagOffsets.PROGRESS, "==", 3)
     toriel_not_in_room = c.jump_if_not()
 
     c.start_dialogue(10, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4 - 5,

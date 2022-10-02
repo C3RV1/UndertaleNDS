@@ -10,6 +10,7 @@
     2 - fled
     3 - bored
 
-220-229 - specific room flags (cleared upon entering room)
-230-239 - specific battle flags (cleared upon entering battle)
+210-219 - specific room flags (cleared upon entering room)
+220-229 - specific battle flags (cleared upon entering battle)
+230 - battle action
 240-249 - persistent flags

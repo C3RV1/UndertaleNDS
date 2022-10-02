@@ -21,7 +21,7 @@ class CutsceneCommands(enum.IntEnum):
     EXIT_BATTLE = 9  # Done
     LOAD_TEXTURE = 10  # Done
     BATTLE_ATTACK = 11  # Done (requires implementing attacks)
-    CMP_BATTLE_ACTION = 12
+    BATTLE_ACTION = 12
     CHECK_HIT = 13  # Done
     JUMP_IF = 14  # Done
     JUMP_IF_NOT = 15  # Done
@@ -37,7 +37,7 @@ class CutsceneCommands(enum.IntEnum):
     CMP_FLAG = 25  # Done
     SET_COLLIDER_ENABLED = 26  # Done
     UNLOAD_TEXTURE = 27  # Done
-    SET_INTERACT_ACTION = 28  # Done
+    SET_ACTION = 28  # Done
     PLAY_SFX = 29  # Done
     SAVE_MENU = 30  # Done
     MAX_HEALTH = 31  # Done
@@ -57,14 +57,28 @@ class WaitTypes(enum.IntEnum):
     BATTLE_ACTION = 7
 
 
+class FlagOffsets:
+    PROGRESS = 0
+    DUMMY = 1
+    ROOM_FLAGS = 210
+    BATTLE_FLAGS = 220
+    BATTLE_ACTION = 230
+    # BATTLE_HIT = 231 ? (replacing check_hit?)
+    PERSISTENT = 240
+
+
 class Enemy:
-    def __init__(self, enemy_id, enemy_hp):
+    def __init__(self, enemy_id, enemy_hp, act_text_id, act_option_count):
         self.id_ = enemy_id
         self.hp = enemy_hp
+        self.act_text_id = act_text_id
+        self.act_option_count = act_option_count
 
     def write(self, wtr: binary.BinaryWriter):
         wtr.write_uint16(self.id_)
         wtr.write_uint16(self.hp)
+        wtr.write_uint16(self.act_text_id)
+        wtr.write_uint8(self.act_option_count)
 
 
 class TargetType(enum.IntEnum):
@@ -84,7 +98,7 @@ class SaveFlags(enum.IntEnum):
     RUINS_PROGRESS = 0
 
 
-class AttackOffset(enum.IntEnum):
+class BtlActionOff(enum.IntEnum):
     FIGHT = 0
     ACT = 10
     ITEMS = 20
@@ -236,15 +250,15 @@ class Cutscene:
         self.wtr.write_uint16(frames)
         return self.instructions_address[-1]
 
-    def set_interact_action(self, target: Target, interact_action: str, cutscene_id=0):
-        self.write_header(CutsceneCommands.SET_INTERACT_ACTION)
+    def set_action(self, target: Target, action: str, cutscene_id=0):
+        self.write_header(CutsceneCommands.SET_ACTION)
         target.write(self.wtr)
-        interact_action = {
+        action = {
             "none": 0,
             "cutscene": 1
-        }[interact_action]
-        self.wtr.write_uint8(interact_action)
-        if interact_action == 1:
+        }[action]
+        self.wtr.write_uint8(action)
+        if action == 1:
             self.wtr.write_uint16(cutscene_id)
 
     # == DIALOGUE ==
@@ -303,20 +317,8 @@ class Cutscene:
         self.wtr.write_uint16(attack_pattern_id)
         return self.instructions_address[-1]
 
-    # TODO: Integrate into wait (?)
-    def wait_battle_action(self, text_id: int, act_pos: List[List[int]]):
-        self.write_header(CutsceneCommands.WAIT)
-        self.wtr.write_uint8(WaitTypes.BATTLE_ACTION)
-        self.wtr.write_uint8(text_id)
-        self.wtr.write_uint8(len(act_pos))
-        for act_action in act_pos:
-            self.wtr.write_uint16(act_action[0])
-            self.wtr.write_uint16(act_action[1])
-        return self.instructions_address[-1]
-
-    def cmp_battle_action(self, compare_action):
-        self.write_header(CutsceneCommands.CMP_BATTLE_ACTION)
-        self.wtr.write_uint8(compare_action)
+    def battle_action(self):
+        self.write_header(CutsceneCommands.BATTLE_ACTION)
         return self.instructions_address[-1]
 
     def check_hit(self):

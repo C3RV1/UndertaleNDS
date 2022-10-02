@@ -287,7 +287,7 @@ void loadNewRoom(int roomId, s32 spawnX, s32 spawnY) {
 
     globalRoom->free_();
 
-    for (int i = 220; i <= 229; i++) {
+    for (int i = 210; i <= 219; i++) {
         globalSave.flags[i] = 0; // clear room specific flags
     }
 

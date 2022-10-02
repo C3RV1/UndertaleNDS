@@ -1,8 +1,8 @@
 import typing
 if typing.TYPE_CHECKING:
-    from tools.CutsceneTypes import Cutscene, Target, TargetType, WaitTypes
+    from tools.CutsceneTypes import *
 else:
-    from CutsceneTypes import Cutscene, Target, TargetType, WaitTypes
+    from CutsceneTypes import *
 
 
 def cutscene(c: Cutscene):
@@ -12,4 +12,4 @@ def cutscene(c: Cutscene):
     c.wait(WaitTypes.FRAMES, 20)
     c.unload_sprite(0)
     c.unload_texture(0)
-    c.set_flag(0, 2)
+    c.set_flag(FlagOffsets.PROGRESS, 2)

@@ -116,7 +116,7 @@ class RoomSprite:
         self.y = 0
         self.layer = 0
         self.animation = ""
-        self.interact_action = 0
+        self.action = 0
         self.cutscene_id = 0
 
     def write(self, wtr: binary.BinaryWriter):
@@ -125,8 +125,8 @@ class RoomSprite:
         wtr.write_uint16(self.y)
         wtr.write_uint16(self.layer)
         wtr.write_string(self.animation, encoding="ascii")
-        wtr.write_uint8(self.interact_action)
-        if self.interact_action == 1:
+        wtr.write_uint8(self.action)
+        if self.action == 1:
             wtr.write_uint16(self.cutscene_id)
 
     @classmethod
@@ -137,11 +137,11 @@ class RoomSprite:
         res.y = dct["y"]
         res.layer = dct.get("layer", 1)
         res.animation = dct["animation"]
-        res.interact_action = {
+        res.action = {
             "none": 0,
             "cutscene": 1
-        }[dct.get("interact_action", "none")]
-        if res.interact_action == 1:
+        }[dct.get("action", "none")]
+        if res.action == 1:
             res.cutscene_id = dct["cutscene_id"]
         return res
 
@@ -192,7 +192,7 @@ class RoomCollider:
         res.h = dct["h"]
         res.collider_action = {
             "wall": 0,
-            "trigger": 1
+            "cutscene": 1
         }[dct.get("action", "wall")]
         res.enabled = dct.get("enabled", True)
         if res.collider_action == 1:
