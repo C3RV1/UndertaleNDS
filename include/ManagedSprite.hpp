@@ -2,8 +2,8 @@
 // Created by cervi on 28/08/2022.
 //
 
-#ifndef UNDERTALE_MANAGEDSPRITE_HPP
-#define UNDERTALE_MANAGEDSPRITE_HPP
+#ifndef UNDERTALE_MANAGED_SPRITE_HPP
+#define UNDERTALE_MANAGED_SPRITE_HPP
 
 class ManagedSprite;
 
@@ -27,4 +27,4 @@ private:
     int animationId = -1;
 };
 
-#endif //UNDERTALE_MANAGEDSPRITE_HPP
+#endif //UNDERTALE_MANAGED_SPRITE_HPP

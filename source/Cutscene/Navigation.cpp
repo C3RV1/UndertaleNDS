@@ -138,8 +138,8 @@ void Navigation::set_scale(u8 targetType, u8 targetId, s32 x, s32 y,
     Engine::Sprite* spriteManager = getTarget(targetType, targetId, callingLocation);
     if (spriteManager == nullptr)
         return;
-    spriteManager->wscale_x = x;
-    spriteManager->wscale_y = y;
+    spriteManager->w_scale_x = x;
+    spriteManager->w_scale_y = y;
 }
 
 void Navigation::set_shown(u8 targetType, u8 targetId, bool shown, CutsceneLocation callingLocation) {
@@ -195,8 +195,8 @@ void Navigation::scale_in_frames(u8 targetType, u8 targetId, s32 x, s32 y, u16 f
                                  CutsceneLocation callingLocation) {
     auto* navTask = new NavigationTask;
     navTask->target = getTarget(targetType, targetId, callingLocation);
-    navTask->startingX = navTask->target->wscale_x;
-    navTask->startingY = navTask->target->wscale_y;
+    navTask->startingX = navTask->target->w_scale_x;
+    navTask->startingY = navTask->target->w_scale_y;
     navTask->destX = x;
     navTask->destY = y;
     navTask->frames = frames;
@@ -238,8 +238,8 @@ bool Navigation::updateTask(int taskId) {
         target->wx = navTask->startingX + (xRun * navTask->currentFrames) / navTask->frames;
         target->wy = navTask->startingY + (yRun * navTask->currentFrames) / navTask->frames;
     } else if (navTask->taskType == SCALE) {
-        target->wscale_x = navTask->startingX + (xRun * navTask->currentFrames) / navTask->frames;
-        target->wscale_y = navTask->startingY + (yRun * navTask->currentFrames) / navTask->frames;
+        target->w_scale_x = navTask->startingX + (xRun * navTask->currentFrames) / navTask->frames;
+        target->w_scale_y = navTask->startingY + (yRun * navTask->currentFrames) / navTask->frames;
     }
     return false;
 }
@@ -272,7 +272,6 @@ Engine::Sprite* Navigation::getTarget(u8 targetType, u8 targetId,
                                              CutsceneLocation callingLocation) {
     if (callingLocation == ROOM || callingLocation == LOAD_ROOM) {
         if (targetType == PLAYER) {
-            nocashMessage("player");
             return &globalPlayer->spriteManager;
         } else if (targetType == CAMERA) {
             return &globalCamera.pos;

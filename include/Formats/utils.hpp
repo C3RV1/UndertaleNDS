@@ -8,6 +8,6 @@
 #include <stdio.h>
 #include "card.hpp"
 
-int strlen_file(FILE *f, char terminator);
+int str_len_file(FILE *f, char terminator);
 
 #endif //UNDERTALE_UTILS_HPP

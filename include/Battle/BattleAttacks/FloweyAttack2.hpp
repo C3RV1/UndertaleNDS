@@ -2,8 +2,8 @@
 // Created by cervi on 10/09/2022.
 //
 
-#ifndef UNDERTALE_FLOWEYATTACK2_HPP
-#define UNDERTALE_FLOWEYATTACK2_HPP
+#ifndef UNDERTALE_FLOWEY_ATTACK2_HPP
+#define UNDERTALE_FLOWEY_ATTACK2_HPP
 
 #include "Battle/BattleAttack.hpp"
 #include "Engine/Sprite.hpp"
@@ -29,4 +29,4 @@ namespace BtlAttacks {
     };
 }
 
-#endif //UNDERTALE_FLOWEYATTACK2_HPP
+#endif //UNDERTALE_FLOWEY_ATTACK2_HPP

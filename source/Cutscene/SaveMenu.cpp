@@ -46,7 +46,7 @@ void SaveMenu::drawInfo(SaveData& saveData, u8 color) {
     if (f) {
         delete[] roomName;
 
-        int len = strlen_file(f, '\n');
+        int len = str_len_file(f, '\n');
         roomName = new char[len + 1];
 
         fread(roomName, len, 1, f);

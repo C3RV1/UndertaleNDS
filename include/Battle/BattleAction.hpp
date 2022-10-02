@@ -2,8 +2,8 @@
 // Created by cervi on 02/10/2022.
 //
 
-#ifndef UNDERTALE_BATTLEACTION_HPP
-#define UNDERTALE_BATTLEACTION_HPP
+#ifndef UNDERTALE_BATTLE_ACTION_HPP
+#define UNDERTALE_BATTLE_ACTION_HPP
 
 #include "Engine/Font.hpp"
 #include "Battle/Enemy.hpp"
@@ -44,4 +44,4 @@ private:
     u8 chosenTarget = 0;
 };
 
-#endif //UNDERTALE_BATTLEACTION_HPP
+#endif //UNDERTALE_BATTLE_ACTION_HPP

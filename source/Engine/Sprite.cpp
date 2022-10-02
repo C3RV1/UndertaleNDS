@@ -17,8 +17,8 @@ namespace Engine {
             return;
         currentAnimation = animId;
         currentAnimationFrame = 0;
-        currentAnimationTimer = texture->getAnims()[animId].frames[0].duration;
-        currentFrame = texture->getAnims()[animId].frames[0].frame;
+        currentAnimationTimer = texture->getAnimations()[animId].frames[0].duration;
+        currentFrame = texture->getAnimations()[animId].frames[0].frame;
     }
 
     void Sprite::loadTexture(Engine::Texture &sprite_) {
@@ -39,7 +39,7 @@ namespace Engine {
         if (!loaded)
             return;
         if (currentAnimation >= 0) {
-            CSPRAnimation* current = &texture->getAnims()[currentAnimation];
+            CSPRAnimation* current = &texture->getAnimations()[currentAnimation];
             if (current->frames[currentAnimationFrame].duration != 0) {
                 currentAnimationTimer--;
                 if (currentAnimationTimer == 0) {
@@ -54,7 +54,7 @@ namespace Engine {
         x = wx - cam_x;
         y = wy - cam_y;
         if (currentAnimation >= 0) {
-            CSPRAnimation* current = &texture->getAnims()[currentAnimation];
+            CSPRAnimation* current = &texture->getAnimations()[currentAnimation];
             CSPRAnimFrame* frameInfo = &current->frames[currentAnimationFrame];
             x += frameInfo->drawOffX << 8;
             y += frameInfo->drawOffY << 8;
@@ -63,8 +63,8 @@ namespace Engine {
         x >>= 8;
         y *= cam_scale_y;
         y >>= 8;
-        scale_x = (cam_scale_x * wscale_x) >> 8;
-        scale_y = (cam_scale_y * wscale_y) >> 8;
+        scale_x = (cam_scale_x * w_scale_x) >> 8;
+        scale_y = (cam_scale_y * w_scale_y) >> 8;
     }
 
     void Sprite::setShown(bool shown_) {
@@ -92,7 +92,7 @@ namespace Engine {
         if (!loaded)
             return -1;
         for (int i = 0; i < texture->getAnimCount(); i++) {
-            if (strcmp(animName, texture->getAnims()[i].name) == 0) {
+            if (strcmp(animName, texture->getAnimations()[i].name) == 0) {
                 return i;
             }
         }

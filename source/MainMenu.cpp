@@ -10,7 +10,6 @@
 #include "Engine/Audio.hpp"
 #include "Save.hpp"
 #include "Formats/utils.hpp"
-#include "WriteName.hpp"
 #include <stdio.h>
 
 void runMainMenu() {
@@ -45,7 +44,7 @@ void runMainMenu() {
     sprintf(buffer, "nitro:/data/rooms/names/%d.txt", globalSave.lastSavedRoom);
     FILE* f = fopen(buffer, "rb");
     if (f) {
-        int len = strlen_file(f, '\n');
+        int len = str_len_file(f, '\n');
         roomName = new char[len + 1];
         fread(roomName, len, 1, f);
         roomName[len] = 0;
@@ -57,12 +56,12 @@ void runMainMenu() {
 
     f = fopen("nitro:/data/main_menu.txt", "rb");
     if (f) {
-        int len = strlen_file(f, '\n');
+        int len = str_len_file(f, '\n');
         continueText = new char[len + 1];
         fread(continueText, len + 1, 1, f);
         continueText[len] = 0;
 
-        len = strlen_file(f, '\n');
+        len = str_len_file(f, '\n');
         resetText = new char[len + 1];
         fread(resetText, len + 1, 1, f);
         resetText[len] = 0;

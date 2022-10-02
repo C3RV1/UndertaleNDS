@@ -2,8 +2,8 @@
 // Created by cervi on 30/08/2022.
 //
 
-#ifndef UNDERTALE_CUTSCENEENUMS_HPP
-#define UNDERTALE_CUTSCENEENUMS_HPP
+#ifndef UNDERTALE_CUTSCENE_ENUMS_HPP
+#define UNDERTALE_CUTSCENE_ENUMS_HPP
 
 enum CutsceneCommands {
     CMD_LOAD_SPRITE = 0,
@@ -66,4 +66,4 @@ enum WaitingType {
     WAIT_BATTLE_ACTION  // Not supported for now
 };
 
-#endif //UNDERTALE_CUTSCENEENUMS_HPP
+#endif //UNDERTALE_CUTSCENE_ENUMS_HPP

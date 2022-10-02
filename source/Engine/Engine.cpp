@@ -55,7 +55,7 @@ namespace Engine {
         GFX_CONTROL |= 1 | (1 << 3);
         glClearDepth( GL_MAX_DEPTH );
         glViewport(0, 0, 255, 191);
-        glMatrixMode( GL_PROJECTION );     // set matrixmode to projection
+        glMatrixMode( GL_PROJECTION );     // set matrix mode to projection
         glLoadIdentity();				 // reset
         glOrthof32( 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, -1 << 12, 1 << 12 );  // downscale projection matrix
         return 0;

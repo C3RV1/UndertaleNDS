@@ -19,6 +19,7 @@ namespace Engine {
         int loadCFNT(FILE* f);
         bool getLoaded() const { return loaded; }
         CFNTGlyph* getGlyph(int glyphIdx) const { return &glyphs.glyphs[glyphIdx - 1]; }
+        u8 getGlyphWidth(u8 glyph);
         u8* getGlyphMap() { return glyphMap.glyphMap; }
         void free_();
         ~Font() { free_(); }
@@ -43,7 +44,6 @@ namespace Engine {
             paletteRam[16 * 15 + 15] = (31 << 10) + (31 << 5) + 31;  // full white color
         }
         void drawGlyph(Font& font, u8 glyph, int &x, int y);
-        static u8 getGlyphWidth(Font& font, u8 glyph);
         void reloadColors();
         void setPaletteColor256(int colorIdx, int r, int g, int b, bool color8bit);
         void setCurrentColor(int colorIdx) { paletteColor = colorIdx; }

@@ -73,7 +73,7 @@ namespace Audio {
 
     extern WAV currentBGMusic;
 
-    extern WAV* playingWavs;
+    extern WAV* playingWavHead;
 }
 
 #endif //UNDERTALE_AUDIO_HPP

@@ -1,13 +1,13 @@
 //
-// Created by cervi on 23/08/2022.
+// Created by Cervi on 23/08/2022.
 //
 #include "Engine/Audio.hpp"
-#include <errno.h>
+#include "DEBUG_FLAGS.hpp"
 
 namespace Audio {
     WAV currentBGMusic;
 
-    WAV* playingWavs = nullptr;
+    WAV* playingWavHead = nullptr;
 
     int WAV::loadWAV(const char *name) {
         free_();
@@ -122,27 +122,31 @@ namespace Audio {
         co = 44100;
         maxValueIdx = WAVBuffer;
         cValueIdx = WAVBuffer;
-        nextWav = playingWavs;
-        if (playingWavs != nullptr)
-            playingWavs->prevWav = this;
-        playingWavs = this;
+        nextWav = playingWavHead;
+        if (playingWavHead != nullptr)
+            playingWavHead->prevWav = this;
+        playingWavHead = this;
+#ifdef DEBUG_AUDIO
         char buffer[100];
         sprintf(buffer, "Starting wav: %s stereo %d sample rate %d", getFilename(),
                 getStereo(), getSampleRate());
         nocashMessage(buffer);
+#endif
     }
 
     void WAV::stop() {
         if (!active)
             return;
+#ifdef DEBUG_AUDIO
         char buffer[100];
         sprintf(buffer, "Stopping wav: %s", getFilename());
         nocashMessage(buffer);
+#endif
         active = false;
         if (prevWav != nullptr)
             prevWav->nextWav = nextWav;
         else
-            playingWavs = nextWav;
+            playingWavHead = nextWav;
         if (nextWav != nullptr)
             nextWav->prevWav = prevWav;
         if (deleteOnStop) {
@@ -152,7 +156,7 @@ namespace Audio {
     }
 
     mm_word fillAudioStream(mm_word length, mm_addr dest, mm_stream_formats format) {
-        WAV* current = playingWavs;
+        WAV* current = playingWavHead;
         memset(dest, 0, 4 * length);
         while (current != nullptr) {
             WAV* next = current->nextWav;
@@ -164,7 +168,7 @@ namespace Audio {
         return length;
     }
 
-    bool fillAudioStreamWav(WAV* wav, mm_word length, u16* dest, mm_stream_formats format) {
+    bool fillAudioStreamWav(WAV* wav, mm_word length, u16* dest, mm_stream_formats) {
         if (wav == nullptr)
             return true;
         if (!wav->active)
@@ -172,23 +176,25 @@ namespace Audio {
         if (!wav->getLoaded())
             return true;
         FILE* stream = wav->getStream();
-        // do not convert bit depth for now
+        // TODO: convert bit depth
         if (wav->getBitsPerSample() != 16)
             return true;
         // convert channels & sample rate
         u32 dstI = 0;
-        s32 addition;
+        // TODO: s32 addition; to clip
 
         while (dstI < length) {
             while (wav->co >= 44100) {
                 wav->cValueIdx += 1;
                 if (wav->cValueIdx >= wav->maxValueIdx) {
-                    if (ftell(stream) >= wav->getDataEnd()) {
+                    if ((u32)ftell(stream) >= wav->getDataEnd()) {
                         if (wav->getLoops() != 0) {
                             if (wav->getLoops() > 0)
                                 wav->setLoops(wav->getLoops() - 1);
                             fseek(stream, wav->getDataStart(), SEEK_SET);
+#ifdef DEBUG_AUDIO
                             nocashMessage("looping");
+#endif
                         }
                         else {
                             return true;

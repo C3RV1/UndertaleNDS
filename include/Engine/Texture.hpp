@@ -17,7 +17,7 @@ namespace Engine {
         u16* getColors() const { return colors; }
         u8 getFrameCount() const { return frameCount; }
         u8 getAnimCount() const { return animationCount; }
-        CSPRAnimation* getAnims() const { return animations;  }
+        CSPRAnimation* getAnimations() const { return animations;  }
         void getSizeTiles(u8& tileWidth_, u8& tileHeight_) const {
             tileWidth_ = (width + 7) / 8;
             tileHeight_ = (height + 7) / 8;

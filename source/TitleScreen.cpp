@@ -73,7 +73,7 @@ void runTitleScreen() {
         int textTimer = letterFrames;
 
         if (textStream) {
-            int textLen = strlen_file(textStream, '@');
+            int textLen = str_len_file(textStream, '@');
             fread(textBuffer, textLen + 2, 1, textStream);  // read @\n characters
             textBuffer[textLen] = '\0'; // replace @ terminator with 0 byte
         } else {
@@ -160,7 +160,7 @@ void runTitleScreen() {
     Engine::loadBgTextMain(currentBackground);
 
     timer = introLogoFrames;
-    int textLen = strlen_file(textStream, '@');
+    int textLen = str_len_file(textStream, '@');
     fread(textBuffer, textLen + 2, 1, textStream);
     textBuffer[textLen] = '\0';
     while (!skip) {

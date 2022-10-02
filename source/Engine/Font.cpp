@@ -175,14 +175,11 @@ namespace Engine {
         x = endX;
     }
 
-    u8 TextBGManager::getGlyphWidth(Font& font, u8 glyph) {
-        if (!font.getLoaded())
-            return 0;
-
-        u8 glyphIdx = font.getGlyphMap()[glyph];
+    u8 Font::getGlyphWidth(u8 glyph) {
+        u8 glyphIdx = getGlyphMap()[glyph];
         if (glyphIdx == 0)
             return 0;
-        CFNTGlyph* glyphObj = font.getGlyph(glyphIdx);
+        CFNTGlyph* glyphObj = getGlyph(glyphIdx);
         return glyphObj->shift;
     }
 

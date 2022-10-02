@@ -2,8 +2,8 @@
 // Created by cervi on 02/09/2022.
 //
 
-#ifndef UNDERTALE_BATTLEATTACK_HPP
-#define UNDERTALE_BATTLEATTACK_HPP
+#ifndef UNDERTALE_BATTLE_ATTACK_HPP
+#define UNDERTALE_BATTLE_ATTACK_HPP
 
 #define ARM9
 #include <nds.h>
@@ -16,4 +16,4 @@ public:
 
 BattleAttack* getBattleAttack(u16 attackId);
 
-#endif //UNDERTALE_BATTLEATTACK_HPP
+#endif //UNDERTALE_BATTLE_ATTACK_HPP

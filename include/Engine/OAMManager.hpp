@@ -2,8 +2,8 @@
 // Created by cervi on 20/08/2022.
 //
 
-#ifndef UNDERTALE_OAMMANAGER_HPP
-#define UNDERTALE_OAMMANAGER_HPP
+#ifndef UNDERTALE_OAM_MANAGER_HPP
+#define UNDERTALE_OAM_MANAGER_HPP
 
 #define ARM9
 #include <nds.h>
@@ -66,4 +66,4 @@ namespace Engine {
     extern u8 tmpRam[64*64];
 }
 
-#endif //UNDERTALE_OAMMANAGER_HPP
+#endif //UNDERTALE_OAM_MANAGER_HPP

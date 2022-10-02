@@ -12,10 +12,6 @@
 #include <nds.h>
 
 namespace Engine {
-    struct Tile {
-        u8* tileData = nullptr;
-    };
-
     class Background {
     public:
         bool loadPath(const char* path);

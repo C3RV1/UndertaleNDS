@@ -1,5 +1,6 @@
 #include "Engine/OAMManager.hpp"
 #include "Engine/Texture.hpp"
+#include "DEBUG_FLAGS.hpp"
 
 namespace Engine {
     u8 tmpRam[64*64];
@@ -160,7 +161,7 @@ namespace Engine {
             }
         }
         if (oamId == -1) {
-            nocashMessage("-1");
+            nocashMessage("Oam full");
             return -1;
         }
         oamEntry->free_ = false;
@@ -181,7 +182,7 @@ namespace Engine {
         }
         if (freeZoneIdx >= tileFreeZoneCount) {
             char buffer[100];
-            sprintf(buffer, "-2 start %d length %d needed %d",
+            sprintf(buffer, "2d alloc error start %d length %d needed %d",
                     start, length, neededTiles);
             nocashMessage(buffer);
             return -2;
@@ -207,7 +208,9 @@ namespace Engine {
         }
 
         oamEntry->tileStart = start;
-        // dumpOamState();
+#ifdef DEBUG_SPRITES
+        dumpOamState();
+#endif
 
         return oamId;
     }
@@ -227,6 +230,13 @@ namespace Engine {
         u16 start = oamEntry->tileStart;
         u16 length = oamEntry->tileWidth * oamEntry->tileHeight;
 
+#ifdef DEBUG_SPRITES
+        char buffer[100];
+        sprintf(buffer, "2dfree start %d length %d oamId %d",
+                start, length, oamId);
+        nocashMessage(buffer);
+#endif
+
         int freeAfterIdx = 0;
         for (; freeAfterIdx < tileFreeZoneCount; freeAfterIdx++) {
             if (tileFreeZones[freeAfterIdx * 2] > start) {
@@ -243,7 +253,6 @@ namespace Engine {
 
         if (mergePost && mergePrev)
         {
-            nocashMessage("merge both");
             tileFreeZoneCount--;
             auto* newFreeZones = new u16[2 * tileFreeZoneCount];
             memcpy(newFreeZones, tileFreeZones, freeAfterIdx * 4);
@@ -256,18 +265,15 @@ namespace Engine {
         }
         else if (mergePrev)
         {
-            nocashMessage("merge prev");
             tileFreeZones[(freeAfterIdx - 1) * 2 + 1] += length;
         }
         else if (mergePost)
         {
-            nocashMessage("merge post");
             tileFreeZones[freeAfterIdx * 2] -= length;
             tileFreeZones[freeAfterIdx * 2 + 1] += length;
         }
         else
         {
-            nocashMessage("no merge");
             tileFreeZoneCount++;
             auto* newFreeZones = new u16[2 * tileFreeZoneCount];
             memcpy(newFreeZones, tileFreeZones, freeAfterIdx * 4);
@@ -279,7 +285,9 @@ namespace Engine {
             delete[] tileFreeZones;
             tileFreeZones = newFreeZones;
         }
-        // dumpOamState();
+#ifdef DEBUG_SPRITES
+        dumpOamState();
+#endif
     }
 
     void OAMManager::dumpOamState() {
@@ -290,7 +298,9 @@ namespace Engine {
             nocashMessage(buffer);
         }
         for (int i = 0; i < 128; i++) {
-            sprintf(buffer, "OAM %d free %d start %d w %d h %d", i, oamEntries[i].free_,
+            if (oamEntries[i].free_)
+                continue;
+            sprintf(buffer, "OAM %d start %d w %d h %d", i,
                     oamEntries[i].tileStart, oamEntries[i].tileWidth, oamEntries[i].tileHeight);
             nocashMessage(buffer);
         }
@@ -300,6 +310,8 @@ namespace Engine {
         if (spr.memory.allocated != AllocatedOAM)
             return;
         int sprIdx = -1;
+        if (activeSprites == nullptr)
+            return;
         for (int i = 0; i < activeSpriteCount; i++) {
             if (&spr == activeSprites[i]) {
                 sprIdx = i;
@@ -340,6 +352,8 @@ namespace Engine {
     }
 
     void OAMManager::draw() {
+        if (activeSprites == nullptr)
+            return;
         for (int i = 0; i < activeSpriteCount; i++) {
             Sprite* spr = activeSprites[i];
 

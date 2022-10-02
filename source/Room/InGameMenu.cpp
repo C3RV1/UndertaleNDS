@@ -107,7 +107,7 @@ void InGameMenu::show(bool update) {
 
                 sprintf(buffer, "nitro:/data/items/name%d.txt", item);
                 FILE* f = fopen(buffer, "rb");
-                int len = strlen_file(f, '\n');
+                int len = str_len_file(f, '\n');
                 fread(buffer, len + 1, 1, f);
                 fclose(f);
                 x = itemsX;
@@ -129,7 +129,7 @@ void InGameMenu::show(bool update) {
             int item = globalSave.items[itemIdx];
             sprintf(buffer, "nitro:/data/items/desc%d.txt", item);
             FILE* f = fopen(buffer, "rb");
-            int len = strlen_file(f, '\0');
+            int len = str_len_file(f, '\0');
             fread(buffer, len + 1, 1, f);
             buffer[len] = '\0';
             fclose(f);

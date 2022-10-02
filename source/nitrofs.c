@@ -21,7 +21,7 @@ static int nitroFSDirNext(struct _reent *r, DIR_ITER *dirState, char *filename, 
 static int nitroFSDirClose(struct _reent *r, DIR_ITER *dirState);
 static int nitroFSOpen(struct _reent *r, void *fileStruct, const char *path,int flags,int mode);
 static int nitroFSClose(struct _reent *r,void *fd);
-static int nitroFSRead(struct _reent *r,void *fd,char *ptr,size_t len);
+static ssize_t nitroFSRead(struct _reent *r,void *fd,char *ptr,size_t len);
 static off_t nitroFSSeek(struct _reent *r,void *fd,off_t pos,int dir);
 static int nitroFSFstat(struct _reent *r,void *fd,struct stat *st);
 static int nitroFSstat(struct _reent *r,const char *file,struct stat *st);
@@ -51,20 +51,20 @@ struct ROM_FAT {
 };
 
 struct nitroFSStruct {
-	unsigned int	pos;	//where in the file am i?
+	unsigned int	pos;	//where in the file am I?
 	unsigned int 	start;	//where in the rom this file starts
 	unsigned int 	end;	//where in the rom this file ends
 };
 
 struct nitroDIRStruct {
-	unsigned int	pos;		//where in the file am i?
+	unsigned int	pos;		//where in the file am I?
 	unsigned int 	namepos;	//ptr to next name to lookup in list
 	struct ROM_FAT  romfat;
 	u16		entry_id;			//which entry this is (for files only) incremented with each new file in dir?
 	u16		dir_id;				//which directory entry this is
 	u16		cur_dir_id;			//which directory entry we are using
 	u16		parent_id;			//who is the parent of the current directory
-	u8		spc;				//system path count.. used by dirnext, when 0=./ 1=../ >=2 actual dirs
+	u8		spc;				//system path count .. used by dirnext, when 0=./ 1=../ >=2 actual dirs
 };
 
 //Globals!
@@ -104,7 +104,7 @@ devoptab_t nitroFSdevoptab={
 };
 
 //---------------------------------------------------------------------------------
-bool nitroFSInit(char **basepath) {
+bool nitroFSInit(char **base_path) {
 //---------------------------------------------------------------------------------
 
 	bool nitroInit = false;
@@ -156,8 +156,8 @@ bool nitroFSInit(char **basepath) {
 		chdir(nitropath);
 	}
 
-	if (basepath != NULL) {
-		*basepath = nitropath;
+	if (base_path != NULL) {
+		*base_path = nitropath;
 	} else {
 		free(nitropath);
 	}
@@ -181,10 +181,10 @@ static void nitroSubReadBlock(u32 pos, u8 *ptr, u32 len) {
 }
 
 //---------------------------------------------------------------------------------
-static int nitroSubReadCard(unsigned int *npos, void *ptr, int len) {
+static ssize_t nitroSubReadCard(unsigned int *npos, void *ptr, ssize_t len) {
 //---------------------------------------------------------------------------------
 	u8 *ptr_u8 = (u8*)ptr;
-	int remaining = len;
+	ssize_t remaining = len;
 
 	if((*npos) & 0x1FF) {
 
@@ -213,7 +213,7 @@ static int nitroSubReadCard(unsigned int *npos, void *ptr, int len) {
 }
 
 //---------------------------------------------------------------------------------
-static inline int nitroSubRead(unsigned int *npos, void *ptr, int len) {
+static inline ssize_t nitroSubRead(unsigned int *npos, void *ptr, ssize_t len) {
 //---------------------------------------------------------------------------------
 	if(cardRead) {
 		unsigned int tmpPos = *npos;
@@ -292,7 +292,7 @@ static DIR_ITER* nitroFSDirOpen(struct _reent *r, DIR_ITER *dirState, const char
 
 		while(nitroFSDirNext(r,dirState,dirname,&st)==0) {
 
-			if(S_ISDIR(st.st_mode) && !(strcasecmp(dirname,dirpath))) { //if its a directory and name matches dirpath
+			if(S_ISDIR(st.st_mode) && !(strcasecmp(dirname,dirpath))) { //if it's a directory and name matches dirpath
 				dirStruct->cur_dir_id=dirStruct->dir_id;  //move us to the next dir in tree
 				nitroDirReset(r,dirState);		//set dir to current path we just found...
 				pathfound=true;
@@ -358,7 +358,7 @@ static int nitroFSDirNext(struct _reent *r, DIR_ITER *dirState, char *filename, 
 	}
 	nitroSubSeek(pos,fntOffset+dirStruct->namepos,SEEK_SET);
 	nitroSubRead(pos, &next , sizeof(next));
-	// next: high bit 0x80 = entry isdir.. other 7 bits are size, the 16 bits following name are dir's entryid (starts with f000)
+	// next: high bit 0x80 = entry isdir .. other 7 bits are size, the 16 bits following name are dir's entryid (starts with f000)
 	//  00 = end of table //
 	if(next) {
 		if(next&NITROISDIR) {
@@ -393,7 +393,7 @@ static int nitroFSOpen(struct _reent *r, void *fileStruct, const char *path,int 
 	dirState.dirStruct=&dirStruct;	//create a temp dirstruct
 	struct _reent dre;
 	struct stat st;		//all these are just used for reading the dir ~_~
-	char dirfilename[NITROMAXPATHLEN]; // to hold a full path (i tried to avoid using so much stack but blah :/)
+	char dirfilename[NITROMAXPATHLEN]; // to hold a full path (I tried to avoid using so much stack but blah :/)
 	char *filename; // to hold filename
 	char *cptr;	//used to string searching and manipulation
 	cptr=(char*)path+strlen(path);	//find the end...
@@ -446,12 +446,12 @@ static int nitroFSClose(struct _reent *r,void *fd) {
 }
 
 //---------------------------------------------------------------------------------
-static int nitroFSRead(struct _reent *r,void *fd,char *ptr,size_t len) {
+static ssize_t nitroFSRead(struct _reent *r,void *fd,char *ptr,size_t len) {
 //---------------------------------------------------------------------------------
 	struct nitroFSStruct *fatStruct=(struct nitroFSStruct *)fd;
 	unsigned int *npos=&fatStruct->pos;
 	if(*npos+len > fatStruct->end)
-		len=fatStruct->end-*npos;	//dont read past the end
+		len=fatStruct->end-*npos;	//don't read past the end
 	if(*npos > fatStruct->end)
 		return(0);	//hit eof
 	return(nitroSubRead(npos,ptr,len));
@@ -468,7 +468,7 @@ static off_t nitroFSSeek(struct _reent *r,void *fd,off_t pos,int dir) {
 	else if(dir==SEEK_END)
 		pos+=fatStruct->end;	// set start to end of file
 	if(pos > fatStruct->end)
-		return(-1);				// dont read past the end
+		return(-1);				// don't read past the end
 	nitroSubSeek(npos,pos,dir);
 	return(*npos-fatStruct->start);
 }

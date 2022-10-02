@@ -71,7 +71,7 @@ namespace Engine {
         fread(&animationCount, 1, 1, f);
         animations = new CSPRAnimation[animationCount];
         for (int i = 0; i < animationCount; i++) {
-            int nameLen = strlen_file(f, 0);
+            int nameLen = str_len_file(f, 0);
             animations[i].name = new char[nameLen + 1];
             fread(animations[i].name, nameLen + 1, 1, f);
             fread(&animations[i].frameCount, 1, 1, f);
@@ -100,13 +100,15 @@ namespace Engine {
         colors = nullptr;
         delete[] tiles;
         tiles = nullptr;
-        for (int i = 0; i < animationCount; i++) {
-            delete[] animations[i].name;
-            animations[i].name = nullptr;
-            delete[] animations[i].frames;
-            animations[i].frames = nullptr;
+        if (animations != nullptr) {
+            for (int i = 0; i < animationCount; i++) {
+                delete[] animations[i].name;
+                animations[i].name = nullptr;
+                delete[] animations[i].frames;
+                animations[i].frames = nullptr;
+            }
+            delete[] animations;
         }
-        delete[] animations;
         animations = nullptr;
     }
 }

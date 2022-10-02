@@ -5,7 +5,6 @@
 #include "Battle/Battle.hpp"
 #include "Room/Room.hpp"
 #include "Engine/Engine.hpp"
-#include "Cutscene/Dialogue.hpp"
 #include "Room/Player.hpp"
 #include "Cutscene/Cutscene.hpp"
 #include "Room/Camera.hpp"
@@ -39,7 +38,7 @@ void Battle::loadFromStream(FILE *stream) {
         sprintf(buffer, "nitro:/data/enemies/name%d.txt", enemies[i].enemyId);
         FILE* enemyNameFile = fopen(buffer, "rb");
         if (enemyNameFile) {
-            int len = strlen_file(enemyNameFile, '\n');
+            int len = str_len_file(enemyNameFile, '\n');
             fread(enemies[i].enemyName, len + 1, 1, stream);
             enemies[i].enemyName[len] = '\0';
         }
@@ -52,7 +51,7 @@ void Battle::loadFromStream(FILE *stream) {
         sprintf(buffer, "nitro:/data/battle_act_txt/%d.txt", actTextId);
         FILE* actTextFile = fopen(buffer, "rb");
         if (actTextFile) {
-            int len = strlen_file(enemyNameFile, '@');
+            int len = str_len_file(enemyNameFile, '@');
             delete[] enemies[i].actText;
             enemies[i].actText = new char[len + 1];
             fread(enemies[i].actText, len + 1, 1, stream);

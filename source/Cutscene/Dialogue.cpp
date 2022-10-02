@@ -116,7 +116,7 @@ u16 Dialogue::getLineWidth(int linePos_) {
             pLine += 1;
             continue;
         }
-        lineWidth_ += Engine::textSub.getGlyphWidth(font, *pLine);
+        lineWidth_ += font.getGlyphWidth(*pLine);
         lineWidth_++;
     }
     return lineWidth_ - 1;
@@ -125,7 +125,7 @@ u16 Dialogue::getLineWidth(int linePos_) {
 void Dialogue::getLine() {
     if (textStream == nullptr)
         return;
-    lineLen = strlen_file(textStream, '\n');
+    lineLen = str_len_file(textStream, '\n');
     fread(line, lineLen + 1, 1, textStream);
 }
 
@@ -298,26 +298,26 @@ void Dialogue::progressTextBattle(bool clear, bool draw) {
         else if (currentChar == 'w')
             Engine::textSub.setCurrentColor(15);
         else if (currentChar == 'a') {
-            int len = strlen_file(textStream, ' ');
+            int len = str_len_file(textStream, ' ');
             char buffer[30];
             fread(buffer, len + 1, 1, textStream);
             linePos += len + 1;
             buffer[len] = '\0';
             idleAnim = speakerManager.nameToAnimId(buffer);
-            len = strlen_file(textStream, ' ');
+            len = str_len_file(textStream, ' ');
             fread(buffer, len + 1, 1, textStream);
             buffer[len] = '\0';
             talkAnim = speakerManager.nameToAnimId(buffer);
         }
         else if (currentChar == 'b') {
-            int len = strlen_file(textStream, ' ');
+            int len = str_len_file(textStream, ' ');
             char buffer[30];
             fread(buffer, len + 1, 1, textStream);
             linePos += len + 1;
             buffer[len] = '\0';
             if (target != nullptr)
                 idleAnim2 = target->nameToAnimId(buffer);
-            len = strlen_file(textStream, ' ');
+            len = str_len_file(textStream, ' ');
             fread(buffer, len + 1, 1, textStream);
             buffer[len] = '\0';
             if (target != nullptr)

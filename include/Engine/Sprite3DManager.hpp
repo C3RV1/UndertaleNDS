@@ -2,8 +2,8 @@
 // Created by cervi on 25/08/2022.
 //
 
-#ifndef UNDERTALE_SPRITE3DMANAGER_HPP
-#define UNDERTALE_SPRITE3DMANAGER_HPP
+#ifndef UNDERTALE_SPRITE_3D_MANAGER_HPP
+#define UNDERTALE_SPRITE_3D_MANAGER_HPP
 
 #include "Sprite.hpp"
 #define ARM9
@@ -42,4 +42,4 @@ namespace Engine {
     extern Sprite3DManager main3dSpr;
 }
 
-#endif //UNDERTALE_SPRITE3DMANAGER_HPP
+#endif //UNDERTALE_SPRITE_3D_MANAGER_HPP

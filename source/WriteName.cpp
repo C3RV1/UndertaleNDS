@@ -64,22 +64,22 @@ void runWriteNameMenu() {
     }
 
     char confirmText[100];
-    int len = strlen_file(textStream, '\n');
+    int len = str_len_file(textStream, '\n');
     fread(confirmText, len + 1, 1, textStream);
     confirmText[len] = '\0';
 
     char confirmText2[100];
-    len = strlen_file(textStream, '\n');
+    len = str_len_file(textStream, '\n');
     fread(confirmText2, len + 1, 1, textStream);
     confirmText2[len] = '\0';
 
     char confirmText3[100];
-    len = strlen_file(textStream, '\n');
+    len = str_len_file(textStream, '\n');
     fread(confirmText3, len + 1, 1, textStream);
     confirmText3[len] = '\0';
 
     char confirmText4[100];
-    len = strlen_file(textStream, '\n');
+    len = str_len_file(textStream, '\n');
     fread(confirmText4, len + 1, 1, textStream);
     confirmText4[len] = '\0';
 
@@ -116,7 +116,7 @@ void runWriteNameMenu() {
             Engine::textSub.drawGlyph(mainFont, c, x, y);
         }
 
-        // get char rutine
+        // get char loop
         for (;;) {
             Engine::tick();
             bool changed = false;

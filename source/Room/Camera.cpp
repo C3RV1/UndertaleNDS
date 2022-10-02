@@ -38,10 +38,10 @@ void Camera::updatePosition(bool roomChange) {
         Engine::bg3ScrollX = mod(pos.wx, 512 << 8);
         Engine::bg3ScrollY = mod(pos.wy, 512 << 8);
     }
-    Engine::bg3Pa = (1 << 16) / pos.wscale_x;
+    Engine::bg3Pa = (1 << 16) / pos.w_scale_x;
     Engine::bg3Pb = 0;
     Engine::bg3Pc = 0;
-    Engine::bg3Pd = (1 << 16) / pos.wscale_y;
+    Engine::bg3Pd = (1 << 16) / pos.w_scale_y;
     int xTilePost = (pos.wx >> 8) / 8, yTilePost = (pos.wy >> 8) / 8;
     if ((xTilePrev != xTilePost || yTilePrev != yTilePost) && !roomChange) {
         int incrementX = xTilePost > xTilePrev ? 1 : -1;

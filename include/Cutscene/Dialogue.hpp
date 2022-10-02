@@ -35,7 +35,6 @@ private:
     bool isRoom;
     u16 linePos = 0;
     u16 lineLen = 0;
-    u16 lineWidth = 0;
     u16 textLen = 0;
     const u16 lineSpacing = 20;
 

@@ -24,17 +24,18 @@ namespace Engine {
 
     struct SpriteInternalMemory {
         AllocationMode allocated = NoAlloc;
+
+        // OAM
         u8 oamEntryCount = 0;
         u8 oamScaleIdx = 0xff;  // all oam entries can share scale
-        union {
-            u16 * tileStart = nullptr;
-            u8 * oamEntries;
-        };
+        u8 * oamEntries;
+        u8 *paletteColors = nullptr;
+
+        // 3D
+        u16 * tileStart = nullptr;
         u16 allocX = 0, allocY = 0;
-        union {
-            u8 *paletteColors = nullptr;
-            u8 paletteIdx;
-        };
+        u8 paletteIdx;
+
         int loadedFrame = -1;
         bool loadedIntoMemory = false;
     };
@@ -55,7 +56,7 @@ namespace Engine {
         Texture* texture = nullptr;
 
         s32 wx = 0, wy = 0;  // 1 bit sign, 22 bit integer, 8 bit fraction, world
-        s32 wscale_x = 1 << 8, wscale_y = 1 << 8;
+        s32 w_scale_x = 1 << 8, w_scale_y = 1 << 8;
         s32 cam_x = 0, cam_y = 0;
         s32 cam_scale_x = 1 << 8, cam_scale_y = 1 << 8;
         s32 layer = 0;

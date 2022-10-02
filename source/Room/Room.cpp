@@ -97,14 +97,14 @@ int Room::loadRoom(FILE *f) {
     if (!valid)  // no valid room part found
         return 4;
 
-    int bgPathLen = strlen_file(f, 0);
+    int bgPathLen = str_len_file(f, 0);
     if (bgPathLen == -1)
         return 5;
 
     fread(roomData.roomBg, bgPathLen + 1, 1, f);
     roomData.roomBg[bgPathLen] = 0;
 
-    int musicPathLen = strlen_file(f, 0);
+    int musicPathLen = str_len_file(f, 0);
     if (musicPathLen == -1)
         return 5;
 
@@ -169,7 +169,7 @@ int Room::loadRoom(FILE *f) {
     for (int i = 0; i < textureCount; i++){
         textures[i] = new Engine::Texture;
 
-        int sprPathLen = strlen_file(f, 0);
+        int sprPathLen = str_len_file(f, 0);
         if (sprPathLen == -1)
             return 5;
         fread(path, sprPathLen + 1, 1, f);
@@ -186,7 +186,7 @@ int Room::loadRoom(FILE *f) {
         fread(&roomSprites[i].x, 2, 1, f);
         fread(&roomSprites[i].y, 2, 1, f);
         fread(&roomSprites[i].layer, 2, 1, f);
-        int animLen = strlen_file(f, 0);
+        int animLen = str_len_file(f, 0);
         if (animLen == -1)
             return 5;
         roomSprites[i].animation = new char[animLen + 1];

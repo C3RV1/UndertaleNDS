@@ -2,8 +2,8 @@
 // Created by cervi on 28/09/2022.
 //
 
-#ifndef UNDERTALE_SAVEMENU_HPP
-#define UNDERTALE_SAVEMENU_HPP
+#ifndef UNDERTALE_SAVE_MENU_HPP
+#define UNDERTALE_SAVE_MENU_HPP
 
 #define ARM9
 #include <nds.h>
@@ -37,4 +37,4 @@ private:
     Engine::Background saveMenuBg;
 };
 
-#endif //UNDERTALE_SAVEMENU_HPP
+#endif //UNDERTALE_SAVE_MENU_HPP

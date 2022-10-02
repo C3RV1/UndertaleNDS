@@ -1,10 +1,6 @@
-/*
- *  main.cpp
- *
- *  Created by Jaeden Amero on 11/12/07.
- *  Copyright 2007. All rights reserved.
- *
- */
+//
+// Created by cervi on 24/08/2022.
+//
 
 #define ARM9
 #include "Engine/Engine.hpp"

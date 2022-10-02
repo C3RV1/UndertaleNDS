@@ -2,8 +2,8 @@
 // Created by cervi on 08/09/2022.
 //
 
-#ifndef UNDERTALE_MOVEMENTTUTORIAL_HPP
-#define UNDERTALE_MOVEMENTTUTORIAL_HPP
+#ifndef UNDERTALE_MOVEMENT_TUTORIAL_HPP
+#define UNDERTALE_MOVEMENT_TUTORIAL_HPP
 
 #include "Battle/BattleAttack.hpp"
 #include "Engine/Sprite.hpp"
@@ -21,4 +21,4 @@ namespace BtlAttacks {
     };
 }
 
-#endif //UNDERTALE_MOVEMENTTUTORIAL_HPP
+#endif //UNDERTALE_MOVEMENT_TUTORIAL_HPP

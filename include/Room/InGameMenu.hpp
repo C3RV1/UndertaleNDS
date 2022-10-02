@@ -2,8 +2,8 @@
 // Created by cervi on 01/09/2022.
 //
 
-#ifndef UNDERTALE_INGAMEMENU_HPP
-#define UNDERTALE_INGAMEMENU_HPP
+#ifndef UNDERTALE_INGAME_MENU_HPP
+#define UNDERTALE_INGAME_MENU_HPP
 
 #include "Engine/Sprite.hpp"
 #include "Engine/Font.hpp"
@@ -53,4 +53,4 @@ private:
 
 extern InGameMenu globalInGameMenu;
 
-#endif //UNDERTALE_INGAMEMENU_HPP
+#endif //UNDERTALE_INGAME_MENU_HPP

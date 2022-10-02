@@ -1,6 +1,6 @@
 #include "Formats/utils.hpp"
 
-int strlen_file(FILE *f, char terminator) {
+int str_len_file(FILE *f, char terminator) {
     if (f == nullptr)
         return -1;
     long pos = ftell(f);

@@ -4,6 +4,7 @@
 
 #include "Sprite3DManager.hpp"
 #include "Texture.hpp"
+#include "DEBUG_FLAGS.hpp"
 
 int getOnesInBin(int x) {
     int count = 0;
@@ -85,7 +86,7 @@ namespace Engine {
         }
         if (freeZoneIdx >= tileFreeZoneCount) {
             char buffer[100];
-            sprintf(buffer, "-2 start %d length %d needed %d",
+            sprintf(buffer, "3d alloc error start %d length %d needed %d",
                     start, length_, length);
             nocashMessage(buffer);
             return 1;
@@ -109,10 +110,12 @@ namespace Engine {
             tileFreeZones[freeZoneIdx * 2] += length;
             tileFreeZones[freeZoneIdx * 2 + 1] -= length;
         }
+#ifdef DEBUG_SPRITES
         char buffer[100];
         sprintf(buffer, "3dalloc start %d length %d",
                 start, length);
         nocashMessage(buffer);
+#endif
         return 0;
     }
 
@@ -120,6 +123,8 @@ namespace Engine {
         if (spr.memory.allocated != Allocated3D)
             return;
         int sprIdx = -1;
+        if (activeSprites == nullptr)
+            return;
         for (int i = 0; i < activeSpriteCount; i++) {
             if (&spr == activeSprites[i]) {
                 sprIdx = i;
@@ -166,10 +171,12 @@ namespace Engine {
     }
 
     void Sprite3DManager::freeTiles(u16 length, u16& start) {
+#ifdef DEBUG_SPRITES
         char buffer[100];
         sprintf(buffer, "3dfree start %d length %d",
                 start, length);
         nocashMessage(buffer);
+#endif
 
         int freeAfterIdx = 0;
         for (; freeAfterIdx < tileFreeZoneCount; freeAfterIdx++) {
@@ -270,6 +277,8 @@ namespace Engine {
     }
 
     void Sprite3DManager::draw() {
+        if (activeSprites == nullptr)
+            return;
         for (int i = 0; i < activeSpriteCount; i++) {
             Sprite* spr = activeSprites[i];
 
@@ -341,13 +350,17 @@ namespace Engine {
 
     void Sprite3DManager::updateTextures() {
         bool setBank = false;
-        char buffer[100];
+        if (activeSprites == nullptr)
+            return;
         for (int i = 0; i < activeSpriteCount; i++) {
             Sprite* spr = activeSprites[i];
 
             if (!spr->memory.loadedIntoMemory) {
+#ifdef DEBUG_SPRITES
+                char buffer[100];
                 sprintf(buffer, "Loading sprite %d out of %d", i + 1, activeSpriteCount);
                 nocashMessage(buffer);
+#endif
                 spr->memory.loadedIntoMemory = true;
                 if (!setBank) {
                     vramSetBankB(VRAM_B_LCD);
