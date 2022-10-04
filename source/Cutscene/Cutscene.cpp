@@ -370,11 +370,8 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
 #ifdef DEBUG_CUTSCENES
             nocashMessage("CMD_BATTLE_ATTACK");
 #endif
-            u16 attackId;
-            fread(&attackId, 2, 1, commandStream);
             if (globalBattle != nullptr) {  // just in case
-                globalBattle->resetBattleAttack();
-                globalBattle->currentBattleAttack = getBattleAttack(attackId);
+                globalBattle->startBattleAttacks();
             }
             break;
         }
@@ -545,6 +542,21 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
 #endif
             globalSave.hp = globalSave.maxHp;
             break;
+        case CMD_SET_ENEMY_ATTACK: {
+#ifdef DEBUG_CUTSCENES
+            nocashMessage("CMD_SET_ENEMY_ATTACK");
+#endif
+            u8 enemyIdx;
+            u16 attackId;
+            fread(&enemyIdx, 1, 1, commandStream);
+            fread(&attackId, 2, 1, commandStream);
+            if (globalBattle != nullptr) {
+                if (enemyIdx < globalBattle->enemyCount) {
+                    globalBattle->enemies[enemyIdx].attackId = attackId;
+                }
+            }
+            break;
+        }
         default:
             sprintf(buffer, "Error cmd %d unknown, pos: %ld", cmd, ftell(commandStream));
             nocashMessage(buffer);

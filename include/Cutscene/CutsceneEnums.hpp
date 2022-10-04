@@ -39,6 +39,8 @@ enum CutsceneCommands {
     CMD_SAVE_MENU = 30,
     CMD_MAX_HEALTH = 31,
     CMD_MOD_FLAG = 32,
+    CMD_CMP_ENEMY_HP = 33,
+    CMD_SET_ENEMY_ATTACK = 34,
     CMD_DEBUG = 0xff
 };
 

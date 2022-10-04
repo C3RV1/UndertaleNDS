@@ -17,7 +17,7 @@ def cutscene(c: Cutscene):
                      type_sound="snd_floweytalk1.wav")
     c.wait(WaitTypes.DIALOGUE)
 
-    c.start_battle([], 0, 61, 63, 134, 75)
+    c.start_battle([Enemy(0, 100, 0, 0, BattleAttackIds.MOVEMENT_TUTORIAL)], 0, 61, 63, 134, 75)
     c.wait(WaitTypes.EXIT)
     c.debug("Loading battle...")
     c.load_texture("speaker/flowey")
@@ -31,9 +31,12 @@ def cutscene(c: Cutscene):
     c.start_dialogue_battle(20, 90, 192 // 4, Target(TargetType.SPRITE, 0), "nice1", "nice1_talk",
                             type_sound="snd_floweytalk1.wav")
     c.wait(WaitTypes.DIALOGUE)
-    c.battle_attack(1)
+    c.start_battle_attacks()
     c.wait(WaitTypes.FRAMES, 120)
     c.wait(WaitTypes.BATTLE_ATTACK)
+
+    c.set_enemy_attack(0, BattleAttackIds.FLOWEY_ATTACK)
+
     c.start_dialogue_battle(25, 90, 192 // 4, Target(TargetType.SPRITE, 0), "nice1", "nice1_talk",
                             type_sound="snd_floweytalk1.wav")
     c.wait(WaitTypes.DIALOGUE)
@@ -46,6 +49,7 @@ def cutscene(c: Cutscene):
     c.load_sprite(40, 192 // 2, 2)
     c.load_sprite(40, 192 // 2, 2)
     c.load_sprite(40, 192 // 2, 2)
+
     def set_pellet_pos():
         c.set_pos_in_frames(Target(TargetType.SPRITE, 1), 30, 140, 120)
         c.set_pos_in_frames(Target(TargetType.SPRITE, 2), 70, 140, 120)
@@ -67,7 +71,7 @@ def cutscene(c: Cutscene):
         c.move_in_frames(Target(TargetType.SPRITE, 4), 0, 70, 60)
         c.move_in_frames(Target(TargetType.SPRITE, 5), 0, 70, 60)
         c.wait(WaitTypes.FRAMES, 60)
-        c.battle_attack(2)
+        c.start_battle_attacks()
         c.wait(WaitTypes.BATTLE_ATTACK)
 
     pellet_attack()
@@ -141,7 +145,8 @@ def cutscene(c: Cutscene):
 
     c.set_animation(Target(TargetType.SPRITE, 0), "skull_laugh")
     c.play_sfx("snd_floweylaugh.wav")
-    c.battle_attack(3)
+    c.set_enemy_attack(0, BattleAttackIds.FLOWEY_ATTACK2)
+    c.start_battle_attacks()
     c.wait(WaitTypes.BATTLE_ATTACK)
 
     c.set_animation(Target(TargetType.SPRITE, 0), "skull_idle")

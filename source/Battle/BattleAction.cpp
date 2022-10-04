@@ -36,7 +36,6 @@ BattleAction::BattleAction(u8 enemyCount_, Enemy* enemies) :
 
     heartTex.loadPath("spr_heart");
     heartSpr.loadTexture(heartTex);
-    heartSpr.setShown(true);
     heartSpr.layer = 3;
 
     enter(CHOOSING_ACTION);
@@ -44,13 +43,49 @@ BattleAction::BattleAction(u8 enemyCount_, Enemy* enemies) :
 
 void BattleAction::enter(BattleActionState state) {
     currentState = state;
-    if (state == CHOOSING_ACTION) {
-        currentAction = ACTION_FIGHT;
-        fightBtn.setShown(true);
-        actBtn.setShown(true);
-        itemBtn.setShown(true);
-        mercyBtn.setShown(true);
-        setBtn();
+    fightBtn.setShown(state == CHOOSING_ACTION);
+    actBtn.setShown(state == CHOOSING_ACTION);
+    itemBtn.setShown(state == CHOOSING_ACTION);
+    mercyBtn.setShown(state == CHOOSING_ACTION);
+    heartSpr.setShown(state == CHOOSING_ACTION);
+    switch (state) {
+        case CHOOSING_ACTION:
+            currentAction = ACTION_FIGHT;
+            Engine::textMain.clear();
+            setBtn();
+            break;
+        case CHOOSING_TARGET:
+            chosenTarget = 0;
+            currentPage = -1;
+            updatePageTarget();
+            break;
+    }
+}
+
+void BattleAction::updatePageTarget() {
+    if (chosenTarget >= enemyCount)
+        chosenTarget = enemyCount - 1;
+    if (chosenTarget < 0)
+        chosenTarget = 0;
+    if (chosenTarget / 4 == currentPage)
+        return;
+    currentPage = chosenTarget / 4;
+    int enemyPageCount = enemyCount - currentPage * 4;
+    const int enemyNameX = 100, enemySpacing = 20;
+    int enemyNameY = 96 - (enemySpacing * (enemyPageCount + 1) / 2);
+    Engine::textMain.clear();
+    for (int i = 0, enemyId = currentPage * 4; i < 4 && enemyId < enemyCount; i++, enemyId++) {
+        int x = enemyNameX;
+        int y = enemyNameY + i * enemySpacing;
+        if (enemyId == chosenTarget)
+            Engine::textMain.setCurrentColor(12);
+        else
+            Engine::textMain.setCurrentColor(15);
+        Engine::textMain.drawGlyph(fnt, '*', x, y);
+        Engine::textMain.drawGlyph(fnt, ' ', x, y);
+        for (char *p = enemies[enemyId].enemyName; *p != 0; p++) {
+            Engine::textMain.drawGlyph(fnt, *p, x, y);
+        }
     }
 }
 
@@ -93,6 +128,8 @@ bool BattleAction::update() {
             return updateChoosingAct();
         case CHOOSING_MERCY:
             return updateChoosingMercy();
+        case CHOOSING_ITEM:
+            return updateChoosingItem();
     }
     return true;
 }
@@ -110,17 +147,70 @@ bool BattleAction::updateChoosingAction() {
 
     if (prevAction != currentAction)
         setBtn();
+
+    if (keysDown() & KEY_A) {
+        switch (currentAction) {
+            case ACTION_FIGHT:
+            case ACTION_ACT:
+                enter(CHOOSING_TARGET);
+                break;
+            case ACTION_ITEM:
+                enter(CHOOSING_ITEM);
+            case ACTION_MERCY:
+                enter(CHOOSING_MERCY);
+        }
+    }
     return false;
 }
 
 bool BattleAction::updateChoosingTarget() {
+    if (keysDown() & KEY_B) {
+        switch (currentAction) {
+            case ACTION_MERCY:
+                enter(CHOOSING_MERCY);
+                break;
+            case ACTION_ACT:
+            case ACTION_FIGHT:
+                enter(CHOOSING_ACTION);
+                break;
+        }
+    }
+    else if (keysDown() & KEY_A) {
+        switch (currentAction) {
+            case ACTION_MERCY:
+            case ACTION_FIGHT:
+                return true;
+            case ACTION_ACT:
+                enter(CHOOSING_ACT);
+                break;
+        }
+    }
+    else if (keysDown() & KEY_DOWN)
+        chosenTarget += 1;
+    else if (keysDown() & KEY_UP)
+        chosenTarget -= 1;
+    else if (keysDown() & KEY_RIGHT)
+        chosenTarget += 4;
+    else if (keysDown() & KEY_LEFT)
+        chosenTarget -= 4;
+    updatePageTarget();
     return false;
 }
 
 bool BattleAction::updateChoosingAct() {
+    if (keysDown() & KEY_B)
+        enter(CHOOSING_ACTION);
     return false;
 }
 
 bool BattleAction::updateChoosingMercy() {
+    if (keysDown() & KEY_B)
+        enter(CHOOSING_ACTION);
+    return false;
+}
+
+bool BattleAction::updateChoosingItem() {
+    if (keysDown() & KEY_B)
+        enter(CHOOSING_ACTION);
     return false;
 }

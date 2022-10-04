@@ -12,6 +12,7 @@ enum BattleActionState {
     CHOOSING_ACTION,
     CHOOSING_TARGET,
     CHOOSING_ACT,
+    CHOOSING_ITEM,
     CHOOSING_MERCY
 };
 
@@ -27,11 +28,13 @@ public:
     BattleAction(u8 enemyCount, Enemy* enemies);
     void enter(BattleActionState state);
     void setBtn();
+    void updatePageTarget();
     bool update();
     bool updateChoosingAction();
     bool updateChoosingTarget();
     bool updateChoosingAct();
     bool updateChoosingMercy();
+    bool updateChoosingItem();
 private:
     Engine::Font fnt;
     u8 enemyCount = 0;
@@ -42,6 +45,7 @@ private:
     BattleActionState currentState = CHOOSING_ACTION;
     int currentAction = 0;
     u8 chosenTarget = 0;
+    u8 currentPage = 0;
 };
 
 #endif //UNDERTALE_BATTLE_ACTION_HPP

@@ -43,6 +43,7 @@ class CutsceneCommands(enum.IntEnum):
     MAX_HEALTH = 31  # Done
     MOD_FLAG = 32  # Done
     CMP_ENEMY_HP = 33
+    SET_ENEMY_ATTACK = 34
     DEBUG = 0xff  # Done
 
 
@@ -57,7 +58,7 @@ class WaitTypes(enum.IntEnum):
     BATTLE_ACTION = 7
 
 
-class FlagOffsets:
+class FlagOffsets(enum.IntEnum):
     PROGRESS = 0
     DUMMY = 1
     ROOM_FLAGS = 210
@@ -67,16 +68,25 @@ class FlagOffsets:
     PERSISTENT = 240
 
 
+class BattleAttackIds(enum.IntEnum):
+    NONE = 0
+    MOVEMENT_TUTORIAL = 1
+    FLOWEY_ATTACK = 2
+    FLOWEY_ATTACK2 = 3
+
+
 class Enemy:
-    def __init__(self, enemy_id, enemy_hp, act_text_id, act_option_count):
+    def __init__(self, enemy_id, enemy_hp, act_text_id, act_option_count, attack_id):
         self.id_ = enemy_id
         self.hp = enemy_hp
         self.act_text_id = act_text_id
         self.act_option_count = act_option_count
+        self.attack_id = attack_id
 
     def write(self, wtr: binary.BinaryWriter):
         wtr.write_uint16(self.id_)
         wtr.write_uint16(self.hp)
+        wtr.write_uint16(self.attack_id)
         wtr.write_uint16(self.act_text_id)
         wtr.write_uint8(self.act_option_count)
 
@@ -312,9 +322,8 @@ class Cutscene:
         self.write_header(CutsceneCommands.EXIT_BATTLE)
         return self.instructions_address[-1]
 
-    def battle_attack(self, attack_pattern_id):
+    def start_battle_attacks(self):
         self.write_header(CutsceneCommands.BATTLE_ATTACK)
-        self.wtr.write_uint16(attack_pattern_id)
         return self.instructions_address[-1]
 
     def battle_action(self):
@@ -323,6 +332,12 @@ class Cutscene:
 
     def check_hit(self):
         self.write_header(CutsceneCommands.CHECK_HIT)
+        return self.instructions_address[-1]
+
+    def set_enemy_attack(self, enemy_idx, attack_id):
+        self.write_header(CutsceneCommands.SET_ENEMY_ATTACK)
+        self.wtr.write_uint8(enemy_idx)
+        self.wtr.write_uint16(attack_id)
         return self.instructions_address[-1]
 
     # == SAVE ==

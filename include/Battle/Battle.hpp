@@ -24,8 +24,9 @@ public:
     void show();
     void hide();
     void update();
+    void updateBattleAttacks() const;
+    void startBattleAttacks();
     void free_();
-    void resetBattleAttack();
     bool shown = false;
     bool running = true;
     Navigation nav;
@@ -46,7 +47,7 @@ public:
     Engine::Texture player;
     Engine::Sprite playerManager;
 
-    BattleAttack* currentBattleAttack = nullptr;
+    BattleAttack** currentBattleAttacks = nullptr;
     BattleAction* currentBattleAction = nullptr;
     bool hitFlag = false;
 };

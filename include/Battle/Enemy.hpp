@@ -15,6 +15,9 @@ struct Enemy {
     u16 maxHp = 0;
     char *actText = nullptr;
     u8 actOptionCount = 0;
+    u16 attackId;
+    u8 spareValue = 0;  // When it reaches 100, enemy can be spared
+    bool spared = false;
 };
 
 #endif //UNDERTALE_ENEMY_HPP

@@ -29,17 +29,20 @@ Battle::Battle() : playerManager(Engine::Allocated3D) {
 void Battle::loadFromStream(FILE *stream) {
     fread(&enemyCount, 1, 1, stream);
     enemies = new Enemy[enemyCount];
+    currentBattleAttacks = new BattleAttack*[enemyCount];
     char buffer[100];
     for (int i = 0; i < enemyCount; i++) {
+        currentBattleAttacks[i] = nullptr;
         fread(&enemies[i].enemyId, 2, 1, stream);
         fread(&enemies[i].maxHp, 2, 1, stream);
         enemies[i].hp = enemies[i].maxHp;
+        fread(&enemies[i].attackId, 2, 1, stream);
 
         sprintf(buffer, "nitro:/data/enemies/name%d.txt", enemies[i].enemyId);
         FILE* enemyNameFile = fopen(buffer, "rb");
         if (enemyNameFile) {
             int len = str_len_file(enemyNameFile, '\n');
-            fread(enemies[i].enemyName, len + 1, 1, stream);
+            fread(enemies[i].enemyName, len + 1, 1, enemyNameFile);
             enemies[i].enemyName[len] = '\0';
         }
         fclose(enemyNameFile);
@@ -51,10 +54,10 @@ void Battle::loadFromStream(FILE *stream) {
         sprintf(buffer, "nitro:/data/battle_act_txt/%d.txt", actTextId);
         FILE* actTextFile = fopen(buffer, "rb");
         if (actTextFile) {
-            int len = str_len_file(enemyNameFile, '@');
+            int len = str_len_file(actTextFile, '@');
             delete[] enemies[i].actText;
             enemies[i].actText = new char[len + 1];
-            fread(enemies[i].actText, len + 1, 1, stream);
+            fread(enemies[i].actText, len + 1, 1, actTextFile);
             enemies[i].actText[len] = '\0';
         }
         fclose(actTextFile);
@@ -86,18 +89,31 @@ void Battle::hide() {
     shown = false;
 }
 
-void Battle::resetBattleAttack() {
+void Battle::startBattleAttacks() {
     hitFlag = false;
+    for (int i = 0; i < enemyCount; i++) {
+        Enemy* enemy = &enemies[i];
+        if (!enemy->spared && enemy->hp > 0) {
+            currentBattleAttacks[i] = getBattleAttack(enemy->attackId);
+        }
+    }
+}
+
+void Battle::updateBattleAttacks() const {
+    for (int i = 0; i < enemyCount; i++) {
+        BattleAttack* btlAttack = currentBattleAttacks[i];
+        if (btlAttack != nullptr) {
+            if (btlAttack->update()) {
+                delete btlAttack;
+                currentBattleAttacks[i] = nullptr;
+            }
+        }
+    }
 }
 
 void Battle::update() {
     nav.update();
-    if (currentBattleAttack != nullptr) {
-        if (currentBattleAttack->update()) {
-            delete currentBattleAttack;
-            currentBattleAttack = nullptr;
-        }
-    }
+    updateBattleAttacks();
     if (currentBattleAction != nullptr) {
         if (currentBattleAction->update()) {
             delete currentBattleAction;
@@ -145,8 +161,10 @@ void Battle::free_() {
     player.free_();
     for (int i = 0; i < enemyCount; i++) {
         delete[] enemies[i].actText;
+        delete currentBattleAttacks[i];
     }
     delete[] enemies;
+    delete[] currentBattleAttacks;
     enemies = nullptr;
     enemyCount = 0;
     for (int i = 0; i < textureCount; i++) {

@@ -42,8 +42,12 @@ void Waiting::update(CutsceneLocation callingLocation, bool frame) {
             currentWait = NONE;
     } else if (currentWait == WAIT_BATTLE_ATTACK) {
         if (callingLocation == BATTLE || callingLocation == LOAD_BATTLE) {
-            if (globalBattle->currentBattleAttack == nullptr) {
-                currentWait = NONE;
+            currentWait = NONE;
+            for (int i = 0; i < globalBattle->enemyCount; i++) {
+                if (globalBattle->currentBattleAttacks[i] != nullptr) {
+                    currentWait = WAIT_BATTLE_ATTACK;
+                    break;
+                }
             }
         } else {
             currentWait = NONE;

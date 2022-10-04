@@ -455,6 +455,7 @@ namespace Engine {
                 oamStart[1] &= ~(0b1111 << 9);
                 if (spr.memory.oamScaleIdx != 0xff) {
                     oamStart[0] |= 1 << 8;  // set scale and rotation flag
+                    oamStart[0] |= 1 << 9;  // set scale and rotation flag
                     oamStart[1] |= spr.memory.oamScaleIdx << 9;
                     auto* oamScaleA = (u16*)((u8*)oamRam + spr.memory.oamScaleIdx * 0x20 + 0x6);
                     auto* oamScaleB = (u16*)((u8*)oamRam + spr.memory.oamScaleIdx * 0x20 + 0xE);
@@ -466,6 +467,7 @@ namespace Engine {
                     *oamScaleD = (1 << 16) / spr.scale_y;
                 } else {
                     oamStart[0] &= ~(1 << 8);
+                    oamStart[0] &= ~(1 << 9);
                 }
                 oamStart[0] &= ~0xFF;
                 s32 posX = spr.x + oamX * 64 * spr.scale_x;

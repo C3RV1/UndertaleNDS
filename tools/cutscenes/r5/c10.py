@@ -9,19 +9,20 @@ def cutscene(c: Cutscene):
     # Dummy battle
     c.player_control(False)
 
-    c.start_battle([Enemy(0, 15, 0, 2)], 0, 61, 63, 134, 75)
+    c.start_battle([Enemy(0, 15, 0, 2, BattleAttackIds.NONE)], 0, 61, 63, 134, 75)
     c.wait(WaitTypes.EXIT)
 
     # == LOAD BATTLE ==
 
     c.debug("Loading battle...")
     c.load_texture("battle/dummy_ruins")
-    c.load_sprite(30, (192 - 104) // 2, 0)
+    c.load_sprite(20, (192 - 104) // 2, 0)
+    c.set_scale(Target(TargetType.SPRITE, 0), 1.5, 1.5)
     c.start_bgm("mus_prebattle1.wav", True)
 
     c.wait(WaitTypes.ENTER)
 
-    c.start_dialogue_battle(10, 128, 192 // 4,
+    c.start_dialogue_battle(10, 118, 192 // 4 + 20,
                             Target(TargetType.NULL), "", "",
                             type_sound="SND_TXT1.wav")
     c.wait(WaitTypes.DIALOGUE)
