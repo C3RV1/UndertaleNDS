@@ -7,13 +7,13 @@
 #include "Cutscene/Cutscene.hpp"
 #include "Formats/utils.hpp"
 
-Dialogue::Dialogue(bool isRoom_, u16 textId, char *speaker, s32 speakerX, s32 speakerY,
-                   char *idleAnimTxt, char *talkAnimTxt,
-                   Engine::Sprite *target_, char *idleAnim2Txt, char *talkAnim2Txt,
-                   char* typeSndPath,
-                   char* fontTxt, u16 framesPerLetter) :
+Dialogue::Dialogue(bool isRoom_, u16 textId, const char* speaker, s32 speakerX, s32 speakerY,
+                   const char* idleAnimTxt, const char* talkAnimTxt, Engine::Sprite* target_,
+                   const char* idleAnim2Txt, const char* talkAnim2Txt, const char* typeSndPath,
+                   const char* fontTxt, u16 framesPerLetter) :
                    speakerManager(Engine::AllocatedOAM) {
     isRoom = isRoom_;
+    textManager = &Engine::textSub;
     char buffer[100];
 
     font.loadPath(fontTxt);
@@ -23,10 +23,12 @@ Dialogue::Dialogue(bool isRoom_, u16 textId, char *speaker, s32 speakerX, s32 sp
 
     sprintf(buffer, "nitro:/data/dialogue/r%d/c%d/d%d.txt",
             globalCutscene->roomId, globalCutscene->cutsceneId, textId);
-    textStream = fopen(buffer, "rb");
+    FILE* textStream = fopen(buffer, "rb");
     fseek(textStream, 0, SEEK_END);
     textLen = ftell(textStream);
     fseek(textStream, 0, SEEK_SET);
+    text = new char[textLen];
+    fread(text, textLen, 1, textStream);
     if (isRoom_) {
         if (strlen(speaker) != 0)
             startingY = 192 / 2;
@@ -59,12 +61,40 @@ Dialogue::Dialogue(bool isRoom_, u16 textId, char *speaker, s32 speakerX, s32 sp
         talkAnim2 = target_->nameToAnimId(talkAnim2Txt);
     }
 
-    Engine::textSub.clear();
-    Engine::textSub.reloadColors();
-    Engine::textSub.setCurrentColor(15);
+    textManager->clear();
+    textManager->reloadColors();
+    textManager->setCurrentColor(15);
 
     typeSnd.loadWAV(typeSndPath);
     typeSnd.setLoops(0);
+
+    setTalk();
+}
+
+Dialogue::Dialogue(bool isRoom_, int x_, int y_, const char *text_, const char *typeSndPath,
+                   const char *fontTxt, u16 framesPerLetter, Engine::TextBGManager& txtManager) :
+                   speakerManager(Engine::AllocatedOAM) {
+    isRoom = isRoom_;
+    textManager = &txtManager;
+    font.loadPath(fontTxt);
+    textLen = strlen(text_);
+    text = new char[textLen];
+    strcpy(text, text_);
+    typeSnd.loadWAV(typeSndPath);
+    typeSnd.setLoops(0);
+    letterFrames = framesPerLetter;
+    currentTimer = letterFrames;
+    target = nullptr;
+    if (isRoom_) {
+        startingY = 192 / 4;
+        y = startingY;
+    }
+    else {
+        x = x_;
+        y = y_;
+        startingX = x;
+        startingY = y;
+    }
 
     setTalk();
 }
@@ -87,14 +117,13 @@ bool Dialogue::update() {
         progressText(true, true);
         if ((keysDown() & (KEY_TOUCH | KEY_B)) || letterFrames == 0) {
             progressText(true, false);
-            while (!paused && !(ftell(textStream) == textLen && (linePos >= lineLen || !isRoom)))
+            while (!paused && !(textPos >= textLen && (linePos >= lineLen || !isRoom)))
                 progressText(false, false);
             linePos--;
             progressText(false, true);
         }
-        if (ftell(textStream) == textLen && (linePos >= lineLen || !isRoom)) {
+        if (textPos == textLen && (linePos >= lineLen || !isRoom)) {
             setNoTalk();
-            fclose(textStream);
             return true;
         }
         return false;
@@ -123,10 +152,12 @@ u16 Dialogue::getLineWidth(int linePos_) {
 }
 
 void Dialogue::getLine() {
-    if (textStream == nullptr)
+    if (text == nullptr)
         return;
-    lineLen = str_len_file(textStream, '\n');
-    fread(line, lineLen + 1, 1, textStream);
+    for (lineLen = 0; *(text + textPos + lineLen) != '\n'; lineLen++);
+    memcpy(line, text + textPos, lineLen + 1);
+    line[lineLen] = '\0';
+    textPos += lineLen + 1;
 }
 
 void Dialogue::progressText(bool clear, bool draw) {
@@ -143,7 +174,7 @@ void Dialogue::progressTextRoom(bool clear, bool draw) {
     }
     currentTimer = letterFrames;
     if (linePos == lineLen) {
-        if (ftell(textStream) == textLen) {
+        if (textPos >= textLen) {
             return;
         }
         y += lineSpacing;
@@ -158,7 +189,7 @@ void Dialogue::progressTextRoom(bool clear, bool draw) {
             paused = true;
         }
         else if (command == 'c') {
-            Engine::textSub.clear();
+            textManager->clear();
             y = startingY;
         }
         else if (command == 'a') {
@@ -209,46 +240,46 @@ void Dialogue::progressTextRoom(bool clear, bool draw) {
     // clear current chars
     u16 width = getLineWidth(linePos - 1);
     startingX = 128 - width / 2;
-    Engine::textSub.setCurrentColor(0); // clear color
+    textManager->setCurrentColor(0); // clear color
     for (char* pLine = line; pLine < line + linePos - 1; pLine++) {
         if (*pLine == '@') {
             pLine += 1;
             continue;
         }
         if (clear || linePos > lineLen)
-            Engine::textSub.drawGlyph(font, *pLine, startingX, y);
+            textManager->drawGlyph(font, *pLine, startingX, y);
         startingX += 1;
     }
 
     width = getLineWidth(linePos);
     startingX = 128 - width / 2;
-    Engine::textSub.setCurrentColor(currentColor); // clear color
+    textManager->setCurrentColor(currentColor); // clear color
     int lineEndColor = currentColor;
     for (char* pLine = line; pLine < line + linePos; pLine++) {
         if (*pLine == '@') {
             pLine++;
             char command = *pLine;
             if (command == '0')
-                Engine::textSub.setCurrentColor(8);
+                textManager->setCurrentColor(8);
             else if (command == '1')
-                Engine::textSub.setCurrentColor(9);
+                textManager->setCurrentColor(9);
             else if (command == '2')
-                Engine::textSub.setCurrentColor(10);
+                textManager->setCurrentColor(10);
             else if (command == '3')
-                Engine::textSub.setCurrentColor(11);
+                textManager->setCurrentColor(11);
             else if (command == '4')
-                Engine::textSub.setCurrentColor(12);
+                textManager->setCurrentColor(12);
             else if (command == '5')
-                Engine::textSub.setCurrentColor(13);
+                textManager->setCurrentColor(13);
             else if (command == '6')
-                Engine::textSub.setCurrentColor(14);
+                textManager->setCurrentColor(14);
             else if (command == 'w')
-                Engine::textSub.setCurrentColor(15);
-            lineEndColor = Engine::textSub.getCurrentColor();
+                textManager->setCurrentColor(15);
+            lineEndColor = textManager->getCurrentColor();
             continue;
         }
         if (draw || linePos == lineLen)
-            Engine::textSub.drawGlyph(font, *pLine, startingX, y);
+            textManager->drawGlyph(font, *pLine, startingX, y);
         startingX += 1;
     }
 
@@ -267,59 +298,64 @@ void Dialogue::progressTextBattle(bool clear, bool draw) {
     }
 
     char currentChar;
-    fread(&currentChar, 1, 1, textStream);
-    linePos++;
+    if (text != nullptr)
+        currentChar = text[textPos++];
+    else
+        return;
 
     if (currentChar == '@') {
-        fread(&currentChar, 1, 1, textStream);  // read command
-        linePos++;
+        currentChar = text[textPos++];
         if (currentChar == 'p') {
             paused = true;
         }
         else if (currentChar == 'c') {
-            Engine::textSub.clear();
+            textManager->clear();
             x = startingX;
             y = startingY;
         }
         else if (currentChar == '0')
-            Engine::textSub.setCurrentColor(8);
+            textManager->setCurrentColor(8);
         else if (currentChar == '1')
-            Engine::textSub.setCurrentColor(9);
+            textManager->setCurrentColor(9);
         else if (currentChar == '2')
-            Engine::textSub.setCurrentColor(10);
+            textManager->setCurrentColor(10);
         else if (currentChar == '3')
-            Engine::textSub.setCurrentColor(11);
+            textManager->setCurrentColor(11);
         else if (currentChar == '4')
-            Engine::textSub.setCurrentColor(12);
+            textManager->setCurrentColor(12);
         else if (currentChar == '5')
-            Engine::textSub.setCurrentColor(13);
-        else if (currentChar == '0')
-            Engine::textSub.setCurrentColor(14);
+            textManager->setCurrentColor(13);
+        else if (currentChar == '6')
+            textManager->setCurrentColor(14);
         else if (currentChar == 'w')
-            Engine::textSub.setCurrentColor(15);
+            textManager->setCurrentColor(15);
         else if (currentChar == 'a') {
-            int len = str_len_file(textStream, ' ');
+            int len;
+            for (len = 0; *(text + textPos + len) != ' '; len++);
             char buffer[30];
-            fread(buffer, len + 1, 1, textStream);
-            linePos += len + 1;
+            memcpy(buffer, text + textPos, len + 1);
             buffer[len] = '\0';
+            textPos += len + 1;
             idleAnim = speakerManager.nameToAnimId(buffer);
-            len = str_len_file(textStream, ' ');
-            fread(buffer, len + 1, 1, textStream);
+            for (len = 0; *(text + textPos + len) != ' '; len++);
+            memcpy(buffer, text + textPos, len + 1);
             buffer[len] = '\0';
+            textPos += len + 1;
             talkAnim = speakerManager.nameToAnimId(buffer);
         }
         else if (currentChar == 'b') {
-            int len = str_len_file(textStream, ' ');
+            int len;
+            for (len = 0; *(text + textPos + len) != ' '; len++);
             char buffer[30];
-            fread(buffer, len + 1, 1, textStream);
-            linePos += len + 1;
+            memcpy(buffer, text + textPos, len + 1);
             buffer[len] = '\0';
+            textPos += len + 1;
             if (target != nullptr)
                 idleAnim2 = target->nameToAnimId(buffer);
-            len = str_len_file(textStream, ' ');
-            fread(buffer, len + 1, 1, textStream);
+            for (len = 0; *(text + textPos + len) != ' '; len++);
+            memcpy(buffer, text + textPos, len + 1);
             buffer[len] = '\0';
+            textPos += len + 1;
             if (target != nullptr)
                 talkAnim2 = target->nameToAnimId(buffer);
         }
@@ -332,7 +368,7 @@ void Dialogue::progressTextBattle(bool clear, bool draw) {
     if (draw)
         typeSnd.play();
 
-    Engine::textSub.drawGlyph(font, currentChar, x, y);
+    textManager->drawGlyph(font, currentChar, x, y);
 }
 
 void Dialogue::free_() {

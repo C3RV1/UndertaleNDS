@@ -33,34 +33,7 @@ void Battle::loadFromStream(FILE *stream) {
     char buffer[100];
     for (int i = 0; i < enemyCount; i++) {
         currentBattleAttacks[i] = nullptr;
-        fread(&enemies[i].enemyId, 2, 1, stream);
-        fread(&enemies[i].maxHp, 2, 1, stream);
-        enemies[i].hp = enemies[i].maxHp;
-        fread(&enemies[i].attackId, 2, 1, stream);
-
-        sprintf(buffer, "nitro:/data/enemies/name%d.txt", enemies[i].enemyId);
-        FILE* enemyNameFile = fopen(buffer, "rb");
-        if (enemyNameFile) {
-            int len = str_len_file(enemyNameFile, '\n');
-            fread(enemies[i].enemyName, len + 1, 1, enemyNameFile);
-            enemies[i].enemyName[len] = '\0';
-        }
-        fclose(enemyNameFile);
-
-        u16 actTextId = 0;
-        fread(&actTextId, 2, 1, stream);
-        fread(&enemies[i].actOptionCount, 1, 1, stream);
-
-        sprintf(buffer, "nitro:/data/battle_act_txt/%d.txt", actTextId);
-        FILE* actTextFile = fopen(buffer, "rb");
-        if (actTextFile) {
-            int len = str_len_file(actTextFile, '@');
-            delete[] enemies[i].actText;
-            enemies[i].actText = new char[len + 1];
-            fread(enemies[i].actText, len + 1, 1, actTextFile);
-            enemies[i].actText[len] = '\0';
-        }
-        fclose(actTextFile);
+        enemies[i].readFromStream(stream);
     }
 
     u8 boardId;
@@ -116,6 +89,7 @@ void Battle::update() {
     updateBattleAttacks();
     if (currentBattleAction != nullptr) {
         if (currentBattleAction->update()) {
+            currentBattleAction->free_();
             delete currentBattleAction;
             currentBattleAction = nullptr;
             show();

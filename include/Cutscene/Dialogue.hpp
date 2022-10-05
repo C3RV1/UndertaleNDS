@@ -14,10 +14,12 @@
 
 class Dialogue {
 public:
-    Dialogue(bool isRoom_, u16 textId, char* speaker, s32 speakerX, s32 speakerY,
-             char* idleAnimTxt, char* talkAnimTxt, Engine::Sprite* target_,
-             char* idleAnim2Txt, char* talkAnim2Txt, char* typeSndPath,
-             char* fontTxt, u16 framesPerLetter);
+    Dialogue(bool isRoom_, u16 textId, const char* speaker, s32 speakerX, s32 speakerY,
+             const char* idleAnimTxt, const char* talkAnimTxt, Engine::Sprite* target_,
+             const char* idleAnim2Txt, const char* talkAnim2Txt, const char* typeSndPath,
+             const char* fontTxt, u16 framesPerLetter);
+    Dialogue(bool isRoom_, int x_, int y_, const char* text_, const char* typeSndPath,
+             const char* fontTxt, u16 framesPerLetter, Engine::TextBGManager& txtManager);
     bool update();
     void free_();
 private:
@@ -35,6 +37,7 @@ private:
     bool isRoom;
     u16 linePos = 0;
     u16 lineLen = 0;
+    u16 textPos = 0;
     u16 textLen = 0;
     const u16 lineSpacing = 20;
 
@@ -44,8 +47,9 @@ private:
     Engine::Texture speakerSpr;
     Engine::Sprite speakerManager;
     Engine::Sprite* target;
+    Engine::TextBGManager* textManager;
     int idleAnim = -1, talkAnim = -1, idleAnim2 = -1, talkAnim2 = -1;
-    FILE* textStream;
+    char* text = nullptr;
     char line[100] = {};
     u8 currentColor = 15;
 

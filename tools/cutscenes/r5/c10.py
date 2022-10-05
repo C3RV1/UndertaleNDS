@@ -9,7 +9,7 @@ def cutscene(c: Cutscene):
     # Dummy battle
     c.player_control(False)
 
-    c.start_battle([Enemy(0, 15, 0, 2, BattleAttackIds.NONE)], 0, 61, 63, 134, 75)
+    c.start_battle([Enemy(1, 15, 0, 2, BattleAttackIds.NONE, spare_value=100)], 0, 61, 63, 134, 75)
     c.wait(WaitTypes.EXIT)
 
     # == LOAD BATTLE ==
@@ -54,6 +54,7 @@ def cutscene(c: Cutscene):
     c.bind(fight_jump)
     c.debug("Dummy killed")
     c.set_flag(FlagOffsets.DUMMY, 0)
+    c.set_animation(Target(TargetType.SPRITE, 0), "hurt")
 
     c.start_dialogue_battle(20, 128 + 20, 192 // 4,
                             Target(TargetType.NULL), "", "",

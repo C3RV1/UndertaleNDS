@@ -24,6 +24,9 @@ namespace Engine {
     void Sprite::loadTexture(Engine::Texture &sprite_) {
         if (!sprite_.getLoaded())
             return;
+        if (&sprite_ == texture)
+            return;
+        push();
 
         texture = &sprite_;
         loaded = true;
@@ -33,6 +36,7 @@ namespace Engine {
         int animId = nameToAnimId("gfx");  // default animation
         if (animId != -1)
             setSpriteAnim(animId);
+        pop();
     }
 
     void Sprite::tick() {

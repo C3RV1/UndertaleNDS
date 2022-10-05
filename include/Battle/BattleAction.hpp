@@ -28,24 +28,33 @@ public:
     BattleAction(u8 enemyCount, Enemy* enemies);
     void enter(BattleActionState state);
     void setBtn();
-    void updatePageTarget();
+    void drawAct(bool draw);
+    void drawMercy(bool draw);
+    void drawTarget();
     bool update();
     bool updateChoosingAction();
     bool updateChoosingTarget();
     bool updateChoosingAct();
     bool updateChoosingMercy();
     bool updateChoosingItem();
+    int getActionNum() const;
+    void free_();
+    ~BattleAction() {free_();}
 private:
+    bool freed = false;
     Engine::Font fnt;
     u8 enemyCount = 0;
     Enemy* enemies = nullptr;
-    Engine::Texture fightTex, actTex, itemTex, mercyTex, heartTex;
+    Engine::Texture fightTex, actTex, itemTex, mercyTex, bigHeartTex, smallHeartTex;
     Engine::Sprite fightBtn, actBtn, itemBtn, mercyBtn, heartSpr;
     int gfxAnimId, activeAnimId;
     BattleActionState currentState = CHOOSING_ACTION;
     int currentAction = 0;
     u8 chosenTarget = 0;
     u8 currentPage = 0;
+    u8 chosenAct = 0;
+    bool mercyFlee = false;
+    char* mercyText = nullptr;
 };
 
 #endif //UNDERTALE_BATTLE_ACTION_HPP

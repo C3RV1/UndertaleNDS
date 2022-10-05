@@ -7,16 +7,23 @@
 
 #define ARM9
 #include <nds.h>
+#include <stdio.h>
 
-struct Enemy {
+class Enemy {
+public:
+    void readFromStream(FILE *f);
+    void free_();
+    void loadActText(int textId);
     u16 enemyId = 0;
     char enemyName[20] = {0};
     u16 hp = 0;
     u16 maxHp = 0;
     char *actText = nullptr;
     u8 actOptionCount = 0;
-    u16 attackId;
+    u16 attackId = 0;
     u8 spareValue = 0;  // When it reaches 100, enemy can be spared
+    u8 goldOnWin = 0;
+    u8 expOnKill = 0;
     bool spared = false;
 };
 

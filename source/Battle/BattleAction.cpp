@@ -4,6 +4,10 @@
 
 #include "Battle/Battle.hpp"
 #include "Battle/BattleAction.hpp"
+#include "Formats/utils.hpp"
+#include "Save.hpp"
+
+// TODO: Touchscreen
 
 BattleAction::BattleAction(u8 enemyCount_, Enemy* enemies) :
             enemyCount(enemyCount_), enemies(enemies),
@@ -34,9 +38,20 @@ BattleAction::BattleAction(u8 enemyCount_, Enemy* enemies) :
     gfxAnimId = fightBtn.nameToAnimId("gfx");
     activeAnimId = fightBtn.nameToAnimId("active");
 
-    heartTex.loadPath("spr_heart");
-    heartSpr.loadTexture(heartTex);
+    bigHeartTex.loadPath("spr_heart");
+    smallHeartTex.loadPath("spr_heartsmall");
     heartSpr.layer = 3;
+
+    FILE *f = fopen("nitro:/data/mercy.txt", "rb");
+    if (f) {
+        int len = str_len_file(f, '@');
+        mercyText = new char[len + 1];
+        fread(mercyText, len + 1, 1, f);
+        mercyText[len] = '\0';
+    } else {
+        nocashMessage("Error opening mercy text");
+    }
+    fclose(f);
 
     enter(CHOOSING_ACTION);
 }
@@ -47,37 +62,118 @@ void BattleAction::enter(BattleActionState state) {
     actBtn.setShown(state == CHOOSING_ACTION);
     itemBtn.setShown(state == CHOOSING_ACTION);
     mercyBtn.setShown(state == CHOOSING_ACTION);
-    heartSpr.setShown(state == CHOOSING_ACTION);
     switch (state) {
         case CHOOSING_ACTION:
             currentAction = ACTION_FIGHT;
             Engine::textMain.clear();
+            heartSpr.loadTexture(bigHeartTex);
+            heartSpr.setShown(true);
             setBtn();
             break;
         case CHOOSING_TARGET:
             chosenTarget = 0;
             currentPage = -1;
-            updatePageTarget();
+            heartSpr.loadTexture(smallHeartTex);
+            heartSpr.setShown(true);
+            drawTarget();
+            break;
+        case CHOOSING_ACT:
+            chosenAct = 0;
+            heartSpr.loadTexture(smallHeartTex);
+            heartSpr.setShown(true);
+            drawAct(true);
+            break;
+        case CHOOSING_MERCY:
+            mercyFlee = false;
+            heartSpr.loadTexture(smallHeartTex);
+            heartSpr.setShown(true);
+            drawMercy(true);
             break;
     }
 }
 
-void BattleAction::updatePageTarget() {
+void BattleAction::drawAct(bool draw) {
+    const int optionX = 50, optionY = 50, optionSpacingX = 100, optionSpacingY = 20;
+    const int offsetX = -15, offsetY = 4;
+    if (draw) {
+        Engine::textMain.clear();
+        Engine::textMain.setCurrentColor(15);
+    }
+    if (chosenAct < 0)
+        chosenAct = 0;
+    if (chosenAct >= enemies[chosenTarget].actOptionCount)
+        chosenAct = enemies[chosenTarget].actOptionCount - 1;
+    if (chosenAct < 0) {
+        heartSpr.setShown(false);
+        return;
+    }
+    heartSpr.setShown(true);
+    heartSpr.wx = (optionX + optionSpacingX * (chosenAct % 2) + offsetX) << 8;
+    heartSpr.wy = (optionY + optionSpacingY * (chosenAct / 2) + offsetY) << 8;
+    if (!draw)
+        return;
+    if (enemies[chosenTarget].actText == nullptr)
+        return;
+    int x = optionX, y = optionY;
+    for (char* p = enemies[chosenTarget].actText; *p != 0; p++) {
+        if (*p == '\n') {
+            x = optionX;
+            y += optionSpacingY;
+            continue;
+        }
+        Engine::textMain.drawGlyph(fnt, *p, x, y);
+    }
+}
+
+void BattleAction::drawMercy(bool draw) {
+    const int optionX = 100, optionY = 66, optionSpacingY = 20;
+    const int offsetX = -15, offsetY = 4;
+    if (draw) {
+        Engine::textMain.clear();
+        Engine::textMain.setCurrentColor(15);
+    }
+    heartSpr.setShown(true);
+    heartSpr.wx = (optionX + offsetX) << 8;
+    heartSpr.wy = (optionY + optionSpacingY * mercyFlee + offsetY) << 8;
+    if (!draw)
+        return;
+    if (mercyText == nullptr)
+        return;
+    int x = optionX, y = optionY;
+    for (char* p = mercyText; *p != 0; p++) {
+        if (*p == '\n') {
+            x = optionX;
+            y += optionSpacingY;
+            continue;
+        }
+        Engine::textMain.drawGlyph(fnt, *p, x, y);
+    }
+}
+
+void BattleAction::drawTarget() {
     if (chosenTarget >= enemyCount)
         chosenTarget = enemyCount - 1;
     if (chosenTarget < 0)
         chosenTarget = 0;
-    if (chosenTarget / 4 == currentPage)
-        return;
-    currentPage = chosenTarget / 4;
-    int enemyPageCount = enemyCount - currentPage * 4;
+
+    int enemyPageCount = enemyCount - (chosenTarget / 4) * 4;
     const int enemyNameX = 100, enemySpacing = 20;
     int enemyNameY = 96 - (enemySpacing * (enemyPageCount + 1) / 2);
+    heartSpr.wx = (enemyNameX - 15) << 8;
+    heartSpr.wy = (enemyNameY + enemySpacing * (chosenTarget % 4) + 4) << 8;
+
+    if (chosenTarget / 4 == currentPage)
+        return;
+    nocashMessage("here");
+    currentPage = chosenTarget / 4;
+
     Engine::textMain.clear();
     for (int i = 0, enemyId = currentPage * 4; i < 4 && enemyId < enemyCount; i++, enemyId++) {
+        // if (enemies[enemyId].spared || enemies[enemyId].hp <= 0)
+        //     continue;
         int x = enemyNameX;
         int y = enemyNameY + i * enemySpacing;
-        if (enemyId == chosenTarget)
+        if (enemies[enemyId].spareValue >= 100)
             Engine::textMain.setCurrentColor(12);
         else
             Engine::textMain.setCurrentColor(15);
@@ -156,14 +252,25 @@ bool BattleAction::updateChoosingAction() {
                 break;
             case ACTION_ITEM:
                 enter(CHOOSING_ITEM);
+                break;
             case ACTION_MERCY:
                 enter(CHOOSING_MERCY);
+                break;
         }
     }
     return false;
 }
 
 bool BattleAction::updateChoosingTarget() {
+    if (keysDown() & KEY_DOWN)
+        chosenTarget += 1;
+    else if (keysDown() & KEY_UP)
+        chosenTarget -= 1;
+    else if (keysDown() & KEY_RIGHT)
+        chosenTarget += 4;
+    else if (keysDown() & KEY_LEFT)
+        chosenTarget -= 4;
+    drawTarget();
     if (keysDown() & KEY_B) {
         switch (currentAction) {
             case ACTION_MERCY:
@@ -185,27 +292,40 @@ bool BattleAction::updateChoosingTarget() {
                 break;
         }
     }
-    else if (keysDown() & KEY_DOWN)
-        chosenTarget += 1;
-    else if (keysDown() & KEY_UP)
-        chosenTarget -= 1;
-    else if (keysDown() & KEY_RIGHT)
-        chosenTarget += 4;
-    else if (keysDown() & KEY_LEFT)
-        chosenTarget -= 4;
-    updatePageTarget();
     return false;
 }
 
 bool BattleAction::updateChoosingAct() {
+    if (keysDown() & KEY_DOWN)
+        chosenAct += 2;
+    else if (keysDown() & KEY_UP)
+        chosenAct -= 2;
+    else if (keysDown() & KEY_RIGHT)
+        chosenAct += 1;
+    else if (keysDown() & KEY_LEFT)
+        chosenAct -= 1;
+    drawAct(false);
     if (keysDown() & KEY_B)
-        enter(CHOOSING_ACTION);
+        enter(CHOOSING_TARGET);
+    if (keysDown() & KEY_A)
+        return true;
     return false;
 }
 
 bool BattleAction::updateChoosingMercy() {
+    if (keysDown() & KEY_DOWN)
+        mercyFlee = true;
+    else if (keysDown() & KEY_UP)
+        mercyFlee = false;
+    drawMercy(false);
     if (keysDown() & KEY_B)
         enter(CHOOSING_ACTION);
+    else if (keysDown() & KEY_A) {
+        if (mercyFlee)
+            return true;
+        else
+            enter(CHOOSING_TARGET);
+    }
     return false;
 }
 
@@ -213,4 +333,45 @@ bool BattleAction::updateChoosingItem() {
     if (keysDown() & KEY_B)
         enter(CHOOSING_ACTION);
     return false;
+}
+
+int BattleAction::getActionNum() const {
+    switch (currentAction) {
+        case ACTION_FIGHT:
+            return 0 + chosenTarget;
+        case ACTION_ACT:
+            return 10 + chosenTarget * 4 + chosenAct;
+        case ACTION_ITEM:
+            return 60;
+        case ACTION_MERCY:
+            if (mercyFlee)
+                return 40;
+            return 41 + chosenTarget;
+        default:
+            nocashMessage("GetActionNum fail");
+            return 0;
+    }
+}
+
+void BattleAction::free_() {
+    if (freed)
+        return;
+
+    globalSave.flags[230] = getActionNum();
+
+    freed = true;
+    delete[] mercyText;
+    mercyText = nullptr;
+    fightBtn.setShown(false);
+    actBtn.setShown(false);
+    itemBtn.setShown(false);
+    mercyBtn.setShown(false);
+    heartSpr.setShown(false);
+    fightTex.free_();
+    actTex.free_();
+    itemTex.free_();
+    mercyTex.free_();
+    bigHeartTex.free_();
+    smallHeartTex.free_();
+    fnt.free_();
 }

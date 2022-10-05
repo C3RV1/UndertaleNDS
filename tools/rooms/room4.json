@@ -152,7 +152,7 @@
           "texture_id": 1,
           "x": 595, "y": 55,
           "animation": "up",
-          "action": "cutscene", "cutscene_id": 4
+          "action": "cutscene", "cutscene_id": 5
         },
         {
           "texture_id": 2,

@@ -76,12 +76,16 @@ class BattleAttackIds(enum.IntEnum):
 
 
 class Enemy:
-    def __init__(self, enemy_id, enemy_hp, act_text_id, act_option_count, attack_id):
+    def __init__(self, enemy_id, enemy_hp, act_text_id, act_option_count, attack_id,
+                 spare_value=0, gold_on_win=0, exp_on_kill=0):
         self.id_ = enemy_id
         self.hp = enemy_hp
         self.act_text_id = act_text_id
         self.act_option_count = act_option_count
         self.attack_id = attack_id
+        self.spare_value = spare_value
+        self.gold_on_win = gold_on_win
+        self.exp_on_kill = exp_on_kill
 
     def write(self, wtr: binary.BinaryWriter):
         wtr.write_uint16(self.id_)
@@ -89,6 +93,9 @@ class Enemy:
         wtr.write_uint16(self.attack_id)
         wtr.write_uint16(self.act_text_id)
         wtr.write_uint8(self.act_option_count)
+        wtr.write_uint8(self.spare_value)
+        wtr.write_uint8(self.gold_on_win)
+        wtr.write_uint8(self.exp_on_kill)
 
 
 class TargetType(enum.IntEnum):
@@ -111,9 +118,9 @@ class SaveFlags(enum.IntEnum):
 class BtlActionOff(enum.IntEnum):
     FIGHT = 0
     ACT = 10
-    ITEMS = 20
-    MERCY = 30
     FLEE = 40
+    SPARE = 41
+    ITEMS = 60
 
 
 class Target:
