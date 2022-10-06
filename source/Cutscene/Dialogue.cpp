@@ -7,18 +7,18 @@
 #include "Cutscene/Cutscene.hpp"
 #include "Formats/utils.hpp"
 
-Dialogue::Dialogue(bool isRoom_, u16 textId, const char* speaker, s32 speakerX, s32 speakerY,
+Dialogue::Dialogue(bool centered_, u16 textId, const char* speaker, s32 speakerX, s32 speakerY,
                    const char* idleAnimTxt, const char* talkAnimTxt, Engine::Sprite* target_,
                    const char* idleAnim2Txt, const char* talkAnim2Txt, const char* typeSndPath,
-                   const char* fontTxt, u16 framesPerLetter) :
+                   const char* fontTxt, u16 framesPerLetter, Engine::TextBGManager& txtManager) :
                    speakerManager(Engine::AllocatedOAM) {
-    isRoom = isRoom_;
-    textManager = &Engine::textSub;
+    centered = centered_;
+    textManager = &txtManager;
     char buffer[100];
 
     font.loadPath(fontTxt);
 
-    if (strlen(speaker) != 0 && isRoom_)
+    if (strlen(speaker) != 0 && centered_)
         speakerSpr.loadPath(speaker);
 
     sprintf(buffer, "nitro:/data/dialogue/r%d/c%d/d%d.txt",
@@ -29,7 +29,7 @@ Dialogue::Dialogue(bool isRoom_, u16 textId, const char* speaker, s32 speakerX, 
     fseek(textStream, 0, SEEK_SET);
     text = new char[textLen];
     fread(text, textLen, 1, textStream);
-    if (isRoom_) {
+    if (centered_) {
         if (strlen(speaker) != 0)
             startingY = 192 / 2;
         else
@@ -44,7 +44,7 @@ Dialogue::Dialogue(bool isRoom_, u16 textId, const char* speaker, s32 speakerX, 
     }
     letterFrames = framesPerLetter;
     currentTimer = letterFrames;
-    if (isRoom_) {
+    if (centered_) {
         getLine();
 
         speakerManager.loadTexture(speakerSpr);
@@ -71,10 +71,10 @@ Dialogue::Dialogue(bool isRoom_, u16 textId, const char* speaker, s32 speakerX, 
     setTalk();
 }
 
-Dialogue::Dialogue(bool isRoom_, int x_, int y_, const char *text_, const char *typeSndPath,
+Dialogue::Dialogue(bool centered_, int x_, int y_, const char *text_, const char *typeSndPath,
                    const char *fontTxt, u16 framesPerLetter, Engine::TextBGManager& txtManager) :
                    speakerManager(Engine::AllocatedOAM) {
-    isRoom = isRoom_;
+    centered = centered_;
     textManager = &txtManager;
     font.loadPath(fontTxt);
     textLen = strlen(text_);
@@ -85,7 +85,7 @@ Dialogue::Dialogue(bool isRoom_, int x_, int y_, const char *text_, const char *
     letterFrames = framesPerLetter;
     currentTimer = letterFrames;
     target = nullptr;
-    if (isRoom_) {
+    if (centered_) {
         startingY = 192 / 4;
         y = startingY;
     }
@@ -117,12 +117,12 @@ bool Dialogue::update() {
         progressText(true, true);
         if ((keysDown() & (KEY_TOUCH | KEY_B)) || letterFrames == 0) {
             progressText(true, false);
-            while (!paused && !(textPos >= textLen && (linePos >= lineLen || !isRoom)))
+            while (!paused && !(textPos >= textLen && (linePos >= lineLen || !centered)))
                 progressText(false, false);
             linePos--;
             progressText(false, true);
         }
-        if (textPos == textLen && (linePos >= lineLen || !isRoom)) {
+        if (textPos == textLen && (linePos >= lineLen || !centered)) {
             setNoTalk();
             return true;
         }
@@ -161,13 +161,13 @@ void Dialogue::getLine() {
 }
 
 void Dialogue::progressText(bool clear, bool draw) {
-    if (isRoom)
-        progressTextRoom(clear, draw);
+    if (centered)
+        progressTextCentered(clear, draw);
     else
-        progressTextBattle(clear, draw);
+        progressTextLeft(clear, draw);
 }
 
-void Dialogue::progressTextRoom(bool clear, bool draw) {
+void Dialogue::progressTextCentered(bool clear, bool draw) {
     if (currentTimer > 0 && draw) {
         currentTimer--;
         return;
@@ -287,7 +287,7 @@ void Dialogue::progressTextRoom(bool clear, bool draw) {
         currentColor = lineEndColor;
 }
 
-void Dialogue::progressTextBattle(bool clear, bool draw) {
+void Dialogue::progressTextLeft(bool clear, bool draw) {
     if (currentTimer > 0 && draw) {
         currentTimer--;
         return;

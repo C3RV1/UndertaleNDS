@@ -30,7 +30,7 @@ public:
     char name[MAX_NAME_LEN + 1] = {0};
     u16 flags[FLAG_COUNT] = {0};
     u8 hp = 20, maxHp = 20;
-    u8 lv = 1, exp = 0;
+    u16 lv = 1, exp = 0, gold = 0;
     u8 items[ITEM_COUNT + 1] = {0};  // Terminal 0
 
     u16 lastSavedRoom = 0;

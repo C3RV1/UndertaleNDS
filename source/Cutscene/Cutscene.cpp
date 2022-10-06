@@ -56,7 +56,7 @@ bool Cutscene::checkHeader(FILE *f) {
     u32 version;
     fread(&version, 4, 1, f);
 
-    if (version != 5) {
+    if (version != 6) {
         return false;
     }
 
@@ -308,7 +308,10 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             char idleAnim[50], talkAnim[50];
             char idleAnim2[50], talkAnim2[50];
             char typeSnd[50];
+            bool mainScreen;
+            bool centered;
 
+            fread(&centered, 1, 1, commandStream);
             fread(&textId, 2, 1, commandStream);
 
             len = str_len_file(commandStream, 0);
@@ -340,13 +343,14 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             fread(font, len + 1, 1, commandStream);
 
             fread(&framesPerLetter, 2, 1, commandStream);
+            fread(&mainScreen, 1, 1, commandStream);
+            Engine::TextBGManager* txt = mainScreen ? &Engine::textMain : &Engine::textSub;
 
             Engine::Sprite* target = Navigation::getTarget(targetType, targetId, callingLocation);
             if (cDialogue == nullptr) {
-                bool isRoom = callingLocation == ROOM || callingLocation == LOAD_ROOM;
-                cDialogue = new Dialogue(isRoom, textId, speaker, x, y, idleAnim, talkAnim,
+                cDialogue = new Dialogue(centered, textId, speaker, x, y, idleAnim, talkAnim,
                                          target, idleAnim2, talkAnim2, typeSnd,
-                                         font, framesPerLetter);
+                                         font, framesPerLetter, *txt);
             }
             break;
         }
@@ -362,8 +366,10 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
 #ifdef DEBUG_CUTSCENES
             nocashMessage("CMD_EXIT_BATTLE");
 #endif
+            bool battleWon = false;
+            fread(&battleWon, 1, 1, commandStream);
             if (globalBattle != nullptr)
-                globalBattle->running = false;
+                globalBattle->exit(battleWon);
             return true;
         }
         case CMD_BATTLE_ATTACK: {
@@ -555,6 +561,30 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
                     globalBattle->enemies[enemyIdx].attackId = attackId;
                 }
             }
+            break;
+        }
+        case CMD_CMP_ENEMY_HP: {
+#ifdef DEBUG_CUTSCENES
+            nocashMessage("CMD_CMP_ENEMY_HP");
+#endif
+            u8 enemyIdx, comparator;
+            u16 cmpValue;
+            fread(&enemyIdx, 1, 1, commandStream);
+            fread(&comparator, 1, 1, commandStream);
+            fread(&cmpValue, 2, 1, commandStream);
+            if (globalBattle == nullptr)
+                break;
+            if (enemyIdx >= globalBattle->enemyCount)
+                break;
+            u16 flagValue = globalBattle->enemies[enemyIdx].hp;
+            if ((comparator & 3) == ComparisonOperator::EQUALS)
+                flag = (flagValue == cmpValue);
+            else if ((comparator & 3) == ComparisonOperator::GREATER_THAN)
+                flag = (flagValue > cmpValue);
+            else if ((comparator & 3) == ComparisonOperator::LESS_THAN)
+                flag = (flagValue < cmpValue);
+            if (comparator & 4)
+                flag = !flag;
             break;
         }
         default:

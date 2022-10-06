@@ -110,7 +110,7 @@ namespace Engine {
             tileFreeZones[freeZoneIdx * 2] += length;
             tileFreeZones[freeZoneIdx * 2 + 1] -= length;
         }
-#ifdef DEBUG_SPRITES
+#ifdef DEBUG_3D
         char buffer[100];
         sprintf(buffer, "3dalloc start %d length %d",
                 start, length);
@@ -171,7 +171,7 @@ namespace Engine {
     }
 
     void Sprite3DManager::freeTiles(u16 length, u16& start) {
-#ifdef DEBUG_SPRITES
+#ifdef DEBUG_3D
         char buffer[100];
         sprintf(buffer, "3dfree start %d length %d",
                 start, length);
@@ -356,7 +356,7 @@ namespace Engine {
             Sprite* spr = activeSprites[i];
 
             if (!spr->memory.loadedIntoMemory) {
-#ifdef DEBUG_SPRITES
+#ifdef DEBUG_3D
                 char buffer[100];
                 sprintf(buffer, "Loading sprite %d out of %d", i + 1, activeSpriteCount);
                 nocashMessage(buffer);

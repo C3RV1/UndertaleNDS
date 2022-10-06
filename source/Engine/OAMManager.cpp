@@ -208,7 +208,7 @@ namespace Engine {
         }
 
         oamEntry->tileStart = start;
-#ifdef DEBUG_SPRITES
+#ifdef DEBUG_2D
         dumpOamState();
 #endif
 
@@ -230,7 +230,7 @@ namespace Engine {
         u16 start = oamEntry->tileStart;
         u16 length = oamEntry->tileWidth * oamEntry->tileHeight;
 
-#ifdef DEBUG_SPRITES
+#ifdef DEBUG_2D
         char buffer[100];
         sprintf(buffer, "2dfree start %d length %d oamId %d",
                 start, length, oamId);
@@ -285,11 +285,12 @@ namespace Engine {
             delete[] tileFreeZones;
             tileFreeZones = newFreeZones;
         }
-#ifdef DEBUG_SPRITES
+#ifdef DEBUG_2D
         dumpOamState();
 #endif
     }
 
+#ifdef DEBUG_2D
     void OAMManager::dumpOamState() {
         char buffer[100];
         for (int i = 0; i < tileFreeZoneCount; i++) {
@@ -305,6 +306,7 @@ namespace Engine {
             nocashMessage(buffer);
         }
     }
+#endif
 
     void OAMManager::freeSprite(Sprite& spr) {
         if (spr.memory.allocated != AllocatedOAM)

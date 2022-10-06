@@ -20,6 +20,7 @@
 class Battle {
 public:
     Battle();
+    void exit(bool won);
     void loadFromStream(FILE* stream);
     void show();
     void hide();
@@ -29,6 +30,8 @@ public:
     void free_();
     bool shown = false;
     bool running = true;
+    bool stopPostDialogue = false;
+    char* winText = nullptr;
     Navigation nav;
 
     u8 enemyCount = 0;

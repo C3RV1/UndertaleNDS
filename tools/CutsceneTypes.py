@@ -137,7 +137,7 @@ class Target:
 class Cutscene:
     def __init__(self, wtr: binary.BinaryWriter):
         self.wtr: binary.BinaryWriter = wtr
-        self.version = 5
+        self.version = 6
         self.file_size_pos = 0
         self.instructions_address = []
         self.pending_address = {}
@@ -285,8 +285,10 @@ class Cutscene:
                        speaker_target: Target,
                        idle_anim2: str, talk_anim2: str,
                        type_sound: str = "",
-                       font: str = "fnt_maintext.font", frames_per_letter=3):
+                       font: str = "fnt_maintext.font", frames_per_letter=3,
+                       main_screen=False, centered=True):
         self.write_header(CutsceneCommands.START_DIALOGUE)
+        self.wtr.write_bool(centered)
         self.wtr.write_uint16(dialogue_text_id)
         self.wtr.write_string(speaker_path, encoding="ascii")
         self.wtr.write_int32(to_fixed_point(x))
@@ -299,17 +301,20 @@ class Cutscene:
         self.wtr.write_string(type_sound, encoding="ascii")
         self.wtr.write_string(font, encoding="ascii")
         self.wtr.write_uint16(frames_per_letter)
+        self.wtr.write_bool(main_screen)
         return self.instructions_address[-1]
 
     def start_dialogue_battle(self, dialogue_text_id: int,
                               x: float, y: float,
                               speaker_target: Target,
                               idle_anim: str, talk_anim: str, type_sound: str = "",
-                              font: str = "fnt_maintext.font", frames_per_letter=2):
+                              font: str = "fnt_maintext.font", frames_per_letter=2,
+                              main_screen=False, centered=False):
         return self.start_dialogue(dialogue_text_id, "", x, y,
                                    "", "", speaker_target, idle_anim, talk_anim,
                                    type_sound=type_sound,
-                                   font=font, frames_per_letter=frames_per_letter)
+                                   font=font, frames_per_letter=frames_per_letter,
+                                   main_screen=main_screen, centered=centered)
 
     # == BATTLE ==
     def start_battle(self, enemies: List[Enemy], board_id: int,
@@ -325,8 +330,9 @@ class Cutscene:
         self.wtr.write_uint8(board_h)
         return self.instructions_address[-1]
 
-    def exit_battle(self):
+    def exit_battle(self, won=False):
         self.write_header(CutsceneCommands.EXIT_BATTLE)
+        self.wtr.write_bool(won)
         return self.instructions_address[-1]
 
     def start_battle_attacks(self):
@@ -365,11 +371,11 @@ class Cutscene:
         self.wtr.write_uint16(flag_id)
         op_byte = {
             "==": 0,
-            "!=": 1,
-            ">": 2,
-            "<=": 2,
-            "<": 3,
-            ">=": 3
+            "!=": 0,
+            ">": 1,
+            "<=": 1,
+            "<": 2,
+            ">=": 2
         }[operator]
         op_byte += (1 << 2) if operator in ["!=", "<=", ">="] else 0
         self.wtr.write_uint8(op_byte)
@@ -381,11 +387,11 @@ class Cutscene:
         self.wtr.write_uint8(enemy_id)
         op_byte = {
             "==": 0,
-            "!=": 1,
-            ">": 2,
-            "<=": 2,
-            "<": 3,
-            ">=": 3
+            "!=": 0,
+            ">": 1,
+            "<=": 1,
+            "<": 2,
+            ">=": 2
         }[operator]
         op_byte += (1 << 2) if operator in ["!=", "<=", ">="] else 0
         self.wtr.write_uint8(op_byte)

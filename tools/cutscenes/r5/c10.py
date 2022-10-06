@@ -8,8 +8,9 @@ else:
 def cutscene(c: Cutscene):
     # Dummy battle
     c.player_control(False)
+    c.set_action(Target(TargetType.SPRITE, 1), "none")
 
-    c.start_battle([Enemy(1, 15, 0, 2, BattleAttackIds.NONE, spare_value=100)], 0, 61, 63, 134, 75)
+    c.start_battle([Enemy(1, 15, 0, 2, BattleAttackIds.NONE)], 0, 61, 63, 134, 75)
     c.wait(WaitTypes.EXIT)
 
     # == LOAD BATTLE ==
@@ -22,7 +23,7 @@ def cutscene(c: Cutscene):
 
     c.wait(WaitTypes.ENTER)
 
-    c.start_dialogue_battle(10, 118, 192 // 4 + 20,
+    c.start_dialogue_battle(10, 100, 192 // 4 + 20,
                             Target(TargetType.NULL), "", "",
                             type_sound="SND_TXT1.wav")
     c.wait(WaitTypes.DIALOGUE)
@@ -47,6 +48,27 @@ def cutscene(c: Cutscene):
     c.cmp_flag(FlagOffsets.BATTLE_FLAGS, ">=", 8)
     bored_dummy_jump = c.jump_if()
 
+    c.cmp_flag(FlagOffsets.BATTLE_FLAGS, "==", 1)
+    jump_idle_1 = c.jump_if()
+
+    # == IDLE 2 ==
+
+    c.start_dialogue_battle(12, 100, 192 // 4 + 20,
+                            Target(TargetType.NULL), "", "",
+                            type_sound="SND_TXT1.wav")
+    c.wait(WaitTypes.DIALOGUE)
+
+    c.jump(dst=loop_start)
+
+    # == IDLE 1 ==
+
+    c.bind(jump_idle_1)
+
+    c.start_dialogue_battle(11, 100, 192 // 4 + 20,
+                            Target(TargetType.NULL), "", "",
+                            type_sound="SND_TXT1.wav")
+    c.wait(WaitTypes.DIALOGUE)
+
     c.jump(dst=loop_start)
 
     # == FIGHT ==
@@ -56,12 +78,12 @@ def cutscene(c: Cutscene):
     c.set_flag(FlagOffsets.DUMMY, 0)
     c.set_animation(Target(TargetType.SPRITE, 0), "hurt")
 
-    c.start_dialogue_battle(20, 128 + 20, 192 // 4,
+    c.start_dialogue_battle(20, 100, 192 // 4,
                             Target(TargetType.NULL), "", "",
                             type_sound="SND_TXT1.wav")
     c.wait(WaitTypes.DIALOGUE)
 
-    c.exit_battle()
+    c.exit_battle(won=True)
     c.wait(WaitTypes.EXIT)
 
     # We have killed it, so unload it
@@ -85,11 +107,21 @@ def cutscene(c: Cutscene):
     c.debug("Talked to dummy")
     c.set_flag(FlagOffsets.DUMMY, 1)
 
-    c.start_dialogue_battle(40, 128 + 20, 192 // 4,
+    c.start_dialogue_battle(40, 100, 192 // 4,
                             Target(TargetType.NULL), "", "",
                             type_sound="SND_TXT1.wav")
     c.wait(WaitTypes.DIALOGUE)
-    c.exit_battle()
+    c.exit_battle(won=True)
+
+    c.wait(WaitTypes.EXIT)
+    c.wait(WaitTypes.ENTER)
+
+    c.start_dialogue(45, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4,
+                     "talkIdle", "talkTalk",
+                     Target(TargetType.SPRITE, 0),
+                     "downIdle", "downTalk",
+                     type_sound="snd_txttor.wav")
+    c.wait(WaitTypes.DIALOGUE)
 
     post_talk_jump = c.jump()
 
@@ -99,9 +131,17 @@ def cutscene(c: Cutscene):
     c.debug("Flee from dummy")
     c.set_flag(FlagOffsets.DUMMY, 2)
 
-    c.exit_battle()
+    c.exit_battle(won=False)
     c.wait(WaitTypes.EXIT)
     c.wait(WaitTypes.ENTER)
+
+    c.start_dialogue(50, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4,
+                     "talkIdle", "talkTalk",
+                     Target(TargetType.SPRITE, 0),
+                     "downIdle", "downTalk",
+                     type_sound="snd_txttor.wav")
+    c.wait(WaitTypes.DIALOGUE)
+
     post_flee_jump = c.jump()
 
     # == BORED ==
@@ -110,17 +150,34 @@ def cutscene(c: Cutscene):
     c.debug("Dummy got bored")
     c.set_flag(FlagOffsets.DUMMY, 3)
 
-    c.start_dialogue_battle(60, 128 + 20, 192 // 4,
+    c.start_dialogue_battle(60, 100, 192 // 4,
                             Target(TargetType.NULL), "", "",
                             type_sound="SND_TXT1.wav")
     c.wait(WaitTypes.DIALOGUE)
-    c.exit_battle()
 
-    post_bored_jump = c.jump()
+    c.move_in_frames(Target(TargetType.SPRITE, 0), 0, -200, 120)
+
+    c.start_dialogue_battle(61, 100, 192 // 4,
+                            Target(TargetType.NULL), "", "",
+                            type_sound="SND_TXT1.wav")
+    c.wait(WaitTypes.FRAMES, value=120)
+    c.wait(WaitTypes.DIALOGUE)
+
+    c.exit_battle(won=True)
+    c.wait(WaitTypes.EXIT)
+    c.wait(WaitTypes.ENTER)
+
+    c.start_dialogue(65, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4,
+                     "talkIdle", "talkTalk",
+                     Target(TargetType.SPRITE, 0),
+                     "downIdle", "downTalk",
+                     type_sound="snd_txttor.wav")
+    c.wait(WaitTypes.DIALOGUE)
+
+    # == BRANCH MERGE ==
 
     c.bind(post_fight_jump)
     c.bind(post_talk_jump)
-    c.bind(post_bored_jump)
     c.bind(post_flee_jump)
 
     c.debug("Branches merged")

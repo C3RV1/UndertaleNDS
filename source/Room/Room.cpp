@@ -326,6 +326,7 @@ void Room::push() {
 void Room::pop() {
     char buffer[100];
     bg.loadPath(roomData.roomBg);
+    globalPlayer->spriteManager.pop();
 
     int bgLoad = Engine::loadBgExtendedMain(bg, 512 / 8);
     if (bgLoad != 0) {
@@ -335,7 +336,6 @@ void Room::pop() {
     for (int i = 0; i < spriteCount; i++) {
         sprites[i]->spriteManager.pop();
     }
-    globalPlayer->spriteManager.pop();
 }
 
 Room* globalRoom = nullptr;

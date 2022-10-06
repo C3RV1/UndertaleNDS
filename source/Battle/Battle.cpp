@@ -24,6 +24,41 @@ Battle::Battle() : playerManager(Engine::Allocated3D) {
     for (int i = 220; i <= 229; i++) {
         globalSave.flags[i] = 0;
     }
+
+    FILE *f = fopen("nitro:/data/battle_win.txt", "rb");
+    if (f) {
+        fseek(f, 0, SEEK_END);
+        long len = ftell(f);
+        fseek(f, 0, SEEK_SET);
+        winText = new char[len + 1];
+        fread(winText, len + 1, 1, f);
+        winText[len] = '\0';
+    }
+    fclose(f);
+}
+
+void Battle::exit(bool won) {
+    if (won) {
+        hide();
+        int earnedExp = 0, earnedGold = 0;
+        for (int i = 0; i < enemyCount; i++) {
+            if (enemies[i].hp <= 0)
+                earnedExp += enemies[i].expOnKill;
+            earnedGold += enemies[i].goldOnWin;
+        }
+        globalSave.exp += earnedExp;
+        globalSave.gold += earnedGold;
+        char buffer[200] = {0};
+        sprintf(buffer, winText, earnedExp, earnedGold);
+        if (globalCutscene->cDialogue == nullptr) {
+            globalCutscene->cDialogue = new Dialogue(true, 0, 0, buffer, "SND_TXT1.wav",
+                                                     "fnt_maintext.font", 2,
+                                                     Engine::textMain);
+        }
+        stopPostDialogue = true;
+    } else {
+        running = false;
+    }
 }
 
 void Battle::loadFromStream(FILE *stream) {
@@ -51,12 +86,14 @@ void Battle::loadFromStream(FILE *stream) {
 }
 
 void Battle::show() {
+    Engine::textMain.clear();
     Engine::loadBgTextMain(bulletBoard);
     playerManager.setShown(true);
     shown = true;
 }
 
 void Battle::hide() {
+    Engine::textMain.clear();
     Engine::clearMain();
     playerManager.setShown(false);
     shown = false;
@@ -130,6 +167,8 @@ void Battle::update() {
 }
 
 void Battle::free_() {
+    delete[] winText;
+    winText = nullptr;
     bulletBoard.free_();
     playerManager.setShown(false);
     player.free_();
@@ -164,7 +203,8 @@ void runBattle(FILE* stream) {
     }
 
     globalRoom->push();
-    Engine::clearMain();
+    Engine::textMain.clear();
+    Engine::textSub.clear();
     globalInGameMenu.unload();
 
     lcdMainOnBottom();
@@ -187,6 +227,9 @@ void runBattle(FILE* stream) {
     while (globalBattle->running) {
         Engine::tick();
         if (globalCutscene != nullptr) {
+            if (globalBattle->stopPostDialogue && globalCutscene->cDialogue == nullptr) {
+                globalBattle->running = false;
+            }
             globalCutscene->update();
             if (globalCutscene->runCommands(BATTLE)) {
                 delete globalCutscene;
@@ -208,11 +251,13 @@ void runBattle(FILE* stream) {
 
     globalBattle->free_();
     delete globalBattle;
+    Engine::textMain.clear();
+    Engine::textSub.clear();
 
     lcdMainOnTop();
 
-    globalInGameMenu.load();
     globalRoom->pop();
+    globalInGameMenu.load();
 
     if (globalCutscene != nullptr) {
         globalCutscene->runCommands(LOAD_ROOM);

@@ -164,7 +164,6 @@ void BattleAction::drawTarget() {
 
     if (chosenTarget / 4 == currentPage)
         return;
-    nocashMessage("here");
     currentPage = chosenTarget / 4;
 
     Engine::textMain.clear();

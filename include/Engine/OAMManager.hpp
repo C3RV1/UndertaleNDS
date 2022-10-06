@@ -8,6 +8,7 @@
 #define ARM9
 #include <nds.h>
 #include "Sprite.hpp"
+#include "DEBUG_FLAGS.hpp"
 
 namespace Engine {
     struct OAMEntry {
@@ -37,7 +38,9 @@ namespace Engine {
         int reserveOAMEntry(u8 tileW, u8 tileH);
         void freeOAMEntry(int oamId);
 
+#ifdef DEBUG_2D
         void dumpOamState();
+#endif
 
         void draw();
     private:

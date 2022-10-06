@@ -14,11 +14,11 @@
 
 class Dialogue {
 public:
-    Dialogue(bool isRoom_, u16 textId, const char* speaker, s32 speakerX, s32 speakerY,
+    Dialogue(bool centered_, u16 textId, const char* speaker, s32 speakerX, s32 speakerY,
              const char* idleAnimTxt, const char* talkAnimTxt, Engine::Sprite* target_,
              const char* idleAnim2Txt, const char* talkAnim2Txt, const char* typeSndPath,
-             const char* fontTxt, u16 framesPerLetter);
-    Dialogue(bool isRoom_, int x_, int y_, const char* text_, const char* typeSndPath,
+             const char* fontTxt, u16 framesPerLetter, Engine::TextBGManager& txtManager);
+    Dialogue(bool centered_, int x_, int y_, const char* text_, const char* typeSndPath,
              const char* fontTxt, u16 framesPerLetter, Engine::TextBGManager& txtManager);
     bool update();
     void free_();
@@ -26,15 +26,15 @@ private:
     void setTalk();
     void setNoTalk();
     void progressText(bool clear, bool draw);
-    void progressTextRoom(bool clear, bool draw);  // Draws text centered
-    void progressTextBattle(bool clear, bool draw);  // Draws text left-aligned
+    void progressTextCentered(bool clear, bool draw);  // Draws text centered
+    void progressTextLeft(bool clear, bool draw);  // Draws text left-aligned
     u16 getLineWidth(int linePos_);
     void getLine();
     bool paused = false;
     int startingX, startingY;
     int x, y;
 
-    bool isRoom;
+    bool centered;
     u16 linePos = 0;
     u16 lineLen = 0;
     u16 textPos = 0;
