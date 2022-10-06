@@ -181,6 +181,8 @@ def cutscene(c: Cutscene):
     c.bind(post_flee_jump)
 
     c.debug("Branches merged")
+    c.set_flag(FlagOffsets.PROGRESS, 5)
+    c.set_collider_enabled(1, False)
 
     c.set_animation(Target(TargetType.SPRITE, 0), "moveUp")
     c.move_in_frames(Target(TargetType.SPRITE, 0), 0, -30, 20)

@@ -14,6 +14,12 @@
           "room_id": 4,
           "spawn_x": 695, "spawn_y": 140,
           "side": "left"
+        },
+        {
+          "exit_type": "rect",
+          "room_id": 6,
+          "spawn_x": 119, "spawn_y": 194,
+          "x": 128, "y": 0, "w": 40, "h": 65
         }
       ],
       "textures": [
@@ -38,6 +44,10 @@
           "x": 0, "y": 140, "w": 55, "h": 40,
           "action": "cutscene", "cutscene_id": 0
         },
+        {
+          "x": 128, "y": 68, "w": 40, "h": 20,
+          "comment": "disabled on dummy fought"
+        },
 
         {"x": 0, "y": 0, "w": 28, "h": 140},
         {"x": 28, "y": 0, "w": 20, "h": 120},
@@ -55,6 +65,47 @@
       ]
     },
     {
+      "comment": "dummy dead",
+      "conditions": [
+        {"flag_id": 1, "op": "==", "cmp_value": 0}
+      ],
+      "room_bg": "rooms/room5",
+      "music_path": "mus_ruins.wav",
+      "spawn_x": 0, "spawn_y": 0,
+      "exits": [
+        {
+          "exit_type": "side",
+          "room_id": 4,
+          "spawn_x": 695, "spawn_y": 140,
+          "side": "left"
+        },
+        {
+          "exit_type": "rect",
+          "room_id": 6,
+          "spawn_x": 119, "spawn_y": 194,
+          "x": 128, "y": 0, "w": 40, "h": 65
+        }
+      ],
+      "textures": [],
+      "sprites": [],
+      "colliders": [
+        {"x": 0, "y": 0, "w": 28, "h": 140},
+        {"x": 28, "y": 0, "w": 20, "h": 120},
+        {"x": 48, "y": 0, "w": 20, "h": 100},
+        {"x": 68, "y": 0, "w": 60, "h": 80},
+        {"x": 168, "y": 0, "w": 109, "h": 80},
+        {"x": 228, "y": 80, "w": 49, "h": 20},
+        {"x": 248, "y": 100, "w": 29, "h": 20},
+        {"x": 268, "y": 120, "w": 9, "h": 120},
+        {"x": 248, "y": 180, "w": 20, "h": 60},
+        {"x": 228, "y": 200, "w": 20, "h": 40},
+        {"x": 0, "y": 220, "w": 228, "h": 20},
+        {"x": 0, "y": 200, "w": 68, "h": 20},
+        {"x": 0, "y": 180, "w": 48, "h": 20}
+      ]
+    },
+    {
+      "comment": "dummy alive",
       "conditions": [],
       "room_bg": "rooms/room5",
       "music_path": "mus_ruins.wav",
@@ -65,10 +116,24 @@
           "room_id": 4,
           "spawn_x": 695, "spawn_y": 140,
           "side": "left"
+        },
+        {
+          "exit_type": "rect",
+          "room_id": 6,
+          "spawn_x": 119, "spawn_y": 194,
+          "x": 128, "y": 0, "w": 40, "h": 65
         }
       ],
-      "textures": [],
-      "sprites": [],
+      "textures": [
+        "room_sprites/dummy"
+      ],
+      "sprites": [
+        {
+          "texture_id": 0,
+          "x": 192, "y": 96,
+          "animation": "idle"
+        }
+      ],
       "colliders": [
         {"x": 0, "y": 0, "w": 28, "h": 140},
         {"x": 28, "y": 0, "w": 20, "h": 120},

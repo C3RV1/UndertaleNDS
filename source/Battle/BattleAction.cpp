@@ -284,8 +284,11 @@ bool BattleAction::updateChoosingTarget() {
     else if (keysDown() & KEY_A) {
         switch (currentAction) {
             case ACTION_MERCY:
-            case ACTION_FIGHT:
                 return true;
+            case ACTION_FIGHT:
+                // return true;
+                // TODO: Finish fight
+                break;
             case ACTION_ACT:
                 enter(CHOOSING_ACT);
                 break;

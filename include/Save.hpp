@@ -22,6 +22,7 @@ enum ClearType {
 
 class SaveData {
 public:
+    const u32 saveVersion = 3;
     void clear(ClearType clearType);
     void loadData();
     void saveData(u16 roomId);

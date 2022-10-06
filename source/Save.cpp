@@ -27,7 +27,7 @@ void SaveData::clear(ClearType clearType) {
 
 void SaveData::loadData() {
     char header[4];
-    char expectedHeader[4] = {'U', 'S', 'V', '2'};
+    char expectedHeader[4] = {'U', 'S', 'A', 'V'};
 
     fCard.seek(0, SEEK_SET);
     fCard.read(header, 4);
@@ -37,6 +37,12 @@ void SaveData::loadData() {
         return;
     }
 
+    u32 saveVersion_;
+    fCard.read(&saveVersion_, 4);
+    if (saveVersion_ != saveVersion) {
+        clear(INTERNAL_RESET);
+        return;
+    }
     fCard.read(name, MAX_NAME_LEN + 1);
     fCard.read(flags, 2 * FLAG_COUNT);
     fCard.read(&maxHp, 1);
@@ -53,10 +59,12 @@ void SaveData::loadData() {
 }
 
 void SaveData::saveData(u16 roomId) {
-    char header[4] = {'U', 'S', 'V', '2'};
+    char header[4] = {'U', 'S', 'A', 'V'};
 
     fCard.seek(0, SEEK_SET);
     fCard.write(header, 4);
+    u32 saveVersion_ = saveVersion;
+    fCard.write(&saveVersion_, 4);
     fCard.write(name, MAX_NAME_LEN + 1);
     fCard.write(flags, 2 * FLAG_COUNT);
     fCard.write(&maxHp, 1);

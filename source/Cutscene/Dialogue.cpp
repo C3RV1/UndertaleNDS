@@ -195,7 +195,7 @@ void Dialogue::progressTextCentered(bool clear, bool draw) {
         else if (command == 'a') {
             char buffer[30];
             char* pBuffer = buffer;
-            for (char* pLine = (line + linePos); *pLine != ' ';
+            for (char* pLine = (line + linePos); *pLine != '/';
                  pLine++, pBuffer++, linePos++) {
                 *pBuffer = *pLine;
             }
@@ -203,7 +203,7 @@ void Dialogue::progressTextCentered(bool clear, bool draw) {
             *pBuffer = '\0';
             idleAnim = speakerManager.nameToAnimId(buffer);
             pBuffer = buffer;
-            for (char* pLine = (line + linePos); *pLine != ' ';
+            for (char* pLine = (line + linePos); *pLine != '/';
                  pLine++, pBuffer++, linePos++) {
                 *pBuffer = *pLine;
             }
@@ -214,7 +214,7 @@ void Dialogue::progressTextCentered(bool clear, bool draw) {
         else if (command == 'b') {
             char buffer[30];
             char* pBuffer = buffer;
-            for (char* pLine = (line + linePos); *pLine != ' ';
+            for (char* pLine = (line + linePos); *pLine != '/';
                  pLine++, pBuffer++, linePos++) {
                 *pBuffer = *pLine;
             }
@@ -222,7 +222,7 @@ void Dialogue::progressTextCentered(bool clear, bool draw) {
             *pBuffer = '\0';
             idleAnim2 = speakerManager.nameToAnimId(buffer);
             pBuffer = buffer;
-            for (char* pLine = (line + linePos); *pLine != ' ';
+            for (char* pLine = (line + linePos); *pLine != '/';
                  pLine++, pBuffer++, linePos++) {
                 *pBuffer = *pLine;
             }
@@ -331,13 +331,13 @@ void Dialogue::progressTextLeft(bool clear, bool draw) {
             textManager->setCurrentColor(15);
         else if (currentChar == 'a') {
             int len;
-            for (len = 0; *(text + textPos + len) != ' '; len++);
+            for (len = 0; *(text + textPos + len) != '/'; len++);
             char buffer[30];
             memcpy(buffer, text + textPos, len + 1);
             buffer[len] = '\0';
             textPos += len + 1;
             idleAnim = speakerManager.nameToAnimId(buffer);
-            for (len = 0; *(text + textPos + len) != ' '; len++);
+            for (len = 0; *(text + textPos + len) != '/'; len++);
             memcpy(buffer, text + textPos, len + 1);
             buffer[len] = '\0';
             textPos += len + 1;
@@ -345,14 +345,19 @@ void Dialogue::progressTextLeft(bool clear, bool draw) {
         }
         else if (currentChar == 'b') {
             int len;
-            for (len = 0; *(text + textPos + len) != ' '; len++);
+            for (len = 0; *(text + textPos + len) != '/'; len++);
+            char dgbBuf[50];
+            sprintf(dgbBuf, "%d", len);
+            nocashMessage(dgbBuf);
             char buffer[30];
             memcpy(buffer, text + textPos, len + 1);
             buffer[len] = '\0';
             textPos += len + 1;
             if (target != nullptr)
                 idleAnim2 = target->nameToAnimId(buffer);
-            for (len = 0; *(text + textPos + len) != ' '; len++);
+            for (len = 0; *(text + textPos + len) != '/'; len++);
+            sprintf(dgbBuf, "%d", len);
+            nocashMessage(dgbBuf);
             memcpy(buffer, text + textPos, len + 1);
             buffer[len] = '\0';
             textPos += len + 1;
