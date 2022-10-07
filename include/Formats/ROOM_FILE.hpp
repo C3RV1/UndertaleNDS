@@ -11,7 +11,7 @@ struct ROOMHeader {
     char header[4] = {'R', 'O', 'O', 'M'};
     u32 fileSize = 0;
 
-    u32 version = 7;
+    u32 version = 8;
 };
 
 struct ROOMExit {
@@ -34,10 +34,15 @@ struct ROOMTextures {
 
 struct ROOMSprite {
     s8 textureId = 0;
-    u16 x = 0, y = 0, layer = 0;
+    u16 x = 0, y = 0;
     char* animation = nullptr;
-    u8 interactAction = 0;  // 0 - none, 1 - cutscene
+    u8 interactAction = 0;  // 0 - none, 1 - cutscene, 2 - proximity
+
     u16 cutsceneId = 0;  // only when interactAction == 1
+
+    // only when interactAction == 2
+    u16 distance = 0;
+    char *closeAnim = nullptr;
 };
 
 struct ROOMSprites {

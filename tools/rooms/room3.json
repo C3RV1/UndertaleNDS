@@ -39,8 +39,7 @@
           "texture_id": 1,
           "x": 114,
           "y": 104,
-          "animation": "downIdle",
-          "layer": 10
+          "animation": "downIdle"
         },
         {
           "texture_id": 0,

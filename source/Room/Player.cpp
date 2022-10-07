@@ -202,7 +202,7 @@ void Player::draw() {
     spriteManager.cam_y = globalCamera.pos.wy;
     spriteManager.cam_scale_x = globalCamera.pos.w_scale_x;
     spriteManager.cam_scale_y = globalCamera.pos.w_scale_y;
-    spriteManager.layer = 100;
+    spriteManager.layer = spriteManager.wy >> 8;
 }
 
 Player* globalPlayer;

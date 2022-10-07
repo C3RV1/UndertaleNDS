@@ -75,8 +75,7 @@
         {
           "texture_id": 4,
           "x": 98, "y": 110,
-          "animation": "downIdle",
-          "layer": 10
+          "animation": "downIdle"
         }
       ],
       "colliders": [

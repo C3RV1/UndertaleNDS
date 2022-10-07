@@ -18,7 +18,7 @@ bool collidesRect(int x1, int y1, int w1, int h1,
                   int x2, int y2, int w2, int h2);
 
 int distSquared(int x1, int y1, int x2, int y2);
-int distSquared_fp(s32 x1, s32 y1, s32 x2, s32 y2); // fixed point distance squared
+u32 distSquared_fp(s32 x1, s32 y1, s32 x2, s32 y2); // fixed point distance squared
 
 int mod(int a, int b);
 

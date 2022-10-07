@@ -57,6 +57,7 @@ namespace Engine {
 
         fread(&width, 2, 1, f);
         fread(&height, 2, 1, f);
+        fread(&topDownOffset, 2, 1, f);
         u16 tileWidth = (width + 7) / 8, tileHeight = (height + 7) / 8;
 
         fread(&colorCount, 1, 1, f);

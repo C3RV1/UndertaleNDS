@@ -73,7 +73,7 @@ int Room::loadRoom(FILE *f) {
     }
 
     fread(&roomFile.header.version, 4, 1, f);
-    if (roomFile.header.version != 7) {
+    if (roomFile.header.version != 8) {
         return 3;
     }
 
@@ -185,7 +185,6 @@ int Room::loadRoom(FILE *f) {
         fread(&roomSprites[i].textureId, 1, 1, f);
         fread(&roomSprites[i].x, 2, 1, f);
         fread(&roomSprites[i].y, 2, 1, f);
-        fread(&roomSprites[i].layer, 2, 1, f);
         int animLen = str_len_file(f, 0);
         if (animLen == -1)
             return 5;
@@ -194,6 +193,11 @@ int Room::loadRoom(FILE *f) {
         fread(&roomSprites[i].interactAction, 1, 1, f);
         if (roomSprites[i].interactAction == 1) {
             fread(&roomSprites[i].cutsceneId, 2, 1, f);
+        } else if (roomSprites[i].interactAction == 2) {
+            fread(&roomSprites[i].distance, 2, 1, f);
+            animLen = str_len_file(f, 0);
+            roomSprites[i].closeAnim = new char[animLen + 1];
+            fread(roomSprites[i].closeAnim, animLen + 1, 1, f);
         }
     }
 
@@ -231,6 +235,8 @@ void Room::free_() {
     for (int i = 0; i < roomData.roomSprites.spriteCount; i++) {
         delete[] roomData.roomSprites.roomSprites[i].animation;
         roomData.roomSprites.roomSprites[i].animation = nullptr;
+        delete[] roomData.roomSprites.roomSprites[i].closeAnim;
+        roomData.roomSprites.roomSprites[i].closeAnim = nullptr;
     }
     delete[] roomData.roomSprites.roomSprites;
     roomData.roomSprites.roomSprites = nullptr;
@@ -313,6 +319,9 @@ void loadNewRoom(int roomId, s32 spawnX, s32 spawnY) {
 
 void Room::update() {
     nav.update();
+    for (int i = 0; i < spriteCount; i++) {
+        sprites[i]->update(true);
+    }
 }
 
 void Room::push() {

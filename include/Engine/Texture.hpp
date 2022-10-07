@@ -42,6 +42,7 @@ namespace Engine {
         u16 width = 0, height = 0;
         u8 frameCount = 0;
         u8 animationCount = 0;
+        u16 topDownOffset = 0;
         CSPRAnimation* animations = nullptr;
         u8* tiles = nullptr;
 

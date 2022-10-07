@@ -41,7 +41,7 @@ void SaveMenu::drawInfo(SaveData& saveData, u8 color) {
     }
 
     char buffer[100];
-    sprintf(buffer, "nitro:/data/rooms/names/%d.txt", saveData.lastSavedRoom);
+    sprintf(buffer, "nitro:/data/room_names/%d.txt", saveData.lastSavedRoom);
     FILE *f = fopen(buffer, "rb");
     if (f) {
         delete[] roomName;

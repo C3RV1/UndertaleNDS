@@ -11,7 +11,7 @@ class RoomHeader:
     def __init__(self):
         self.header = b"ROOM"
         self.file_size_pos = 0
-        self.version = 7
+        self.version = 8
 
     def write(self, wtr: binary.BinaryWriter):
         wtr.write(self.header)
@@ -114,20 +114,23 @@ class RoomSprite:
         self.texture_id = 0
         self.x = 0
         self.y = 0
-        self.layer = 0
         self.animation = ""
         self.action = 0
         self.cutscene_id = 0
+        self.distance = 0
+        self.close_anim = ""
 
     def write(self, wtr: binary.BinaryWriter):
         wtr.write_uint8(self.texture_id)
         wtr.write_uint16(self.x)
         wtr.write_uint16(self.y)
-        wtr.write_uint16(self.layer)
         wtr.write_string(self.animation, encoding="ascii")
         wtr.write_uint8(self.action)
         if self.action == 1:
             wtr.write_uint16(self.cutscene_id)
+        elif self.action == 2:
+            wtr.write_uint16(self.distance)
+            wtr.write_string(self.close_anim, encoding="ascii")
 
     @classmethod
     def from_dict(cls, dct):
@@ -135,14 +138,17 @@ class RoomSprite:
         res.texture_id = dct["texture_id"]
         res.x = dct["x"]
         res.y = dct["y"]
-        res.layer = dct.get("layer", 1)
         res.animation = dct["animation"]
         res.action = {
             "none": 0,
-            "cutscene": 1
+            "cutscene": 1,
+            "proximity": 2
         }[dct.get("action", "none")]
         if res.action == 1:
             res.cutscene_id = dct["cutscene_id"]
+        elif res.action == 2:
+            res.distance = dct["distance"]
+            res.close_anim = dct["close_animation"]
         return res
 
 

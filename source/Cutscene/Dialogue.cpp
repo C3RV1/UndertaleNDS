@@ -353,6 +353,7 @@ void Dialogue::progressTextLeft(bool clear, bool draw) {
             if (target != nullptr)
                 idleAnim2 = target->nameToAnimId(buffer);
             for (len = 0; *(text + textPos + len) != '/'; len++);
+            memcpy(buffer, text + textPos, len + 1);
             buffer[len] = '\0';
             textPos += len + 1;
             if (target != nullptr)

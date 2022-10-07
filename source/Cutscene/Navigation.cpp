@@ -70,7 +70,7 @@ void Navigation::spawn_sprite(u8 textureId, s32 x, s32 y, s32 layer,
         memcpy(newSprites, globalRoom->sprites, sizeof(ManagedSprite*) * globalRoom->spriteCount);
 
         auto* newRoomSprite = new ManagedSprite(Engine::Allocated3D);
-        newRoomSprite->spawn(textureId, x, y, layer, globalRoom->textureCount,
+        newRoomSprite->spawn(textureId, x, y, globalRoom->textureCount,
                              globalRoom->textures);
 
         newSprites[globalRoom->spriteCount] = newRoomSprite;
@@ -82,8 +82,9 @@ void Navigation::spawn_sprite(u8 textureId, s32 x, s32 y, s32 layer,
         memcpy(newSprites, globalBattle->sprites, sizeof(ManagedSprite*) * globalBattle->spriteCount);
 
         auto* newRoomSprite = new ManagedSprite(Engine::AllocatedOAM);
-        newRoomSprite->spawn(textureId, x, y, layer,
+        newRoomSprite->spawn(textureId, x, y,
                              globalBattle->textureCount, globalBattle->textures);
+        newRoomSprite->spriteManager.layer = layer;
 
         newSprites[globalBattle->spriteCount] = newRoomSprite;
         delete globalBattle->sprites;

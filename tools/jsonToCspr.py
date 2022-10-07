@@ -43,6 +43,7 @@ def convert(input_file, output_file):
                        dtype=np.dtype(np.uint16).newbyteorder("<"))
 
     width, height = data["size"]
+    top_down_offset = data.get("top_down_offset", height)
     frame_count = data["frameCount"]
 
     tile_w, tile_h = (width + 7) // 8, (height + 7) // 8
@@ -70,6 +71,7 @@ def convert(input_file, output_file):
     wtr.write_uint32(4)  # Version
     wtr.write_uint16(width)
     wtr.write_uint16(height)
+    wtr.write_uint16(top_down_offset)
 
     wtr.write_uint8(len(palette))
     wtr.write(palette.tobytes())

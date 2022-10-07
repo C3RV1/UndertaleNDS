@@ -41,7 +41,7 @@ void runMainMenu() {
         Audio::playBGMusic("mus_menu1.wav", true);
     }
 
-    sprintf(buffer, "nitro:/data/rooms/names/%d.txt", globalSave.lastSavedRoom);
+    sprintf(buffer, "nitro:/data/room_names/%d.txt", globalSave.lastSavedRoom);
     FILE* f = fopen(buffer, "rb");
     if (f) {
         int len = str_len_file(f, '\n');

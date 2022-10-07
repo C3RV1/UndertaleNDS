@@ -319,23 +319,31 @@ namespace Engine {
                         allocXFmt += 1;
                     }
 
+                    s32 x = ((spr->x - (1 << 4)) >> 8) + 1;
+                    x += (tilePosX * 8 * spr->scale_x) >> 8;
+                    s32 x2 = x + ((subTileWidth * 8 * spr->scale_x) >> 8);
+                    s32 w = subTileWidth * 8;
+                    s32 y = (((spr->y - (1 << 4)) >> 8)) + 1;
+                    y += (tilePosY * 8 * spr->scale_y) >> 8;
+                    s32 y2 = y + ((subTileHeight * 8 * spr->scale_y) >> 8);
+                    s32 h = subTileHeight * 8;
+
+                    if (x > 256 || x + w < 0 || y > 192 || y + h < 0) {
+                        tileIdx++;
+                        tileWidth_ -= subTileWidth;
+                        tilePosX += subTileWidth;
+                        continue;
+                    }
+
                     MATRIX_CONTROL = GL_MODELVIEW;
                     MATRIX_IDENTITY = 0;
-                    u32 x = ((spr->x - (1 << 4)) >> 8) + 1;
-                    x += (tilePosX * 8 * spr->scale_x) >> 8;
-                    u32 x2 = x + ((subTileWidth * 8 * spr->scale_x) >> 8);
-                    u32 w = subTileWidth * 8;
-                    u32 y = (((spr->y - (1 << 4)) >> 8)) + 1;
-                    y += (tilePosY * 8 * spr->scale_y) >> 8;
-                    u32 y2 = y + ((subTileHeight * 8 * spr->scale_y) >> 8);
-                    u32 h = subTileHeight * 8;
                     GFX_TEX_FORMAT = (allocXFmt << 20) + (allocYFmt << 23) + (4 << 26) + (1 << 29) +
                                      (spr->texture->tileStart[tileIdx] + spr->currentFrame * subTileWidth * subTileHeight * 64) / 8;
                     GFX_PAL_FORMAT = spr->texture->paletteIdx * 2 * 256 / 16;
                     GFX_BEGIN = GL_QUADS;
                     GFX_TEX_COORD = 0;
                     GFX_VERTEX16 = x + (y << 16);
-                    GFX_VERTEX16 = spr->layer;
+                    GFX_VERTEX16 = spr->layer + spr->texture->topDownOffset;
                     GFX_TEX_COORD = h << (4 + 16);
                     GFX_VERTEX_XY = x + (y2 << 16);
                     GFX_TEX_COORD = (h << (4 + 16)) + (w << 4);
