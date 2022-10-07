@@ -328,7 +328,7 @@ namespace Engine {
                     s32 y2 = y + ((subTileHeight * 8 * spr->scale_y) >> 8);
                     s32 h = subTileHeight * 8;
 
-                    if (x > 256 || x + w < 0 || y > 192 || y + h < 0) {
+                    if (x > 256 || x2 < 0 || y > 192 || y2 < 0) {
                         tileIdx++;
                         tileWidth_ -= subTileWidth;
                         tilePosX += subTileWidth;
