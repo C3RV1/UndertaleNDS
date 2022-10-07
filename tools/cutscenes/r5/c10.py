@@ -86,6 +86,8 @@ def cutscene(c: Cutscene):
     c.exit_battle(won=True)
     c.wait(WaitTypes.EXIT)
 
+    c.start_bgm("mus_ruins.wav", True)
+
     # We have killed it, so unload it
     c.unload_sprite(1)
     c.unload_texture(1)
@@ -114,6 +116,7 @@ def cutscene(c: Cutscene):
     c.exit_battle(won=True)
 
     c.wait(WaitTypes.EXIT)
+    c.start_bgm("mus_ruins.wav", True)
     c.wait(WaitTypes.ENTER)
 
     c.start_dialogue(45, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4,
@@ -133,6 +136,7 @@ def cutscene(c: Cutscene):
 
     c.exit_battle(won=False)
     c.wait(WaitTypes.EXIT)
+    c.start_bgm("mus_ruins.wav", True)
     c.wait(WaitTypes.ENTER)
 
     c.start_dialogue(50, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4,
@@ -165,6 +169,7 @@ def cutscene(c: Cutscene):
 
     c.exit_battle(won=True)
     c.wait(WaitTypes.EXIT)
+    c.start_bgm("mus_ruins.wav", True)
     c.wait(WaitTypes.ENTER)
 
     c.start_dialogue(65, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4,
