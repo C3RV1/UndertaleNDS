@@ -41,6 +41,7 @@ enum CutsceneCommands {
     CMD_MOD_FLAG = 32,
     CMD_CMP_ENEMY_HP = 33,
     CMD_SET_ENEMY_ATTACK = 34,
+    CMD_SET_ENEMY_ACT = 35,
     CMD_DEBUG = 0xff
 };
 
@@ -65,7 +66,7 @@ enum WaitingType {
     WAIT_DIALOGUE_END,
     WAIT_BATTLE_ATTACK,
     WAIT_SAVE_MENU,
-    WAIT_BATTLE_ACTION  // Not supported for now
+    WAIT_BATTLE_ACTION
 };
 
 #endif //UNDERTALE_CUTSCENE_ENUMS_HPP

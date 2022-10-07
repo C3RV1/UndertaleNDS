@@ -22,44 +22,6 @@ namespace Engine {
         if (res.memory.allocated != NoAlloc)
             return -2;
 
-        res.memory.paletteIdx = 96;
-        for (int i = 0; i < 96; i++) {
-            if (!paletteUsed[i]) {
-                res.memory.paletteIdx = i;
-                paletteUsed[i] = true;
-                break;
-            }
-        }
-        if (res.memory.paletteIdx == 96) {
-            // no palette found
-            return -3;
-        }
-
-        u8 tileWidth, tileHeight;
-        res.texture->getSizeTiles(tileWidth, tileHeight);
-        res.memory.allocX = getOnesInBin(tileWidth);
-        res.memory.allocY = getOnesInBin(tileHeight);
-        res.memory.tileStart = new u16[res.memory.allocX * res.memory.allocY];
-        int tileIdx = 0;
-        while (tileHeight > 0) {
-            u8 subTileHeight = 1;
-            while (subTileHeight << 1 <= tileHeight)
-                subTileHeight <<= 1;
-            int tileWidth_ = tileWidth;
-            while (tileWidth_ > 0) {
-                u8 subTileWidth = 1;
-                while (subTileWidth << 1 <= tileWidth_)
-                    subTileWidth <<= 1;
-                u16 neededTiles = subTileWidth * subTileHeight * res.texture->getFrameCount() * 64;
-                if (reserveTiles(neededTiles, res.memory.tileStart[tileIdx]) == 1) {
-                    return -4;
-                }
-                tileIdx++;
-                tileWidth_ -= subTileWidth;
-            }
-            tileHeight -= subTileHeight;
-        }
-
         auto** activeSpriteNew = new Sprite*[activeSpriteCount + 1];
         memcpy(activeSpriteNew, activeSprites, sizeof(Sprite**) * activeSpriteCount);
         activeSpriteNew[activeSpriteCount] = &res;
@@ -134,29 +96,7 @@ namespace Engine {
         if (sprIdx == -1)
             return;
 
-        paletteUsed[spr.memory.paletteIdx] = false;
-
-        u8 tileWidth, tileHeight;
-        spr.texture->getSizeTiles(tileWidth, tileHeight);
-        int tileIdx = 0;
-        while (tileHeight > 0) {
-            u8 subTileHeight = 1;
-            while (subTileHeight << 1 <= tileHeight)
-                subTileHeight <<= 1;
-            int tileWidth_ = tileWidth;
-            while (tileWidth_ > 0) {
-                u8 subTileWidth = 1;
-                while (subTileWidth << 1 <= tileWidth_)
-                    subTileWidth <<= 1;
-                u16 neededTiles = subTileWidth * subTileHeight * spr.texture->getFrameCount() * 64;
-                freeTiles(neededTiles, spr.memory.tileStart[tileIdx]);
-                tileIdx++;
-                tileWidth_ -= subTileWidth;
-            }
-            tileHeight -= subTileHeight;
-        }
-
-        delete[] spr.memory.tileStart;
+        freeSpriteTexture(spr);
 
         auto** activeSpriteNew = new Sprite*[activeSpriteCount - 1];
         memcpy(activeSpriteNew, activeSprites, sizeof(Sprite**) * sprIdx);
@@ -230,8 +170,34 @@ namespace Engine {
     }
 
     void Sprite3DManager::loadSpriteTexture(Engine::Sprite &spr) {
+        spr.texture->loaded3DCount += 1;
+        if (spr.texture->loaded3DCount > 1) { // Already loaded to texture
+            spr.memory.loadedIntoMemory = true;
+            return;
+    }
+
+        spr.texture->paletteIdx = 96;
+        for (int i = 0; i < 96; i++) {
+            if (!paletteUsed[i]) {
+                spr.texture->paletteIdx = i;
+                paletteUsed[i] = true;
+                break;
+            }
+        }
+        if (spr.texture->paletteIdx == 96) {
+            // no palette found
+            return;
+        }
+
+        u16* paletteBase = (u16*) ((u8*) VRAM_E + (256 * spr.texture->paletteIdx + 1) * 2);
+        dmaCopyHalfWords(3, spr.texture->getColors(), paletteBase, spr.texture->getColorCount() * 2);
+
         u8 tileWidth, tileHeight;
         spr.texture->getSizeTiles(tileWidth, tileHeight);
+
+        int allocX = getOnesInBin(tileWidth);
+        int allocY = getOnesInBin(tileHeight);
+        spr.texture->tileStart = new u16[allocX * allocY];
 
         int tileIdx = 0;
 
@@ -249,12 +215,17 @@ namespace Engine {
                 while (subTileWidth << 1 <= tileWidth_)
                     subTileWidth <<= 1;
 
+                u16 neededTiles = subTileWidth * subTileHeight * spr.texture->getFrameCount() * 64;
+                if (reserveTiles(neededTiles, spr.texture->tileStart[tileIdx]) == 1) {
+                    return;
+                }
+
                 for (int frame = 0; frame < spr.texture->getFrameCount(); frame++) {
                     for (int y = tilePosY * 8, y2 = 0; y < (tilePosY + subTileHeight) * 8; y++, y2++) {
                         for (int x = tilePosX * 8, x2 = 0; x < (tilePosX + subTileWidth) * 8; x++, x2++) {
                             int tileX = x / 8;
                             int tileY = y / 8;
-                            u8 *tileRamStart = (u8 *) VRAM_B + spr.memory.tileStart[tileIdx] +
+                            u8 *tileRamStart = (u8 *) VRAM_B + spr.texture->tileStart[tileIdx] +
                                                frame * subTileWidth * subTileHeight * 64;
 
                             u16 framePos = frame * tileWidth * tileHeight;
@@ -274,6 +245,41 @@ namespace Engine {
             tileHeight_ -= subTileHeight;
             tilePosY += subTileHeight;
         }
+
+        spr.memory.loadedIntoMemory = true;
+    }
+
+
+    void Sprite3DManager::freeSpriteTexture(Engine::Sprite &spr) {
+        spr.texture->loaded3DCount -= 1;
+        if (spr.texture->loaded3DCount > 0) // Texture used by another sprite
+            return;
+
+        paletteUsed[spr.texture->paletteIdx] = false;
+
+        u8 tileWidth, tileHeight;
+        spr.texture->getSizeTiles(tileWidth, tileHeight);
+
+        int tileIdx = 0;
+        while (tileHeight > 0) {
+            u8 subTileHeight = 1;
+            while (subTileHeight << 1 <= tileHeight)
+                subTileHeight <<= 1;
+            int tileWidth_ = tileWidth;
+            while (tileWidth_ > 0) {
+                u8 subTileWidth = 1;
+                while (subTileWidth << 1 <= tileWidth_)
+                    subTileWidth <<= 1;
+                u16 neededTiles = subTileWidth * subTileHeight * spr.texture->getFrameCount() * 64;
+                freeTiles(neededTiles, spr.texture->tileStart[tileIdx]);
+                tileIdx++;
+                tileWidth_ -= subTileWidth;
+            }
+            tileHeight -= subTileHeight;
+        }
+
+        delete[] spr.texture->tileStart;
+        spr.texture->tileStart = nullptr;
     }
 
     void Sprite3DManager::draw() {
@@ -324,8 +330,8 @@ namespace Engine {
                     u32 y2 = y + ((subTileHeight * 8 * spr->scale_y) >> 8);
                     u32 h = subTileHeight * 8;
                     GFX_TEX_FORMAT = (allocXFmt << 20) + (allocYFmt << 23) + (4 << 26) + (1 << 29) +
-                                     (spr->memory.tileStart[tileIdx] + spr->currentFrame * subTileWidth * subTileHeight * 64) / 8;
-                    GFX_PAL_FORMAT = spr->memory.paletteIdx * 2 * 256 / 16;
+                                     (spr->texture->tileStart[tileIdx] + spr->currentFrame * subTileWidth * subTileHeight * 64) / 8;
+                    GFX_PAL_FORMAT = spr->texture->paletteIdx * 2 * 256 / 16;
                     GFX_BEGIN = GL_QUADS;
                     GFX_TEX_COORD = 0;
                     GFX_VERTEX16 = x + (y << 16);
@@ -361,13 +367,11 @@ namespace Engine {
                 sprintf(buffer, "Loading sprite %d out of %d", i + 1, activeSpriteCount);
                 nocashMessage(buffer);
 #endif
-                spr->memory.loadedIntoMemory = true;
                 if (!setBank) {
                     vramSetBankB(VRAM_B_LCD);
                     vramSetBankE(VRAM_E_LCD);
                     setBank = true;
                 }
-                loadPalette(*spr);
                 loadSpriteTexture(*spr);
             }
         }
@@ -375,11 +379,6 @@ namespace Engine {
             vramSetBankB(VRAM_B_TEXTURE_SLOT0);
             vramSetBankE(VRAM_E_TEX_PALETTE);
         }
-    }
-
-    void Sprite3DManager::loadPalette(Engine::Sprite &spr) {
-        u16* paletteBase = (u16*) ((u8*) VRAM_E + (256 * spr.memory.paletteIdx + 1) * 2);
-        dmaCopyHalfWords(3, spr.texture->getColors(), paletteBase, spr.texture->getColorCount() * 2);
     }
 
     Sprite3DManager main3dSpr;

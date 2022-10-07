@@ -44,6 +44,14 @@ namespace Engine {
         u8 animationCount = 0;
         CSPRAnimation* animations = nullptr;
         u8* tiles = nullptr;
+
+        // 3D
+        u8 loaded3DCount = 0;
+        u16 * tileStart = nullptr;
+        u16 allocX = 0, allocY = 0;
+        u8 paletteIdx;
+
+        friend class Sprite3DManager;
     };
 }
 

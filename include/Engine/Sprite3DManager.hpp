@@ -25,8 +25,8 @@ namespace Engine {
         void draw();
         void updateTextures();
     private:
-        static void loadSpriteTexture(Sprite& spr);
-        static void loadPalette(Sprite& spr);
+        void loadSpriteTexture(Sprite& spr);
+        void freeSpriteTexture(Sprite& spr);
         int reserveTiles(u16 length, u16& start);
         void freeTiles(u16 length, u16& start);
 

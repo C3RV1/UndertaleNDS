@@ -31,11 +31,6 @@ namespace Engine {
         u8 * oamEntries;
         u8 *paletteColors = nullptr;
 
-        // 3D
-        u16 * tileStart = nullptr;
-        u16 allocX = 0, allocY = 0;
-        u8 paletteIdx;
-
         int loadedFrame = -1;
         bool loadedIntoMemory = false;
     };

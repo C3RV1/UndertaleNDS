@@ -346,9 +346,6 @@ void Dialogue::progressTextLeft(bool clear, bool draw) {
         else if (currentChar == 'b') {
             int len;
             for (len = 0; *(text + textPos + len) != '/'; len++);
-            char dgbBuf[50];
-            sprintf(dgbBuf, "%d", len);
-            nocashMessage(dgbBuf);
             char buffer[30];
             memcpy(buffer, text + textPos, len + 1);
             buffer[len] = '\0';
@@ -356,9 +353,6 @@ void Dialogue::progressTextLeft(bool clear, bool draw) {
             if (target != nullptr)
                 idleAnim2 = target->nameToAnimId(buffer);
             for (len = 0; *(text + textPos + len) != '/'; len++);
-            sprintf(dgbBuf, "%d", len);
-            nocashMessage(dgbBuf);
-            memcpy(buffer, text + textPos, len + 1);
             buffer[len] = '\0';
             textPos += len + 1;
             if (target != nullptr)
