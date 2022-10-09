@@ -136,11 +136,11 @@ def cutscene(c: Cutscene):
     c.wait(WaitTypes.DIALOGUE)
 
     # Unload pellets
-    c.unload_sprite(5)
-    c.unload_sprite(4)
-    c.unload_sprite(3)
-    c.unload_sprite(2)
-    c.unload_sprite(1)
+    c.unload_sprite(-1)
+    c.unload_sprite(-1)
+    c.unload_sprite(-1)
+    c.unload_sprite(-1)
+    c.unload_sprite(-1)
     c.unload_texture(2)
 
     c.set_animation(Target(TargetType.SPRITE, 0), "skull_laugh")
@@ -163,7 +163,7 @@ def cutscene(c: Cutscene):
     c.set_animation(Target(TargetType.SPRITE, 1), "flying")
     c.set_pos_in_frames(Target(TargetType.SPRITE, 1), 30, (192 - 30) // 2, 60)
     c.wait(WaitTypes.FRAMES, 60)
-    c.unload_sprite(1)
+    c.unload_sprite(-1)
     c.unload_texture(1)
     c.set_animation(Target(TargetType.SPRITE, 0), "hurt")
     c.play_sfx("snd_ehurt1.wav")

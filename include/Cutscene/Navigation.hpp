@@ -33,29 +33,33 @@ class Navigation {
 public:
     static void load_texture(char* path,
                              CutsceneLocation callingLocation);
-    static void unload_texture(u8 textureId,
+    static void unload_texture(s8 textureId,
                                CutsceneLocation callingLocation);
-    static void spawn_sprite(u8 textureId, s32 x, s32 y, s32 layer,
+    static void spawn_sprite(s8 textureId, s32 x, s32 y, s32 layer,
                              CutsceneLocation callingLocation);
-    static void unload_sprite(u8 sprId,
+    static void spawn_relative(s8 textureId,
+                               u8 targetType, s8 targetId, s32 dx, s32 dy, s32 layer,
+                               CutsceneLocation callingLocation);
+    static void unload_sprite(s8 sprId,
                               CutsceneLocation callingLocation);
-    static void set_position(u8 targetType, u8 targetId, s32 x, s32 y,
+    static void set_position(u8 targetType, s8 targetId, s32 x, s32 y,
                              CutsceneLocation callingLocation);
-    static void set_scale(u8 targetType, u8 targetId, s32 x, s32 y,
+    static void set_scale(u8 targetType, s8 targetId, s32 x, s32 y,
                           CutsceneLocation callingLocation);
-    static void set_shown(u8 targetType, u8 targetId, bool shown,
+    static void set_shown(u8 targetType, s8 targetId, bool shown,
                           CutsceneLocation callingLocation);
-    static void set_animation(u8 targetType, u8 targetId, char* animName,
+    static void set_animation(u8 targetType, s8 targetId, char* animName,
                        CutsceneLocation callingLocation);
-    void set_pos_in_frames(u8 targetType, u8 targetId, s32 x, s32 y,
+    void set_pos_in_frames(u8 targetType, s8 targetId, s32 x, s32 y,
                            u16 frames, CutsceneLocation callingLocation);
-    void move_in_frames(u8 targetType, u8 targetId, s32 dx, s32 dy,
+    void move_in_frames(u8 targetType, s8 targetId, s32 dx, s32 dy,
                         u16 frames, CutsceneLocation callingLocation);
-    void scale_in_frames(u8 targetType, u8 targetId, s32 x, s32 y,
+    void scale_in_frames(u8 targetType, s8 targetId, s32 x, s32 y,
                          u16 frames, CutsceneLocation callingLocation);
     void update();
-    static Engine::Sprite* getTarget(u8 targetType, u8 targetId,
-                                            CutsceneLocation callingLocation);
+    void clearAllTasks();
+    static Engine::Sprite* getTarget(u8 targetType, s8 targetId,
+                                     CutsceneLocation callingLocation);
 private:
     void startTask(NavigationTask* navTask);
     bool updateTask(int taskId);

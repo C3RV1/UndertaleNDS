@@ -41,7 +41,9 @@ enum CutsceneCommands {
     CMD_MOD_FLAG = 32,
     CMD_CMP_ENEMY_HP = 33,
     CMD_SET_ENEMY_ATTACK = 34,
-    CMD_SET_ENEMY_ACT = 35,
+    CMD_SET_ENEMY_ACT = 35, // TODO
+    CMD_CLEAR_NAV_TASKS = 36,
+    CMD_LOAD_SPRITE_RELATIVE = 37,
     CMD_DEBUG = 0xff
 };
 

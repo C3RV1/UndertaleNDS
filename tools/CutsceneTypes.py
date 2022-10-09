@@ -42,8 +42,11 @@ class CutsceneCommands(enum.IntEnum):
     SAVE_MENU = 30  # Done
     MAX_HEALTH = 31  # Done
     MOD_FLAG = 32  # Done
-    CMP_ENEMY_HP = 33
-    SET_ENEMY_ATTACK = 34
+    CMP_ENEMY_HP = 33  # Done
+    SET_ENEMY_ATTACK = 34  # Done
+    SET_ENEMY_ACT = 35
+    CLEAR_NAV_TASKS = 36  # Done
+    LOAD_SPRITE_RELATIVE = 37
     DEBUG = 0xff  # Done
 
 
@@ -131,13 +134,13 @@ class Target:
     def write(self, wtr):
         wtr.write_uint8(self.target_type)
         if self.target_type == TargetType.SPRITE:
-            wtr.write_uint8(self.target_id)
+            wtr.write_int8(self.target_id)
 
 
 class Cutscene:
     def __init__(self, wtr: binary.BinaryWriter):
         self.wtr: binary.BinaryWriter = wtr
-        self.version = 6
+        self.version = 7
         self.file_size_pos = 0
         self.instructions_address = []
         self.pending_address = {}
@@ -175,7 +178,7 @@ class Cutscene:
 
     def unload_texture(self, texture_id: int):
         self.write_header(CutsceneCommands.UNLOAD_TEXTURE)
-        self.wtr.write_uint8(texture_id)
+        self.wtr.write_int8(texture_id)
         return self.instructions_address[-1]
 
     def load_sprite(self, x: float, y: float, tex_id: int, layer=1):
@@ -183,12 +186,22 @@ class Cutscene:
         self.wtr.write_int32(to_fixed_point(x))
         self.wtr.write_int32(to_fixed_point(y))
         self.wtr.write_int32(layer)
-        self.wtr.write_uint8(tex_id)
+        self.wtr.write_int8(tex_id)
+        return self.instructions_address[-1]
+
+    def load_sprite_relative(self, dx: float, dy: float, tex_id: int,
+                             target: Target, layer=1):
+        self.write_header(CutsceneCommands.LOAD_SPRITE_RELATIVE)
+        self.wtr.write_int32(to_fixed_point(dx))
+        self.wtr.write_int32(to_fixed_point(dy))
+        self.wtr.write_int32(layer)
+        self.wtr.write_int8(tex_id)
+        target.write(self.wtr)
         return self.instructions_address[-1]
 
     def unload_sprite(self, sprite_id: int):
         self.write_header(CutsceneCommands.UNLOAD_SPRITE)
-        self.wtr.write_uint8(sprite_id)
+        self.wtr.write_int8(sprite_id)
         return self.instructions_address[-1]
 
     def player_control(self, control: bool):
@@ -265,6 +278,10 @@ class Cutscene:
         self.wtr.write_int32(to_fixed_point(x))
         self.wtr.write_int32(to_fixed_point(y))
         self.wtr.write_uint16(frames)
+        return self.instructions_address[-1]
+
+    def clear_nav_tasks(self):
+        self.write_header(CutsceneCommands.CLEAR_NAV_TASKS)
         return self.instructions_address[-1]
 
     def set_action(self, target: Target, action: str, cutscene_id=0):

@@ -89,8 +89,8 @@ def cutscene(c: Cutscene):
     c.start_bgm("mus_ruins.wav", True)
 
     # We have killed it, so unload it
-    c.unload_sprite(1)
-    c.unload_texture(1)
+    c.unload_sprite(-1)
+    c.unload_texture(-1)
 
     c.wait(WaitTypes.ENTER)
 

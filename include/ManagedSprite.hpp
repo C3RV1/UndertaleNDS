@@ -14,7 +14,7 @@ class ManagedSprite {
 public:
     explicit ManagedSprite(Engine::AllocationMode alloc) : spriteManager(alloc) {}
     void load(ROOMSprite* sprData, u8 textureCount, Engine::Texture** textures);
-    void spawn(u8 textureId, s32 x, s32 y,
+    void spawn(s8 textureId, s32 x, s32 y,
                u8 textureCount, Engine::Texture** textures);
     void update(bool isRoom);
     void draw(bool isRoom);

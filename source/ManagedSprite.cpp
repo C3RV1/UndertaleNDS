@@ -29,10 +29,15 @@ void ManagedSprite::load(ROOMSprite *sprData, u8 textureCount,
     }
 }
 
-void ManagedSprite::spawn(u8 textureId, s32 x, s32 y,
+void ManagedSprite::spawn(s8 textureId, s32 x, s32 y,
                           u8 textureCount, Engine::Texture** textures) {
-    if (textureId < textureCount) {
-        texture = textures[textureId];
+    u8 texId2;
+    if (textureId < 0)
+        texId2 = textureCount + textureId;
+    else
+        texId2 = textureId;
+    if (texId2 < textureCount) {
+        texture = textures[texId2];
         spriteManager.loadTexture(*texture);
     }
     spriteManager.wx = x;

@@ -56,7 +56,7 @@ bool Cutscene::checkHeader(FILE *f) {
     u32 version;
     fread(&version, 4, 1, f);
 
-    if (version != 6) {
+    if (version != 7) {
         return false;
     }
 
@@ -112,7 +112,8 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
     u8 cmd;
     fread(&cmd, 1, 1, commandStream);
     int len;
-    u8 targetType, targetId = 0;
+    u8 targetType;
+    s8 targetId = 0;
     u32 address;
     Navigation* nav;
     if (callingLocation == ROOM || callingLocation == LOAD_ROOM) {
@@ -150,7 +151,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             nocashMessage("CMD_LOAD_SPRITE");
 #endif
             s32 x, y, layer;
-            u8 texId;
+            s8 texId;
             fread(&x, 4, 1, commandStream);
             fread(&y, 4, 1, commandStream);
             fread(&layer, 4, 1, commandStream);
@@ -162,7 +163,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
 #ifdef DEBUG_CUTSCENES
             nocashMessage("CMD_UNLOAD_SPRITE");
 #endif
-            u8 sprId;
+            s8 sprId;
             fread(&sprId, 1, 1, commandStream);
             Navigation::unload_sprite(sprId, callingLocation);
             break;
@@ -585,6 +586,30 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
                 flag = (flagValue < cmpValue);
             if (comparator & 4)
                 flag = !flag;
+            break;
+        }
+        case CMD_CLEAR_NAV_TASKS:
+#ifdef DEBUG_CUTSCENES
+            nocashMessage("CMD_CLEAR_NAV_TASKS");
+#endif
+            nav->clearAllTasks();
+            break;
+        case CMD_LOAD_SPRITE_RELATIVE: {
+#ifdef DEBUG_CUTSCENES
+            nocashMessage("CMD_LOAD_SPRITE_RELATIVE");
+#endif
+            s32 dx, dy, layer;
+            s8 texId;
+            fread(&dx, 4, 1, commandStream);
+            fread(&dy, 4, 1, commandStream);
+            fread(&layer, 4, 1, commandStream);
+            fread(&texId, 1, 1, commandStream);
+            fread(&targetType, 1, 1, commandStream);
+            if (targetType == TargetType::SPRITE)
+                fread(&targetId, 1, 1, commandStream);
+
+            Navigation::spawn_relative(texId, targetType, targetId, dx, dy, layer,
+                                       callingLocation);
             break;
         }
         default:

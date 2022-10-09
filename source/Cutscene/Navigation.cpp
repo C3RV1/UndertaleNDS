@@ -31,39 +31,49 @@ void Navigation::load_texture(char *path, CutsceneLocation callingLocation) {
     }
 }
 
-void Navigation::unload_texture(u8 textureId, CutsceneLocation callingLocation) {
+void Navigation::unload_texture(s8 textureId, CutsceneLocation callingLocation) {
     if (callingLocation == LOAD_ROOM || callingLocation == ROOM) {
-        if (textureId >= globalRoom->textureCount)
+        u8 texId2;
+        if (textureId < 0)
+            texId2 = globalRoom->spriteCount + textureId;
+        else
+            texId2 = textureId;
+        if (texId2 >= globalRoom->textureCount)
             return;
-        auto* sprite = globalRoom->textures[textureId];
+        auto* sprite = globalRoom->textures[texId2];
         sprite->free_();
         delete sprite;
 
         auto* newTextures = new Engine::Texture*[globalRoom->textureCount - 1];
-        memcpy(newTextures, globalRoom->textures, sizeof(Engine::Texture*) * textureId);
-        memcpy(&newTextures[textureId], &globalRoom->textures[textureId + 1],
-               sizeof(Engine::Texture*) * (globalRoom->textureCount - (textureId + 1)));
+        memcpy(newTextures, globalRoom->textures, sizeof(Engine::Texture*) * texId2);
+        memcpy(&newTextures[texId2], &globalRoom->textures[texId2 + 1],
+               sizeof(Engine::Texture*) * (globalRoom->textureCount - (texId2 + 1)));
         delete globalRoom->textures;
         globalRoom->textures = newTextures;
         globalRoom->textureCount--;
     } else {
-        if (textureId >= globalBattle->textureCount)
+        u8 texId2;
+        if (textureId < 0)
+            texId2 = globalBattle->spriteCount + textureId;
+        else
+            texId2 = textureId;
+        if (texId2 >= globalBattle->textureCount)
             return;
-        auto* sprite = globalBattle->textures[textureId];
+        auto* sprite = globalBattle->textures[texId2];
         sprite->free_();
         delete sprite;
 
         auto* newTextures = new Engine::Texture*[globalBattle->textureCount - 1];
-        memcpy(newTextures, globalBattle->textures, sizeof(Engine::Texture*) * textureId);
-        memcpy(&newTextures[textureId], &globalBattle->textures[textureId + 1],
-               sizeof(Engine::Texture*) * (globalBattle->textureCount - (textureId + 1)));
+        memcpy(newTextures, globalBattle->textures, sizeof(Engine::Texture*) * texId2);
+        memcpy(&newTextures[texId2], &globalBattle->textures[texId2 + 1],
+               sizeof(Engine::Texture*) * (globalBattle->textureCount - (texId2 + 1)));
         delete globalBattle->textures;
         globalBattle->textures = newTextures;
         globalBattle->textureCount--;
     }
 }
 
-void Navigation::spawn_sprite(u8 textureId, s32 x, s32 y, s32 layer,
+void Navigation::spawn_sprite(s8 textureId, s32 x, s32 y, s32 layer,
                               CutsceneLocation callingLocation) {
     if (callingLocation == LOAD_ROOM || callingLocation == ROOM) {
         auto* newSprites = new ManagedSprite*[globalRoom->spriteCount + 1];
@@ -93,39 +103,61 @@ void Navigation::spawn_sprite(u8 textureId, s32 x, s32 y, s32 layer,
     }
 }
 
-void Navigation::unload_sprite(u8 sprId, CutsceneLocation callingLocation) {
+void Navigation::spawn_relative(s8 textureId, u8 targetType, s8 targetId, s32 dx, s32 dy, s32 layer,
+                                CutsceneLocation callingLocation) {
+    Engine::Sprite* target = getTarget(targetType, targetId, callingLocation);
+    if (target == nullptr)
+        return;
+    s32 x = target->wx + dx;
+    s32 y = target->wy + dy;
+    spawn_sprite(textureId, x, y, layer, callingLocation);
+}
+
+void Navigation::unload_sprite(s8 sprId, CutsceneLocation callingLocation) {
     if (callingLocation == LOAD_ROOM || callingLocation == ROOM) {
-        if (sprId >= globalRoom->spriteCount)
+        u8 sprId2;
+        if (sprId < 0)
+            sprId2 = globalRoom->spriteCount + sprId;
+        else
+            sprId2 = sprId;
+        if (sprId2 >= globalRoom->spriteCount)
             return;
-        auto* sprite = globalRoom->sprites[sprId];
+        auto* sprite = globalRoom->sprites[sprId2];
         sprite->free_();
         delete sprite;
 
         auto* newSprites = new ManagedSprite*[globalRoom->spriteCount - 1];
-        memcpy(newSprites, globalRoom->sprites, sizeof(ManagedSprite*) * sprId);
-        memcpy(&newSprites[sprId], &globalRoom->sprites[sprId + 1],
-               sizeof(ManagedSprite*) * (globalRoom->spriteCount - (sprId + 1)));
+        memcpy(newSprites, globalRoom->sprites, sizeof(ManagedSprite*) * sprId2);
+        memcpy(&newSprites[sprId2], &globalRoom->sprites[sprId2 + 1],
+               sizeof(ManagedSprite*) * (globalRoom->spriteCount - (sprId2 + 1)));
         delete globalRoom->sprites;
         globalRoom->sprites = newSprites;
         globalRoom->spriteCount--;
     } else {
+        u8 sprId2;
+        if (sprId < 0)
+            sprId2 = globalBattle->spriteCount + sprId;
+        else
+            sprId2 = sprId;
+        if (sprId2 >= globalBattle->spriteCount)
+            return;
         if (sprId >= globalBattle->spriteCount)
             return;
-        auto* sprite = globalBattle->sprites[sprId];
+        auto* sprite = globalBattle->sprites[sprId2];
         sprite->free_();
         delete sprite;
 
         auto* newSprites = new ManagedSprite*[globalBattle->spriteCount - 1];
-        memcpy(newSprites, globalBattle->sprites, sizeof(ManagedSprite*) * sprId);
-        memcpy(&newSprites[sprId], &globalBattle->sprites[sprId + 1],
-               sizeof(ManagedSprite*) * (globalBattle->spriteCount - (sprId + 1)));
+        memcpy(newSprites, globalBattle->sprites, sizeof(ManagedSprite*) * sprId2);
+        memcpy(&newSprites[sprId2], &globalBattle->sprites[sprId2 + 1],
+               sizeof(ManagedSprite*) * (globalBattle->spriteCount - (sprId2 + 1)));
         delete globalBattle->sprites;
         globalBattle->sprites = newSprites;
         globalBattle->spriteCount--;
     }
 }
 
-void Navigation::set_position(u8 targetType, u8 targetId, s32 x, s32 y,
+void Navigation::set_position(u8 targetType, s8 targetId, s32 x, s32 y,
                               CutsceneLocation callingLocation) {
     Engine::Sprite* spriteManager = getTarget(targetType, targetId, callingLocation);
     if (spriteManager == nullptr)
@@ -134,7 +166,7 @@ void Navigation::set_position(u8 targetType, u8 targetId, s32 x, s32 y,
     spriteManager->wy = y;
 }
 
-void Navigation::set_scale(u8 targetType, u8 targetId, s32 x, s32 y,
+void Navigation::set_scale(u8 targetType, s8 targetId, s32 x, s32 y,
                            CutsceneLocation callingLocation) {
     Engine::Sprite* spriteManager = getTarget(targetType, targetId, callingLocation);
     if (spriteManager == nullptr)
@@ -143,14 +175,14 @@ void Navigation::set_scale(u8 targetType, u8 targetId, s32 x, s32 y,
     spriteManager->w_scale_y = y;
 }
 
-void Navigation::set_shown(u8 targetType, u8 targetId, bool shown, CutsceneLocation callingLocation) {
+void Navigation::set_shown(u8 targetType, s8 targetId, bool shown, CutsceneLocation callingLocation) {
     Engine::Sprite* spriteManager = getTarget(targetType, targetId, callingLocation);
     if (spriteManager == nullptr)
         return;
     spriteManager->setShown(shown);
 }
 
-void Navigation::set_animation(u8 targetType, u8 targetId, char *animName, CutsceneLocation callingLocation) {
+void Navigation::set_animation(u8 targetType, s8 targetId, char *animName, CutsceneLocation callingLocation) {
     Engine::Sprite* spriteManager = getTarget(targetType, targetId, callingLocation);
     if (spriteManager == nullptr) {
         nocashMessage("no target");
@@ -164,7 +196,7 @@ void Navigation::set_animation(u8 targetType, u8 targetId, char *animName, Cutsc
     spriteManager->setSpriteAnim(animId);
 }
 
-void Navigation::set_pos_in_frames(u8 targetType, u8 targetId, s32 x, s32 y, u16 frames,
+void Navigation::set_pos_in_frames(u8 targetType, s8 targetId, s32 x, s32 y, u16 frames,
                                    CutsceneLocation callingLocation) {
     auto* navTask = new NavigationTask;
     navTask->target = getTarget(targetType, targetId, callingLocation);
@@ -178,7 +210,7 @@ void Navigation::set_pos_in_frames(u8 targetType, u8 targetId, s32 x, s32 y, u16
     // nav task not freed as it's managed by navigation
 }
 
-void Navigation::move_in_frames(u8 targetType, u8 targetId, s32 dx, s32 dy, u16 frames,
+void Navigation::move_in_frames(u8 targetType, s8 targetId, s32 dx, s32 dy, u16 frames,
                                 CutsceneLocation callingLocation) {
     auto* navTask = new NavigationTask;
     navTask->target = getTarget(targetType, targetId, callingLocation);
@@ -192,7 +224,7 @@ void Navigation::move_in_frames(u8 targetType, u8 targetId, s32 dx, s32 dy, u16 
     // nav task not freed as it's managed by navigation
 }
 
-void Navigation::scale_in_frames(u8 targetType, u8 targetId, s32 x, s32 y, u16 frames,
+void Navigation::scale_in_frames(u8 targetType, s8 targetId, s32 x, s32 y, u16 frames,
                                  CutsceneLocation callingLocation) {
     auto* navTask = new NavigationTask;
     navTask->target = getTarget(targetType, targetId, callingLocation);
@@ -269,29 +301,44 @@ void Navigation::update() {
     }
 }
 
-Engine::Sprite* Navigation::getTarget(u8 targetType, u8 targetId,
-                                             CutsceneLocation callingLocation) {
+void Navigation::clearAllTasks() {
+    int taskCountCopy = taskCount;
+    for (int i = 0; i < taskCountCopy; i++) {
+        endTask(0);
+    }
+}
+
+Engine::Sprite* Navigation::getTarget(u8 targetType, s8 targetId,
+                                      CutsceneLocation callingLocation) {
     if (callingLocation == ROOM || callingLocation == LOAD_ROOM) {
         if (targetType == PLAYER) {
             return &globalPlayer->spriteManager;
         } else if (targetType == CAMERA) {
             return &globalCamera.pos;
         } else if (targetType == SPRITE) {
-            if (targetId >= globalRoom->spriteCount) {
+            u8 targetId2;
+            if (targetId < 0)
+                targetId2 = globalRoom->spriteCount + targetId;
+            else
+                targetId2 = targetId;
+            if (targetId2 >= globalRoom->spriteCount) {
                 nocashMessage("Error: target id outside of sprite count");
                 return nullptr;
-            } else {
-                return &globalRoom->sprites[targetId]->spriteManager;
             }
+            return &globalRoom->sprites[targetId2]->spriteManager;
         }
     } else {
         if (targetType == SPRITE) {
-            if (targetId >= globalBattle->spriteCount) {
+            u8 targetId2;
+            if (targetId < 0)
+                targetId2 = globalBattle->spriteCount + targetId;
+            else
+                targetId2 = targetId;
+            if (targetId2 >= globalBattle->spriteCount) {
                 nocashMessage("Error: target id outside of sprite count");
                 return nullptr;
-            } else {
-                return &globalBattle->sprites[targetId]->spriteManager;
             }
+            return &globalBattle->sprites[targetId]->spriteManager;
         }
     }
     return nullptr;
