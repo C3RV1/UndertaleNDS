@@ -1,0 +1,19 @@
+{
+  "size": [46, 24],
+  "frameCount": 2,
+  "animations": [
+    {
+      "name": "gfx",
+      "frames": [
+        {"frame": 0, "duration": 60, "draw_off_x": 2, "draw_off_y": 32},
+        {"frame": 1, "duration": 60, "draw_off_x": 2, "draw_off_y": 32}
+      ]
+    },
+    {
+      "name": "kill",
+      "frames": [
+        {"frame": 2, "duration": 0, "draw_off_x": 2, "draw_off_y": 32}
+      ]
+    }
+  ]
+}

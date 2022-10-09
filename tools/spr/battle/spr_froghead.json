@@ -1,0 +1,31 @@
+{
+  "size": [51, 30],
+  "frameCount": 4,
+  "animations": [
+    {
+      "name": "gfx",
+      "frames": [
+        {"frame": 0, "duration": 60},
+        {"frame": 1, "duration": 60}
+      ]
+    },
+    {
+      "name": "look_up",
+      "frames": [
+        {"frame": 2, "duration": 0}
+      ]
+    },
+    {
+      "name": "look_down",
+      "frames": [
+        {"frame": 3, "duration": 0, "draw_off_y": 3, "draw_off_x": -2}
+      ]
+    },
+    {
+      "name": "kill",
+      "frames": [
+        {"frame": 4, "duration": 0}
+      ]
+    }
+  ]
+}

@@ -12,7 +12,8 @@
 
 class Player {
 public:
-    const int MOVE_SPEED = (90 << 8) / 60;  // 90 pixels per second
+    const int MOVE_SPEED = (90 << 8) / 60;  // 90 pixels per second, debug speed
+    // const int MOVE_SPEED = (70 << 8) / 60;  // 70 pixels per second
 
     Player();
     void update();

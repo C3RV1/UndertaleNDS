@@ -18,7 +18,7 @@ def cutscene(c: Cutscene):
     c.debug("Loading battle...")
     c.load_texture("battle/dummy_ruins")
     c.load_sprite(20, (192 - 104) // 2, 0)
-    c.set_scale(Target(TargetType.SPRITE, 0), 1.5, 1.5)
+    # c.set_scale(Target(TargetType.SPRITE, 0), 1.5, 1.5)
     c.start_bgm("mus_prebattle1.wav", True)
 
     c.wait(WaitTypes.ENTER)
@@ -38,13 +38,16 @@ def cutscene(c: Cutscene):
     c.cmp_enemy_hp(0, "<", 15)
     fight_jump = c.jump_if()
 
+    c.cmp_flag(FlagOffsets.BATTLE_ACTION, "==", BtlActionOff.ACT)
+    check_jump = c.jump_if()
+
     c.cmp_flag(FlagOffsets.BATTLE_ACTION, "==", BtlActionOff.ACT + 1)
     talk_jump = c.jump_if()
 
     c.cmp_flag(FlagOffsets.BATTLE_ACTION, "==", BtlActionOff.FLEE)
     flee_jump = c.jump_if()
 
-    c.mod_flag(FlagOffsets.BATTLE_FLAGS, 1)
+    continue_battle = c.mod_flag(FlagOffsets.BATTLE_FLAGS, 1)
     c.cmp_flag(FlagOffsets.BATTLE_FLAGS, ">=", 8)
     bored_dummy_jump = c.jump_if()
 
@@ -83,6 +86,8 @@ def cutscene(c: Cutscene):
                             type_sound="SND_TXT1.wav")
     c.wait(WaitTypes.DIALOGUE)
 
+    c.stop_bgm()
+
     c.exit_battle(won=True)
     c.wait(WaitTypes.EXIT)
 
@@ -103,6 +108,18 @@ def cutscene(c: Cutscene):
 
     post_fight_jump = c.jump()
 
+    # == CHECK ==
+
+    c.bind(check_jump)
+    c.debug("Check dummy")
+
+    c.start_dialogue_battle(30, 100, 192 // 4,
+                            Target(TargetType.NULL), "", "",
+                            type_sound="SND_TXT1.wav")
+    c.wait(WaitTypes.DIALOGUE)
+
+    c.jump(continue_battle)
+
     # == TALK ==
 
     c.bind(talk_jump)
@@ -113,6 +130,7 @@ def cutscene(c: Cutscene):
                             Target(TargetType.NULL), "", "",
                             type_sound="SND_TXT1.wav")
     c.wait(WaitTypes.DIALOGUE)
+    c.stop_bgm()
     c.exit_battle(won=True)
 
     c.wait(WaitTypes.EXIT)
@@ -167,6 +185,7 @@ def cutscene(c: Cutscene):
     c.wait(WaitTypes.FRAMES, value=120)
     c.wait(WaitTypes.DIALOGUE)
 
+    c.stop_bgm()
     c.exit_battle(won=True)
     c.wait(WaitTypes.EXIT)
     c.start_bgm("mus_ruins.wav", True)

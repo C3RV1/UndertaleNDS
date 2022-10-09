@@ -358,11 +358,11 @@
           "action": "cutscene", "cutscene_id": 0
         },
         {
-          "x": 0, "y": 0, "w": 0, "h": 0,
+          "x": 149, "y": 69, "w": 40, "h": 120,
           "action": "cutscene", "cutscene_id": 1
         },
         {
-          "x": 0, "y": 0, "w": 0, "h": 0,
+          "x": 489, "y": 149, "w": 40, "h": 40,
           "action": "cutscene", "cutscene_id": 2
         },
 

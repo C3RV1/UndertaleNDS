@@ -321,7 +321,7 @@ Engine::Sprite* Navigation::getTarget(u8 targetType, s8 targetId,
                 targetId2 = globalRoom->spriteCount + targetId;
             else
                 targetId2 = targetId;
-            if (targetId2 >= globalRoom->spriteCount) {
+            if (targetId2 >= globalRoom->spriteCount || targetId2 < 0) {
                 nocashMessage("Error: target id outside of sprite count");
                 return nullptr;
             }
@@ -334,7 +334,7 @@ Engine::Sprite* Navigation::getTarget(u8 targetType, s8 targetId,
                 targetId2 = globalBattle->spriteCount + targetId;
             else
                 targetId2 = targetId;
-            if (targetId2 >= globalBattle->spriteCount) {
+            if (targetId2 >= globalBattle->spriteCount || targetId2 < 0) {
                 nocashMessage("Error: target id outside of sprite count");
                 return nullptr;
             }
