@@ -5,6 +5,7 @@
     3 - following toriel to room 4
     4 - following toriel to room 5
     5 - following toriel to room 6 (fought dummy)
+    6 - following toriel to room 7 (toriel hold hand done)
 1 - dummy behaviour
     0 - killed
     1 - talked

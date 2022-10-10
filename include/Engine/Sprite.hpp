@@ -50,7 +50,7 @@ namespace Engine {
         bool loaded = false;
         Texture* texture = nullptr;
 
-        s32 wx = 0, wy = 0;  // 1 bit sign, 22 bit integer, 8 bit fraction, world
+        s32 wx = 0, wy = 0;  // 1 bit sign, 23 bit integer, 8 bit fraction, world
         s32 w_scale_x = 1 << 8, w_scale_y = 1 << 8;
         s32 cam_x = 0, cam_y = 0;
         s32 cam_scale_x = 1 << 8, cam_scale_y = 1 << 8;
@@ -61,7 +61,7 @@ namespace Engine {
         friend class OAMManager;
         friend class Sprite3DManager;
     private:
-        s32 x = 0, y = 0;  // 1 bit sign, 22 bit integer, 8 bit fraction, screen
+        s32 x = 0, y = 0;  // 1 bit sign, 23 bit integer, 8 bit fraction, screen
         s32 scale_x = 0, scale_y = 0;
         u16 currentAnimationTimer = 0;
         u16 currentAnimationFrame = 0;

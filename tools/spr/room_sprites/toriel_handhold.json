@@ -1,0 +1,42 @@
+{
+  "size": [44, 53],
+  "frameCount": 14,
+  "animations": [
+    {
+      "name": "upMove",
+      "frames": [
+        {"frame": 0, "duration": 10, "draw_off_x": 19},
+        {"frame": 1, "duration": 10, "draw_off_x": 19},
+        {"frame": 0, "duration": 10, "draw_off_x": 19},
+        {"frame": 2, "duration": 10, "draw_off_x": 19}
+      ]
+    },
+    {
+      "name": "leftMove",
+      "frames": [
+        {"frame": 3, "duration": 10},
+        {"frame": 4, "duration": 10},
+        {"frame": 5, "duration": 10},
+        {"frame": 6, "duration": 10}
+      ]
+    },
+    {
+      "name": "rightMove",
+      "frames": [
+        {"frame": 7, "duration": 10},
+        {"frame": 8, "duration": 10},
+        {"frame": 9, "duration": 10},
+        {"frame": 10, "duration": 10}
+      ]
+    },
+    {
+      "name": "downMove",
+      "frames": [
+        {"frame": 11, "duration": 10, "draw_off_x": 19},
+        {"frame": 12, "duration": 10, "draw_off_x": 19},
+        {"frame": 11, "duration": 10, "draw_off_x": 19},
+        {"frame": 13, "duration": 10, "draw_off_x": 19}
+      ]
+    }
+  ]
+}

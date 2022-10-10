@@ -1,0 +1,10 @@
+{
+  "size": [40, 20],
+  "frameCount": 1,
+  "animations": [
+    {
+      "name": "gfx",
+      "frames": [{"frame": 0, "duration": 0}]
+    }
+  ]
+}

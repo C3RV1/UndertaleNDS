@@ -1,0 +1,35 @@
+{
+  "parts": [
+    {
+      "conditions": [],
+      "room_bg": "rooms/room7",
+      "music_path": "mus_ruins.wav",
+      "spawn_x": 0, "spawn_y": 0,
+      "exits": [
+        {
+          "exit_type": "side",
+          "room_id": 6,
+          "spawn_x": 1128, "spawn_y": 86,
+          "side": "left"
+        },
+        {
+          "exit_type": "side",
+          "room_id": 8,
+          "spawn_x": 5, "spawn_y": 95,
+          "side": "right"
+        }
+      ],
+      "textures": [],
+      "sprites": [],
+      "colliders": [
+        {"x": 0, "y": 0, "w": 41, "h": 97},
+        {"x": 41, "y": 0, "w": 1291, "h": 77},
+        {"x": 1332, "y": 0, "w": 40, "h": 97},
+        {"x": 0, "y": 137, "w": 41, "h": 56},
+        {"x": 41, "y": 177, "w": 1291, "h": 16},
+        {"x": 1332, "y": 137, "w": 40, "h": 56},
+        {"x": 1174, "y": 91, "w": 36, "h": 5}
+      ]
+    }
+  ]
+}

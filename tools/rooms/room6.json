@@ -17,19 +17,26 @@
         {
           "exit_type": "side",
           "room_id": 7,
-          "spawn_x": 0, "spawn_y": 0,
+          "spawn_x": 6, "spawn_y": 90,
           "side": "right"
         }
       ],
       "textures": [
         "room_sprites/spike",
-        "room_sprites/toriel"
+        "room_sprites/toriel",
+        "room_sprites/wall_panel_large_ruins"
       ],
       "sprites": [
         {
           "texture_id": 1,
           "x": 155, "y": 86,
           "animation": "downIdle"
+        },
+        {
+          "texture_id": 2,
+          "x": 549, "y": 109,
+          "animation": "gfx",
+          "action": "cutscene", "cutscene_id": 10
         },
         {
           "texture_id": 0,
@@ -365,6 +372,13 @@
           "x": 489, "y": 149, "w": 40, "h": 40,
           "action": "cutscene", "cutscene_id": 2
         },
+        {
+          "x": 529, "y": 149, "w": 40, "h": 40,
+          "action": "cutscene", "cutscene_id": 3
+        },
+        {
+          "x": 760, "y": 130, "w": 30, "h": 40
+        },
 
         {"x": 0, "y": 0, "w": 9, "h": 229},
         {"x": 9, "y": 0, "w": 1142, "h": 69},
@@ -400,14 +414,21 @@
         {
           "exit_type": "side",
           "room_id": 7,
-          "spawn_x": 0, "spawn_y": 0,
+          "spawn_x": 6, "spawn_y": 90,
           "side": "right"
         }
       ],
       "textures": [
-        "room_sprites/spike"
+        "room_sprites/spike",
+        "room_sprites/wall_panel_large_ruins"
       ],
       "sprites": [
+        {
+          "texture_id": 1,
+          "x": 549, "y": 109,
+          "animation": "gfx",
+          "action": "cutscene", "cutscene_id": 10
+        },
         {
           "texture_id": 0,
           "x": 791, "y": 130,
