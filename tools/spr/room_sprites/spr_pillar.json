@@ -1,0 +1,11 @@
+{
+  "size": [36, 60],
+  "frameCount": 1,
+  "top_down_offset": 58,
+  "animations": [
+    {
+      "name": "gfx",
+      "frames": [{"frame": 0, "duration": 0}]
+    }
+  ]
+}

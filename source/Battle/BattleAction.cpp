@@ -93,7 +93,7 @@ void BattleAction::enter(BattleActionState state) {
 }
 
 void BattleAction::drawAct(bool draw) {
-    const int optionX = 50, optionY = 50, optionSpacingX = 100, optionSpacingY = 20;
+    const int optionX = 40, optionY = 50, optionSpacingX = 90, optionSpacingY = 20;
     const int offsetX = -15, offsetY = 4;
     if (draw) {
         Engine::textMain.clear();

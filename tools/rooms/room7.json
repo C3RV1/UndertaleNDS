@@ -19,8 +19,16 @@
           "side": "right"
         }
       ],
-      "textures": [],
-      "sprites": [],
+      "textures": [
+        "room_sprites/spr_pillar"
+      ],
+      "sprites": [
+        {
+          "texture_id": 0,
+          "x": 1174, "y": 37,
+          "animation": "gfx"
+        }
+      ],
       "colliders": [
         {"x": 0, "y": 0, "w": 41, "h": 97},
         {"x": 41, "y": 0, "w": 1291, "h": 77},
