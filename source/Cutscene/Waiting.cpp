@@ -38,7 +38,7 @@ void Waiting::update(CutsceneLocation callingLocation, bool frame) {
     } else if (currentWait == WAIT_DIALOGUE_END) {
         if (globalCutscene == nullptr)
             currentWait = NONE;
-        else if (globalCutscene->cDialogue == nullptr)
+        else if (globalCutscene->currentDialogue == nullptr)
             currentWait = NONE;
     } else if (currentWait == WAIT_BATTLE_ATTACK) {
         if (callingLocation == BATTLE || callingLocation == LOAD_BATTLE) {
@@ -55,7 +55,7 @@ void Waiting::update(CutsceneLocation callingLocation, bool frame) {
     } else if (currentWait == WAIT_SAVE_MENU) {
         if (globalCutscene == nullptr)
             currentWait = NONE;
-        else if (globalCutscene->cSaveMenu == nullptr)
+        else if (globalCutscene->currentSaveMenu == nullptr)
             currentWait = NONE;
     } else if (currentWait == WAIT_BATTLE_ACTION) {
         if (callingLocation == BATTLE || callingLocation == LOAD_BATTLE) {

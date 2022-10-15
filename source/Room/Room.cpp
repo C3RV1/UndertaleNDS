@@ -10,6 +10,7 @@
 #include "Room/Player.hpp"
 #include "Formats/utils.hpp"
 #include "Room/Camera.hpp"
+#include "Room/InGameMenu.hpp"
 
 Room::Room(int roomId) : roomId(roomId) {
     char buffer[100];
@@ -303,7 +304,12 @@ void loadNewRoom(int roomId, s32 spawnX, s32 spawnY) {
     globalPlayer->spriteManager.wy = spawnY << 8;
 
     if (globalCutscene != nullptr) {
-        globalCutscene->runCommands(LOAD_ROOM);
+        // Cutscenes are confined to rooms
+        delete globalCutscene;
+        globalCutscene = nullptr;
+        globalInGameMenu.show(false);
+        globalPlayer->playerControl = true;
+        globalCamera.manual = false;
     }
     globalCamera.updatePosition(true);
     globalPlayer->draw();

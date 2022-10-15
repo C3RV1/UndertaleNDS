@@ -51,7 +51,9 @@ void SaveData::loadData() {
     fCard.read(&exp, 2);
     fCard.read(&gold, 2);
     fCard.read(items, ITEM_COUNT);
+    fCard.read(cell, CELL_COUNT);
     items[ITEM_COUNT] = 0;
+    cell[CELL_COUNT] = 0;
 
     saveExists = true;
 
@@ -72,6 +74,7 @@ void SaveData::saveData(u16 roomId) {
     fCard.write(&exp, 2);
     fCard.write(&gold, 2);
     fCard.write(items, ITEM_COUNT);
+    fCard.write(cell, CELL_COUNT);
     items[ITEM_COUNT] = 0;
 
     lastSavedRoom = roomId;

@@ -7,6 +7,7 @@
 
 #define FLAG_COUNT 256
 #define ITEM_COUNT 8
+#define CELL_COUNT 8
 
 #include <stdio.h>
 #define ARM9
@@ -22,7 +23,7 @@ enum ClearType {
 
 class SaveData {
 public:
-    const u32 saveVersion = 3;
+    const u32 saveVersion = 4;
     void clear(ClearType clearType);
     void loadData();
     void saveData(u16 roomId);
@@ -33,6 +34,7 @@ public:
     u8 hp = 20, maxHp = 20;
     u16 lv = 1, exp = 0, gold = 0;
     u8 items[ITEM_COUNT + 1] = {0};  // Terminal 0
+    u8 cell[CELL_COUNT + 1] = {0};  // Terminal 0
 
     u16 lastSavedRoom = 0;
 };

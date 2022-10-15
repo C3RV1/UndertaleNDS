@@ -23,6 +23,8 @@ public:
     void load();
     void unload();
     void show(bool update);
+    void processTouchItems(touchPosition& touch);
+    void processTouchCell(touchPosition& touch);
     void hide();
     void update();
 private:
@@ -45,10 +47,12 @@ private:
     Engine::Sprite listHeart;
     Engine::Sprite itemExplainBox;
     SelectedMenu selectedMenu = MENU_ITEMS;
-    u8 itemCount = 0;
+    u8 optionCount = 0;
     u8 pageCount = 0;
-    u8 itemSelected = 0;
+    u8 optionSelected = 0;
     u8 itemPage = 0;
+
+    bool bgLoadedCell = false;
 };
 
 extern InGameMenu globalInGameMenu;

@@ -50,10 +50,10 @@ void Battle::exit(bool won) {
         globalSave.gold += earnedGold;
         char buffer[200] = {0};
         sprintf(buffer, winText, earnedExp, earnedGold);
-        if (globalCutscene->cDialogue == nullptr) {
-            globalCutscene->cDialogue = new Dialogue(true, 0, 0, buffer, "SND_TXT1.wav",
-                                                     "fnt_maintext.font", 2,
-                                                     Engine::textMain);
+        if (globalCutscene->currentDialogue == nullptr) {
+            globalCutscene->currentDialogue = new Dialogue(true, 0, 0, buffer, "SND_TXT1.wav",
+                                                           "fnt_maintext.font", 2,
+                                                           Engine::textMain);
         }
         stopPostDialogue = true;
     } else {
@@ -227,7 +227,7 @@ void runBattle(FILE* stream) {
     while (globalBattle->running) {
         Engine::tick();
         if (globalCutscene != nullptr) {
-            if (globalBattle->stopPostDialogue && globalCutscene->cDialogue == nullptr) {
+            if (globalBattle->stopPostDialogue && globalCutscene->currentDialogue == nullptr) {
                 globalBattle->running = false;
             }
             globalCutscene->update();

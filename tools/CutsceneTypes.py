@@ -8,6 +8,8 @@ def to_fixed_point(f: float):
     return int(f * (2 ** 8))
 
 
+PLAYER_SPEED = 90
+
 def frames_from_dst(dst, px_per_sec):
     return (abs(dst) * 60) // px_per_sec
 
@@ -50,7 +52,8 @@ class CutsceneCommands(enum.IntEnum):
     SET_ENEMY_ATTACK = 34  # Done
     SET_ENEMY_ACT = 35
     CLEAR_NAV_TASKS = 36  # Done
-    LOAD_SPRITE_RELATIVE = 37
+    LOAD_SPRITE_RELATIVE = 37  # Done
+    SET_CELL = 38  # Done
     DEBUG = 0xff  # Done
 
 
@@ -68,6 +71,7 @@ class WaitTypes(enum.IntEnum):
 class FlagOffsets(enum.IntEnum):
     PROGRESS = 0
     DUMMY = 1
+    OWNS_PHONE = 2
     ROOM_FLAGS = 210
     BATTLE_FLAGS = 220
     BATTLE_ACTION = 230
@@ -385,6 +389,15 @@ class Cutscene:
         self.write_header(CutsceneCommands.MOD_FLAG)
         self.wtr.write_uint16(flag_id)
         self.wtr.write_int16(flag_mod)
+        return self.instructions_address[-1]
+
+    def set_cell(self, phone_options: List[int]):
+        self.write_header(CutsceneCommands.SET_CELL)
+        for option in phone_options[:8]:
+            if option == 0:
+                continue
+            self.wtr.write_uint8(option)
+        self.wtr.write_uint8(0)
         return self.instructions_address[-1]
 
     def cmp_flag(self, flag_id: int, operator: str, value: int):

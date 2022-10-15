@@ -3,7 +3,6 @@
 
 #define ARM9
 #include <nds.h>
-#include <gl2d.h>
 #include <fat.h>
 #include "Engine/Background.hpp"
 #include <maxmod9.h>

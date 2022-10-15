@@ -200,10 +200,15 @@ namespace Audio {
                             return true;
                         }
                     }
+                    long readElements = (wav->getDataEnd() - ftell(stream)) / 2;
+                    if (wav->getStereo())
+                        readElements /= 2;
+                    if (readElements > WAVBuffer)
+                        readElements = WAVBuffer;
                     if (!wav->getStereo())
-                        wav->maxValueIdx = fread(&wav->values, 2, WAVBuffer, stream) / 4;
+                        wav->maxValueIdx = fread(&wav->values, 2, readElements, stream);
                     else
-                        wav->maxValueIdx = fread(&wav->values, 2, WAVBuffer * 2, stream) / 2;
+                        wav->maxValueIdx = fread(&wav->values, 4, readElements, stream);
                     wav->cValueIdx = 0;
                 }
                 wav->co -= 44100;

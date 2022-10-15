@@ -27,8 +27,8 @@ void runTitleScreen() {
     const int dotFrames = 40;
     const int otherPunctuationFrames = 25;
     const int letterFrames = 4;
-    const int pressAButtonX = 40;
-    const int pressAButtonY = 60;
+    const int pressAButtonX = 60;
+    const int pressAButtonY = 90;
     int timer;
 
     char textBuffer[100];
@@ -148,11 +148,11 @@ void runTitleScreen() {
     setBrightness(3, 0);  // set brightness to full bright
     Engine::textSub.clear();
 
-    if (skip) {
-        fclose(textStream);
-        Audio::stopBGMusic();
-        return;
-    }
+    skip = false;
+    fclose(textStream);
+    textStream = fopen("nitro:/data/intro2.txt", "rb");
+    if (textStream == nullptr)
+        nocashMessage("Error opening intro text");
     Audio::playBGMusic("mus_intronoise.wav", false);
 
     currentBackground.loadPath("intro/title");

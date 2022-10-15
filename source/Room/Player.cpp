@@ -172,7 +172,8 @@ void Player::check_interact() const {
         if (collidesRect(x, y, w, h, x2, y2, w2, h2)) {
             if (sprite->interactAction == 1) {
                 if (globalCutscene == nullptr)
-                    globalCutscene = new Cutscene(sprite->cutsceneId);
+                    globalCutscene = new Cutscene(sprite->cutsceneId,
+                                                  globalRoom->roomId);
                 return;
             }
         }
@@ -190,7 +191,8 @@ bool Player::check_collisions() const {
             if (collider->colliderAction == 0)  // Wall
                 return true;
             if (collider->colliderAction == 1 && globalCutscene == nullptr) {  // Cutscene
-                globalCutscene = new Cutscene(collider->cutsceneId);
+                globalCutscene = new Cutscene(collider->cutsceneId,
+                                              globalRoom->roomId);
             }
         }
     }

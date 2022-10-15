@@ -12,6 +12,7 @@ def cutscene(c: Cutscene):
     c.set_collider_enabled(2, False)
 
     # TODO: Screen shake
+    c.play_sfx("snd_screenshake.wav", 0)
     c.set_animation(Target(TargetType.SPRITE, 5), "down")
     c.set_animation(Target(TargetType.SPRITE, 6), "down")
 

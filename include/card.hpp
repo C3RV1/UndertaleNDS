@@ -7,7 +7,6 @@
 
 #define ARM9
 #include <nds.h>
-#include <stdio.h>
 
 u8 cardCommand(u8 command, bool hold);
 u8 cardTransfer(u8 data);

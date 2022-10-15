@@ -8,7 +8,11 @@
 
 void InGameMenu::load() {
     fnt.loadPath("fnt_maintext.font");
-    bg.loadPath("ingame_menu/bg");
+    bgLoadedCell = globalSave.flags[2] == 1;
+    if (bgLoadedCell)
+        bg.loadPath("ingame_menu/bg");
+    else
+        bg.loadPath("ingame_menu/bg_no_cell");
 
     littleHeart.loadPath("spr_heartsmall");
     itemExplain.loadPath("ingame_menu/item_explain");
@@ -45,6 +49,11 @@ void InGameMenu::show(bool update) {
     //       only runs for a single frame so who cares?
     if (shown && !update)
         return;
+
+    if (globalSave.flags[2] == 1 && !bgLoadedCell) {
+        bg.loadPath("ingame_menu/bg");
+        bgLoadedCell = true;
+    }
 
     shown = true;
     if (!update)
@@ -85,23 +94,23 @@ void InGameMenu::show(bool update) {
             itemExplainBox.setShown(false);
         } else {
             y = itemsY;
-            for (itemCount = 0; globalSave.items[itemCount] != 0; itemCount++);
-            pageCount = ((itemCount - 1) / 2) + 1;
+            for (optionCount = 0; globalSave.items[optionCount] != 0; optionCount++);
+            pageCount = ((optionCount - 1) / 2) + 1;
             if (itemPage > pageCount - 1)
                 itemPage = pageCount - 1;
-            if (itemSelected > itemCount - itemPage * 2 - 1)
-                itemSelected = itemCount - itemPage * 2 - 1;
+            if (optionSelected > optionCount - itemPage * 2 - 1)
+                optionSelected = optionCount - itemPage * 2 - 1;
             if (itemPage > 0) {
                 x = 5;
                 Engine::textSub.drawGlyph(fnt, '<', x, pageChangeY);
             }
-            if (itemPage < (itemCount - 1) / 2) {
+            if (itemPage < (optionCount - 1) / 2) {
                 x = 256 - 15;
                 Engine::textSub.drawGlyph(fnt, '>', x, pageChangeY);
             }
             for (int i = 0; i < 2; i++) {
                 int itemIdx = (itemPage * 2) + i;
-                if (itemIdx >= itemCount)
+                if (itemIdx >= optionCount)
                     break;
                 int item = globalSave.items[itemIdx];
 
@@ -111,7 +120,7 @@ void InGameMenu::show(bool update) {
                 fread(buffer, len + 1, 1, f);
                 fclose(f);
                 x = itemsX;
-                if (i == itemSelected) {
+                if (i == optionSelected) {
                     listHeart.wx = (x - 12) << 8;
                     listHeart.wy = (y + 4) << 8;
                 }
@@ -125,7 +134,7 @@ void InGameMenu::show(bool update) {
             itemExplainBox.setShown(true);
 
             // TODO: Make descriptions have multiple pages (ex. temmie armor)
-            int itemIdx = itemPage * 2 + itemSelected;
+            int itemIdx = itemPage * 2 + optionSelected;
             int item = globalSave.items[itemIdx];
             sprintf(buffer, "nitro:/data/items/desc%d.txt", item);
             FILE* f = fopen(buffer, "rb");
@@ -145,8 +154,29 @@ void InGameMenu::show(bool update) {
         }
     } else {
         // CELL menu
-        listHeart.setShown(false);
+        listHeart.setShown(true);
         itemExplainBox.setShown(false);
+        for (optionCount = 0; globalSave.cell[optionCount] != 0; optionCount++);
+        if (optionSelected > optionCount - 1)
+            optionSelected = optionCount - 1;
+        for (int i = 0; i < optionCount; i++) {
+            int cellOption = globalSave.cell[i];
+
+            sprintf(buffer, "nitro:/data/cell/name%d.txt", cellOption);
+            FILE* f = fopen(buffer, "rb");
+            int len = str_len_file(f, '\n');
+            fread(buffer, len + 1, 1, f);
+            fclose(f);
+            x = itemsX;
+            if (i == optionSelected) {
+                listHeart.wx = (x - 12) << 8;
+                listHeart.wy = (y + 4) << 8;
+            }
+            for (char* pName = buffer; *pName != '\n'; pName++) {
+                Engine::textSub.drawGlyph(fnt, *pName, x, y);
+            }
+            y += itemSpacingY;
+        }
     }
 }
 
@@ -156,45 +186,61 @@ void InGameMenu::update() {
     if (keysDown() & KEY_TOUCH) {
         touchPosition touch;
         touchRead(&touch);
-        if (touch.py > 35 && touch.py < 35 + 19) {
-            if (touch.px > 53 && touch.px < 53 + 58) {
-                if (selectedMenu != MENU_ITEMS) {
-                    selectedMenu = MENU_ITEMS;
-                    itemSelected = 0;
-                    itemPage = 0;
-                    show(true);
-                }
-            } else if (touch.px > 140 && touch.px < 140 + 58) {
-                if (selectedMenu != MENU_CELL) {
-                    selectedMenu = MENU_CELL;
+        if (selectedMenu == MENU_ITEMS)
+            processTouchItems(touch);
+        else
+            processTouchCell(touch);
+    }
+}
+
+void InGameMenu::processTouchItems(touchPosition &touch) {
+    if (touch.px > 140 && touch.px < 140 + 58) {
+        if (selectedMenu != MENU_CELL && globalSave.flags[2] == 1) {
+            selectedMenu = MENU_CELL;
+            show(true);
+        }
+    }
+    else if (touch.py > 35 + 19 && touch.py < itemsY + itemSpacingY * 2) {
+        if (touch.px < itemsX + buttonWidth &&
+            touch.px > itemsX) {
+            int itemY = (touch.py - itemsY) / itemSpacingY;
+            int itemIdx = itemY;
+            if (itemIdx != optionSelected && itemPage * 2 + optionSelected < optionCount) {
+                optionSelected = itemIdx;
+                show(true);
+            }
+        } else if (touch.py > pageChangeY - 5 && touch.py < pageChangeY + 20) {
+            if (touch.px < 15) {
+                if (itemPage > 0) {
+                    itemPage--;
                     show(true);
                 }
             }
-        } else if (touch.py > 35 + 19 && touch.py < itemsY + itemSpacingY * 2) {
-            if (selectedMenu == MENU_ITEMS) {
-                if (touch.px < itemsX + buttonWidth &&
-                    touch.px > itemsX) {
-                    int itemY = (touch.py - itemsY) / itemSpacingY;
-                    int itemIdx = itemY;
-                    if (itemIdx != itemSelected && itemPage * 2 + itemSelected < itemCount) {
-                        itemSelected = itemIdx;
-                        show(true);
-                    }
-                } else if (touch.py > pageChangeY - 5 && touch.py < pageChangeY + 20) {
-                    if (touch.px < 15) {
-                        if (itemPage > 0) {
-                            itemPage--;
-                            show(true);
-                        }
-                    }
-                    else if (touch.px > 256 - 25) {
-                        if (itemPage < pageCount - 1) {
-                            itemPage++;
-                            show(true);
-                        }
-                    }
+            else if (touch.px > 256 - 25) {
+                if (itemPage < pageCount - 1) {
+                    itemPage++;
+                    show(true);
                 }
             }
+        }
+    }
+}
+
+void InGameMenu::processTouchCell(touchPosition &touch) {
+    if (touch.px > 53 && touch.px < 53 + 58) {
+        if (selectedMenu != MENU_ITEMS) {
+            selectedMenu = MENU_ITEMS;
+            optionSelected = 0;
+            itemPage = 0;
+            show(true);
+        }
+    } else if (touch.px > itemsX && touch.py > itemsY && touch.py < itemsY + itemSpacingY * (optionCount + 1)) {
+        int touchedOption = (touch.py - itemsY) / itemSpacingY;
+        if (touchedOption != optionSelected) {
+            optionSelected = touchedOption;
+            show(true);
+        } else {
+            // TODO: Start call (specific room for call events?)
         }
     }
 }

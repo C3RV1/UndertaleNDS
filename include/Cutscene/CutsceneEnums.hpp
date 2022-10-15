@@ -44,6 +44,7 @@ enum CutsceneCommands {
     CMD_SET_ENEMY_ACT = 35, // TODO
     CMD_CLEAR_NAV_TASKS = 36,
     CMD_LOAD_SPRITE_RELATIVE = 37,
+    CMD_SET_CELL = 38,
     CMD_DEBUG = 0xff
 };
 

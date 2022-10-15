@@ -97,4 +97,4 @@ def cutscene(c: Cutscene):
     c.wait(WaitTypes.FRAMES, frames_from_dst(50, 90))
     c.unload_sprite(0)
     c.unload_texture(1)
-    c.set_flag(FlagOffsets.PROGRESS, 7)
+    c.set_flag(FlagOffsets.PROGRESS, 6)

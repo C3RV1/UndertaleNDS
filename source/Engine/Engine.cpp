@@ -64,6 +64,7 @@ namespace Engine {
     void tick() {
         main3dSpr.draw();
         glFlush(0);
+        mmStreamUpdate();
         swiWaitForVBlank();
         REG_BG3X = bg3ScrollX;
         REG_BG3Y = bg3ScrollY;
@@ -76,7 +77,6 @@ namespace Engine {
         OAMManagerSub.draw();  // Update oam in v-blank
         REG_DISPCNT_SUB &= ~(1 << 7);
         main3dSpr.updateTextures();  // Update textures in v-blank
-        mmStreamUpdate();
         scanKeys();
     }
 }

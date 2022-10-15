@@ -18,9 +18,9 @@
 
 Cutscene* globalCutscene = nullptr;
 
-Cutscene::Cutscene(u16 cutsceneId_) : cutsceneId(cutsceneId_) {
+Cutscene::Cutscene(u16 cutsceneId_, u16 roomId_) : cutsceneId(cutsceneId_) {
     char buffer[100];
-    roomId = globalRoom->roomId;
+    roomId = roomId_;
     sprintf(buffer, "nitro:/data/cutscenes/r%d/c%d.cscn", roomId, cutsceneId);
     FILE* f = fopen(buffer, "rb");
     if (f) {
@@ -76,17 +76,17 @@ bool Cutscene::checkHeader(FILE *f) {
 }
 
 void Cutscene::update() {
-    if (cDialogue != nullptr) {
-        if (cDialogue->update()) {
-            cDialogue->free_();
-            delete cDialogue;
-            cDialogue = nullptr;
+    if (currentDialogue != nullptr) {
+        if (currentDialogue->update()) {
+            currentDialogue->free_();
+            delete currentDialogue;
+            currentDialogue = nullptr;
         }
-    } else if (cSaveMenu != nullptr) {
-        if (cSaveMenu->update()) {
-            cSaveMenu->free_();
-            delete cSaveMenu;
-            cSaveMenu = nullptr;
+    } else if (currentSaveMenu != nullptr) {
+        if (currentSaveMenu->update()) {
+            currentSaveMenu->free_();
+            delete currentSaveMenu;
+            currentSaveMenu = nullptr;
         }
     }
 }
@@ -348,10 +348,10 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             Engine::TextBGManager* txt = mainScreen ? &Engine::textMain : &Engine::textSub;
 
             Engine::Sprite* target = Navigation::getTarget(targetType, targetId, callingLocation);
-            if (cDialogue == nullptr) {
-                cDialogue = new Dialogue(centered, textId, speaker, x, y, idleAnim, talkAnim,
-                                         target, idleAnim2, talkAnim2, typeSnd,
-                                         font, framesPerLetter, *txt);
+            if (currentDialogue == nullptr) {
+                currentDialogue = new Dialogue(centered, textId, speaker, x, y, idleAnim, talkAnim,
+                                               target, idleAnim2, talkAnim2, typeSnd,
+                                               font, framesPerLetter, *txt);
             }
             break;
         }
@@ -540,8 +540,8 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
 #ifdef DEBUG_CUTSCENES
             nocashMessage("CMD_SAVE_MENU");
 #endif
-            if (cSaveMenu == nullptr)
-                cSaveMenu = new SaveMenu();
+            if (currentSaveMenu == nullptr)
+                currentSaveMenu = new SaveMenu();
             break;
         case CMD_MAX_HEALTH:
 #ifdef DEBUG_CUTSCENES
@@ -612,6 +612,16 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
                                        callingLocation);
             break;
         }
+        case CMD_SET_CELL:
+#ifdef DEBUG_CUTSCENES
+            nocashMessage("CMD_SET_CELL");
+#endif
+            for(u8 &i : globalSave.cell) {
+                fread(&i, 1, 1, commandStream);
+                if (i == 0)
+                    break;
+            }
+            break;
         default:
             sprintf(buffer, "Error cmd %d unknown, pos: %ld", cmd, ftell(commandStream));
             nocashMessage(buffer);
@@ -625,9 +635,14 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
 Cutscene::~Cutscene() {
     if (commandStream != nullptr)
         fclose(commandStream);
-    if (cDialogue != nullptr) {
-        cDialogue->free_();
-        delete cDialogue;
-        cDialogue = nullptr;
+    if (currentDialogue != nullptr) {
+        currentDialogue->free_();
+        delete currentDialogue;
+        currentDialogue = nullptr;
+    }
+    if (currentSaveMenu != nullptr) {
+        currentSaveMenu->free_();
+        delete currentSaveMenu;
+        currentSaveMenu = nullptr;
     }
 }
