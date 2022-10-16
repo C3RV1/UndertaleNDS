@@ -1,21 +1,119 @@
 {
   "parts": [
     {
-      "conditions": [],
+      "conditions": [
+        {"flag_id": 0, "op": "==", "cmp_value": 7}
+      ],
       "room_bg": "rooms/room8",
       "music_path": "mus_ruins.wav",
-      "spawn_x": 0, "spawn_y": 0,
+      "spawn_x": 192, "spawn_y": 126,
       "exits": [
         {
           "exit_type": "side",
           "room_id": 7,
           "spawn_x": 1347, "spawn_y": 94,
           "side": "left"
+        },
+        {
+          "exit_type": "rect",
+          "room_id": 9,
+          "spawn_x": 117, "spawn_y": 195,
+          "x": 138, "y": 0, "w": 42, "h": 68
+        },
+        {
+          "exit_type": "side",
+          "room_id": 10,
+          "spawn_x": 3, "spawn_y": 66,
+          "side": "right"
         }
       ],
-      "textures": [],
-      "sprites": [],
-      "colliders": []
+      "textures": [
+        "room_sprites/savepoint",
+        "room_sprites/spr_smallfrog"
+      ],
+      "sprites": [
+        {
+          "texture_id": 0,
+          "x": 209, "y": 140,
+          "animation": "gfx",
+          "action": "cutscene", "cutscene_id": 100
+        },
+        {
+          "texture_id": 1,
+          "x": 100, "y": 80,
+          "animation": "gfx",
+          "action": "cutscene", "cutscene_id": 0
+        }
+      ],
+      "colliders": [
+        {
+          "x": 59, "y": 100, "w": 40, "h": 40,
+          "action": "cutscene", "cutscene_id": 1
+        },
+
+        {"x": 0, "y": 0, "w": 59, "h": 100},
+        {"x": 59, "y": 0, "w": 79, "h": 80},
+        {"x": 180, "y": 0, "w": 79, "h": 80},
+        {"x": 259, "y": 0, "w": 68, "h": 340},
+        {"x": 0, "y": 140, "w": 59, "h": 289},
+        {"x": 59, "y": 420, "w": 268, "h": 9},
+        {"x": 259, "y": 380, "w": 68, "h": 40},
+        {"x": 209, "y": 140, "w": 20, "h": 19}
+      ]
+    },
+    {
+      "conditions": [],
+      "room_bg": "rooms/room8",
+      "music_path": "mus_ruins.wav",
+      "spawn_x": 192, "spawn_y": 126,
+      "exits": [
+        {
+          "exit_type": "side",
+          "room_id": 7,
+          "spawn_x": 1347, "spawn_y": 94,
+          "side": "left"
+        },
+        {
+          "exit_type": "rect",
+          "room_id": 9,
+          "spawn_x": 117, "spawn_y": 195,
+          "x": 138, "y": 0, "w": 42, "h": 68
+        },
+        {
+          "exit_type": "side",
+          "room_id": 10,
+          "spawn_x": 3, "spawn_y": 66,
+          "side": "right"
+        }
+      ],
+      "textures": [
+        "room_sprites/savepoint",
+        "room_sprites/spr_smallfrog"
+      ],
+      "sprites": [
+        {
+          "texture_id": 0,
+          "x": 209, "y": 140,
+          "animation": "gfx",
+          "action": "cutscene", "cutscene_id": 100
+        },
+        {
+          "texture_id": 1,
+          "x": 100, "y": 80,
+          "animation": "gfx",
+          "action": "cutscene", "cutscene_id": 0
+        }
+      ],
+      "colliders": [
+        {"x": 0, "y": 0, "w": 59, "h": 100},
+        {"x": 59, "y": 0, "w": 79, "h": 80},
+        {"x": 180, "y": 0, "w": 79, "h": 80},
+        {"x": 259, "y": 0, "w": 68, "h": 340},
+        {"x": 0, "y": 140, "w": 59, "h": 289},
+        {"x": 59, "y": 420, "w": 268, "h": 9},
+        {"x": 259, "y": 380, "w": 68, "h": 40},
+        {"x": 209, "y": 140, "w": 20, "h": 19}
+      ]
     }
   ]
 }

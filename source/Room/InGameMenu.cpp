@@ -1,6 +1,7 @@
 //
 // Created by cervi on 01/09/2022.
 //
+#include "Cutscene/Cutscene.hpp"
 #include "Room/InGameMenu.hpp"
 #include "Engine/Engine.hpp"
 #include "Formats/utils.hpp"
@@ -159,6 +160,7 @@ void InGameMenu::show(bool update) {
         for (optionCount = 0; globalSave.cell[optionCount] != 0; optionCount++);
         if (optionSelected > optionCount - 1)
             optionSelected = optionCount - 1;
+        y = itemsY;
         for (int i = 0; i < optionCount; i++) {
             int cellOption = globalSave.cell[i];
 
@@ -194,7 +196,7 @@ void InGameMenu::update() {
 }
 
 void InGameMenu::processTouchItems(touchPosition &touch) {
-    if (touch.px > 140 && touch.px < 140 + 58) {
+    if (touch.px > 140 && touch.px < 140 + 58 && touch.py > 35 && touch.py < 35 + 19) {
         if (selectedMenu != MENU_CELL && globalSave.flags[2] == 1) {
             selectedMenu = MENU_CELL;
             show(true);
@@ -227,7 +229,7 @@ void InGameMenu::processTouchItems(touchPosition &touch) {
 }
 
 void InGameMenu::processTouchCell(touchPosition &touch) {
-    if (touch.px > 53 && touch.px < 53 + 58) {
+    if (touch.px > 53 && touch.px < 53 + 58 && touch.py > 35 && touch.py < 35 + 19) {
         if (selectedMenu != MENU_ITEMS) {
             selectedMenu = MENU_ITEMS;
             optionSelected = 0;
@@ -240,7 +242,10 @@ void InGameMenu::processTouchCell(touchPosition &touch) {
             optionSelected = touchedOption;
             show(true);
         } else {
-            // TODO: Start call (specific room for call events?)
+            // Room 1000 for phone cutscenes
+            if (globalCutscene == nullptr)
+                globalCutscene = new Cutscene(globalSave.cell[touchedOption],
+                                              1000);
         }
     }
 }

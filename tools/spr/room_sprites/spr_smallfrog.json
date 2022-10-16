@@ -1,0 +1,15 @@
+{
+  "size": [19, 20],
+  "frameCount": 3,
+  "animations": [
+    {
+      "name": "gfx",
+      "frames": [
+        {"frame": 0, "duration": 40},
+        {"frame": 1, "duration": 40, "draw_off_y": 1},
+        {"frame": 0, "duration": 40},
+        {"frame": 2, "duration": 40}
+      ]
+    }
+  ]
+}

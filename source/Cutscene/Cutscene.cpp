@@ -18,9 +18,8 @@
 
 Cutscene* globalCutscene = nullptr;
 
-Cutscene::Cutscene(u16 cutsceneId_, u16 roomId_) : cutsceneId(cutsceneId_) {
+Cutscene::Cutscene(u16 cutsceneId_, u16 roomId_) : cutsceneId(cutsceneId_), roomId(roomId_) {
     char buffer[100];
-    roomId = roomId_;
     sprintf(buffer, "nitro:/data/cutscenes/r%d/c%d.cscn", roomId, cutsceneId);
     FILE* f = fopen(buffer, "rb");
     if (f) {
@@ -97,9 +96,9 @@ bool Cutscene::runCommands(CutsceneLocation callingLocation) {
         return true;
     if (waiting.getBusy())
         return false;
-    if (ftell(commandStream) == commandStreamLen)
+    if (ftell(commandStream) >= commandStreamLen)
         return true;
-    while (!waiting.getBusy() && ftell(commandStream) != commandStreamLen) {
+    while (!waiting.getBusy() && ftell(commandStream) < commandStreamLen) {
         if (runCommand(callingLocation))
             break;
         waiting.update(callingLocation, false);

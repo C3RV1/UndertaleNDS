@@ -5,7 +5,7 @@
         {"flag_id": 0, "op": "==", "cmp_value": 6}
       ],
       "room_bg": "rooms/room7",
-      "music_path": "mus_ruins.wav",
+      "music_path": "",
       "spawn_x": 0, "spawn_y": 0,
       "exits": [
         {
@@ -39,7 +39,7 @@
       ],
       "colliders": [
         {
-          "x": 41, "y": 77, "w": 30, "h": 100,
+          "x": 0, "y": 77, "w": 70, "h": 100,
           "action": "cutscene", "cutscene_id": 0
         },
         {

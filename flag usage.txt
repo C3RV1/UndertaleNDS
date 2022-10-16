@@ -7,6 +7,7 @@
     5 - following toriel to room 6 (fought dummy)
     6 - following toriel to room 7 (toriel hold hand done)
     7 - toriel ran away room done
+    8 - received call from toriel
 1 - dummy behaviour
     0 - killed
     1 - talked
@@ -15,6 +16,15 @@
 2 - owns phone
     0 - false
     1 - true
+3 - toriel hello count
+    0 - haven't done first yet
+    1 - have done first
+4 - toriel flirt count
+    0 - haven't done first yet
+    1 - have done first
+5 - called toriel momm
+    0 - haven't
+    1 - have
 
 210-219 - specific room flags (cleared upon entering room)
 220-229 - specific battle flags (cleared upon entering battle)

@@ -208,7 +208,7 @@ def cutscene(c: Cutscene):
     c.set_flag(FlagOffsets.PROGRESS, 5)
     c.set_collider_enabled(1, False)
 
-    c.set_animation(Target(TargetType.SPRITE, 0), "moveUp")
+    c.set_animation(Target(TargetType.SPRITE, 0), "upMove")
     c.move_in_frames(Target(TargetType.SPRITE, 0), 0, -30, 20)
     c.wait(WaitTypes.FRAMES, 20)
     c.unload_sprite(0)

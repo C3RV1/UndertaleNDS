@@ -72,6 +72,9 @@ class FlagOffsets(enum.IntEnum):
     PROGRESS = 0
     DUMMY = 1
     OWNS_PHONE = 2
+    TORIEL_HELLO_COUNT = 3
+    TORIEL_FLIRT_COUNT = 4
+    TORIEL_CALL_MOM = 5
     ROOM_FLAGS = 210
     BATTLE_FLAGS = 220
     BATTLE_ACTION = 230
@@ -120,10 +123,6 @@ class ComparisonOperator(enum.IntEnum):
     EQUALS = 0
     GREATER_THAN = 1
     LESS_THAN = 2
-
-
-class SaveFlags(enum.IntEnum):
-    RUINS_PROGRESS = 0
 
 
 class BtlActionOff(enum.IntEnum):
