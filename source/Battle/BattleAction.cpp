@@ -246,6 +246,7 @@ bool BattleAction::updateChoosingAction() {
     if (keysDown() & KEY_A) {
         switch (currentAction) {
             case ACTION_FIGHT:
+                break; // TODO: Remove this break after implementing fight
             case ACTION_ACT:
                 enter(CHOOSING_TARGET);
                 break;
