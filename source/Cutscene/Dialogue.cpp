@@ -115,12 +115,14 @@ bool Dialogue::update() {
     if (!paused) {
         setTalk();
         progressText(true, true);
-        if ((keysDown() & (KEY_TOUCH | KEY_B)) || letterFrames == 0) {
+        if (((keysDown() & (KEY_TOUCH | KEY_B)) || letterFrames == 0) && (textPos != textLen)) {
             progressText(true, false);
             while (!paused && !(textPos >= textLen && (linePos >= lineLen || !centered)))
                 progressText(false, false);
-            linePos--;
-            progressText(false, true);
+            if (centered && linePos > 0) {
+                linePos--;
+                progressText(false, true);
+            }
         }
         if (textPos == textLen && (linePos >= lineLen || !centered)) {
             setNoTalk();
@@ -293,7 +295,7 @@ void Dialogue::progressTextLeft(bool clear, bool draw) {
         return;
     }
     currentTimer = letterFrames;
-    if (linePos == textLen) {
+    if (textPos >= textLen) {
         return;
     }
 
