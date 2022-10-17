@@ -5,7 +5,7 @@
 #ifndef UNDERTALE_UTILS_HPP
 #define UNDERTALE_UTILS_HPP
 
-#include <stdio.h>
+#include <cstdio>
 #include "card.hpp"
 
 int str_len_file(FILE *f, char terminator);

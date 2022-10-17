@@ -28,7 +28,7 @@ namespace Engine {
         // OAM
         u8 oamEntryCount = 0;
         u8 oamScaleIdx = 0xff;  // all oam entries can share scale
-        u8 * oamEntries;
+        u8 * oamEntries = nullptr;
         u8 *paletteColors = nullptr;
 
         int loadedFrame = -1;

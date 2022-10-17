@@ -250,6 +250,8 @@ void Navigation::startTask(NavigationTask *navTask) {
 bool Navigation::updateTask(int taskId) {
     if (taskId >= taskCount)
         return false;
+    if (tasks == nullptr)
+        return false;
     NavigationTask* navTask = tasks[taskId];
     if (navTask == nullptr) {
         endTask(taskId);
@@ -279,6 +281,8 @@ bool Navigation::updateTask(int taskId) {
 
 void Navigation::endTask(int taskId) {
     if (taskId >= taskCount)
+        return;
+    if (tasks == nullptr)
         return;
     auto* task = tasks[taskId];
     delete task;

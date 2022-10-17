@@ -15,5 +15,5 @@ def cutscene(c: Cutscene):
     c.wait(WaitTypes.FRAMES, 180)
     c.set_animation(Target(TargetType.SPRITE, 7), "leftIdle")
     c.set_action(Target(TargetType.SPRITE, 7), "cutscene",
-                          cutscene_id=11)
+                 cutscene_id=11)
     c.set_flag(FlagOffsets.ROOM_FLAGS, 0)

@@ -10,7 +10,7 @@
 #include "Engine/Audio.hpp"
 #include "Save.hpp"
 #include "Formats/utils.hpp"
-#include <stdio.h>
+#include <cstdio>
 
 void runMainMenu() {
     const int nameX = 42, nameY = 24 - 4;

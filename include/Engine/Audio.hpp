@@ -5,8 +5,8 @@
 #ifndef UNDERTALE_AUDIO_HPP
 #define UNDERTALE_AUDIO_HPP
 
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 #define ARM9
 #include <nds.h>
 #include <maxmod9.h>

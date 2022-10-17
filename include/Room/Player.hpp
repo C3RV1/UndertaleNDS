@@ -6,7 +6,7 @@
 #define UNDERTALE_PLAYER_HPP
 
 #include "Sprite.hpp"
-#include <stdio.h>
+#include <cstdio>
 #define ARM9
 #include <nds.h>
 

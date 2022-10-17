@@ -134,29 +134,20 @@ bool nitroFSInit(char **base_path) {
 
 	// test for valid nitrofs on gba cart
     // Cervi: disable gba card, use cardRead instead
-	if (!nitroInit && false) {
-		if (memcmp(&__NDSHeader->filenameOffset, &__gba_cart_header->filenameOffset, 16) == 0 ) {
-			nitroInit = true;
-			nitropath = strdup("nitro:/");
-		}
-	}
 
-	// fallback to direct card reads for desmume
+    // fallback to direct card reads for desmume
 	// TODO: validate nitrofs
 	if (!nitroInit) {
 		cardRead = true; nitroInit = true;
 		nitropath = strdup("nitro:/");
 	}
 
+    fntOffset = __NDSHeader->filenameOffset;
+    fatOffset = __NDSHeader->fatOffset;
+    AddDevice(&nitroFSdevoptab);
+    chdir(nitropath);
 
-	if ( nitroInit ) {
-		fntOffset = __NDSHeader->filenameOffset;
-		fatOffset = __NDSHeader->fatOffset;
-		AddDevice(&nitroFSdevoptab);
-		chdir(nitropath);
-	}
-
-	if (base_path != NULL) {
+    if (base_path != NULL) {
 		*base_path = nitropath;
 	} else {
 		free(nitropath);
@@ -298,7 +289,7 @@ static DIR_ITER* nitroFSDirOpen(struct _reent *r, DIR_ITER *dirState, const char
 				pathfound=true;
 				break;
 			}
-		};
+		}
 		if(!pathfound)
 			break;
 		dirpath=cptr+1;	//move to right after last / we found

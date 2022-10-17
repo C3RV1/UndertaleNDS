@@ -24,56 +24,56 @@ def cutscene(c: Cutscene):
     c.set_shown(Target(TargetType.SPRITE, 0), False)
     c.set_pos(Target(TargetType.PLAYER), 742, 128)
 
-    SPEED = 40
+    speed = 40
 
     c.set_animation(Target(TargetType.SPRITE, -1), "rightMove")
     c.move_in_frames(Target(TargetType.SPRITE, -1), 80, 0,
-                     frames_from_dst(80, SPEED))
+                     frames_from_dst(80, speed))
     c.set_pos_in_frames(Target(TargetType.PLAYER), 840, 128,
-                        frames_from_dst(80, SPEED))
-    c.wait(WaitTypes.FRAMES, frames_from_dst(80, SPEED))
+                        frames_from_dst(80, speed))
+    c.wait(WaitTypes.FRAMES, frames_from_dst(80, speed))
 
     c.set_animation(Target(TargetType.SPRITE, -1), "upMove")
     c.move_in_frames(Target(TargetType.SPRITE, -1), 0, -40,
-                     frames_from_dst(40, SPEED))
+                     frames_from_dst(40, speed))
     c.set_pos_in_frames(Target(TargetType.PLAYER), 840, 88,
-                        frames_from_dst(40, SPEED))
-    c.wait(WaitTypes.FRAMES, frames_from_dst(40, SPEED))
+                        frames_from_dst(40, speed))
+    c.wait(WaitTypes.FRAMES, frames_from_dst(40, speed))
 
     c.set_animation(Target(TargetType.SPRITE, -1), "rightMove")
     c.move_in_frames(Target(TargetType.SPRITE, -1), 60, 0,
-                     frames_from_dst(60, SPEED))
+                     frames_from_dst(60, speed))
     c.set_pos_in_frames(Target(TargetType.PLAYER), 900, 88,
-                     frames_from_dst(60, SPEED))
-    c.wait(WaitTypes.FRAMES, frames_from_dst(60, SPEED))
+                        frames_from_dst(60, speed))
+    c.wait(WaitTypes.FRAMES, frames_from_dst(60, speed))
 
     c.set_animation(Target(TargetType.SPRITE, -1), "downMove")
     c.move_in_frames(Target(TargetType.SPRITE, -1), 0, 40,
-                     frames_from_dst(40, SPEED))
+                     frames_from_dst(40, speed))
     c.set_pos_in_frames(Target(TargetType.PLAYER), 900, 128,
-                        frames_from_dst(40, SPEED))
-    c.wait(WaitTypes.FRAMES, frames_from_dst(40, SPEED))
+                        frames_from_dst(40, speed))
+    c.wait(WaitTypes.FRAMES, frames_from_dst(40, speed))
 
     c.set_animation(Target(TargetType.SPRITE, -1), "rightMove")
     c.move_in_frames(Target(TargetType.SPRITE, -1), 100, 0,
-                     frames_from_dst(100, SPEED))
+                     frames_from_dst(100, speed))
     c.set_pos_in_frames(Target(TargetType.PLAYER, 0), 1000, 128,
-                        frames_from_dst(100, SPEED))
-    c.wait(WaitTypes.FRAMES, frames_from_dst(100, SPEED))
+                        frames_from_dst(100, speed))
+    c.wait(WaitTypes.FRAMES, frames_from_dst(100, speed))
 
     c.set_animation(Target(TargetType.SPRITE, -1), "upMove")
     c.move_in_frames(Target(TargetType.SPRITE, -1), 0, -35,
-                     frames_from_dst(35, SPEED))
+                     frames_from_dst(35, speed))
     c.set_pos_in_frames(Target(TargetType.PLAYER, 0), 1000, 88,
-                        frames_from_dst(35, SPEED))
-    c.wait(WaitTypes.FRAMES, frames_from_dst(35, SPEED))
+                        frames_from_dst(35, speed))
+    c.wait(WaitTypes.FRAMES, frames_from_dst(35, speed))
 
     c.set_animation(Target(TargetType.SPRITE, -1), "rightMove")
     c.move_in_frames(Target(TargetType.SPRITE, -1), 90, 0,
-                     frames_from_dst(90, SPEED))
+                     frames_from_dst(90, speed))
     c.set_pos_in_frames(Target(TargetType.PLAYER), 1074, 91,
-                        frames_from_dst(90, SPEED))
-    c.wait(WaitTypes.FRAMES, frames_from_dst(90, SPEED))
+                        frames_from_dst(90, speed))
+    c.wait(WaitTypes.FRAMES, frames_from_dst(90, speed))
 
     c.set_shown(Target(TargetType.PLAYER), True)
     c.set_shown(Target(TargetType.SPRITE, 0), True)

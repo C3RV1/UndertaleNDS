@@ -5,7 +5,8 @@
 #ifndef UNDERTALE_CFNT_HPP
 #define UNDERTALE_CFNT_HPP
 
-#include <stdint.h>
+#define ARM9
+#include <nds.h>
 
 struct CFNTHeader {
     char header[4] = {'C', 'F', 'N', 'T'};
@@ -14,11 +15,11 @@ struct CFNTHeader {
 };
 
 struct CFNTGlyph {
-    u8 width;
-    u8 height;
-    u8 shift; // How many pixels moves the current x forward
-    u8 offset;  // How much x offset when rendering
-    u8* glyphData;  // width x height (rows first), 1 bit per pixel, rounded to byte
+    u8 width = 0;
+    u8 height = 0;
+    u8 shift = 0; // How many pixels moves the current x forward
+    u8 offset = 0;  // How much x offset when rendering
+    u8* glyphData = nullptr;  // width x height (rows first), 1 bit per pixel, rounded to byte
 };
 
 struct CFNTGlyphs {

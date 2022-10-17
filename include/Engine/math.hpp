@@ -7,7 +7,7 @@
 
 #define ARM9
 #include <nds.h>
-#include <math.h>
+#include <cmath>
 
 inline u32 double_to_fixed(double input, u8 bits)
 {

@@ -1,7 +1,8 @@
 #ifndef UNDERTALE_CSPR_HPP
 #define UNDERTALE_CSPR_HPP
 
-#include <stdint.h>
+#define ARM9
+#include <nds.h>
 
 struct CSPRHeader {
     char header[4] = {'C', 'S', 'P', 'R'};
@@ -20,26 +21,26 @@ struct CSPRColors {
 };
 
 struct CSPRTiles {
-    u8 frameCount;
-    u8* tileData;
+    u8 frameCount = 0;
+    u8* tileData = nullptr;
 };
 
 struct CSPRAnimFrame {
-    u8 frame;
-    u16 duration;
-    s8 drawOffX;
-    s8 drawOffY;
+    u8 frame = 0;
+    u16 duration = 0;
+    s8 drawOffX = 0;
+    s8 drawOffY = 0;
 };
 
 struct CSPRAnimation {
-    char* name;
-    u8 frameCount;
-    CSPRAnimFrame* frames;
+    char* name = nullptr;
+    u8 frameCount = 0;
+    CSPRAnimFrame* frames = nullptr;
 };
 
 struct CSPRAnimations {
-    u8 count;
-    CSPRAnimation* animations;
+    u8 count = 0;
+    CSPRAnimation* animations = nullptr;
 };
 
 #endif //UNDERTALE_CSPR_HPP

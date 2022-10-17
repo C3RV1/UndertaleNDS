@@ -10,7 +10,7 @@
 #include "Engine/Audio.hpp"
 #include "Engine/Sprite.hpp"
 #include "Engine/Font.hpp"
-#include <stdio.h>
+#include <cstdio>
 
 class Dialogue {
 public:

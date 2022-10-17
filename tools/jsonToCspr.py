@@ -4,7 +4,6 @@ import binary
 import numpy as np
 from PIL import Image
 import json
-import sys
 import os
 
 
@@ -97,7 +96,7 @@ def convert(input_file, output_file):
     wtr.close()
 
 
-def compileSprites():
+def compile_sprites():
     for root, _, files in os.walk("spr"):
         for file in files:
             path = os.path.join(root, file)
@@ -118,4 +117,4 @@ def compileSprites():
 
 
 if __name__ == '__main__':
-    compileSprites()
+    compile_sprites()

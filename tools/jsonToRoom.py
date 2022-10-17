@@ -3,7 +3,6 @@ from typing import List
 
 import binary
 import json
-import sys
 import os
 
 
@@ -328,7 +327,7 @@ def convert(input_file, output_file):
     wtr.close()
 
 
-def compileRooms():
+def compile_rooms():
     for root, _, files in os.walk("rooms"):
         for file in files:
             path = os.path.join(root, file)
@@ -344,4 +343,4 @@ def compileRooms():
 
 
 if __name__ == '__main__':
-    compileRooms()
+    compile_rooms()

@@ -2,8 +2,8 @@
 #ifndef UNDERTALE_CBGF_HPP
 #define UNDERTALE_CBGF_HPP
 
-#include <stdint.h>
-#include <stdio.h>
+#define ARM9
+#include <nds.h>
 
 struct CBGFHeader {
     char header[4] = {'C', 'B', 'G', 'F'};

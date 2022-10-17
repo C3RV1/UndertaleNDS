@@ -5,8 +5,8 @@
 #ifndef UNDERTALE_ROOM_HPP
 #define UNDERTALE_ROOM_HPP
 
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 #include "Engine/Engine.hpp"
 #include "Formats/ROOM_FILE.hpp"
 #include "ManagedSprite.hpp"

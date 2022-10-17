@@ -5,9 +5,9 @@
 #ifndef UNDERTALE_BACKGROUND_HPP
 #define UNDERTALE_BACKGROUND_HPP
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstring>
+
 #define ARM9
 #include <nds.h>
 

@@ -2,7 +2,7 @@ import typing
 if typing.TYPE_CHECKING:
     from tools.CutsceneTypes import Cutscene, Target, TargetType, WaitTypes
 else:
-    from CutsceneTypes import Cutscene, Target, TargetType, WaitTypes
+    from CutsceneTypes import *
 
 
 def cutscene(c: Cutscene):

@@ -7,7 +7,7 @@
 
 #define ARM9
 #include <nds.h>
-#include <stdio.h>
+#include <cstdio>
 #include "Waiting.hpp"
 #include "Dialogue.hpp"
 #include "SaveMenu.hpp"

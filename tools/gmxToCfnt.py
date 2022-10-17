@@ -2,17 +2,16 @@ import pathlib
 
 import numpy as np
 from PIL import Image
-import sys
 import os
 import binary
-from xml.etree import ElementTree as ET
+from xml.etree import ElementTree as EleTree
 
 
 def convert(input_path, output_path):
     print(f"Converted {input_path} to {output_path}")
     glyph_map = np.array([0] * 256, dtype=np.uint8)
 
-    et = ET.parse(input_path)
+    et = EleTree.parse(input_path)
     root = et.getroot()
     image_fp = None
     glyphs = None
@@ -80,7 +79,7 @@ def convert(input_path, output_path):
     wtr.close()
 
 
-def compileFonts():
+def compile_fonts():
     for root, _, files in os.walk("fnt"):
         for file in files:
             path = os.path.join(root, file)
@@ -98,4 +97,4 @@ def compileFonts():
 
 
 if __name__ == '__main__':
-    compileFonts()
+    compile_fonts()

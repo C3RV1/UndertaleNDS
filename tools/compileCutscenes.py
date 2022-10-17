@@ -9,15 +9,15 @@ import os
 def convert(input_path, output_path):
     print(f"Converting {input_path} to {output_path}")
     c = CutsceneTypes.Cutscene(binary.BinaryWriter(open(output_path, "wb")))
-    spec = importlib.util.spec_from_file_location("cutsceneImp", input_path)
-    cutsceneImp = importlib.util.module_from_spec(spec)
-    sys.modules["cutsceneImp"] = cutsceneImp
-    spec.loader.exec_module(cutsceneImp)
-    cutsceneImp.cutscene(c)
+    spec = importlib.util.spec_from_file_location("cutscene_imp", input_path)
+    cutscene_imp = importlib.util.module_from_spec(spec)
+    sys.modules["cutscene_imp"] = cutscene_imp
+    spec.loader.exec_module(cutscene_imp)
+    cutscene_imp.cutscene(c)
     c.end_cutscene()
 
 
-def compileCutscenes():
+def compile_cutscenes():
     for root, _, files in os.walk("cutscenes"):
         for file in files:
             path = os.path.join(root, file)
@@ -35,4 +35,4 @@ def compileCutscenes():
 
 
 if __name__ == '__main__':
-    compileCutscenes()
+    compile_cutscenes()

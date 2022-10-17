@@ -9,7 +9,7 @@
 #define ITEM_COUNT 8
 #define CELL_COUNT 8
 
-#include <stdio.h>
+#include <cstdio>
 #define ARM9
 #include <nds.h>
 

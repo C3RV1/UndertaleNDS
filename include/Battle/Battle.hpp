@@ -7,7 +7,7 @@
 
 #define ARM9
 #include <nds.h>
-#include <stdio.h>
+#include <cstdio>
 #include "Engine/Engine.hpp"
 #include "ManagedSprite.hpp"
 #include "Cutscene/Navigation.hpp"

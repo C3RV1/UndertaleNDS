@@ -10,6 +10,7 @@ def to_fixed_point(f: float):
 
 PLAYER_SPEED = 90
 
+
 def frames_from_dst(dst, px_per_sec):
     return (abs(dst) * 60) // px_per_sec
 

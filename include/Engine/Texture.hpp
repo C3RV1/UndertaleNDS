@@ -1,8 +1,7 @@
 #ifndef UNDERTALE_TEXTURE_HPP
 #define UNDERTALE_TEXTURE_HPP
 
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdio>
 #define ARM9
 #include <nds.h>
 #include "Formats/CSPR.hpp"
@@ -50,7 +49,7 @@ namespace Engine {
         u8 loaded3DCount = 0;
         u16 * tileStart = nullptr;
         u16 allocX = 0, allocY = 0;
-        u8 paletteIdx;
+        u8 paletteIdx = 0;
 
         friend class Sprite3DManager;
     };

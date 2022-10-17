@@ -7,7 +7,7 @@
 
 #define DEBUG_CUTSCENES
 // #define DEBUG_2D
-#define DEBUG_3D
+// #define DEBUG_3D
 // #define DEBUG_AUDIO
 
 #endif //UNDERTALE_DEBUG_FLAGS_HPP

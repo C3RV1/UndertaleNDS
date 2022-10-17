@@ -2,7 +2,7 @@ import typing
 if typing.TYPE_CHECKING:
     from tools.CutsceneTypes import Cutscene, Target, TargetType, WaitTypes
 else:
-    from CutsceneTypes import Cutscene, Target, TargetType, WaitTypes
+    from CutsceneTypes import *
 
 
 def cutscene(c: Cutscene):
@@ -22,6 +22,6 @@ def cutscene(c: Cutscene):
 
     c.set_animation(Target(TargetType.SPRITE, 7), "leftIdle")
     c.set_action(Target(TargetType.SPRITE, 7), "cutscene",
-                          cutscene_id=10)
+                 cutscene_id=10)
 
     c.set_collider_enabled(0, False)

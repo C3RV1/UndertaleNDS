@@ -3,7 +3,6 @@ import os
 import pathlib
 
 from PIL import Image
-import sys
 import numpy as np
 import binary
 
@@ -106,7 +105,7 @@ def convert(input_file, output_file):
     wtr.close()
 
 
-def compileBackgrounds():
+def compile_backgrounds():
     for root, _, files in os.walk("bg"):
         for file in files:
             path = os.path.join(root, file)
@@ -124,4 +123,4 @@ def compileBackgrounds():
 
 
 if __name__ == '__main__':
-    compileBackgrounds()
+    compile_backgrounds()

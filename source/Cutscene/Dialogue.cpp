@@ -289,7 +289,7 @@ void Dialogue::progressTextCentered(bool clear, bool draw) {
         currentColor = lineEndColor;
 }
 
-void Dialogue::progressTextLeft(bool clear, bool draw) {
+void Dialogue::progressTextLeft(bool, bool draw) {
     if (currentTimer > 0 && draw) {
         currentTimer--;
         return;

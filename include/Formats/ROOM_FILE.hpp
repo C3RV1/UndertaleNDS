@@ -5,7 +5,8 @@
 #ifndef UNDERTALE_ROOM_FILE_HPP
 #define UNDERTALE_ROOM_FILE_HPP
 
-#include <stdint.h>
+#define ARM9
+#include <nds.h>
 
 struct ROOMHeader {
     char header[4] = {'R', 'O', 'O', 'M'};
