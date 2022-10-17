@@ -33,9 +33,8 @@ ICON     :=
 NITRO    := nitrofs
 
 # These set the information text in the nds file
-GAME_TITLE     := Undertale NDS Intro
-GAME_SUBTITLE1 := built with devkitARM
-GAME_SUBTITLE2 := http://devitpro.org
+GAME_TITLE     := Undertale NDS
+GAME_SUBTITLE1 := Toby Fox, Cervi
 
 #---------------------------------------------------------------------------------
 # options for code generation
