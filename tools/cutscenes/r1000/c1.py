@@ -28,8 +28,8 @@ def cutscene(c: Cutscene):
     c.bind(next_call)
     c.start_dialogue(21, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4 - 5,
                      "talkIdle", "talkTalk",
-                     Target(TargetType.SPRITE, 0),
-                     "downIdle", "downTalk", type_sound="snd_txttor.wav")
+                     Target(TargetType.NULL),
+                     "", "", type_sound="snd_txttor.wav")
     c.wait(WaitTypes.DIALOGUE)
 
     c.bind(skip_next_call)

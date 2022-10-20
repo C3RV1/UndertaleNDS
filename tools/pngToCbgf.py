@@ -7,7 +7,7 @@ import numpy as np
 import binary
 
 
-FORCE_8BIT = False
+FORCE_8BIT = True
 
 
 def convert(input_file, output_file):
@@ -98,6 +98,7 @@ def convert(input_file, output_file):
     wtr.write_uint16(tile_map.shape[1])
     wtr.write_uint16(tile_map.shape[0])
     wtr.write(tile_map.tobytes())
+    print(tiles[7])
 
     size = wtr.tell()
     wtr.seek(file_size_pos)
