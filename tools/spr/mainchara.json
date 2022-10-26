@@ -21,33 +21,33 @@
     {
       "name": "downMove",
       "frames": [
-        {"frame": 0, "duration": 15},
-        {"frame": 1, "duration": 15},
-        {"frame": 2, "duration": 15},
-        {"frame": 3, "duration": 15}
+        {"frame": 0, "duration": 10},
+        {"frame": 1, "duration": 10, "draw_off_y": -1},
+        {"frame": 2, "duration": 10},
+        {"frame": 3, "duration": 10, "draw_off_y": -1}
       ]
     },
     {
       "name": "leftMove",
       "frames": [
-        {"frame": 4, "duration": 15},
-        {"frame": 5, "duration": 15}
+        {"frame": 4, "duration": 10},
+        {"frame": 5, "duration": 10, "draw_off_y": 1}
       ]
     },
     {
       "name": "rightMove",
       "frames": [
-        {"frame": 6, "duration": 15},
-        {"frame": 7, "duration": 15}
+        {"frame": 6, "duration": 10},
+        {"frame": 7, "duration": 10, "draw_off_y": 1}
       ]
     },
     {
       "name": "upMove",
       "frames": [
-        {"frame": 8, "duration": 15},
-        {"frame": 9, "duration": 15},
-        {"frame": 10, "duration": 15},
-        {"frame": 11, "duration": 15}
+        {"frame": 8, "duration": 10},
+        {"frame": 9, "duration": 10, "draw_off_y": -1},
+        {"frame": 10, "duration": 10},
+        {"frame": 11, "duration": 10, "draw_off_y": -1}
       ]
     }
   ]
