@@ -33,7 +33,7 @@ Room::Room(int roomId) : roomId(roomId) {
 
     bg.loadPath(roomData.roomBg);
 
-    int bgLoad = Engine::loadBgExtendedMain(bg, 512 / 8);
+    int bgLoad = bg.loadBgExtendedMain(512 / 8);
     if (bgLoad != 0) {
         sprintf(buffer, "Error loading room bg: %d", bgLoad);
         nocashMessage(buffer);
@@ -343,7 +343,7 @@ void Room::pop() {
     bg.loadPath(roomData.roomBg);
     globalPlayer->spriteManager.pop();
 
-    int bgLoad = Engine::loadBgExtendedMain(bg, 512 / 8);
+    int bgLoad = bg.loadBgExtendedMain(512 / 8);
     if (bgLoad != 0) {
         sprintf(buffer, "Error loading room bg: %d", bgLoad);
         nocashMessage(buffer);

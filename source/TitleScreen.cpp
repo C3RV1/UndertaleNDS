@@ -51,7 +51,7 @@ void runTitleScreen() {
         sprintf(buffer, "intro/intro%d", introIdx);
         currentBackground.loadPath(buffer);
 
-        Engine::loadBgTextMain(currentBackground);
+        currentBackground.loadBgTextMain();
         if (introIdx == 10)  // Intro last has scrolling
             REG_BG3VOFS = height-192;
 
@@ -157,7 +157,7 @@ void runTitleScreen() {
 
     currentBackground.loadPath("intro/title");
 
-    Engine::loadBgTextMain(currentBackground);
+    currentBackground.loadBgTextMain();
 
     timer = introLogoFrames;
     int textLen = str_len_file(textStream, '@');

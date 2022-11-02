@@ -47,15 +47,15 @@ void Camera::updatePosition(bool roomChange) {
         int incrementX = xTilePost > xTilePrev ? 1 : -1;
         int incrementY = yTilePost > yTilePrev ? 1 : -1;
         for (int xTile = xTilePrev; xTile != xTilePost; xTile += incrementX) {
-            Engine::loadBgRectMain(globalRoom->bg, xTile + incrementX + 32, yTilePost - 1, 1, 26);
-            Engine::loadBgRectMain(globalRoom->bg, xTile + incrementX - 1, yTilePost - 1, 1, 26);
+            globalRoom->bg.loadBgRectMain(xTile + incrementX + 32, yTilePost - 1, 1, 26);
+            globalRoom->bg.loadBgRectMain(xTile + incrementX - 1, yTilePost - 1, 1, 26);
         }
         for (int yTile = yTilePrev; yTile != yTilePost; yTile += incrementY) {
-            Engine::loadBgRectMain(globalRoom->bg, xTilePost - 1, yTile + incrementY + 24, 34, 1);
-            Engine::loadBgRectMain(globalRoom->bg, xTilePost - 1, yTile + incrementY - 1, 34, 1);
+            globalRoom->bg.loadBgRectMain(xTilePost - 1, yTile + incrementY + 24, 34, 1);
+            globalRoom->bg.loadBgRectMain(xTilePost - 1, yTile + incrementY - 1, 34, 1);
         }
     } else if (roomChange) {
-        Engine::loadBgRectMain(globalRoom->bg, xTilePost - 1, yTilePost - 1, 34, 26);
+        globalRoom->bg.loadBgRectMain(xTilePost - 1, yTilePost - 1, 34, 26);
     }
     prevX = pos.wx, prevY = pos.wy;
 }

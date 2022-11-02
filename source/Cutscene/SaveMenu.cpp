@@ -9,7 +9,7 @@ SaveMenu::SaveMenu() : optionsHeart(Engine::AllocatedOAM) {
     font.loadPath("fnt_maintext.font");
 
     saveMenuBg.loadPath("save_menu_bg");
-    Engine::loadBgTextSub(saveMenuBg);
+    saveMenuBg.loadBgTextSub();
 
     optionsHeartTex.loadPath("spr_heartsmall");
     optionsHeart.loadTexture(optionsHeartTex);

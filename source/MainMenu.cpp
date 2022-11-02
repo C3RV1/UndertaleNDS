@@ -71,8 +71,8 @@ void runMainMenu() {
     }
     fclose(f);
 
-    Engine::loadBgTextMain(topBg);
-    Engine::loadBgTextSub(btmBg);
+    topBg.loadBgTextMain();
+    btmBg.loadBgTextSub();
     Engine::textSub.clear();
 
     int x = nameX;

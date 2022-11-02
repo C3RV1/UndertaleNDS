@@ -3,8 +3,6 @@
 #include "DEBUG_FLAGS.hpp"
 
 namespace Engine {
-    u8 tmpRam[64*64];
-
     int OAMManager::loadSprite(Sprite& res) {
         if (!res.loaded)
             return -1;
@@ -105,16 +103,17 @@ namespace Engine {
         spr.texture->getSizeTiles(tileWidth, tileHeight);
         u8 oamW = (tileWidth + 7) / 8;
         u8 oamH = (tileHeight + 7) / 8;
+        u16 framePos = frame * tileWidth * tileHeight;
 
         // Copy tile into memory (replacing colors)
         for (int oamY = 0; oamY < oamH; oamY++) {
             for (int oamX = 0; oamX < oamW; oamX++) {
                 int oamId = spr.memory.oamEntries[oamY * oamW + oamX];
                 OAMEntry* oamEntry = &oamEntries[oamId];
-                u8* tileRamStart = (u8*) tileRam + oamEntry->tileStart * 8 * 8;
+                u16* tileRamStart = (u16*)((u8*) tileRam + oamEntry->tileStart * 64);
                 u8 neededTiles = oamEntry->tileWidth * oamEntry->tileHeight;
 
-                memset(tmpRam, 0, neededTiles * 64);
+                memset(tileRamStart, 0, neededTiles * 64);
 
                 u8 tilesX = 8, tilesY = 8;
                 if (oamX == oamW - 1)
@@ -124,27 +123,23 @@ namespace Engine {
 
                 for (int tileY = 0; tileY < tilesY; tileY++) {
                     for (int tileX = 0; tileX < tilesX; tileX++) {
-                        u16 framePos = frame * tileWidth * tileHeight;
                         u16 tileXPos = oamX * 8 + tileX;
                         u16 tileYPos = oamY * 8 + tileY;
                         u32 tileOffset = framePos + tileYPos * tileWidth + tileXPos;
-                        tileOffset = tileOffset * 8 * 8;
+                        tileOffset *= 64;
                         for (int pixelY = 0; pixelY < 8; pixelY++) {
                             for (int pixelX = 0; pixelX < 8; pixelX++) {
                                 u32 resultOffset = (tileY * oamEntry->tileWidth + tileX) * 8 * 8 + pixelY * 8 + pixelX;
                                 u32 tilesOffset = tileOffset + pixelY * 8 + pixelX;
                                 u8 pixel = spr.texture->getTiles()[tilesOffset];
                                 if (pixel == 0) {
-                                    tmpRam[resultOffset] = 0;
                                     continue;
                                 }
-                                tmpRam[resultOffset] = spr.memory.paletteColors[pixel - 1];
+                                tileRamStart[resultOffset / 2] += spr.memory.paletteColors[pixel - 1] << (8 * (resultOffset & 1));
                             }
                         }
                     }
                 }
-
-                dmaCopyWords(3, tmpRam, tileRamStart, 8 * 8 * neededTiles);
             }
         }
         return 0;

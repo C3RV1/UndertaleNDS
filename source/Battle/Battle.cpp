@@ -87,7 +87,7 @@ void Battle::loadFromStream(FILE *stream) {
 
 void Battle::show() {
     Engine::textMain.clear();
-    Engine::loadBgTextMain(bulletBoard);
+    bulletBoard.loadBgTextMain();
     playerManager.setShown(true);
     shown = true;
 }

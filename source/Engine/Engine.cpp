@@ -66,6 +66,7 @@ namespace Engine {
         glFlush(0);
         mmStreamUpdate();
         swiWaitForVBlank();
+        // TODO: Scroll and bg3 negative? Sub screen?
         REG_BG3X = bg3ScrollX;
         REG_BG3Y = bg3ScrollY;
         REG_BG3PA = bg3Pa;

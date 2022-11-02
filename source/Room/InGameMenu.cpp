@@ -58,7 +58,7 @@ void InGameMenu::show(bool update) {
 
     shown = true;
     if (!update)
-        Engine::loadBgTextSub(bg);
+        bg.loadBgTextSub();
     Engine::textSub.clear();
     Engine::textSub.setCurrentColor(15);
     selectedMenuHeart.setShown(true);

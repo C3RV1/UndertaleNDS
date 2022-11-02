@@ -4,12 +4,6 @@
 
 #include "math.hpp"
 
-int mod(int a, int b)
-{
-    int r = a % b;
-    return r < 0 ? r + b : r;
-}
-
 bool collidesRect(int x1, int y1, int w1, int h1,
                   int x2, int y2, int w2, int h2) {
     return (

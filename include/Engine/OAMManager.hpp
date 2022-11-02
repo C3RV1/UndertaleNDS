@@ -66,7 +66,6 @@ namespace Engine {
     };
 
     extern OAMManager OAMManagerSub;
-    extern u8 tmpRam[64*64];
 }
 
 #endif //UNDERTALE_OAM_MANAGER_HPP
