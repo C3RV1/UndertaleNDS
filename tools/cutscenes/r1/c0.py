@@ -158,6 +158,11 @@ def cutscene(c: Cutscene):
     c.wait(WaitTypes.FRAMES, 80)
 
     c.load_sprite(256 - 60, (192 - 30) // 2, 1)
+    # Little trick to load the flame on top of flowey
+    c.set_shown(Target(TargetType.SPRITE, 1), False)
+    c.set_shown(Target(TargetType.SPRITE, 0), False)
+    c.set_shown(Target(TargetType.SPRITE, 1), True)
+    c.set_shown(Target(TargetType.SPRITE, 0), True)
     c.set_animation(Target(TargetType.SPRITE, 1), "flashing")
     c.wait(WaitTypes.FRAMES, 60)
     c.set_animation(Target(TargetType.SPRITE, 1), "flying")
