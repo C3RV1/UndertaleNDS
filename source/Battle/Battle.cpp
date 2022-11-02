@@ -148,12 +148,12 @@ void Battle::update() {
     if (keysHeld() & KEY_UP) {
         playerManager.wy -= playerSpeed;
     }
-    /*if (keysHeld() & KEY_TOUCH) {
+    if (keysHeld() & KEY_TOUCH) {
         touchPosition touchInfo;
         touchRead(&touchInfo);
         playerManager.wx = (touchInfo.px << 8) - (9 << 8) / 2;
         playerManager.wy = (touchInfo.py << 8) - (9 << 8) / 2;
-    }*/
+    }
     if (playerManager.wx < boardX << 8) {
         playerManager.wx = boardX << 8;
     } else if (playerManager.wx > (boardX + boardW - 9) << 8) {

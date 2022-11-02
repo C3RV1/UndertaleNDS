@@ -190,7 +190,7 @@ namespace Engine {
         }
 
         u16* paletteBase = (u16*) ((u8*) VRAM_E + (256 * spr.texture->paletteIdx + 1) * 2);
-        dmaCopyHalfWords(3, spr.texture->getColors(), paletteBase, spr.texture->getColorCount() * 2);
+        dmaCopyHalfWords(3, spr.texture->colors, paletteBase, spr.texture->colorCount * 2);
 
         u8 tileWidth, tileHeight;
         spr.texture->getSizeTiles(tileWidth, tileHeight);
@@ -215,12 +215,12 @@ namespace Engine {
                 while (subTileWidth << 1 <= tileWidth_)
                     subTileWidth <<= 1;
 
-                u16 neededTiles = subTileWidth * subTileHeight * spr.texture->getFrameCount() * 64;
+                u16 neededTiles = subTileWidth * subTileHeight * spr.texture->frameCount * 64;
                 if (reserveTiles(neededTiles, spr.texture->tileStart[tileIdx]) == 1) {
                     return;
                 }
 
-                for (int frame = 0; frame < spr.texture->getFrameCount(); frame++) {
+                for (int frame = 0; frame < spr.texture->frameCount; frame++) {
                     for (int y = tilePosY * 8, y2 = 0; y < (tilePosY + subTileHeight) * 8; y++, y2++) {
                         for (int x = tilePosX * 8, x2 = 0; x < (tilePosX + subTileWidth) * 8; x++, x2++) {
                             int tileX = x / 8;
@@ -234,7 +234,7 @@ namespace Engine {
                             tileOffset += (y % 8) * 8 + (x % 8);
                             *(u16 *) (tileRamStart + y2 * subTileWidth * 8 + x2) &= ~(0xFF << (8 * (x2 & 1)));
                             *(u16 *) (tileRamStart + y2 * subTileWidth * 8 + x2) |=
-                                    (spr.texture->getTiles()[tileOffset] & 0xFF) << (8 * (x2 & 1));
+                                    (spr.texture->tiles[tileOffset] & 0xFF) << (8 * (x2 & 1));
                         }
                     }
                 }
@@ -270,7 +270,7 @@ namespace Engine {
                 u8 subTileWidth = 1;
                 while (subTileWidth << 1 <= tileWidth_)
                     subTileWidth <<= 1;
-                u16 neededTiles = subTileWidth * subTileHeight * spr.texture->getFrameCount() * 64;
+                u16 neededTiles = subTileWidth * subTileHeight * spr.texture->frameCount * 64;
                 freeTiles(neededTiles, spr.texture->tileStart[tileIdx]);
                 tileIdx++;
                 tileWidth_ -= subTileWidth;

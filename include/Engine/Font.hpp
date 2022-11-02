@@ -18,12 +18,13 @@ namespace Engine {
         bool loadPath(const char* path);
         int loadCFNT(FILE* f);
         bool getLoaded() const { return loaded; }
-        CFNTGlyph* getGlyph(int glyphIdx) const { return &glyphs.glyphs[glyphIdx - 1]; }
         u8 getGlyphWidth(u8 glyph);
-        u8* getGlyphMap() { return glyphMap.glyphMap; }
         void free_();
         ~Font() { free_(); }
     private:
+        u8* getGlyphMap() { return glyphMap.glyphMap; }
+        CFNTGlyph* getGlyph(int glyphIdx) const { return &glyphs.glyphs[glyphIdx - 1]; }
+        friend class TextBGManager;
         bool loaded = false;
         CFNTGlyphs glyphs;
         CFNTMap glyphMap;
@@ -45,7 +46,8 @@ namespace Engine {
         }
         void drawGlyph(Font& font, u8 glyph, int &x, int y);
         void reloadColors();
-        void setPaletteColor256(int colorIdx, int r, int g, int b, bool color8bit);
+        void setPaletteColor(int colorIdx, int r, int g, int b, bool color8bit);
+        void setPaletteColor(int colorIdx, u16 color5bit);
         void setCurrentColor(int colorIdx) { paletteColor = colorIdx; }
         u16 getCurrentColor() const { return paletteColor; }
         void clear();

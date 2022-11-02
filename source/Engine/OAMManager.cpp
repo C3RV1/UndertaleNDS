@@ -9,10 +9,10 @@ namespace Engine {
         if (res.memory.allocated != NoAlloc)
             return -2;
 
-        res.memory.paletteColors = new u8[res.texture->getColorCount()];
-        u16* colors = res.texture->getColors();
+        res.memory.paletteColors = new u8[res.texture->colorCount];
+        u16* colors = res.texture->colors;
 
-        for (int i = 0; i < res.texture->getColorCount(); i++) {
+        for (int i = 0; i < res.texture->colorCount; i++) {
             int result = -1;
             bool foundColor = false;
 
@@ -96,7 +96,7 @@ namespace Engine {
     int OAMManager::loadSpriteFrame(Engine::Sprite &spr, int frame) {
         if (spr.memory.loadedFrame == frame)
             return -1;
-        if (frame >= spr.texture->getFrameCount() || frame < 0)
+        if (frame >= spr.texture->frameCount || frame < 0)
             return -2;
         spr.memory.loadedFrame = frame;
         u8 tileWidth, tileHeight;
@@ -131,7 +131,7 @@ namespace Engine {
                             for (int pixelX = 0; pixelX < 8; pixelX++) {
                                 u32 resultOffset = (tileY * oamEntry->tileWidth + tileX) * 8 * 8 + pixelY * 8 + pixelX;
                                 u32 tilesOffset = tileOffset + pixelY * 8 + pixelX;
-                                u8 pixel = spr.texture->getTiles()[tilesOffset];
+                                u8 pixel = spr.texture->tiles[tilesOffset];
                                 if (pixel == 0) {
                                     continue;
                                 }
@@ -318,7 +318,7 @@ namespace Engine {
         if (sprIdx == -1)
             return;
 
-        for (int colorIdx = 0; colorIdx < spr.texture->getColorCount(); colorIdx++) {
+        for (int colorIdx = 0; colorIdx < spr.texture->colorCount; colorIdx++) {
             u8 paletteColor = spr.memory.paletteColors[colorIdx];
             paletteRefCounts[paletteColor - 1]--;
         }

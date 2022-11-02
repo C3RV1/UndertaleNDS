@@ -173,13 +173,13 @@ namespace Audio {
             return true;
         if (!wav->active)
             return true;
-        if (!wav->getLoaded())
+        if (!wav->loaded)
             return true;
-        FILE* stream = wav->getStream();
+        FILE* stream = wav->stream;
         // TODO: convert bit depth
-        if (wav->getBitsPerSample() != 16)
+        if (wav->bitsPerSample != 16)
             return true;
-        // convert channels & sample rate
+        // TODO: Document how sample rate change works
         u32 dstI = 0;
         // TODO: s32 addition; to clip
 
@@ -187,11 +187,11 @@ namespace Audio {
             while (wav->co >= 44100) {
                 wav->cValueIdx += 1;
                 if (wav->cValueIdx >= wav->maxValueIdx) {
-                    if ((u32)ftell(stream) >= wav->getDataEnd()) {
-                        if (wav->getLoops() != 0) {
-                            if (wav->getLoops() > 0)
-                                wav->setLoops(wav->getLoops() - 1);
-                            fseek(stream, wav->getDataStart(), SEEK_SET);
+                    if ((u32)ftell(stream) >= wav->dataEnd) {
+                        if (wav->loops != 0) {
+                            if (wav->loops > 0)
+                                wav->loops--;
+                            fseek(stream, wav->dataStart, SEEK_SET);
 #ifdef DEBUG_AUDIO
                             nocashMessage("looping");
 #endif
@@ -200,12 +200,12 @@ namespace Audio {
                             return true;
                         }
                     }
-                    long readElements = (wav->getDataEnd() - ftell(stream)) / 2;
-                    if (wav->getStereo())
+                    long readElements = (wav->dataEnd - ftell(stream)) / 2;
+                    if (wav->stereo)
                         readElements /= 2;
                     if (readElements > WAVBuffer)
                         readElements = WAVBuffer;
-                    if (!wav->getStereo())
+                    if (!wav->stereo)
                         wav->maxValueIdx = fread(&wav->values, 2, readElements, stream);
                     else
                         wav->maxValueIdx = fread(&wav->values, 4, readElements, stream);
@@ -214,12 +214,12 @@ namespace Audio {
                 wav->co -= 44100;
             }
             for (int i = 0; i < 2; i++) {
-                if (!wav->getStereo())
+                if (!wav->stereo)
                     dest[dstI * 2 + i] += wav->values[wav->cValueIdx];
                 else
                     dest[dstI * 2 + i] += wav->values[wav->cValueIdx * 2 + i];
             }
-            wav->co += wav->getSampleRate();
+            wav->co += wav->sampleRate;
             dstI++;
         }
         return false;

@@ -12,11 +12,6 @@ namespace Engine {
         bool loadPath(const char* path);
         int loadCSPR(FILE* f);
         bool getLoaded() const { return loaded; }
-        int getColorCount() const { return colorCount; }
-        u16* getColors() const { return colors; }
-        u8 getFrameCount() const { return frameCount; }
-        u8 getAnimCount() const { return animationCount; }
-        CSPRAnimation* getAnimations() const { return animations;  }
         void getSizeTiles(u8& tileWidth_, u8& tileHeight_) const {
             tileWidth_ = (width + 7) / 8;
             tileHeight_ = (height + 7) / 8;
@@ -31,10 +26,12 @@ namespace Engine {
             width_ = width;
             height_ = height;
         }
-        u8* getTiles() const { return tiles; }
         void free_();
         ~Texture() { free_(); }
     private:
+        friend class OAMManager;
+        friend class Sprite3DManager;
+        friend class Sprite;
         bool loaded = false;
         u8 colorCount = 0;
         u16* colors = nullptr;

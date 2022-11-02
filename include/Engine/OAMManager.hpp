@@ -32,18 +32,20 @@ namespace Engine {
             *paletteRam = 31 << 5;  // full green for bg
         };
 
-        int loadSprite(Sprite& res);
-        void freeSprite(Sprite& spr);
-
-        int reserveOAMEntry(u8 tileW, u8 tileH);
-        void freeOAMEntry(int oamId);
-
 #ifdef DEBUG_2D
         void dumpOamState();
 #endif
 
         void draw();
     private:
+        friend class Sprite;
+
+        int loadSprite(Sprite& res);
+        void freeSprite(Sprite& spr);
+
+        int reserveOAMEntry(u8 tileW, u8 tileH);
+        void freeOAMEntry(int oamId);
+
         void setSpritePosAndScale(Sprite& spr);
         int loadSpriteFrame(Sprite& spr, int frame);
         void setOAMState(Sprite& spr);

@@ -115,7 +115,7 @@ bool Dialogue::update() {
     if (!paused) {
         setTalk();
         progressText(true, true);
-        if (((keysDown() & (KEY_TOUCH | KEY_B)) || letterFrames == 0) && (textPos != textLen)) {
+        if (((keysDown() & (/*KEY_TOUCH |*/ KEY_B)) || letterFrames == 0) && (textPos != textLen)) {
             progressText(true, false);
             while (!paused && !(textPos >= textLen && (linePos >= lineLen || !centered)))
                 progressText(false, false);
@@ -131,7 +131,7 @@ bool Dialogue::update() {
         return false;
     } else {
         setNoTalk();
-        if (keysDown() & (KEY_TOUCH | KEY_A)) {
+        if (keysDown() & (/*KEY_TOUCH |*/ KEY_A)) {
             paused = false;
             progressText(true, true);
             return false;

@@ -177,12 +177,12 @@ def cutscene(c: Cutscene):
                             type_sound="SND_TXT1.wav")
     c.wait(WaitTypes.DIALOGUE)
 
-    c.move_in_frames(Target(TargetType.SPRITE, 0), 0, -200, 120)
+    c.move_in_frames(Target(TargetType.SPRITE, 0), 0, -120, 90)
 
     c.start_dialogue_battle(61, 100, 192 // 4,
                             Target(TargetType.NULL), "", "",
                             type_sound="SND_TXT1.wav")
-    c.wait(WaitTypes.FRAMES, value=120)
+    c.wait(WaitTypes.FRAMES, value=90)
     c.wait(WaitTypes.DIALOGUE)
 
     c.stop_bgm()

@@ -19,12 +19,14 @@ namespace Engine {
             tileFreeZones[1] = 65536-8;
         }
 
-        int loadSprite(Sprite& res);
-        void freeSprite(Sprite& spr);
-
         void draw();
         void updateTextures();
     private:
+        friend class Sprite;
+
+        int loadSprite(Sprite& res);
+        void freeSprite(Sprite& spr);
+
         void loadSpriteTexture(Sprite& spr);
         void freeSpriteTexture(Sprite& spr);
         int reserveTiles(u16 length, u16& start);

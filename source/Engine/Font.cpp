@@ -93,10 +93,10 @@ namespace Engine {
     }
 
     void TextBGManager::drawGlyph(Font& font, u8 glyph, int &x, int y) {
-        if (!font.getLoaded())
+        if (!font.loaded)
             return;
 
-        u8 glyphIdx = font.getGlyphMap()[glyph];
+        u8 glyphIdx = font.glyphMap.glyphMap[glyph];
         if (glyphIdx == 0)
             return;
         CFNTGlyph* glyphObj = font.getGlyph(glyphIdx);
@@ -245,13 +245,17 @@ namespace Engine {
         return ((u8*)tileRam) + (tileId * 32);
     }
 
-    void TextBGManager::setPaletteColor256(int colorIdx, int r, int g, int b, bool color8bit) {
+    void TextBGManager::setPaletteColor(int colorIdx, int r, int g, int b, bool color8bit) {
         if (color8bit) {
             r >>= 3;
             g >>= 3;
             b >>= 3;
         }
         paletteRam[16 * 15 + colorIdx] = (b << 10) + (g << 5) + r;
+    }
+
+    void TextBGManager::setPaletteColor(int colorIdx, u16 color5bit) {
+        paletteRam[16 * 15 + colorIdx] = color5bit;
     }
 
     TextBGManager textMain(BG_PALETTE, BG_TILE_RAM(5), BG_MAP_RAM(4));

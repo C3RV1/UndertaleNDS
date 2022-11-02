@@ -12,7 +12,8 @@
 #include <maxmod9.h>
 
 namespace Audio {
-    // Audio buffer. We do not read a sample at a time, that would take too long
+    // We do not read a sample at a time, that would take too long. We load in chunks.
+    // Size of the buffer:
     const int WAVBuffer = 1000;  // in samples
 
     class WAV {
@@ -21,15 +22,9 @@ namespace Audio {
         void free_();
         
         char* getFilename() {return filename;}
-        u16 getSampleRate() const { return sampleRate; }
         bool getLoaded() const { return loaded; }
-        int getLoops() const { return loops; }
         void setLoops(int loops_) { loops = loops_; }
-        FILE* getStream() const { return stream; }
         bool getStereo() const { return stereo; }
-        u16 getBitsPerSample() const { return bitsPerSample; }
-        u32 getDataEnd() const { return dataEnd; }
-        u32 getDataStart() const { return dataStart; }
 
         bool getActive() const {return active;}
         void play();

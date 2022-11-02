@@ -11,14 +11,14 @@ namespace Engine {
     void Sprite::setSpriteAnim(int animId) {
         if (!loaded)
             return;
-        if (animId >= texture->getAnimCount())
+        if (animId >= texture->animationCount)
             return;
         if (currentAnimation == animId)
             return;
         currentAnimation = animId;
         currentAnimationFrame = 0;
-        currentAnimationTimer = texture->getAnimations()[animId].frames[0].duration;
-        currentFrame = texture->getAnimations()[animId].frames[0].frame;
+        currentAnimationTimer = texture->animations[animId].frames[0].duration;
+        currentFrame = texture->animations[animId].frames[0].frame;
     }
 
     void Sprite::loadTexture(Engine::Texture &sprite_) {
@@ -43,7 +43,7 @@ namespace Engine {
         if (!loaded)
             return;
         if (currentAnimation >= 0) {
-            CSPRAnimation* current = &texture->getAnimations()[currentAnimation];
+            CSPRAnimation* current = &texture->animations[currentAnimation];
             if (current->frames[currentAnimationFrame].duration != 0) {
                 currentAnimationTimer--;
                 if (currentAnimationTimer == 0) {
@@ -58,7 +58,7 @@ namespace Engine {
         x = wx - cam_x;
         y = wy - cam_y;
         if (currentAnimation >= 0) {
-            CSPRAnimation* current = &texture->getAnimations()[currentAnimation];
+            CSPRAnimation* current = &texture->animations[currentAnimation];
             CSPRAnimFrame* frameInfo = &current->frames[currentAnimationFrame];
             x += frameInfo->drawOffX << 8;
             y += frameInfo->drawOffY << 8;
@@ -95,8 +95,8 @@ namespace Engine {
     int Sprite::nameToAnimId(const char *animName) const {
         if (!loaded)
             return -1;
-        for (int i = 0; i < texture->getAnimCount(); i++) {
-            if (strcmp(animName, texture->getAnimations()[i].name) == 0) {
+        for (int i = 0; i < texture->animationCount; i++) {
+            if (strcmp(animName, texture->animations[i].name) == 0) {
                 return i;
             }
         }
