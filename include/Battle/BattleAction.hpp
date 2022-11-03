@@ -13,7 +13,8 @@ enum BattleActionState {
     CHOOSING_TARGET,
     CHOOSING_ACT,
     CHOOSING_ITEM,
-    CHOOSING_MERCY
+    CHOOSING_MERCY,
+    FIGHTING
 };
 
 enum BattleActions {
@@ -26,33 +27,47 @@ enum BattleActions {
 class BattleAction {
 public:
     BattleAction(u8 enemyCount, Enemy* enemies);
-    void enter(BattleActionState state);
+    bool update();
+    int getActionNum() const;
+    void free_();
+    ~BattleAction() {free_();}
+private:
     void setBtn();
+    void enter(BattleActionState state);
+
     void drawAct(bool draw);
     void drawMercy(bool draw);
     void drawTarget();
-    bool update();
+
     bool updateChoosingAction();
     bool updateChoosingTarget();
     bool updateChoosingAct();
     bool updateChoosingMercy();
     bool updateChoosingItem();
-    int getActionNum() const;
-    void free_();
-    ~BattleAction() {free_();}
-private:
+    bool updateFighting();
+
     bool freed = false;
+
     Engine::Font fnt;
+
     u8 enemyCount = 0;
     Enemy* enemies = nullptr;
+
     Engine::Texture fightTex, actTex, itemTex, mercyTex, bigHeartTex, smallHeartTex;
     Engine::Sprite fightBtn, actBtn, itemBtn, mercyBtn, heartSpr;
+
+    Engine::Background fightBoard;
+    Engine::Texture attackTexture;
+    Engine::Sprite attackSprite;
+
     int gfxAnimId, activeAnimId;
     BattleActionState currentState = CHOOSING_ACTION;
+
     int currentAction = 0;
     u8 chosenTarget = 0;
     u8 currentPage = 0;
     u8 chosenAct = 0;
+
     bool mercyFlee = false;
     char* mercyText = nullptr;
 };

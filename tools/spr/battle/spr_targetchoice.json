@@ -1,0 +1,17 @@
+{
+  "size": [14, 128],
+  "frameCount": 2,
+  "animations": [
+    {
+      "name": "gfx",
+      "frames": [{"frame": 0, "duration": 0}]
+    },
+    {
+      "name": "flashing",
+      "frames": [
+        {"frame": 0, "duration": 10},
+        {"frame": 1, "duration": 10}
+      ]
+    }
+  ]
+}

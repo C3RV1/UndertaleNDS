@@ -10,14 +10,19 @@
 // TODO: Touchscreen
 
 BattleAction::BattleAction(u8 enemyCount_, Enemy* enemies) :
-            enemyCount(enemyCount_), enemies(enemies),
-            fightBtn(Engine::Allocated3D),
-            actBtn(Engine::Allocated3D),
-            itemBtn(Engine::Allocated3D),
-            mercyBtn(Engine::Allocated3D),
-            heartSpr(Engine::Allocated3D)
+        enemyCount(enemyCount_), enemies(enemies),
+        fightBtn(Engine::Allocated3D),
+        actBtn(Engine::Allocated3D),
+        itemBtn(Engine::Allocated3D),
+        mercyBtn(Engine::Allocated3D),
+        heartSpr(Engine::Allocated3D),
+        attackSprite(Engine::Allocated3D)
 {
     fnt.loadPath("fnt_maintext.font");
+
+    fightBoard.loadPath("fight_board");
+    attackTexture.loadPath("battle/spr_targetchoice");
+    attackSprite.loadTexture(attackTexture);
 
     fightTex.loadPath("btn/spr_fightbt");
     fightBtn.loadTexture(fightTex);
@@ -88,6 +93,14 @@ void BattleAction::enter(BattleActionState state) {
             heartSpr.loadTexture(smallHeartTex);
             heartSpr.setShown(true);
             drawMercy(true);
+            break;
+        case FIGHTING:
+            fightBoard.loadBgTextMain();
+            attackSprite.setShown(true);
+            attackSprite.wx = 0;
+            attackSprite.wy = (192 - attackTexture.getHeight()) / 2;
+            break;
+        case CHOOSING_ITEM:
             break;
     }
 }
@@ -225,8 +238,9 @@ bool BattleAction::update() {
             return updateChoosingMercy();
         case CHOOSING_ITEM:
             return updateChoosingItem();
+        case FIGHTING:
+            return updateFighting();
     }
-    return true;
 }
 
 bool BattleAction::updateChoosingAction() {
@@ -287,8 +301,7 @@ bool BattleAction::updateChoosingTarget() {
             case ACTION_MERCY:
                 return true;
             case ACTION_FIGHT:
-                // return true;
-                // TODO: Finish fight
+                enter(FIGHTING);
                 break;
             case ACTION_ACT:
                 enter(CHOOSING_ACT);
@@ -335,6 +348,10 @@ bool BattleAction::updateChoosingMercy() {
 bool BattleAction::updateChoosingItem() {
     if (keysDown() & KEY_B)
         enter(CHOOSING_ACTION);
+    return false;
+}
+
+bool BattleAction::updateFighting() {
     return false;
 }
 
