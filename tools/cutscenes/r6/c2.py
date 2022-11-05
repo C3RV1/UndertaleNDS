@@ -16,7 +16,7 @@ def cutscene(c: Cutscene):
     c.unload_sprite(-1)
     c.unload_texture(-1)
 
-    c.start_battle([Enemy(2, 20, 1, 3, 0)], 0, 61, 63, 134, 75)
+    c.start_battle([Enemy(2, 20, 1, 1, 3, 0)], 0, 61, 63, 134, 75)
     c.wait(WaitTypes.EXIT)
 
     c.start_bgm("mus_battle1.wav", True)

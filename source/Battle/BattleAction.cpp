@@ -164,6 +164,7 @@ void BattleAction::drawMercy(bool draw) {
 }
 
 void BattleAction::drawTarget() {
+    // TODO: Do not show nor allow spared or killed enemies
     if (chosenTarget >= enemyCount)
         chosenTarget = enemyCount - 1;
     if (chosenTarget < 0)
@@ -241,6 +242,7 @@ bool BattleAction::update() {
         case FIGHTING:
             return updateFighting();
     }
+    return true;
 }
 
 bool BattleAction::updateChoosingAction() {
@@ -260,7 +262,6 @@ bool BattleAction::updateChoosingAction() {
     if (keysDown() & KEY_A) {
         switch (currentAction) {
             case ACTION_FIGHT:
-                break; // TODO: Remove this break after implementing fight
             case ACTION_ACT:
                 enter(CHOOSING_TARGET);
                 break;
@@ -352,6 +353,36 @@ bool BattleAction::updateChoosingItem() {
 }
 
 bool BattleAction::updateFighting() {
+    // TODO: Show damage
+
+    if (keysDown() & (KEY_A | KEY_TOUCH)) {
+        s32 distanceFromCenter = attackSprite.wx - (128 << 8);
+        if (distanceFromCenter < 0)
+            distanceFromCenter = -distanceFromCenter;
+        s16 damage;
+        u8 weaponAtk = 0; // TODO: get attack from current weapon
+        u8 atk = 10 + weaponAtk;
+        Enemy* enemy = &enemies[chosenTarget];
+        double randValue = ((double)rand() / (double)RAND_MAX) * 2.0;
+        if (distanceFromCenter < 24 << 8) {
+            // round((atk - def + rand(2)) * 2.2)
+            damage =  (s16)((atk - enemy->defense + randValue) * 22.0 / 10.0);
+        } else {
+            // round((atk - def + rand(2)) * (1 - distance from center/target width) * 2)
+            double distanceFactor = 1.0 - ((double)(distanceFromCenter >> 8) - 24) / (128.0 - 24.0);
+            damage = (s16)((atk - enemy->defense + randValue) * distanceFactor * 2.0);
+        }
+        if (damage < 0)
+            damage = 0;
+        enemy->hp -= damage;
+        if (enemy->hp < 0)
+            enemy->hp = 0;
+        return true;
+    }
+    if (attackSprite.wx > 256 << 8) {
+        return true;
+    }
+    attackSprite.wx += attackSpeed;
     return false;
 }
 

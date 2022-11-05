@@ -29,6 +29,7 @@ void Enemy::readFromStream(FILE *f) {
     fread(&spareValue, 1, 1, f);
     fread(&goldOnWin, 1, 1, f);
     fread(&expOnKill, 1, 1, f);
+    fread(&defense, 2, 1, f);
     loadActText(actTextId);
 }
 

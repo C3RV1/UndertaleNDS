@@ -10,6 +10,7 @@
 #include "Battle/Battle.hpp"
 #include "Battle/BattleAttack.hpp"
 #include "Room/Room.hpp"
+#include "Formats/CSCN.hpp"
 #include "Formats/utils.hpp"
 #include "Room/Player.hpp"
 #include "Room/InGameMenu.hpp"
@@ -55,7 +56,7 @@ bool Cutscene::checkHeader(FILE *f) {
     u32 version;
     fread(&version, 4, 1, f);
 
-    if (version != 7) {
+    if (version != CSCN::version) {
         return false;
     }
 

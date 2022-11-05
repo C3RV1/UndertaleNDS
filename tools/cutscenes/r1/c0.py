@@ -17,7 +17,7 @@ def cutscene(c: Cutscene):
                      type_sound="snd_floweytalk1.wav")
     c.wait(WaitTypes.DIALOGUE)
 
-    c.start_battle([Enemy(0, 100, 0, 0, BattleAttackIds.MOVEMENT_TUTORIAL)], 0, 61, 63, 134, 75)
+    c.start_battle([Enemy(0, 100, 0, 0, 0, BattleAttackIds.MOVEMENT_TUTORIAL)], 0, 61, 63, 134, 75)
     c.wait(WaitTypes.EXIT)
     c.debug("Loading battle...")
     c.load_texture("speaker/flowey")

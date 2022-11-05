@@ -24,6 +24,7 @@ public:
     u8 spareValue = 0;  // When it reaches 100, enemy can be spared
     u8 goldOnWin = 0;
     u8 expOnKill = 0;
+    s16 defense = 0;
     bool spared = false;
 };
 

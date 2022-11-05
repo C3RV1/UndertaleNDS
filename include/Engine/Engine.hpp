@@ -4,6 +4,7 @@
 #define ARM9
 #include <nds.h>
 #include <fat.h>
+#include <ctime>
 #include "Engine/Background.hpp"
 #include <maxmod9.h>
 

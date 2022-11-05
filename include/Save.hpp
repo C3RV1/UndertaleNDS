@@ -21,9 +21,16 @@ enum ClearType {
     PLAYER_TRUE_RESET
 };
 
+enum Items {
+    MONSTER_CANDY = 1,
+    CROQUET_ROLL,
+    STICK,
+    BANDAGE
+};
+
 class SaveData {
 public:
-    const u32 saveVersion = 4;
+    const u32 saveVersion = 5;
     void clear(ClearType clearType);
     void loadData();
     void saveData(u16 roomId);
@@ -35,6 +42,8 @@ public:
     u16 lv = 1, exp = 0, gold = 0;
     u8 items[ITEM_COUNT + 1] = {0};  // Terminal 0
     u8 cell[CELL_COUNT + 1] = {0};  // Terminal 0
+    u8 currentWeapon = Items::STICK; // Starting: stick
+    u8 currentArmor = Items::BANDAGE; // Starting: bandage
 
     u16 lastSavedRoom = 0;
 };

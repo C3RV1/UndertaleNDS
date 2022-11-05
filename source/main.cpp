@@ -40,8 +40,8 @@ int main() {
     u16 roomSpawn = globalSave.lastSavedRoom;
 
     // DEBUG
-    // roomSpawn = 5;
-    // globalSave.flags[0] = 4;
+    roomSpawn = 5;
+    globalSave.flags[0] = 4;
 
     globalPlayer = new Player();
     globalPlayer->spriteManager.setShown(true);

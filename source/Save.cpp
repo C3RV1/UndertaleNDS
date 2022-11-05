@@ -8,20 +8,18 @@
 SaveData globalSave;
 
 void SaveData::clear(ClearType clearType) {
+    lv = 1; exp = 0; gold = 0;
+    hp = 20; maxHp = 20;
+    memset(items, 0, ITEM_COUNT + 1);
+    lastSavedRoom = 0;
     if (clearType == INTERNAL_RESET || clearType == PLAYER_TRUE_RESET) {
         memset(name, 0, MAX_NAME_LEN + 1);
         saveExists = false;
         memset(flags, 0, 2 * FLAG_COUNT);
-        hp = 20; maxHp = 20;
-        lv = 1; exp = 0; gold = 0;
-        memset(items, 0, ITEM_COUNT + 1);
-        lastSavedRoom = 0;
+        currentWeapon = Items::STICK;
+        currentArmor = Items::BANDAGE;
     } else if (clearType == PLAYER_RESET) {
         memset(flags, 0, 2 * 240);  // reset all but persistent flags
-        hp = 20; maxHp = 20;
-        lv = 1; exp = 0; gold = 0;
-        memset(items, 0, ITEM_COUNT + 1);
-        lastSavedRoom = 0;
     }
 }
 
@@ -54,6 +52,8 @@ void SaveData::loadData() {
     fCard.read(cell, CELL_COUNT);
     items[ITEM_COUNT] = 0;
     cell[CELL_COUNT] = 0;
+    fCard.read(&currentWeapon, 1);
+    fCard.read(&currentArmor, 1);
 
     saveExists = true;
 
@@ -75,6 +75,8 @@ void SaveData::saveData(u16 roomId) {
     fCard.write(&gold, 2);
     fCard.write(items, ITEM_COUNT);
     fCard.write(cell, CELL_COUNT);
+    fCard.write(&currentWeapon, 1);
+    fCard.write(&currentArmor, 1);
     items[ITEM_COUNT] = 0;
 
     lastSavedRoom = roomId;

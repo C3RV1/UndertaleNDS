@@ -10,7 +10,7 @@ def cutscene(c: Cutscene):
     c.player_control(False)
     c.set_action(Target(TargetType.SPRITE, 1), "none")
 
-    c.start_battle([Enemy(1, 15, 0, 2, BattleAttackIds.NONE)], 0, 61, 63, 134, 75)
+    c.start_battle([Enemy(1, 15, -5, 0, 2, BattleAttackIds.NONE)], 0, 61, 63, 134, 75)
     c.wait(WaitTypes.EXIT)
 
     # == LOAD BATTLE ==

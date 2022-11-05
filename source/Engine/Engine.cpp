@@ -13,6 +13,8 @@ namespace Engine {
             return -1;
         }
 
+        srand(time(nullptr));
+
         mm_ds_system sys;
         sys.mod_count 			= 0;
         sys.samp_count			= 0;

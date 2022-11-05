@@ -25,6 +25,8 @@ enum BattleActions {
 };
 
 class BattleAction {
+    const s32 attackSpeed = (5 << 8); // 5 pixels per frame
+
 public:
     BattleAction(u8 enemyCount, Enemy* enemies);
     bool update();
