@@ -17,9 +17,9 @@ enum SelectedMenu {
 class InGameMenu {
 public:
     InGameMenu() :
-    selectedMenuHeart(Engine::AllocatedOAM),
-    listHeart(Engine::AllocatedOAM),
-    itemExplainBox(Engine::AllocatedOAM){}
+            _selectedMenuHeartSpr(Engine::AllocatedOAM),
+            _listHeartSpr(Engine::AllocatedOAM),
+            _itemExplainBoxSpr(Engine::AllocatedOAM){}
     void load();
     void unload();
     void show(bool update);
@@ -28,31 +28,31 @@ public:
     void hide();
     void update();
 private:
-    const int nameX = 18, nameY = 10;
-    const int hpX = 120, hpY = 10;
-    const int lvX = 226, lvY = 10;
-    const int expX = 226, expY = 22;
-    const int selectedMenuX = 59 << 8, selectedMenuY = 40 << 8;
-    const int selectedMenuSeparation = (146 - 59) << 8;
-    const int itemsX = 58, itemsY = 58, itemSpacingY = 15;
-    const int pageChangeY = itemsY + itemSpacingY - itemSpacingY / 2;
-    const int buttonWidth = 90;
+    const int kNameX = 18, kNameY = 10;
+    const int kHpX = 120, kHpY = 10;
+    const int kLvX = 226, kLvY = 10;
+    const int kExpX = 226, kExpY = 22;
+    const int kSelectedMenuX = 59 << 8, kSelectedMenuY = 40 << 8;
+    const int kSelectedMenuSeparation = (146 - 59) << 8;
+    const int kItemsX = 58, kItemsY = 58, kItemSpacingY = 15;
+    const int kPageChangeY = kItemsY + kItemSpacingY - kItemSpacingY / 2;
+    const int kButtonWidth = 90;
 
-    bool shown = false;
-    Engine::Font fnt;
-    Engine::Background bg;
-    Engine::Texture littleHeart;
-    Engine::Texture itemExplain;
-    Engine::Sprite selectedMenuHeart;
-    Engine::Sprite listHeart;
-    Engine::Sprite itemExplainBox;
-    SelectedMenu selectedMenu = MENU_ITEMS;
-    u8 optionCount = 0;
-    u8 pageCount = 0;
-    u8 optionSelected = 0;
-    u8 itemPage = 0;
+    bool _shown = false;
+    Engine::Font _fnt;
+    Engine::Background _bg;
+    Engine::Texture _littleHeartTex;
+    Engine::Texture _itemExplainTex;
+    Engine::Sprite _selectedMenuHeartSpr;
+    Engine::Sprite _listHeartSpr;
+    Engine::Sprite _itemExplainBoxSpr;
+    SelectedMenu _selectedMenu = MENU_ITEMS;
+    u8 _optionCount = 0;
+    u8 _pageCount = 0;
+    u8 _optionSelected = 0;
+    u8 _itemPage = 0;
 
-    bool bgLoadedCell = false;
+    bool _bgLoadedCell = false;
 };
 
 extern InGameMenu globalInGameMenu;

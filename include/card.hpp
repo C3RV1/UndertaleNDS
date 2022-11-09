@@ -18,10 +18,10 @@ class CardBuffer {
 public:
     void read(void* data, size_t size);
     void write(void* src, size_t size);
-    u16 tell() const { return pos; }
+    u16 tell() const { return _pos; }
     void seek(s32 offset, u8 mode);
 private:
-    u16 pos = 0;
+    u16 _pos = 0;
 };
 
 extern CardBuffer fCard;

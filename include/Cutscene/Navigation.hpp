@@ -24,7 +24,7 @@ struct NavigationTask {
     s32 startingX = 0, startingY = 0;
     s32 destX = 0, destY = 0;
     u16 frames = 0;
-    u16 currentFrames = 0;
+    u16 cFrames = 0;
     NavigationTaskType taskType = POSITION;
     Engine::Sprite* target = nullptr;
 };
@@ -61,11 +61,11 @@ public:
     static Engine::Sprite* getTarget(u8 targetType, s8 targetId,
                                      CutsceneLocation callingLocation);
 private:
-    void startTask(NavigationTask* navTask);
+    void startTask(NavigationTask* task);
     bool updateTask(int taskId);
     void endTask(int taskId);
-    u8 taskCount = 0;
-    NavigationTask** tasks = nullptr;
+    u8 _taskCount = 0;
+    NavigationTask** _tasks = nullptr;
 };
 
 #endif //UNDERTALE_NAVIGATION_HPP

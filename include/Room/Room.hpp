@@ -25,28 +25,28 @@ public:
     void push();
     void pop();
 
-    u16 roomId;
-    Engine::Background bg;
+    u16 _roomId;
+    Engine::Background _bg;
 
-    u8 textureCount = 0;
-    Engine::Texture** textures = nullptr;
+    u8 _textureCount = 0;
+    Engine::Texture** _textures = nullptr;
 
-    u8 spriteCount = 0;
-    ManagedSprite** sprites = nullptr;
+    u8 _spriteCount = 0;
+    ManagedSprite** _sprites = nullptr;
 
-    ROOMPart roomData;
-    u16 spawnX = 0, spawnY = 0;
+    ROOMPart _roomData;
+    u16 _spawnX = 0, _spawnY = 0;
 
-    ROOMExit* exitTop = nullptr;
-    ROOMExit* exitBtm = nullptr;
-    ROOMExit* exitLeft = nullptr;
-    ROOMExit* exitRight = nullptr;
-    u8 rectExitCount = 0;
-    ROOMExit** rectExits = nullptr;
-    Navigation nav;
+    ROOMExit* _exitTop = nullptr;
+    ROOMExit* _exitBtm = nullptr;
+    ROOMExit* _exitLeft = nullptr;
+    ROOMExit* _exitRight = nullptr;
+    u8 _rectExitCount = 0;
+    ROOMExit** _rectExits = nullptr;
+    Navigation _nav;
 };
 
-const int ROOM_CHANGE_FADE_FRAMES = 20;
+const int kRoomChangeFadeFrames = 20;
 void loadNewRoom(int roomId, s32 spawnX, s32 spawnY);
 
 extern Room* globalRoom;

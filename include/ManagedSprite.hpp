@@ -12,22 +12,22 @@ class ManagedSprite;
 
 class ManagedSprite {
 public:
-    explicit ManagedSprite(Engine::AllocationMode alloc) : spriteManager(alloc) {}
+    explicit ManagedSprite(Engine::AllocationMode alloc) : _spr(alloc) {}
     void load(ROOMSprite* sprData, u8 textureCount, Engine::Texture** textures);
     void spawn(s8 textureId, s32 x, s32 y,
                u8 textureCount, Engine::Texture** textures);
     void update(bool isRoom);
     void draw(bool isRoom);
     void free_();
-    Engine::Sprite spriteManager;
+    Engine::Sprite _spr;
 
-    u8 interactAction = 0;
-    u16 cutsceneId = 0;
-    u32 distanceSquared = 0;
-    int closeAnim = 0;
-    int animationId = 0;
+    u8 _interactAction = 0;
+    u16 _cutsceneId = 0;
+    u32 _distanceSquared = 0;
+    int _closeAnim = 0;
+    int _animationId = 0;
 private:
-    Engine::Texture* texture = nullptr;
+    Engine::Texture* _texture = nullptr;
 };
 
 #endif //UNDERTALE_MANAGED_SPRITE_HPP

@@ -22,13 +22,13 @@ namespace Engine {
         OAMManager(u16* paletteRam,
                    u16* tileRam,
                    u16* oamRam) :
-                paletteRam(paletteRam),
-                oamRam(oamRam),
-                tileRam(tileRam) {
-            tileFreeZoneCount = 1;
-            tileFreeZones = new u16[2];
-            tileFreeZones[0] = 1;
-            tileFreeZones[1] = 1023;
+                _paletteRam(paletteRam),
+                _oamRam(oamRam),
+                _tileRam(tileRam) {
+            _tileFreeZoneCount = 1;
+            _tileFreeZones = new u16[2];
+            _tileFreeZones[0] = 1;
+            _tileFreeZones[1] = 1023;
             *paletteRam = 31 << 5;  // full green for bg
         };
 
@@ -52,19 +52,19 @@ namespace Engine {
         void allocateOamScaleEntry(Sprite& spr);
         void freeOamScaleEntry(Sprite& spr);
 
-        u16* paletteRam;
-        u16* oamRam;
-        u16* tileRam;
+        u16* _paletteRam;
+        u16* _oamRam;
+        u16* _tileRam;
 
-        u16 tileFreeZoneCount;
-        u16* tileFreeZones;  // pairs of (starting addr, free tiles)
+        u16 _tileFreeZoneCount;
+        u16* _tileFreeZones;  // pairs of (starting addr, free tiles)
 
-        u8 activeSpriteCount = 0;
-        Sprite** activeSprites = nullptr;
+        u8 _activeSprCount = 0;
+        Sprite** _activeSpr = nullptr;
 
-        u8 paletteRefCounts[255] = {0};
-        OAMEntry oamEntries[SPRITE_COUNT];
-        bool oamScaleEntryUsed[32] = {false};
+        u8 _paletteRefCounts[255] = {0};
+        OAMEntry _oamEntries[SPRITE_COUNT];
+        bool _oamScaleEntryUsed[32] = {false};
     };
 
     extern OAMManager OAMManagerSub;

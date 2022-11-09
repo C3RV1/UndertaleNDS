@@ -5,16 +5,16 @@
 #include "Battle/Battle.hpp"
 
 namespace BtlAttacks {
-    MovementTutorial::MovementTutorial() : tutorialSpr(Engine::Allocated3D) {
-        tutorialTex.loadPath("cutscene/0/spr_guidearrows");
+    MovementTutorial::MovementTutorial() : _tutorialSpr(Engine::Allocated3D) {
+        _tutorialTex.loadPath("cutscene/0/spr_guidearrows");
 
-        tutorialSpr.loadTexture(tutorialTex);
-        tutorialSpr.setShown(true);
-        tutorialSpr.wx = globalBattle->playerManager.wx - (10 << 8);
-        tutorialSpr.wy = globalBattle->playerManager.wy - (10 << 8);
-        tutorialSpr.layer = 50;
-        int animId = tutorialSpr.nameToAnimId("tutorial");
-        tutorialSpr.setSpriteAnim(animId);
+        _tutorialSpr.loadTexture(_tutorialTex);
+        _tutorialSpr.setShown(true);
+        _tutorialSpr._wx = globalBattle->_playerSpr._wx - (10 << 8);
+        _tutorialSpr._wy = globalBattle->_playerSpr._wy - (10 << 8);
+        _tutorialSpr._layer = 50;
+        int animId = _tutorialSpr.nameToAnimId("tutorial");
+        _tutorialSpr.setSpriteAnim(animId);
     }
 
     bool MovementTutorial::update() {
@@ -24,7 +24,7 @@ namespace BtlAttacks {
     }
 
     MovementTutorial::~MovementTutorial() noexcept {
-        tutorialSpr.setShown(false);
-        tutorialTex.free_();
+        _tutorialSpr.setShown(false);
+        _tutorialTex.free_();
     }
 }

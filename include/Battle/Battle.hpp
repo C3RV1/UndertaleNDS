@@ -28,31 +28,31 @@ public:
     void updateBattleAttacks() const;
     void startBattleAttacks();
     void free_();
-    bool shown = false;
-    bool running = true;
-    bool stopPostDialogue = false;
-    char* winText = nullptr;
-    Navigation nav;
+    bool _shown = false;
+    bool _running = true;
+    bool _stopPostDialogue = false;
+    char* _winText = nullptr;
+    Navigation _nav;
 
-    u8 enemyCount = 0;
-    Enemy* enemies = nullptr;
+    u8 _enemyCount = 0;
+    Enemy* _enemies = nullptr;
 
-    u8 textureCount = 0;
-    Engine::Texture** textures = nullptr;
+    u8 _textureCount = 0;
+    Engine::Texture** _textures = nullptr;
 
-    u8 spriteCount = 0;
-    ManagedSprite** sprites = nullptr;
+    u8 _spriteCount = 0;
+    ManagedSprite** _sprites = nullptr;
 
-    Engine::Background bulletBoard;
-    u8 boardX = 0, boardY = 0, boardW = 0, boardH = 0;
+    Engine::Background _bulletBoard;
+    u8 _boardX = 0, _boardY = 0, _boardW = 0, _boardH = 0;
 
-    const s32 playerSpeed = (60 << 8) / 60;
-    Engine::Texture player;
-    Engine::Sprite playerManager;
+    const s32 _playerSpeed = (60 << 8) / 60;
+    Engine::Texture _playerTex;
+    Engine::Sprite _playerSpr;
 
-    BattleAttack** currentBattleAttacks = nullptr;
-    BattleAction* currentBattleAction = nullptr;
-    bool hitFlag = false;
+    BattleAttack** _cBattleAttacks = nullptr;
+    BattleAction* _cBattleAction = nullptr;
+    bool _hitFlag = false;
 };
 
 void runBattle(FILE* stream);

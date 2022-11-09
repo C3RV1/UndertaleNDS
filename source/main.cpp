@@ -44,13 +44,13 @@ int main() {
     globalSave.flags[0] = 4;
 
     globalPlayer = new Player();
-    globalPlayer->spriteManager.setShown(true);
+    globalPlayer->_playerSpr.setShown(true);
     globalInGameMenu.load();
     globalInGameMenu.show(false);
     globalRoom = new Room(roomSpawn);
     globalCamera.updatePosition(true);
-    globalPlayer->spriteManager.wx = globalRoom->spawnX << 8;
-    globalPlayer->spriteManager.wy = globalRoom->spawnY << 8;
+    globalPlayer->_playerSpr._wx = globalRoom->_spawnX << 8;
+    globalPlayer->_playerSpr._wy = globalRoom->_spawnY << 8;
 
     for (;;) {
         Engine::tick();
@@ -62,8 +62,8 @@ int main() {
                 delete globalCutscene;
                 globalCutscene = nullptr;
                 globalInGameMenu.show(false);
-                globalPlayer->playerControl = true;
-                globalCamera.manual = false;
+                globalPlayer->_playerControl = true;
+                globalCamera._manual = false;
             }
         }
         globalCamera.updatePosition(false);

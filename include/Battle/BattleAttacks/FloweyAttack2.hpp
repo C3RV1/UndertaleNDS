@@ -16,16 +16,16 @@ namespace BtlAttacks {
         ~FloweyAttack2() noexcept override;
         bool update() override;
     private:
-        static const int showFrames = 4;
-        int counter = 0;
-        int stage = 0;
-        int currentPelletShown = 0;
-        static const int pelletW = 14;
-        static const int pelletX = 55, pelletY = 50, pelletSpacingX = 10, pelletSpacingY = 90;
-        static const int pelletSpeed = (10 << 8) / 60;
-        static const int pelletRadius = 15;
-        Engine::Texture pelletTex;
-        Engine::Sprite* pellets[pelletW * 2] = {nullptr};
+        static const int kShowFrames = 4;
+        int _counter = 0;
+        int _stage = 0;
+        int _cPelletShown = 0;
+        static const int kPelletW = 14;
+        static const int kPelletX = 55, kPelletY = 50, kPelletSpacingX = 10, kPelletSpacingY = 90;
+        static const int kPelletSpeed = (10 << 8) / 60;
+        static const int kPelletRadius = 15;
+        Engine::Texture _pelletTex;
+        Engine::Sprite* _pelletSpr[kPelletW * 2] = {nullptr};
     };
 }
 

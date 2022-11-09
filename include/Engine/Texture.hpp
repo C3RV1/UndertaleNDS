@@ -11,20 +11,20 @@ namespace Engine {
     public:
         bool loadPath(const char* path);
         int loadCSPR(FILE* f);
-        bool getLoaded() const { return loaded; }
-        void getSizeTiles(u8& tileWidth_, u8& tileHeight_) const {
-            tileWidth_ = (width + 7) / 8;
-            tileHeight_ = (height + 7) / 8;
+        bool getLoaded() const { return _loaded; }
+        void getSizeTiles(u8& tileWidth, u8& tileHeight) const {
+            tileWidth = (_width + 7) / 8;
+            tileHeight = (_height + 7) / 8;
         }
         u16 getWidth() const {
-            return width;
+            return _width;
         }
         u16 getHeight() const {
-            return height;
+            return _height;
         }
-        void getSize(u16& width_, u16& height_) const {
-            width_ = width;
-            height_ = height;
+        void getSize(u16& width, u16& height) const {
+            width = _width;
+            height = _height;
         }
         void free_();
         ~Texture() { free_(); }
@@ -32,21 +32,20 @@ namespace Engine {
         friend class OAMManager;
         friend class Sprite3DManager;
         friend class Sprite;
-        bool loaded = false;
-        u8 colorCount = 0;
-        u16* colors = nullptr;
-        u16 width = 0, height = 0;
-        u8 frameCount = 0;
-        u8 animationCount = 0;
-        u16 topDownOffset = 0;
-        CSPRAnimation* animations = nullptr;
-        u8* tiles = nullptr;
+        bool _loaded = false;
+        u8 _colorCount = 0;
+        u16* _colors = nullptr;
+        u16 _width = 0, _height = 0;
+        u8 _frameCount = 0;
+        u8 _animationCount = 0;
+        u16 _topDownOffset = 0;
+        CSPRAnimation* _animations = nullptr;
+        u8* _tiles = nullptr;
 
         // 3D
-        u8 loaded3DCount = 0;
-        u16 * tileStart = nullptr;
-        u16 allocX = 0, allocY = 0;
-        u8 paletteIdx = 0;
+        u8 _loaded3DCount = 0;
+        u16 * _tileStart = nullptr;
+        u8 _paletteIdx = 0;
 
         friend class Sprite3DManager;
     };

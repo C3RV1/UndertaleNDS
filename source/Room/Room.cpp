@@ -12,7 +12,7 @@
 #include "Room/Camera.hpp"
 #include "Room/InGameMenu.hpp"
 
-Room::Room(int roomId) : roomId(roomId) {
+Room::Room(int roomId) : _roomId(roomId) {
     char buffer[100];
     sprintf(buffer, "nitro:/data/rooms/room%d.room", roomId);
     FILE* f = fopen(buffer, "rb");
@@ -31,20 +31,20 @@ Room::Room(int roomId) : roomId(roomId) {
     }
     fclose(f);
 
-    bg.loadPath(roomData.roomBg);
+    _bg.loadPath(_roomData.roomBg);
 
-    int bgLoad = bg.loadBgExtendedMain(512 / 8);
+    int bgLoad = _bg.loadBgExtendedMain(512 / 8);
     if (bgLoad != 0) {
         sprintf(buffer, "Error loading room bg: %d", bgLoad);
         nocashMessage(buffer);
     }
 
-    if (roomData.musicBg[0] != 0) {
-        bool musicChange = Audio::currentBGMusic.getFilename() == nullptr;
+    if (_roomData.musicBg[0] != 0) {
+        bool musicChange = Audio::cBGMusic.getFilename() == nullptr;
         if (!musicChange)
-            musicChange = strcmp(roomData.musicBg, Audio::currentBGMusic.getFilename()) != 0;
+            musicChange = strcmp(_roomData.musicBg, Audio::cBGMusic.getFilename()) != 0;
         if (musicChange) {
-            Audio::playBGMusic(roomData.musicBg, true);
+            Audio::playBGMusic(_roomData.musicBg, true);
         }
     } else {
         Audio::stopBGMusic();
@@ -82,12 +82,12 @@ int Room::loadRoom(FILE *f) {
 
     bool valid = false;
     for (int i = 0; i < roomFile.partCount && !valid; i++) {
-        fread(&roomData.lengthBytes, 4, 1, f);
-        long endPos = ftell(f) + roomData.lengthBytes;
-        fread(&roomData.conditionCount, 1, 1, f);
+        fread(&_roomData.lengthBytes, 4, 1, f);
+        long endPos = ftell(f) + _roomData.lengthBytes;
+        fread(&_roomData.conditionCount, 1, 1, f);
 
         valid = true;
-        for (int j = 0; j < roomData.conditionCount && valid; j++) {
+        for (int j = 0; j < _roomData.conditionCount && valid; j++) {
             if (!evaluateCondition(f))
                 valid = false;
         }
@@ -102,25 +102,25 @@ int Room::loadRoom(FILE *f) {
     if (bgPathLen == -1)
         return 5;
 
-    fread(roomData.roomBg, bgPathLen + 1, 1, f);
-    roomData.roomBg[bgPathLen] = 0;
+    fread(_roomData.roomBg, bgPathLen + 1, 1, f);
+    _roomData.roomBg[bgPathLen] = 0;
 
     int musicPathLen = str_len_file(f, 0);
     if (musicPathLen == -1)
         return 5;
 
-    fread(roomData.musicBg, musicPathLen + 1, 1, f);
-    roomData.musicBg[musicPathLen] = 0;
+    fread(_roomData.musicBg, musicPathLen + 1, 1, f);
+    _roomData.musicBg[musicPathLen] = 0;
 
-    fread(&spawnX, 2, 1, f);
-    fread(&spawnY, 2, 1, f);
+    fread(&_spawnX, 2, 1, f);
+    fread(&_spawnY, 2, 1, f);
 
-    fread(&roomData.roomExits.exitCount, 1, 1, f);
-    roomData.roomExits.roomExits = new ROOMExit[roomData.roomExits.exitCount];
-    ROOMExit* roomExits = roomData.roomExits.roomExits;
+    fread(&_roomData.roomExits.exitCount, 1, 1, f);
+    _roomData.roomExits.roomExits = new ROOMExit[_roomData.roomExits.exitCount];
+    ROOMExit* roomExits = _roomData.roomExits.roomExits;
 
-    rectExitCount = 0;
-    for (int i = 0; i < roomData.roomExits.exitCount; i++) {
+    _rectExitCount = 0;
+    for (int i = 0; i < _roomData.roomExits.exitCount; i++) {
         fread(&roomExits[i].exitType, 1, 1, f);
         fread(&roomExits[i].roomId, 2, 1, f);
         fread(&roomExits[i].spawnX, 1, 2, f);
@@ -130,23 +130,23 @@ int Room::loadRoom(FILE *f) {
                 fread(&roomExits[i].side, 1, 1, f);
                 switch (roomExits[i].side) {
                     case 0:
-                        exitTop = &roomExits[i];
+                        _exitTop = &roomExits[i];
                         break;
                     case 1:
-                        exitBtm = &roomExits[i];
+                        _exitBtm = &roomExits[i];
                         break;
                     case 2:
-                        exitLeft = &roomExits[i];
+                        _exitLeft = &roomExits[i];
                         break;
                     case 3:
-                        exitRight = &roomExits[i];
+                        _exitRight = &roomExits[i];
                         break;
                     default:
                         break;
                 }
                 break;
             case 1:
-                rectExitCount++;
+                _rectExitCount++;
                 fread(&roomExits[i].x, 2, 1, f);
                 fread(&roomExits[i].y, 2, 1, f);
                 fread(&roomExits[i].w, 2, 1, f);
@@ -157,32 +157,32 @@ int Room::loadRoom(FILE *f) {
         }
     }
 
-    rectExits = new ROOMExit*[rectExitCount];
-    for (int i = 0, j = 0; i < roomData.roomExits.exitCount; i++) {
+    _rectExits = new ROOMExit*[_rectExitCount];
+    for (int i = 0, j = 0; i < _roomData.roomExits.exitCount; i++) {
         if (roomExits[i].exitType != 1)
             continue;
-        rectExits[j++] = &roomExits[i];
+        _rectExits[j++] = &roomExits[i];
     }
 
-    fread(&textureCount, 1, 1, f);
-    textures = new Engine::Texture*[textureCount];
+    fread(&_textureCount, 1, 1, f);
+    _textures = new Engine::Texture*[_textureCount];
     char path[100];
-    for (int i = 0; i < textureCount; i++){
-        textures[i] = new Engine::Texture;
+    for (int i = 0; i < _textureCount; i++){
+        _textures[i] = new Engine::Texture;
 
         int sprPathLen = str_len_file(f, 0);
         if (sprPathLen == -1)
             return 5;
         fread(path, sprPathLen + 1, 1, f);
 
-        textures[i]->loadPath(path);
+        _textures[i]->loadPath(path);
     }
 
-    fread(&spriteCount, 1, 1, f);
-    roomData.roomSprites.roomSprites = new ROOMSprite[spriteCount];
-    ROOMSprite* roomSprites = roomData.roomSprites.roomSprites;
+    fread(&_spriteCount, 1, 1, f);
+    _roomData.roomSprites.roomSprites = new ROOMSprite[_spriteCount];
+    ROOMSprite* roomSprites = _roomData.roomSprites.roomSprites;
 
-    for (int i = 0; i < spriteCount; i++) {
+    for (int i = 0; i < _spriteCount; i++) {
         fread(&roomSprites[i].textureId, 1, 1, f);
         fread(&roomSprites[i].x, 2, 1, f);
         fread(&roomSprites[i].y, 2, 1, f);
@@ -202,11 +202,11 @@ int Room::loadRoom(FILE *f) {
         }
     }
 
-    fread(&roomData.roomColliders.colliderCount, 2, 1, f);
-    roomData.roomColliders.roomColliders = new ROOMCollider[roomData.roomColliders.colliderCount];
-    ROOMCollider* roomColliders = roomData.roomColliders.roomColliders;
+    fread(&_roomData.roomColliders.colliderCount, 2, 1, f);
+    _roomData.roomColliders.roomColliders = new ROOMCollider[_roomData.roomColliders.colliderCount];
+    ROOMCollider* roomColliders = _roomData.roomColliders.roomColliders;
 
-    for (int i = 0; i < roomData.roomColliders.colliderCount; i++) {
+    for (int i = 0; i < _roomData.roomColliders.colliderCount; i++) {
         fread(&roomColliders[i].x, 2, 1, f);
         fread(&roomColliders[i].y, 2, 1, f);
         fread(&roomColliders[i].w, 2, 1, f);
@@ -222,38 +222,38 @@ int Room::loadRoom(FILE *f) {
 }
 
 void Room::free_() {
-    bg.free_();
-    delete[] roomData.roomExits.roomExits;
-    roomData.roomExits.roomExits = nullptr;
-    for (int i = 0; i < spriteCount; i++) {
-        sprites[i]->free_();
-        delete sprites[i];
+    _bg.free_();
+    delete[] _roomData.roomExits.roomExits;
+    _roomData.roomExits.roomExits = nullptr;
+    for (int i = 0; i < _spriteCount; i++) {
+        _sprites[i]->free_();
+        delete _sprites[i];
     }
-    for (int i = 0; i < textureCount; i++) {
-        delete textures[i];
+    for (int i = 0; i < _textureCount; i++) {
+        delete _textures[i];
     }
-    delete[] textures;
-    for (int i = 0; i < roomData.roomSprites.spriteCount; i++) {
-        delete[] roomData.roomSprites.roomSprites[i].animation;
-        roomData.roomSprites.roomSprites[i].animation = nullptr;
-        delete[] roomData.roomSprites.roomSprites[i].closeAnim;
-        roomData.roomSprites.roomSprites[i].closeAnim = nullptr;
+    delete[] _textures;
+    for (int i = 0; i < _roomData.roomSprites.spriteCount; i++) {
+        delete[] _roomData.roomSprites.roomSprites[i].animation;
+        _roomData.roomSprites.roomSprites[i].animation = nullptr;
+        delete[] _roomData.roomSprites.roomSprites[i].closeAnim;
+        _roomData.roomSprites.roomSprites[i].closeAnim = nullptr;
     }
-    delete[] roomData.roomSprites.roomSprites;
-    roomData.roomSprites.roomSprites = nullptr;
-    delete[] sprites;
-    sprites = nullptr;
+    delete[] _roomData.roomSprites.roomSprites;
+    _roomData.roomSprites.roomSprites = nullptr;
+    delete[] _sprites;
+    _sprites = nullptr;
 
-    delete[] roomData.roomColliders.roomColliders;
-    roomData.roomColliders.roomColliders = nullptr;
-    bg.free_();
+    delete[] _roomData.roomColliders.roomColliders;
+    _roomData.roomColliders.roomColliders = nullptr;
+    _bg.free_();
 }
 
 void Room::loadSprites() {
-    sprites = new ManagedSprite*[spriteCount];
-    for (int i = 0; i < spriteCount; i++) {
-        sprites[i] = new ManagedSprite(Engine::Allocated3D);
-        sprites[i]->load(&roomData.roomSprites.roomSprites[i], textureCount, textures);
+    _sprites = new ManagedSprite*[_spriteCount];
+    for (int i = 0; i < _spriteCount; i++) {
+        _sprites[i] = new ManagedSprite(Engine::Allocated3D);
+        _sprites[i]->load(&_roomData.roomSprites.roomSprites[i], _textureCount, _textures);
     }
 }
 
@@ -279,16 +279,16 @@ bool Room::evaluateCondition(FILE *f) {
 }
 
 void Room::draw() const {
-    for (int i = 0; i < spriteCount; i++) {
-        sprites[i]->draw(true);
+    for (int i = 0; i < _spriteCount; i++) {
+        _sprites[i]->draw(true);
     }
 }
 
 void loadNewRoom(int roomId, s32 spawnX, s32 spawnY) {
-    int timer = ROOM_CHANGE_FADE_FRAMES;
+    int timer = kRoomChangeFadeFrames;
     while (timer >= 0) {
         Engine::tick();
-        setBrightness(1, (-16 * (ROOM_CHANGE_FADE_FRAMES - timer)) / ROOM_CHANGE_FADE_FRAMES);
+        setBrightness(1, (-16 * (kRoomChangeFadeFrames - timer)) / kRoomChangeFadeFrames);
         timer--;
     }
 
@@ -300,56 +300,56 @@ void loadNewRoom(int roomId, s32 spawnX, s32 spawnY) {
 
     delete globalRoom;
     globalRoom = new Room(roomId);
-    globalPlayer->spriteManager.wx = spawnX << 8;
-    globalPlayer->spriteManager.wy = spawnY << 8;
+    globalPlayer->_playerSpr._wx = spawnX << 8;
+    globalPlayer->_playerSpr._wy = spawnY << 8;
 
     if (globalCutscene != nullptr) {
         // Cutscenes are confined to rooms
         delete globalCutscene;
         globalCutscene = nullptr;
         globalInGameMenu.show(false);
-        globalPlayer->playerControl = true;
-        globalCamera.manual = false;
+        globalPlayer->_playerControl = true;
+        globalCamera._manual = false;
     }
     globalCamera.updatePosition(true);
     globalPlayer->draw();
     globalRoom->draw();
 
-    timer = ROOM_CHANGE_FADE_FRAMES;
+    timer = kRoomChangeFadeFrames;
     while (timer >= 0) {
         Engine::tick();
-        setBrightness(1, (-16 * timer) / ROOM_CHANGE_FADE_FRAMES);
+        setBrightness(1, (-16 * timer) / kRoomChangeFadeFrames);
         timer--;
     }
 }
 
 void Room::update() {
-    nav.update();
-    for (int i = 0; i < spriteCount; i++) {
-        sprites[i]->update(true);
+    _nav.update();
+    for (int i = 0; i < _spriteCount; i++) {
+        _sprites[i]->update(true);
     }
 }
 
 void Room::push() {
-    globalPlayer->spriteManager.push();
-    bg.free_();
-    for (int i = 0; i < spriteCount; i++) {
-        sprites[i]->spriteManager.push();
+    globalPlayer->_playerSpr.push();
+    _bg.free_();
+    for (int i = 0; i < _spriteCount; i++) {
+        _sprites[i]->_spr.push();
     }
 }
 
 void Room::pop() {
     char buffer[100];
-    bg.loadPath(roomData.roomBg);
-    globalPlayer->spriteManager.pop();
+    _bg.loadPath(_roomData.roomBg);
+    globalPlayer->_playerSpr.pop();
 
-    int bgLoad = bg.loadBgExtendedMain(512 / 8);
+    int bgLoad = _bg.loadBgExtendedMain(512 / 8);
     if (bgLoad != 0) {
         sprintf(buffer, "Error loading room bg: %d", bgLoad);
         nocashMessage(buffer);
     }
-    for (int i = 0; i < spriteCount; i++) {
-        sprites[i]->spriteManager.pop();
+    for (int i = 0; i < _spriteCount; i++) {
+        _sprites[i]->_spr.pop();
     }
 }
 

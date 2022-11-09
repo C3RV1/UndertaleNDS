@@ -16,10 +16,10 @@ namespace Engine {
     public:
         bool loadPath(const char* path);
         int loadCBGF(FILE* f);
-        bool getLoaded() const { return loaded; }
-        void getSize(u16& l_width, u16& l_height) const {
-            l_width = width;
-            l_height = height;
+        bool getLoaded() const { return _loaded; }
+        void getSize(u16& width, u16& height) const {
+            width = _width;
+            height = _height;
         }
         void free_();
         ~Background() { free_(); }
@@ -33,14 +33,14 @@ namespace Engine {
         int loadBgRectMain(int x, int y, int w, int h);
         int loadBgRectSub(int x, int y, int w, int h);
     private:
-        bool loaded = false;
-        bool color8bit = false;
-        u8 colorCount = 0;
-        u16* colors = nullptr;
-        u16 tileCount = 0;
-        u8* tiles = nullptr;
-        u16 width = 0, height = 0;
-        u16* map = nullptr;
+        bool _loaded = false;
+        bool _color8bit = false;
+        u8 _colorCount = 0;
+        u16* _colors = nullptr;
+        u16 _tileCount = 0;
+        u8* _tiles = nullptr;
+        u16 _width = 0, _height = 0;
+        u16* _map = nullptr;
 
         int loadBgTextEngine(vu16* bg3Reg, u16* paletteRam, u16* tileRam, u16* mapRam);
         int loadBgExtendedEngine(vu16* bg3Reg, u16* paletteRam, u16* tileRam, u16* mapRam,

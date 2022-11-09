@@ -29,8 +29,8 @@ project files: `Undertale.nds`, `tools` (directory) and `nitrofs` (directory).
 Note: Make sure to follow the installation instructions, which will
 extract `nitrofs` and `tools`, needed for compiling.
 
-When you make any changes to the assets the game uses (located in `tools/spr`, `tools/bg`, `tools/cutscenes`,
-`tools/rooms`, `tools/fnt`) you should run `python3 tools/all.py` in order to recompile
+When you make any changes to the assets the game uses (located in `tools/_spr`, `tools/bg`, `tools/cutscenes`,
+`tools/rooms`, `tools/_fnt`) you should run `python3 tools/all.py` in order to recompile
 all these files to their corresponding rom files.
 
 Then, you should run `make` to build the rom. Make sure to have

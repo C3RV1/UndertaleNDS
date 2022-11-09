@@ -12,10 +12,10 @@ public:
     void wait(WaitingType waitingType);
     void waitFrames(int frames);
     void update(CutsceneLocation callingLocation, bool frame);
-    bool getBusy() {return currentWait != NONE;}
+    bool getBusy() {return _cWait != NONE;}
 private:
-    WaitingType currentWait = NONE;
-    int currentWaitTime = 0;
+    WaitingType _cWait = NONE;
+    int _cWaitTime = 0;
 };
 
 #endif //UNDERTALE_WAITING_HPP

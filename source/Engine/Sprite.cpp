@@ -4,34 +4,34 @@
 #include "Sprite.hpp"
 
 namespace Engine {
-    Sprite::Sprite(Engine::AllocationMode allocMode_) {
-        allocMode = allocMode_;
+    Sprite::Sprite(Engine::AllocationMode allocMode) {
+        _allocMode = allocMode;
     }
 
     void Sprite::setSpriteAnim(int animId) {
-        if (!loaded)
+        if (!_loaded)
             return;
-        if (animId >= texture->animationCount)
+        if (animId >= _texture->_animationCount)
             return;
-        if (currentAnimation == animId)
+        if (_cAnimation == animId)
             return;
-        currentAnimation = animId;
-        currentAnimationFrame = 0;
-        currentAnimationTimer = texture->animations[animId].frames[0].duration;
-        currentFrame = texture->animations[animId].frames[0].frame;
+        _cAnimation = animId;
+        _cAnimFrame = 0;
+        _cAnimTimer = _texture->_animations[animId].frames[0].duration;
+        _cFrame = _texture->_animations[animId].frames[0].frame;
     }
 
-    void Sprite::loadTexture(Engine::Texture &sprite_) {
-        if (!sprite_.getLoaded())
+    void Sprite::loadTexture(Engine::Texture &texture) {
+        if (!texture.getLoaded())
             return;
-        if (&sprite_ == texture)
+        if (&texture == _texture)
             return;
         push();
 
-        texture = &sprite_;
-        loaded = true;
-        currentFrame = 0;
-        currentAnimation = -1;
+        _texture = &texture;
+        _loaded = true;
+        _cFrame = 0;
+        _cAnimation = -1;
 
         int animId = nameToAnimId("gfx");  // default animation
         if (animId != -1)
@@ -40,63 +40,63 @@ namespace Engine {
     }
 
     void Sprite::tick() {
-        if (!loaded)
+        if (!_loaded)
             return;
-        if (currentAnimation >= 0) {
-            CSPRAnimation* current = &texture->animations[currentAnimation];
-            if (current->frames[currentAnimationFrame].duration != 0) {
-                currentAnimationTimer--;
-                if (currentAnimationTimer == 0) {
-                    currentAnimationFrame++;
-                    currentAnimationFrame %= current->frameCount;
-                    currentFrame = current->frames[currentAnimationFrame].frame;
-                    currentAnimationTimer = current->frames[currentAnimationFrame].duration;
+        if (_cAnimation >= 0) {
+            CSPRAnimation* current = &_texture->_animations[_cAnimation];
+            if (current->frames[_cAnimFrame].duration != 0) {
+                _cAnimTimer--;
+                if (_cAnimTimer == 0) {
+                    _cAnimFrame++;
+                    _cAnimFrame %= current->frameCount;
+                    _cFrame = current->frames[_cAnimFrame].frame;
+                    _cAnimTimer = current->frames[_cAnimFrame].duration;
                 }
             }
         }
 
-        x = wx - cam_x;
-        y = wy - cam_y;
-        if (currentAnimation >= 0) {
-            CSPRAnimation* current = &texture->animations[currentAnimation];
-            CSPRAnimFrame* frameInfo = &current->frames[currentAnimationFrame];
-            x += frameInfo->drawOffX << 8;
-            y += frameInfo->drawOffY << 8;
+        _x = _wx - _cam_x;
+        _y = _wy - _cam_y;
+        if (_cAnimation >= 0) {
+            CSPRAnimation* current = &_texture->_animations[_cAnimation];
+            CSPRAnimFrame* frameInfo = &current->frames[_cAnimFrame];
+            _x += frameInfo->drawOffX << 8;
+            _y += frameInfo->drawOffY << 8;
         }
-        x *= cam_scale_x;
-        x >>= 8;
-        y *= cam_scale_y;
-        y >>= 8;
-        scale_x = (cam_scale_x * w_scale_x) >> 8;
-        scale_y = (cam_scale_y * w_scale_y) >> 8;
+        _x *= _cam_scale_x;
+        _x >>= 8;
+        _y *= _cam_scale_y;
+        _y >>= 8;
+        _scale_x = (_cam_scale_x * _w_scale_x) >> 8;
+        _scale_y = (_cam_scale_y * _w_scale_y) >> 8;
     }
 
-    void Sprite::setShown(bool shown_) {
-        if (!loaded)
+    void Sprite::setShown(bool shown) {
+        if (!_loaded)
             return;
-        if (shown_ == shown)
+        if (shown == _shown)
             return;
-        shown = shown_;
-        if (shown) {
-            if (memory.allocated != NoAlloc)
+        _shown = shown;
+        if (_shown) {
+            if (_memory.allocated != NoAlloc)
                 return;
-            if (allocMode == Allocated3D)
+            if (_allocMode == Allocated3D)
                 main3dSpr.loadSprite(*this);
-            else if (allocMode == AllocatedOAM)
+            else if (_allocMode == AllocatedOAM)
                 OAMManagerSub.loadSprite(*this);
         } else {
-            if (memory.allocated == Allocated3D)
+            if (_memory.allocated == Allocated3D)
                 main3dSpr.freeSprite(*this);
-            else if (memory.allocated == AllocatedOAM)
+            else if (_memory.allocated == AllocatedOAM)
                 OAMManagerSub.freeSprite(*this);
         }
     }
 
     int Sprite::nameToAnimId(const char *animName) const {
-        if (!loaded)
+        if (!_loaded)
             return -1;
-        for (int i = 0; i < texture->animationCount; i++) {
-            if (strcmp(animName, texture->animations[i].name) == 0) {
+        for (int i = 0; i < _texture->_animationCount; i++) {
+            if (strcmp(animName, _texture->_animations[i].name) == 0) {
                 return i;
             }
         }
@@ -104,11 +104,11 @@ namespace Engine {
     }
 
     void Sprite::push() {
-        pushed = shown;
+        _pushed = _shown;
         setShown(false);
     }
 
     void Sprite::pop() {
-        setShown(pushed);
+        setShown(_pushed);
     }
 }

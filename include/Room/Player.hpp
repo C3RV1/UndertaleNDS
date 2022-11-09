@@ -12,7 +12,7 @@
 
 class Player {
 public:
-    const int MOVE_SPEED = (90 << 8) / 60;  // 90 pixels per second, debug speed
+    const int kMoveSpeed = (90 << 8) / 60;  // 90 pixels per second, debug speed
     // const int MOVE_SPEED = (70 << 8) / 60;  // 70 pixels per second
 
     Player();
@@ -23,22 +23,22 @@ public:
     void draw();
 
     // sprite top left position
-    Engine::Sprite spriteManager;
-    bool playerControl = true;
+    Engine::Sprite _playerSpr;
+    bool _playerControl = true;
 private:
-    Engine::Texture playerSpr;
+    Engine::Texture _playerTex;
 
-    u8 currentAnimation = 0;  // 0-3 idle up, down, left, right, 4-7 move same
+    u8 _cAnimation = 0;  // 0-3 idle up, down, left, right, 4-7 move same
 
     // animation ids
-    int upIdleId;
-    int downIdleId;
-    int leftIdleId;
-    int rightIdleId;
-    int upMoveId;
-    int downMoveId;
-    int leftMoveId;
-    int rightMoveId;
+    int _upIdleId;
+    int _downIdleId;
+    int _leftIdleId;
+    int _rightIdleId;
+    int _upMoveId;
+    int _downMoveId;
+    int _leftMoveId;
+    int _rightMoveId;
 };
 
 extern Player* globalPlayer;

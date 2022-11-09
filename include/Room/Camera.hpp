@@ -9,12 +9,12 @@
 
 class Camera {
 public:
-    Camera() : pos(Engine::NoAlloc) {}
+    Camera() : _pos(Engine::NoAlloc) {}
     void updatePosition(bool roomChange);
-    bool manual = false;
-    int prevX = 0, prevY = 0;
+    bool _manual = false;
+    int _prevX = 0, _prevY = 0;
     // top left camera position
-    Engine::Sprite pos;
+    Engine::Sprite _pos;
 };
 
 extern Camera globalCamera;

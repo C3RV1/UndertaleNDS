@@ -16,8 +16,8 @@ void SaveData::clear(ClearType clearType) {
         memset(name, 0, MAX_NAME_LEN + 1);
         saveExists = false;
         memset(flags, 0, 2 * FLAG_COUNT);
-        currentWeapon = Items::STICK;
-        currentArmor = Items::BANDAGE;
+        cWeapon = Items::STICK;
+        cArmor = Items::BANDAGE;
     } else if (clearType == PLAYER_RESET) {
         memset(flags, 0, 2 * 240);  // reset all but persistent flags
     }
@@ -52,8 +52,8 @@ void SaveData::loadData() {
     fCard.read(cell, CELL_COUNT);
     items[ITEM_COUNT] = 0;
     cell[CELL_COUNT] = 0;
-    fCard.read(&currentWeapon, 1);
-    fCard.read(&currentArmor, 1);
+    fCard.read(&cWeapon, 1);
+    fCard.read(&cArmor, 1);
 
     saveExists = true;
 
@@ -75,8 +75,8 @@ void SaveData::saveData(u16 roomId) {
     fCard.write(&gold, 2);
     fCard.write(items, ITEM_COUNT);
     fCard.write(cell, CELL_COUNT);
-    fCard.write(&currentWeapon, 1);
-    fCard.write(&currentArmor, 1);
+    fCard.write(&cWeapon, 1);
+    fCard.write(&cArmor, 1);
     items[ITEM_COUNT] = 0;
 
     lastSavedRoom = roomId;

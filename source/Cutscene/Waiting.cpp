@@ -11,59 +11,59 @@ void Waiting::wait(WaitingType waitingType) {
         nocashMessage("Wait called with wait frames?");
         return;
     }
-    currentWait = waitingType;
+    _cWait = waitingType;
 }
 
 void Waiting::waitFrames(int frames) {
-    currentWait = WAIT_FRAMES;
-    currentWaitTime = frames + 1; // Hack to improve navigation sync
+    _cWait = WAIT_FRAMES;
+    _cWaitTime = frames + 1; // Hack to improve navigation sync
 }
 
 void Waiting::update(CutsceneLocation callingLocation, bool frame) {
-    if (currentWait == NONE)
+    if (_cWait == NONE)
         return;
 
-    if (currentWait == WAIT_FRAMES) {
+    if (_cWait == WAIT_FRAMES) {
         if (frame)
-            currentWaitTime -= 1;
-        if (currentWaitTime <= 0) {
-            currentWait = NONE;
+            _cWaitTime -= 1;
+        if (_cWaitTime <= 0) {
+            _cWait = NONE;
         }
-    } else if (currentWait == WAIT_EXIT) {
+    } else if (_cWait == WAIT_EXIT) {
         if (callingLocation == LOAD_ROOM || callingLocation == LOAD_BATTLE)
-            currentWait = NONE;
-    } else if (currentWait == WAIT_ENTER) {
+            _cWait = NONE;
+    } else if (_cWait == WAIT_ENTER) {
         if (callingLocation == ROOM || callingLocation == BATTLE)
-            currentWait = NONE;
-    } else if (currentWait == WAIT_DIALOGUE_END) {
+            _cWait = NONE;
+    } else if (_cWait == WAIT_DIALOGUE_END) {
         if (globalCutscene == nullptr)
-            currentWait = NONE;
-        else if (globalCutscene->currentDialogue == nullptr)
-            currentWait = NONE;
-    } else if (currentWait == WAIT_BATTLE_ATTACK) {
+            _cWait = NONE;
+        else if (globalCutscene->_cDialogue == nullptr)
+            _cWait = NONE;
+    } else if (_cWait == WAIT_BATTLE_ATTACK) {
         if (callingLocation == BATTLE || callingLocation == LOAD_BATTLE) {
-            currentWait = NONE;
-            for (int i = 0; i < globalBattle->enemyCount; i++) {
-                if (globalBattle->currentBattleAttacks[i] != nullptr) {
-                    currentWait = WAIT_BATTLE_ATTACK;
+            _cWait = NONE;
+            for (int i = 0; i < globalBattle->_enemyCount; i++) {
+                if (globalBattle->_cBattleAttacks[i] != nullptr) {
+                    _cWait = WAIT_BATTLE_ATTACK;
                     break;
                 }
             }
         } else {
-            currentWait = NONE;
+            _cWait = NONE;
         }
-    } else if (currentWait == WAIT_SAVE_MENU) {
+    } else if (_cWait == WAIT_SAVE_MENU) {
         if (globalCutscene == nullptr)
-            currentWait = NONE;
-        else if (globalCutscene->currentSaveMenu == nullptr)
-            currentWait = NONE;
-    } else if (currentWait == WAIT_BATTLE_ACTION) {
+            _cWait = NONE;
+        else if (globalCutscene->_cSaveMenu == nullptr)
+            _cWait = NONE;
+    } else if (_cWait == WAIT_BATTLE_ACTION) {
         if (callingLocation == BATTLE || callingLocation == LOAD_BATTLE) {
-            if (globalBattle->currentBattleAction == nullptr) {
-                currentWait = NONE;
+            if (globalBattle->_cBattleAction == nullptr) {
+                _cWait = NONE;
             }
         } else {
-            currentWait = NONE;
+            _cWait = NONE;
         }
     }
 }

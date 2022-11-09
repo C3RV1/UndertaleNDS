@@ -36,7 +36,7 @@ void runTitleScreen() {
     if (textStream == nullptr)
         nocashMessage("Error opening intro text");
 
-    Engine::Background currentBackground;
+    Engine::Background cBackground;
     char buffer[100];
 
     Engine::Font mainFont;
@@ -49,9 +49,9 @@ void runTitleScreen() {
 
     for (int introIdx = 0; introIdx < 11 && !skip; introIdx++) {
         sprintf(buffer, "intro/intro%d", introIdx);
-        currentBackground.loadPath(buffer);
+        cBackground.loadPath(buffer);
 
-        currentBackground.loadBgTextMain();
+        cBackground.loadBgTextMain();
         if (introIdx == 10)  // Intro last has scrolling
             REG_BG3VOFS = height-192;
 
@@ -155,9 +155,9 @@ void runTitleScreen() {
         nocashMessage("Error opening intro text");
     Audio::playBGMusic("mus_intronoise.wav", false);
 
-    currentBackground.loadPath("intro/title");
+    cBackground.loadPath("intro/title");
 
-    currentBackground.loadBgTextMain();
+    cBackground.loadBgTextMain();
 
     timer = introLogoFrames;
     int textLen = str_len_file(textStream, '@');

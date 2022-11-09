@@ -55,61 +55,61 @@ namespace Engine {
             return 3;
         }
 
-        fread(&width, 2, 1, f);
-        fread(&height, 2, 1, f);
-        fread(&topDownOffset, 2, 1, f);
-        u16 tileWidth = (width + 7) / 8, tileHeight = (height + 7) / 8;
+        fread(&_width, 2, 1, f);
+        fread(&_height, 2, 1, f);
+        fread(&_topDownOffset, 2, 1, f);
+        u16 tileWidth = (_width + 7) / 8, tileHeight = (_height + 7) / 8;
 
-        fread(&colorCount, 1, 1, f);
-        colors = new u16[colorCount];
-        fread(colors, 2, colorCount, f);
+        fread(&_colorCount, 1, 1, f);
+        _colors = new u16[_colorCount];
+        fread(_colors, 2, _colorCount, f);
 
-        fread(&frameCount, 1, 1, f);
+        fread(&_frameCount, 1, 1, f);
         u16 tileCount = tileWidth * tileHeight;
-        tiles = new u8[64 * tileCount * frameCount];
-        fread(tiles, 8 * 8 * tileCount * frameCount, 1, f);
+        _tiles = new u8[64 * tileCount * _frameCount];
+        fread(_tiles, 8 * 8 * tileCount * _frameCount, 1, f);
 
-        fread(&animationCount, 1, 1, f);
-        animations = new CSPRAnimation[animationCount];
-        for (int i = 0; i < animationCount; i++) {
+        fread(&_animationCount, 1, 1, f);
+        _animations = new CSPRAnimation[_animationCount];
+        for (int i = 0; i < _animationCount; i++) {
             int nameLen = str_len_file(f, 0);
-            animations[i].name = new char[nameLen + 1];
-            fread(animations[i].name, nameLen + 1, 1, f);
-            fread(&animations[i].frameCount, 1, 1, f);
-            animations[i].frames = new CSPRAnimFrame[animations[i].frameCount];
-            if (animations[i].frameCount == 0) {
+            _animations[i].name = new char[nameLen + 1];
+            fread(_animations[i].name, nameLen + 1, 1, f);
+            fread(&_animations[i].frameCount, 1, 1, f);
+            _animations[i].frames = new CSPRAnimFrame[_animations[i].frameCount];
+            if (_animations[i].frameCount == 0) {
                 // should free on error?
                 return 4;
             }
-            for (int j = 0; j < animations[i].frameCount; j++) {
-                fread(&animations[i].frames[j].frame, 1, 1, f);
-                fread(&animations[i].frames[j].duration, 2, 1, f);
-                fread(&animations[i].frames[j].drawOffX, 1, 1, f);
-                fread(&animations[i].frames[j].drawOffY, 1, 1, f);
+            for (int j = 0; j < _animations[i].frameCount; j++) {
+                fread(&_animations[i].frames[j].frame, 1, 1, f);
+                fread(&_animations[i].frames[j].duration, 2, 1, f);
+                fread(&_animations[i].frames[j].drawOffX, 1, 1, f);
+                fread(&_animations[i].frames[j].drawOffY, 1, 1, f);
             }
         }
 
-        loaded = true;
+        _loaded = true;
         return 0;
     }
 
     void Texture::free_() {
-        if (!loaded)
+        if (!_loaded)
             return;
-        loaded = false;
-        delete[] colors;
-        colors = nullptr;
-        delete[] tiles;
-        tiles = nullptr;
-        if (animations != nullptr) {
-            for (int i = 0; i < animationCount; i++) {
-                delete[] animations[i].name;
-                animations[i].name = nullptr;
-                delete[] animations[i].frames;
-                animations[i].frames = nullptr;
+        _loaded = false;
+        delete[] _colors;
+        _colors = nullptr;
+        delete[] _tiles;
+        _tiles = nullptr;
+        if (_animations != nullptr) {
+            for (int i = 0; i < _animationCount; i++) {
+                delete[] _animations[i].name;
+                _animations[i].name = nullptr;
+                delete[] _animations[i].frames;
+                _animations[i].frames = nullptr;
             }
-            delete[] animations;
+            delete[] _animations;
         }
-        animations = nullptr;
+        _animations = nullptr;
     }
 }

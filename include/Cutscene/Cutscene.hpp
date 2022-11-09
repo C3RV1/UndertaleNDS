@@ -14,21 +14,21 @@
 
 class Cutscene {
 public:
-    explicit Cutscene(u16 cutsceneId_, u16 roomId_);
+    explicit Cutscene(u16 cutsceneId, u16 roomId);
     static bool checkHeader(FILE *f);
     void update();
     bool runCommands(CutsceneLocation callingLocation);
     bool runCommand(CutsceneLocation callingLocation);
-    u16 cutsceneId;
-    u16 roomId;
+    u16 _cutsceneId;
+    u16 _roomId;
     ~Cutscene();
-    Dialogue* currentDialogue = nullptr;
-    SaveMenu* currentSaveMenu = nullptr;
+    Dialogue* _cDialogue = nullptr;
+    SaveMenu* _cSaveMenu = nullptr;
 private:
-    Waiting waiting;
-    bool flag = false;
-    FILE* commandStream = nullptr;
-    long commandStreamLen = 0;
+    Waiting _waiting;
+    bool _flag = false;
+    FILE* _commandStream = nullptr;
+    long _commandStreamLen = 0;
 };
 
 extern Cutscene* globalCutscene;

@@ -13,10 +13,10 @@ namespace Engine {
     class Sprite3DManager {
     public:
         Sprite3DManager() {
-            tileFreeZoneCount = 1;
-            tileFreeZones = new u16[2];
-            tileFreeZones[0] = 0;
-            tileFreeZones[1] = 65536-8;
+            _tileFreeZoneCount = 1;
+            _tileFreeZones = new u16[2];
+            _tileFreeZones[0] = 0;
+            _tileFreeZones[1] = 65536 - 8;
         }
 
         void draw();
@@ -32,13 +32,13 @@ namespace Engine {
         int reserveTiles(u16 length, u16& start);
         void freeTiles(u16 length, u16& start);
 
-        u16 tileFreeZoneCount;
-        u16* tileFreeZones;
+        u16 _tileFreeZoneCount;
+        u16* _tileFreeZones;
 
-        bool paletteUsed[96] = {false};
+        bool _paletteUsed[96] = {false};
 
-        u8 activeSpriteCount = 0;
-        Sprite** activeSprites = nullptr;
+        u8 _activeSprCount = 0;
+        Sprite** _activeSpr = nullptr;
     };
 
     extern Sprite3DManager main3dSpr;

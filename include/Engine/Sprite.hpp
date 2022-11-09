@@ -37,38 +37,38 @@ namespace Engine {
 
     class Sprite {
     public:
-        explicit Sprite(AllocationMode allocMode_);
+        explicit Sprite(AllocationMode allocMode);
         void setSpriteAnim(int animId);
-        void loadTexture(Texture& sprite_);
+        void loadTexture(Texture& texture);
         int nameToAnimId(const char *animName) const;
         void tick();
-        void setShown(bool shown_);
+        void setShown(bool shown);
         void push();
         void pop();
         ~Sprite() { setShown(false); }
 
-        bool loaded = false;
-        Texture* texture = nullptr;
+        bool _loaded = false;
+        Texture* _texture = nullptr;
 
-        s32 wx = 0, wy = 0;  // 1 bit sign, 23 bit integer, 8 bit fraction, world
-        s32 w_scale_x = 1 << 8, w_scale_y = 1 << 8;
-        s32 cam_x = 0, cam_y = 0;
-        s32 cam_scale_x = 1 << 8, cam_scale_y = 1 << 8;
-        s32 layer = 0;
-        int currentFrame = 0;
-        int currentAnimation = -1;
+        s32 _wx = 0, _wy = 0;  // 1 bit sign, 23 bit integer, 8 bit fraction, world
+        s32 _w_scale_x = 1 << 8, _w_scale_y = 1 << 8;
+        s32 _cam_x = 0, _cam_y = 0;
+        s32 _cam_scale_x = 1 << 8, _cam_scale_y = 1 << 8;
+        s32 _layer = 0;
+        int _cFrame = 0;
+        int _cAnimation = -1;
 
         friend class OAMManager;
         friend class Sprite3DManager;
     private:
-        s32 x = 0, y = 0;  // 1 bit sign, 23 bit integer, 8 bit fraction, screen
-        s32 scale_x = 0, scale_y = 0;
-        u16 currentAnimationTimer = 0;
-        u16 currentAnimationFrame = 0;
-        SpriteInternalMemory memory;
-        AllocationMode allocMode;
-        bool shown = false;
-        bool pushed = false;
+        s32 _x = 0, _y = 0;  // 1 bit sign, 23 bit integer, 8 bit fraction, screen
+        s32 _scale_x = 0, _scale_y = 0;
+        u16 _cAnimTimer = 0;
+        u16 _cAnimFrame = 0;
+        SpriteInternalMemory _memory;
+        AllocationMode _allocMode;
+        bool _shown = false;
+        bool _pushed = false;
     };
 }
 

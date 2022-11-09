@@ -17,23 +17,23 @@ namespace Engine {
     public:
         bool loadPath(const char* path);
         int loadCFNT(FILE* f);
-        bool getLoaded() const { return loaded; }
+        bool getLoaded() const { return _loaded; }
         u8 getGlyphWidth(u8 glyph);
         void free_();
         ~Font() { free_(); }
     private:
-        u8* getGlyphMap() { return glyphMap.glyphMap; }
-        CFNTGlyph* getGlyph(int glyphIdx) const { return &glyphs.glyphs[glyphIdx - 1]; }
+        u8* getGlyphMap() { return _glyphMap.glyphMap; }
+        CFNTGlyph* getGlyph(int glyphIdx) const { return &_glyphs.glyphs[glyphIdx - 1]; }
         friend class TextBGManager;
-        bool loaded = false;
-        CFNTGlyphs glyphs;
-        CFNTMap glyphMap;
+        bool _loaded = false;
+        CFNTGlyphs _glyphs;
+        CFNTMap _glyphMap;
     };
 
     class TextBGManager {
     public:
         TextBGManager(u16* paletteRam, u16* tileRam, u16* mapRam) :
-                      paletteRam(paletteRam), tileRam(tileRam), mapRam(mapRam) {
+                _paletteRam(paletteRam), _tileRam(tileRam), _mapRam(mapRam) {
             paletteRam[16 * 15 + 0] = 31 << 5;  // full green color (transparent)
             paletteRam[16 * 15 + 8] = 0;  // black color
             paletteRam[16 * 15 + 9] = 31;  // full red color
@@ -48,18 +48,18 @@ namespace Engine {
         void reloadColors();
         void setPaletteColor(int colorIdx, int r, int g, int b, bool color8bit);
         void setPaletteColor(int colorIdx, u16 color5bit);
-        void setCurrentColor(int colorIdx) { paletteColor = colorIdx; }
-        u16 getCurrentColor() const { return paletteColor; }
+        void setColor(int colorIdx) { _paletteColor = colorIdx; }
+        u16 getColor() const { return _paletteColor; }
         void clear();
         void clearRect(int x, int y, int w, int h);
     private:
         u8* getTile(int x, int y);
 
-        u16* paletteRam;
-        u16* tileRam;
-        u16* mapRam;
-        int tileReserve = 1;
-        int paletteColor = 15;
+        u16* _paletteRam;
+        u16* _tileRam;
+        u16* _mapRam;
+        int _tileReserve = 1;
+        int _paletteColor = 15;
     };
 
     extern TextBGManager textMain;

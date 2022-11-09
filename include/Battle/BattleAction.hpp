@@ -25,7 +25,7 @@ enum BattleActions {
 };
 
 class BattleAction {
-    const s32 attackSpeed = (5 << 8); // 5 pixels per frame
+    const s32 kAttackSpeed = (5 << 8); // 5 pixels per frame
 
 public:
     BattleAction(u8 enemyCount, Enemy* enemies);
@@ -48,30 +48,30 @@ private:
     bool updateChoosingItem();
     bool updateFighting();
 
-    bool freed = false;
+    bool _freed = false;
 
-    Engine::Font fnt;
+    Engine::Font _fnt;
 
-    u8 enemyCount = 0;
-    Enemy* enemies = nullptr;
+    u8 _enemyCount = 0;
+    Enemy* _enemies = nullptr;
 
-    Engine::Texture fightTex, actTex, itemTex, mercyTex, bigHeartTex, smallHeartTex;
-    Engine::Sprite fightBtn, actBtn, itemBtn, mercyBtn, heartSpr;
+    Engine::Texture _fightTex, _actTex, _itemTex, _mercyTex, _bigHeartTex, _smallHeartTex;
+    Engine::Sprite _fightBtn, _actBtn, _itemBtn, _mercyBtn, _heartSpr;
 
-    Engine::Background fightBoard;
-    Engine::Texture attackTexture;
-    Engine::Sprite attackSprite;
+    Engine::Background _fightBoard;
+    Engine::Texture _attackTex;
+    Engine::Sprite _attackSpr;
 
-    int gfxAnimId, activeAnimId;
-    BattleActionState currentState = CHOOSING_ACTION;
+    int _gfxAnimId, _activeAnimId;
+    BattleActionState _cState = CHOOSING_ACTION;
 
-    int currentAction = 0;
-    u8 chosenTarget = 0;
-    u8 currentPage = 0;
-    u8 chosenAct = 0;
+    int _cAction = 0;
+    u8 _cTarget = 0;
+    u8 _cPage = 0;
+    u8 _cAct = 0;
 
-    bool mercyFlee = false;
-    char* mercyText = nullptr;
+    bool _mercyFlee = false;
+    char* _mercyText = nullptr;
 };
 
 #endif //UNDERTALE_BATTLE_ACTION_HPP

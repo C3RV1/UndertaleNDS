@@ -14,18 +14,18 @@ public:
     void readFromStream(FILE *f);
     void free_();
     void loadActText(int textId);
-    u16 enemyId = 0;
-    char enemyName[20] = {0};
-    u16 hp = 0;
-    u16 maxHp = 0;
-    char *actText = nullptr;
-    u8 actOptionCount = 0;
-    u16 attackId = 0;
-    u8 spareValue = 0;  // When it reaches 100, enemy can be spared
-    u8 goldOnWin = 0;
-    u8 expOnKill = 0;
-    s16 defense = 0;
-    bool spared = false;
+    u16 _enemyId = 0;
+    char _enemyName[20] = {0};
+    u16 _hp = 0;
+    u16 _maxHp = 0;
+    char *_actText = nullptr;
+    u8 _actOptionCount = 0;
+    u16 _attackId = 0;
+    u8 _spareValue = 0;  // When it reaches 100, enemy can be spared
+    u8 _goldOnWin = 0;
+    u8 _expOnKill = 0;
+    s16 _defense = 0;
+    bool _spared = false;
 };
 
 #endif //UNDERTALE_ENEMY_HPP

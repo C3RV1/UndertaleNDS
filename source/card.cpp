@@ -73,22 +73,22 @@ void cardWriteBytes(u8* src, u32 addr, u16 size) {
 }
 
 void CardBuffer::read(void *data, size_t size) {
-    cardReadBytes((u8*)data, pos, size);
-    pos += size;
+    cardReadBytes((u8*)data, _pos, size);
+    _pos += size;
 }
 
 void CardBuffer::write(void *src, size_t size) {
-    cardWriteBytes((u8*)src, pos, size);
-    pos += size;
+    cardWriteBytes((u8*)src, _pos, size);
+    _pos += size;
 }
 
 void CardBuffer::seek(s32 offset, u8 mode) {
     if (mode == SEEK_SET)
-        pos = offset;
+        _pos = offset;
     else if (mode == SEEK_CUR)
-        pos += offset;
+        _pos += offset;
     else if (mode == SEEK_END)
-        pos = 7999 + offset;
+        _pos = 7999 + offset;
 }
 
 CardBuffer fCard;

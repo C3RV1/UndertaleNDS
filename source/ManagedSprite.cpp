@@ -10,22 +10,22 @@
 void ManagedSprite::load(ROOMSprite *sprData, u8 textureCount,
                          Engine::Texture** textures) {
     if (sprData->textureId < textureCount) {
-        texture = textures[sprData->textureId];
-        spriteManager.loadTexture(*texture);
+        _texture = textures[sprData->textureId];
+        _spr.loadTexture(*_texture);
     }
-    animationId = spriteManager.nameToAnimId(sprData->animation);
-    spriteManager.wx = sprData->x << 8;
-    spriteManager.wy = sprData->y << 8;
-    spriteManager.setSpriteAnim(animationId);
+    _animationId = _spr.nameToAnimId(sprData->animation);
+    _spr._wx = sprData->x << 8;
+    _spr._wy = sprData->y << 8;
+    _spr.setSpriteAnim(_animationId);
 
-    spriteManager.setShown(true);
+    _spr.setShown(true);
 
-    interactAction = sprData->interactAction;
-    if (interactAction == 1)
-        cutsceneId = sprData->cutsceneId;
-    else if (interactAction == 2) {
-        distanceSquared = sprData->distance * sprData->distance;
-        closeAnim = spriteManager.nameToAnimId(sprData->closeAnim);
+    _interactAction = sprData->interactAction;
+    if (_interactAction == 1)
+        _cutsceneId = sprData->cutsceneId;
+    else if (_interactAction == 2) {
+        _distanceSquared = sprData->distance * sprData->distance;
+        _closeAnim = _spr.nameToAnimId(sprData->closeAnim);
     }
 }
 
@@ -37,46 +37,46 @@ void ManagedSprite::spawn(s8 textureId, s32 x, s32 y,
     else
         texId2 = textureId;
     if (texId2 < textureCount) {
-        texture = textures[texId2];
-        spriteManager.loadTexture(*texture);
+        _texture = textures[texId2];
+        _spr.loadTexture(*_texture);
     }
-    spriteManager.wx = x;
-    spriteManager.wy = y;
+    _spr._wx = x;
+    _spr._wy = y;
 
-    spriteManager.setShown(true);
+    _spr.setShown(true);
 }
 
 void ManagedSprite::draw(bool isRoom) {
     if (isRoom) {
-        spriteManager.cam_x = globalCamera.pos.wx;
-        spriteManager.cam_y = globalCamera.pos.wy;
-        spriteManager.cam_scale_x = globalCamera.pos.w_scale_x;
-        spriteManager.cam_scale_y = globalCamera.pos.w_scale_y;
-        spriteManager.layer = spriteManager.wy >> 8;
+        _spr._cam_x = globalCamera._pos._wx;
+        _spr._cam_y = globalCamera._pos._wy;
+        _spr._cam_scale_x = globalCamera._pos._w_scale_x;
+        _spr._cam_scale_y = globalCamera._pos._w_scale_y;
+        _spr._layer = _spr._wy >> 8;
     }
 }
 
 void ManagedSprite::update(bool isRoom) {
-    if (isRoom && interactAction == 2) {
-        if (spriteManager.texture == nullptr)
+    if (isRoom && _interactAction == 2) {
+        if (_spr._texture == nullptr)
             return;
-        if (globalPlayer->spriteManager.texture == nullptr)
+        if (globalPlayer->_playerSpr._texture == nullptr)
             return;
-        u16 width = spriteManager.texture->getWidth();
-        u16 height = spriteManager.texture->getHeight();
-        u16 pw = globalPlayer->spriteManager.texture->getWidth();
-        u16 ph = globalPlayer->spriteManager.texture->getHeight();
-        u32 distance = distSquared_fp(spriteManager.wx + width / 2,
-                                      spriteManager.wy + height / 2,
-                                      globalPlayer->spriteManager.wx + pw / 2,
-                                      globalPlayer->spriteManager.wy + ph / 2);
-        if (distance >> 8 < distanceSquared)
-            spriteManager.setSpriteAnim(closeAnim);
+        u16 width = _spr._texture->getWidth();
+        u16 height = _spr._texture->getHeight();
+        u16 pw = globalPlayer->_playerSpr._texture->getWidth();
+        u16 ph = globalPlayer->_playerSpr._texture->getHeight();
+        u32 distance = distSquared_fp(_spr._wx + width / 2,
+                                      _spr._wy + height / 2,
+                                      globalPlayer->_playerSpr._wx + pw / 2,
+                                      globalPlayer->_playerSpr._wy + ph / 2);
+        if (distance >> 8 < _distanceSquared)
+            _spr.setSpriteAnim(_closeAnim);
         else
-            spriteManager.setSpriteAnim(animationId);
+            _spr.setSpriteAnim(_animationId);
     }
 }
 
 void ManagedSprite::free_() {
-    spriteManager.setShown(false);
+    _spr.setShown(false);
 }

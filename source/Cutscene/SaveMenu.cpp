@@ -5,20 +5,20 @@
 #include "Cutscene/Cutscene.hpp"
 #include "Formats/utils.hpp"
 
-SaveMenu::SaveMenu() : optionsHeart(Engine::AllocatedOAM) {
-    font.loadPath("fnt_maintext.font");
+SaveMenu::SaveMenu() : _optionsHeartSpr(Engine::AllocatedOAM) {
+    _fnt.loadPath("fnt_maintext.font");
 
-    saveMenuBg.loadPath("save_menu_bg");
-    saveMenuBg.loadBgTextSub();
+    _bg.loadPath("save_menu_bg");
+    _bg.loadBgTextSub();
 
-    optionsHeartTex.loadPath("spr_heartsmall");
-    optionsHeart.loadTexture(optionsHeartTex);
-    optionsHeart.setShown(true);
-    optionsHeart.wx = hrtSaveX << 8;
-    optionsHeart.wy = hrtSaveY << 8;
+    _optionsHeartTex.loadPath("spr_heartsmall");
+    _optionsHeartSpr.loadTexture(_optionsHeartTex);
+    _optionsHeartSpr.setShown(true);
+    _optionsHeartSpr._wx = kHrtSaveX << 8;
+    _optionsHeartSpr._wy = kHrtSaveY << 8;
 
-    saveSnd.loadWAV("snd_save.wav");
-    saveSnd.setLoops(0);
+    _saveSnd.loadWAV("snd_save.wav");
+    _saveSnd.setLoops(0);
 
     SaveData lastSave;
     lastSave.loadData();
@@ -28,15 +28,15 @@ SaveMenu::SaveMenu() : optionsHeart(Engine::AllocatedOAM) {
 void SaveMenu::drawInfo(SaveData& saveData, u8 color) {
     Engine::textSub.clear();
 
-    Engine::textSub.setCurrentColor(15);
+    Engine::textSub.setColor(15);
 
     if (!saveData.saveExists) {
-        int x = nameX;
-        Engine::textSub.drawGlyph(font, '-', x, nameY);
-        x = lvNumX;
-        Engine::textSub.drawGlyph(font, '0', x, lvNumY);
-        x = roomNameX;
-        Engine::textSub.drawGlyph(font, '-', x, roomNameY);
+        int x = kNameX;
+        Engine::textSub.drawGlyph(_fnt, '-', x, kNameY);
+        x = kLvNumX;
+        Engine::textSub.drawGlyph(_fnt, '0', x, kLvNumY);
+        x = kRoomNameX;
+        Engine::textSub.drawGlyph(_fnt, '-', x, kRoomNameY);
         return;
     }
 
@@ -44,77 +44,77 @@ void SaveMenu::drawInfo(SaveData& saveData, u8 color) {
     sprintf(buffer, "nitro:/data/room_names/%d.txt", saveData.lastSavedRoom);
     FILE *f = fopen(buffer, "rb");
     if (f) {
-        delete[] roomName;
+        delete[] _roomName;
 
         int len = str_len_file(f, '\n');
-        roomName = new char[len + 1];
+        _roomName = new char[len + 1];
 
-        fread(roomName, len, 1, f);
-        roomName[len] = 0;
+        fread(_roomName, len, 1, f);
+        _roomName[len] = 0;
     } else {
         nocashMessage("Error opening room name file");
     }
     fclose(f);
 
     sprintf(buffer, "%d", saveData.lv);
-    int x = lvNumX;
+    int x = kLvNumX;
     for (char *p = buffer; *p != 0; p++) {
-        Engine::textSub.drawGlyph(font, *p, x, lvNumY);
+        Engine::textSub.drawGlyph(_fnt, *p, x, kLvNumY);
     }
 
-    Engine::textSub.setCurrentColor(color);
+    Engine::textSub.setColor(color);
 
-    x = roomNameX;
-    for (char *p = roomName; *p != 0; p++) {
-        Engine::textSub.drawGlyph(font, *p, x, roomNameY);
+    x = kRoomNameX;
+    for (char *p = _roomName; *p != 0; p++) {
+        Engine::textSub.drawGlyph(_fnt, *p, x, kRoomNameY);
     }
 
-    x = nameX;
+    x = kNameX;
     for (char *p = saveData.name; *p != 0; p++) {
-        Engine::textSub.drawGlyph(font, *p, x, nameY);
+        Engine::textSub.drawGlyph(_fnt, *p, x, kNameY);
     }
 }
 
 bool SaveMenu::update() {
-    if (currentHoldFrames > 0) {
-        currentHoldFrames--;
-        if (currentHoldFrames == 0) {
+    if (_cHoldFrames > 0) {
+        _cHoldFrames--;
+        if (_cHoldFrames == 0) {
             return true;
         }
         return false;
     }
-    if (selectedOption == 0 && keysDown() & KEY_RIGHT)
-        selectedOption = 1;
+    if (_selectedOption == 0 && keysDown() & KEY_RIGHT)
+        _selectedOption = 1;
     else if (keysDown() & KEY_LEFT)
-        selectedOption = 0;
+        _selectedOption = 0;
 
     if (keysDown() & KEY_A) {
-        if (selectedOption == 1)
+        if (_selectedOption == 1)
             return true;
-        globalSave.saveData(globalCutscene->roomId);
-        saveSnd.play();
+        globalSave.saveData(globalCutscene->_roomId);
+        _saveSnd.play();
         drawInfo(globalSave, 12);
-        currentHoldFrames = holdSaveFrames;
+        _cHoldFrames = kHoldSaveFrames;
     }
 
-    if (selectedOption == 0) {
-        optionsHeart.wx = hrtSaveX << 8;
-        optionsHeart.wy = hrtSaveY << 8;
+    if (_selectedOption == 0) {
+        _optionsHeartSpr._wx = kHrtSaveX << 8;
+        _optionsHeartSpr._wy = kHrtSaveY << 8;
     } else {
-        optionsHeart.wx = hrtRetX << 8;
-        optionsHeart.wy = hrtRetY << 8;
+        _optionsHeartSpr._wx = kHrtRetX << 8;
+        _optionsHeartSpr._wy = kHrtRetY << 8;
     }
     return false;
 }
 
 void SaveMenu::free_() {
-    delete[] roomName;
-    roomName = nullptr;
-    saveSnd.stop();
-    saveSnd.free_();
-    optionsHeart.setShown(false);
-    optionsHeartTex.free_();
-    font.free_();
-    saveMenuBg.free_();
+    delete[] _roomName;
+    _roomName = nullptr;
+    _saveSnd.stop();
+    _saveSnd.free_();
+    _optionsHeartSpr.setShown(false);
+    _optionsHeartTex.free_();
+    _fnt.free_();
+    _bg.free_();
     Engine::clearSub();
 }

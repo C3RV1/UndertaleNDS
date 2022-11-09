@@ -42,8 +42,8 @@ public:
     u16 lv = 1, exp = 0, gold = 0;
     u8 items[ITEM_COUNT + 1] = {0};  // Terminal 0
     u8 cell[CELL_COUNT + 1] = {0};  // Terminal 0
-    u8 currentWeapon = Items::STICK; // Starting: stick
-    u8 currentArmor = Items::BANDAGE; // Starting: bandage
+    u8 cWeapon = Items::STICK; // Starting: stick
+    u8 cArmor = Items::BANDAGE; // Starting: bandage
 
     u16 lastSavedRoom = 0;
 };

@@ -25,8 +25,8 @@ void runMainMenu() {
 
     Engine::Background topBg;
     Engine::Background btmBg;
-    Engine::Texture floweyTexture;
-    Engine::Sprite floweySprite(Engine::AllocatedOAM);
+    Engine::Texture floweyTex;
+    Engine::Sprite floweySpr(Engine::AllocatedOAM);
     Engine::Font font;
 
     topBg.loadPath("main_menu_top");
@@ -34,10 +34,10 @@ void runMainMenu() {
     font.loadPath("fnt_maintext.font");
 
     if (globalSave.flags[0] < 20) {
-        floweyTexture.loadPath("room_sprites/flowey");
-        floweySprite.loadTexture(floweyTexture);
-        floweySprite.wx = 118 << 8; floweySprite.wy = 116 << 8;
-        floweySprite.setShown(true);
+        floweyTex.loadPath("room_sprites/flowey");
+        floweySpr.loadTexture(floweyTex);
+        floweySpr._wx = 118 << 8; floweySpr._wy = 116 << 8;
+        floweySpr.setShown(true);
         Audio::playBGMusic("mus_menu1.wav", true);
     }
 
@@ -122,20 +122,20 @@ void runMainMenu() {
 
         if (draw && continueText != nullptr && resetText != nullptr) {
             if (selected == 0)
-                Engine::textSub.setCurrentColor(12);
+                Engine::textSub.setColor(12);
             else
-                Engine::textSub.setCurrentColor(15);
+                Engine::textSub.setColor(15);
             x = continueX;
             for (char *p = continueText; *p != 0; p++) {
                 Engine::textSub.drawGlyph(font, *p, x, continueY);
             }
 
             if (selected == 1 && !resetConfirm)
-                Engine::textSub.setCurrentColor(12);
+                Engine::textSub.setColor(12);
             else if (resetConfirm)
-                Engine::textSub.setCurrentColor(9);
+                Engine::textSub.setColor(9);
             else
-                Engine::textSub.setCurrentColor(15);
+                Engine::textSub.setColor(15);
             x = resetX;
             for (char *p = resetText; *p != 0; p++) {
                 Engine::textSub.drawGlyph(font, *p, x, resetY);
@@ -148,8 +148,8 @@ void runMainMenu() {
     Audio::stopBGMusic();
     topBg.free_();
     btmBg.free_();
-    floweySprite.setShown(false);
-    floweyTexture.free_();
+    floweySpr.setShown(false);
+    floweyTex.free_();
     font.free_();
 
     delete[] roomName;

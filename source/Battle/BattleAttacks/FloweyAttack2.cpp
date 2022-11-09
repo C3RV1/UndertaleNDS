@@ -9,22 +9,22 @@
 
 namespace BtlAttacks {
     FloweyAttack2::FloweyAttack2() {
-        pelletTex.loadPath("battle/attack_pellets");
+        _pelletTex.loadPath("battle/attack_pellets");
 
         int i = 0;
-        for (auto & pellet : pellets) {
+        for (auto & pellet : _pelletSpr) {
             pellet = new Engine::Sprite(Engine::Allocated3D);
-            pellet->loadTexture(pelletTex);
+            pellet->loadTexture(_pelletTex);
             // Set pellets in clockwise order
             // Two rows, one at top and one at bottom
             // Of pellets
-            if (i < pelletW) {
-                pellet->wx = (pelletX + i * pelletSpacingX) << 8;
-                pellet->wy = pelletY << 8;
-            } else if (i - pelletW < pelletW) {
-                int i2 = i - pelletW;
-                pellet->wx = ((pelletX + (pelletW - 1 - i2) * pelletSpacingX) << 8);
-                pellet->wy = (pelletY + pelletSpacingY) << 8;
+            if (i < kPelletW) {
+                pellet->_wx = (kPelletX + i * kPelletSpacingX) << 8;
+                pellet->_wy = kPelletY << 8;
+            } else if (i - kPelletW < kPelletW) {
+                int i2 = i - kPelletW;
+                pellet->_wx = ((kPelletX + (kPelletW - 1 - i2) * kPelletSpacingX) << 8);
+                pellet->_wy = (kPelletY + kPelletSpacingY) << 8;
             }
             pellet->setShown(false);
             i++;
@@ -32,28 +32,28 @@ namespace BtlAttacks {
     }
 
     bool FloweyAttack2::update() {
-        if (stage == 0) {
-            counter++;
-            if (counter < showFrames)
+        if (_stage == 0) {
+            _counter++;
+            if (_counter < kShowFrames)
                 return false;
-            counter = 0;
-            pellets[currentPelletShown]->setShown(true);
-            currentPelletShown++;
-            if (currentPelletShown == pelletW * 2) {
-                stage = 1;
+            _counter = 0;
+            _pelletSpr[_cPelletShown]->setShown(true);
+            _cPelletShown++;
+            if (_cPelletShown == kPelletW * 2) {
+                _stage = 1;
             }
         } else {
-            for (int i = 0; i < pelletW * 2; i++) {
-                auto pellet = pellets[i];
-                if (i < pelletW) {
-                    pellet->wy += pelletSpeed;
-                } else if (i - pelletW < pelletW) {
-                    pellet->wy -= pelletSpeed;
+            for (int i = 0; i < kPelletW * 2; i++) {
+                auto pellet = _pelletSpr[i];
+                if (i < kPelletW) {
+                    pellet->_wy += kPelletSpeed;
+                } else if (i - kPelletW < kPelletW) {
+                    pellet->_wy -= kPelletSpeed;
                 }
-                if (distSquared_fp(pellet->wx + (4 << 8),
-                                   pellet->wy + (4 << 8),
-                                   globalBattle->playerManager.wx + (9 << 8) / 2,
-                                   globalBattle->playerManager.wy + (9 << 8) / 2) <= (pelletRadius * pelletRadius) << 8) {
+                if (distSquared_fp(pellet->_wx + (4 << 8),
+                                   pellet->_wy + (4 << 8),
+                                   globalBattle->_playerSpr._wx + (9 << 8) / 2,
+                                   globalBattle->_playerSpr._wy + (9 << 8) / 2) <= (kPelletRadius * kPelletRadius) << 8) {
                     globalSave.hp = 20;
                     return true;
                 }
@@ -63,11 +63,11 @@ namespace BtlAttacks {
     }
 
     FloweyAttack2::~FloweyAttack2() noexcept {
-        for (auto& pellet : pellets) {
+        for (auto& pellet : _pelletSpr) {
             pellet->setShown(false);
             delete pellet;
         }
 
-        pelletTex.free_();
+        _pelletTex.free_();
     }
 }

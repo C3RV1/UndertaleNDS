@@ -63,45 +63,45 @@ namespace Engine {
         }
 
         fread(&fileFormat, 1, 1, f);
-        color8bit = fileFormat & 1;
+        _color8bit = fileFormat & 1;
 
-        fread(&colorCount, 1, 1, f);
-        if ((colorCount > 249 && color8bit) || (colorCount > 15 && !color8bit)) {
+        fread(&_colorCount, 1, 1, f);
+        if ((_colorCount > 249 && _color8bit) || (_colorCount > 15 && !_color8bit)) {
             return 4;
         }
 
-        colors = new u16[colorCount];
-        fread(colors, 2, colorCount, f);
+        _colors = new u16[_colorCount];
+        fread(_colors, 2, _colorCount, f);
 
-        fread(&tileCount, 2, 1, f);
+        fread(&_tileCount, 2, 1, f);
 
         u32 tileDataSize = 32;
-        if (color8bit)
+        if (_color8bit)
             tileDataSize = 64;
 
-        tiles = new u8[tileCount * tileDataSize];
-        fread(tiles, tileDataSize, tileCount, f);
+        _tiles = new u8[_tileCount * tileDataSize];
+        fread(_tiles, tileDataSize, _tileCount, f);
 
-        fread(&width, 2, 1, f);
-        fread(&height, 2, 1, f);
+        fread(&_width, 2, 1, f);
+        fread(&_height, 2, 1, f);
 
-        map = new u16[width * height];
-        fread(map, 2, width * height, f);
+        _map = new u16[_width * _height];
+        fread(_map, 2, _width * _height, f);
 
-        loaded = true;
+        _loaded = true;
         return 0;
     }
 
     void Background::free_() {
-        if (!loaded)
+        if (!_loaded)
             return;
-        loaded = false;
-        delete[] colors;
-        colors = nullptr;
-        delete[] tiles;
-        tiles = nullptr;
-        delete[] map;
-        map = nullptr;
+        _loaded = false;
+        delete[] _colors;
+        _colors = nullptr;
+        delete[] _tiles;
+        _tiles = nullptr;
+        delete[] _map;
+        _map = nullptr;
     }
 
     int Background::loadBgTextMain() {
@@ -118,34 +118,34 @@ namespace Engine {
     }
 
     int Background::loadBgTextEngine(vu16* bg3Reg, u16* paletteRam, u16* tileRam, u16* mapRam) {
-        if (!loaded)
+        if (!_loaded)
             return 1;
 
         // Set control for 8-bit color depth
-        *bg3Reg = (*bg3Reg & (~0x2080)) + (color8bit << 7);
+        *bg3Reg = (*bg3Reg & (~0x2080)) + (_color8bit << 7);
 
         // skip first color (2 bytes)
-        dmaCopy(colors, (u8*)paletteRam + 2, 2 * colorCount);
+        dmaCopy(_colors, (u8*)paletteRam + 2, 2 * _colorCount);
 
         u32 tileDataSize;
-        if (color8bit) {
+        if (_color8bit) {
             tileDataSize = 64;
         } else {
             tileDataSize = 32;
         }
 
-        if (tileCount > 1024)
+        if (_tileCount > 1024)
             return 2;
 
-        memcpy(tileRam, tiles, tileDataSize * tileCount);
+        memcpy(tileRam, _tiles, tileDataSize * _tileCount);
 
         u16 sizeFlag = 0;
         u16 mapRamUsage = 0x800;
-        if (width > 32) {
+        if (_width > 32) {
             sizeFlag += 1 << 14;  // bit 14 for 64 tile width
             mapRamUsage *= 2;
         }
-        if (height > 32) {
+        if (_height > 32) {
             sizeFlag += 1 << 15;  // bit 15 for 64 tile height
             mapRamUsage *= 2;
         }
@@ -153,15 +153,15 @@ namespace Engine {
         *bg3Reg = (*bg3Reg & (~0xC000)) + sizeFlag;
         memset(mapRam, 0, mapRamUsage);
 
-        for (int mapX = 0; mapX < (width + 31) / 32; mapX++) {
+        for (int mapX = 0; mapX < (_width + 31) / 32; mapX++) {
             int copyWidth = 32;
-            if (mapX == (width + 31) / 32)
-                copyWidth = (width + 31) - 32 * mapX;
-            for (int mapY = 0; mapY < (height + 31) / 32; mapY++) {
-                u8* mapStart = (u8*)mapRam + (mapY * ((width + 31) / 32) + mapX) * 2048;
+            if (mapX == (_width + 31) / 32)
+                copyWidth = (_width + 31) - 32 * mapX;
+            for (int mapY = 0; mapY < (_height + 31) / 32; mapY++) {
+                u8* mapStart = (u8*)mapRam + (mapY * ((_width + 31) / 32) + mapX) * 2048;
                 memset(mapStart, 0, 0x800);
-                for (int row = mapY*32; row < height && row < (mapY + 1) * 32; row++) {
-                    dmaCopyHalfWords(3, (u8 *) map + (row * width + mapX * 32) * 2,
+                for (int row = mapY*32; row < _height && row < (mapY + 1) * 32; row++) {
+                    dmaCopyHalfWords(3, (u8 *) _map + (row * _width + mapX * 32) * 2,
                                      mapStart + (row - mapY * 32) * 32 * 2, copyWidth * 2);
                 }
             }
@@ -191,7 +191,7 @@ namespace Engine {
     int Background::loadBgExtendedEngine(vu16* bg3Reg, u16* paletteRam, u16* tileRam, u16* mapRam,
                                          vs16* reg3A, vs16* reg3B, vs16* reg3C, vs16* reg3D,
                                          int forceSize) {
-        if (!loaded)
+        if (!_loaded)
             return 1;
 
         // Clear control for 16-bit bg map
@@ -199,11 +199,11 @@ namespace Engine {
         *bg3Reg = (*bg3Reg & (~0x2080)) | (1 << 13);
 
         // skip first color (2 bytes)
-        dmaCopy(colors, (u8 *) paletteRam + 2, 2 * colorCount);
+        dmaCopy(_colors, (u8 *) paletteRam + 2, 2 * _colorCount);
 
         u16 sizeFlag = 0;
         u16 mapRamUsage = 0x200;
-        u8 mapW = width, mapH = height;
+        u8 mapW = _width, mapH = _height;
         if (forceSize != 0) {
             mapW = forceSize;
             mapH = forceSize;
@@ -258,28 +258,28 @@ namespace Engine {
 
     int Background::loadBgRectEngine(const vu16* bg3Reg, u16* tileRam, u16* mapRam,
                                      int x, int y, int w, int h) {
-        if (!loaded)
+        if (!_loaded)
             return 1;
 
         int mapSize = 16 << ((*bg3Reg >> 14) & 3);
         for (int row = y; row < y + h; row++) {
             for (int col = x; col < x + w; col++) {
-                int srcRow = mod(row, height);
-                int srcCol = mod(col, width);
+                int srcRow = mod(row, _height);
+                int srcCol = mod(col, _width);
                 int dstRow = mod(row, mapSize);
                 int dstCol = mod(col, mapSize);
                 auto* mapRes = (u16*)((u8*)mapRam + (dstRow * mapSize + dstCol) * 2);
                 int tileDst = mod(row, 26) * 34 + mod(col, 34);
                 *mapRes = tileDst;
                 auto* tileRes = (u16*)((u8*)tileRam + tileDst * 64);
-                auto* mapSrc = (u16*)((u8 *) map + (srcRow * width + srcCol) * 2);
+                auto* mapSrc = (u16*)((u8 *) _map + (srcRow * _width + srcCol) * 2);
 
-                if (color8bit) {
-                    u8 *src = (u8 *) tiles + (*mapSrc) * 64;
+                if (_color8bit) {
+                    u8 *src = (u8 *) _tiles + (*mapSrc) * 64;
                     dmaCopyHalfWords(3, src, tileRes, 64);
                 }
                 else {
-                    u8 *src = (u8 *) tiles + (*mapSrc) * 32;
+                    u8 *src = (u8 *) _tiles + (*mapSrc) * 32;
                     for (int i = 0; i < 64; i++) {
                         bool highBits = i & 1;
                         tileRes[i / 2] &= ~(0xFF << (8 * highBits));

@@ -58,12 +58,12 @@ namespace Engine {
             return 3;
         }
 
-        fread(&glyphs.lineHeight, 1, 1, f);
-        fread(&glyphs.glyphCount, 1, 1, f);
-        glyphs.glyphs = new CFNTGlyph[glyphs.glyphCount];
+        fread(&_glyphs.lineHeight, 1, 1, f);
+        fread(&_glyphs.glyphCount, 1, 1, f);
+        _glyphs.glyphs = new CFNTGlyph[_glyphs.glyphCount];
 
-        for (int i = 0; i < glyphs.glyphCount; i++) {
-            CFNTGlyph* glyph = &glyphs.glyphs[i];
+        for (int i = 0; i < _glyphs.glyphCount; i++) {
+            CFNTGlyph* glyph = &_glyphs.glyphs[i];
             fread(&glyph->width, 1, 1, f);
             fread(&glyph->height, 1, 1, f);
             fread(&glyph->shift, 1, 1, f);
@@ -73,30 +73,30 @@ namespace Engine {
             fread(glyph->glyphData, dataBytes, 1, f);
         }
 
-        fread(glyphMap.glyphMap, 1, 256, f);
+        fread(_glyphMap.glyphMap, 1, 256, f);
 
-        loaded = true;
+        _loaded = true;
         return 0;
     }
 
     void Font::free_() {
-        if (!loaded)
+        if (!_loaded)
             return;
-        loaded = false;
+        _loaded = false;
 
-        for (int glyphIdx = 0; glyphIdx < glyphs.glyphCount; glyphIdx++) {
-            delete[] glyphs.glyphs[glyphIdx].glyphData;
-            glyphs.glyphs[glyphIdx].glyphData = nullptr;
+        for (int glyphIdx = 0; glyphIdx < _glyphs.glyphCount; glyphIdx++) {
+            delete[] _glyphs.glyphs[glyphIdx].glyphData;
+            _glyphs.glyphs[glyphIdx].glyphData = nullptr;
         }
-        delete[] glyphs.glyphs;
-        glyphs.glyphs = nullptr;
+        delete[] _glyphs.glyphs;
+        _glyphs.glyphs = nullptr;
     }
 
     void TextBGManager::drawGlyph(Font& font, u8 glyph, int &x, int y) {
-        if (!font.loaded)
+        if (!font._loaded)
             return;
 
-        u8 glyphIdx = font.glyphMap.glyphMap[glyph];
+        u8 glyphIdx = font._glyphMap.glyphMap[glyph];
         if (glyphIdx == 0)
             return;
         CFNTGlyph* glyphObj = font.getGlyph(glyphIdx);
@@ -156,7 +156,7 @@ namespace Engine {
                         if (bit & 1) {
                             // Clear tile position and write palette color
                             *tile &= ~(0xF << (4 * highBits) << (8 * prevByte));
-                            *tile += paletteColor << (4 * highBits) << (8 * prevByte);
+                            *tile += _paletteColor << (4 * highBits) << (8 * prevByte);
                         }
                         glyphX_++;
                     }
@@ -184,20 +184,20 @@ namespace Engine {
     }
 
     void TextBGManager::reloadColors() {
-        paletteRam[16 * 15 + 0] = 31 << 5;  // full green color (transparent)
-        paletteRam[16 * 15 + 8] = 0;  // black color
-        paletteRam[16 * 15 + 9] = 31;  // full red color
-        paletteRam[16 * 15 + 10] = 31 << 5;  // full green color
-        paletteRam[16 * 15 + 11] = 31 << 10;  // full blue color
-        paletteRam[16 * 15 + 12] = 31 + (31 << 5);  // red + green = yellow
-        paletteRam[16 * 15 + 13] = 31 + (31 << 10);  // red + blue = purple
-        paletteRam[16 * 15 + 14] = (31 << 5) + (31 << 10);  // green + blue = turquoise
-        paletteRam[16 * 15 + 15] = (31 << 10) + (31 << 5) + 31;  // full white color
+        _paletteRam[16 * 15 + 0] = 31 << 5;  // full green color (transparent)
+        _paletteRam[16 * 15 + 8] = 0;  // black color
+        _paletteRam[16 * 15 + 9] = 31;  // full red color
+        _paletteRam[16 * 15 + 10] = 31 << 5;  // full green color
+        _paletteRam[16 * 15 + 11] = 31 << 10;  // full blue color
+        _paletteRam[16 * 15 + 12] = 31 + (31 << 5);  // red + green = yellow
+        _paletteRam[16 * 15 + 13] = 31 + (31 << 10);  // red + blue = purple
+        _paletteRam[16 * 15 + 14] = (31 << 5) + (31 << 10);  // green + blue = turquoise
+        _paletteRam[16 * 15 + 15] = (31 << 10) + (31 << 5) + 31;  // full white color
     }
 
     void TextBGManager::clear() {
-        memset(mapRam, 0, 2 * 32 * 32);
-        tileReserve = 1;
+        memset(_mapRam, 0, 2 * 32 * 32);
+        _tileReserve = 1;
     }
 
     void TextBGManager::clearRect(int x, int y, int w, int h) {
@@ -236,13 +236,13 @@ namespace Engine {
     u8* TextBGManager::getTile(int x, int y) {
         x /= 8;
         y /= 8;
-        u16 tileId = *((u8 *) mapRam + (y * 32 + x) * 2);
+        u16 tileId = *((u8 *) _mapRam + (y * 32 + x) * 2);
         if (tileId == 0) {
-            tileId = tileReserve++;
-            *(u16*)((u8 *) mapRam + (y * 32 + x) * 2) = (15 << 12) + tileId;
-            memset(((u8*)tileRam) + (tileId * 32), 0, 32); // Initialize tile to blank
+            tileId = _tileReserve++;
+            *(u16*)((u8 *) _mapRam + (y * 32 + x) * 2) = (15 << 12) + tileId;
+            memset(((u8*)_tileRam) + (tileId * 32), 0, 32); // Initialize tile to blank
         }
-        return ((u8*)tileRam) + (tileId * 32);
+        return ((u8*)_tileRam) + (tileId * 32);
     }
 
     void TextBGManager::setPaletteColor(int colorIdx, int r, int g, int b, bool color8bit) {
@@ -251,11 +251,11 @@ namespace Engine {
             g >>= 3;
             b >>= 3;
         }
-        paletteRam[16 * 15 + colorIdx] = (b << 10) + (g << 5) + r;
+        _paletteRam[16 * 15 + colorIdx] = (b << 10) + (g << 5) + r;
     }
 
     void TextBGManager::setPaletteColor(int colorIdx, u16 color5bit) {
-        paletteRam[16 * 15 + colorIdx] = color5bit;
+        _paletteRam[16 * 15 + colorIdx] = color5bit;
     }
 
     TextBGManager textMain(BG_PALETTE, BG_TILE_RAM(5), BG_MAP_RAM(4));

@@ -16,8 +16,8 @@ namespace BtlAttacks {
         ~MovementTutorial() noexcept override;
         bool update() override;
     private:
-        Engine::Texture tutorialTex;
-        Engine::Sprite tutorialSpr;
+        Engine::Texture _tutorialTex;
+        Engine::Sprite _tutorialSpr;
     };
 }
 

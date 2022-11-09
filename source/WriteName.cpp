@@ -92,7 +92,7 @@ void runWriteNameMenu() {
 
     bool running = true;
     while (running) {
-        int currentLetter = 0;
+        int cLetter = 0;
         Engine::textSub.clear();
         for (char c = 'A', i = 0; c <= 'Z'; c++, i++) {
             x = i % 7;
@@ -100,9 +100,9 @@ void runWriteNameMenu() {
             x = startX + x * spacingX;
             y = startY + y * spacingY;
             if (i == 0)
-                Engine::textSub.setCurrentColor(12);
+                Engine::textSub.setColor(12);
             else
-                Engine::textSub.setCurrentColor(15);
+                Engine::textSub.setColor(15);
 
             Engine::textSub.drawGlyph(mainFont, c, x, y);
         }
@@ -120,36 +120,36 @@ void runWriteNameMenu() {
         for (;;) {
             Engine::tick();
             bool changed = false;
-            int prevCurrentLetter = currentLetter;
+            int prevCLetter = cLetter;
             bool confirm = false;
 
-            if (keysDown() & KEY_RIGHT && currentLetter < letterCount - 1) {
-                currentLetter++;
+            if (keysDown() & KEY_RIGHT && cLetter < letterCount - 1) {
+                cLetter++;
                 changed = true;
-            } else if (keysDown() & KEY_LEFT && currentLetter > 0) {
-                currentLetter--;
+            } else if (keysDown() & KEY_LEFT && cLetter > 0) {
+                cLetter--;
                 changed = true;
             } else if (keysDown() & KEY_DOWN) {
                 changed = true;
-                if (currentLetter <= 18) {
-                    currentLetter += 7;
-                } else if (currentLetter <= 20) {
-                    currentLetter += 7 + 5;
-                } else if (currentLetter <= 25) {
-                    currentLetter += 5;
-                } else if (currentLetter <= 26 + 18) {
-                    currentLetter += 7;
+                if (cLetter <= 18) {
+                    cLetter += 7;
+                } else if (cLetter <= 20) {
+                    cLetter += 7 + 5;
+                } else if (cLetter <= 25) {
+                    cLetter += 5;
+                } else if (cLetter <= 26 + 18) {
+                    cLetter += 7;
                 }
             } else if (keysDown() & KEY_UP) {
                 changed = true;
-                if (currentLetter >= 26 + 7) {
-                    currentLetter -= 7;
-                } else if (currentLetter >= 26 + 5) {
-                    currentLetter -= 7 + 5;
-                } else if (currentLetter >= 26) {
-                    currentLetter -= 5;
-                } else if (currentLetter >= 7) {
-                    currentLetter -= 7;
+                if (cLetter >= 26 + 7) {
+                    cLetter -= 7;
+                } else if (cLetter >= 26 + 5) {
+                    cLetter -= 7 + 5;
+                } else if (cLetter >= 26) {
+                    cLetter -= 5;
+                } else if (cLetter >= 7) {
+                    cLetter -= 7;
                 }
             } else if (keysDown() & KEY_TOUCH) {
                 touchPosition touch;
@@ -165,7 +165,7 @@ void runWriteNameMenu() {
                             if (tileIdx >= 28) {
                                 tileIdx -= 2;
                             }
-                            currentLetter = tileIdx;
+                            cLetter = tileIdx;
                             changed = true;
                         }
                     }
@@ -174,13 +174,13 @@ void runWriteNameMenu() {
             }
 
             if (confirm || keysDown() & KEY_A) {
-                if (currentLetter < letterCount && currentLen <= maxLen) {
+                if (cLetter < letterCount && currentLen <= maxLen) {
                     // letter
                     char glyph;
-                    if (currentLetter < 26) {
-                        glyph = (char) currentLetter + 'A';
+                    if (cLetter < 26) {
+                        glyph = (char) cLetter + 'A';
                     } else {
-                        glyph = (char) (currentLetter - 26) + 'a';
+                        glyph = (char) (cLetter - 26) + 'a';
                     }
                     currentName[currentLen] = glyph;
                     currentLen++;
@@ -202,12 +202,12 @@ void runWriteNameMenu() {
                     y = nameY;
                     for (char *src = currentName; src < currentName + currentLen; src++) {
                         if (src == currentName + currentLen - 1)
-                            Engine::textMain.setCurrentColor(0); // transparent to clear char
+                            Engine::textMain.setColor(0); // transparent to clear char
                         Engine::textMain.drawGlyph(mainFont, *src, x, y);
                     }
                     currentName[currentLen - 1] = 0;
                     currentLen--;
-                    Engine::textMain.setCurrentColor(15);  // white
+                    Engine::textMain.setColor(15);  // white
                 }
             }
 
@@ -216,10 +216,10 @@ void runWriteNameMenu() {
                     int letterToChange;
                     int colorToChangeTo;
                     if (i == 0) {
-                        letterToChange = prevCurrentLetter;
+                        letterToChange = prevCLetter;
                         colorToChangeTo = 15;
                     } else {
-                        letterToChange = currentLetter;
+                        letterToChange = cLetter;
                         colorToChangeTo = 12;
                     }
                     char glyph;
@@ -235,7 +235,7 @@ void runWriteNameMenu() {
                     }
                     x = startX + x * spacingX;
                     y = startY + y * spacingY;
-                    Engine::textSub.setCurrentColor(colorToChangeTo);
+                    Engine::textSub.setColor(colorToChangeTo);
                     Engine::textSub.drawGlyph(mainFont, glyph, x, y);
                 }
             }
@@ -245,16 +245,16 @@ void runWriteNameMenu() {
         // if confirmation, break
         // if not, paints again the letters to btm
         Engine::textSub.clear();
-        Engine::textSub.setCurrentColor(15);
+        Engine::textSub.setColor(15);
         x = 30; y = 30;
         for (const char* t = confirmText; *t != 0; t++) {
             Engine::textSub.drawGlyph(mainFont, *t, x, y);
         }
-        Engine::textSub.setCurrentColor(12);
+        Engine::textSub.setColor(12);
         for (char *t = currentName; t < currentName + currentLen; t++) {
             Engine::textSub.drawGlyph(mainFont, *t, x, y);
         }
-        Engine::textSub.setCurrentColor(15);
+        Engine::textSub.setColor(15);
         for (const char* t = confirmText2; *t != 0; t++) {
             Engine::textSub.drawGlyph(mainFont, *t, x, y);
         }

@@ -14,8 +14,8 @@
 
 class Dialogue {
 public:
-    Dialogue(bool centered_, u16 textId, const char* speaker, s32 speakerX, s32 speakerY,
-             const char* idleAnimTxt, const char* talkAnimTxt, Engine::Sprite* target_,
+    Dialogue(bool centered, u16 textId, const char* speaker, s32 speakerX, s32 speakerY,
+             const char* idleAnimTxt, const char* talkAnimTxt, Engine::Sprite* target,
              const char* idleAnim2Txt, const char* talkAnim2Txt, const char* typeSndPath,
              const char* fontTxt, u16 framesPerLetter, Engine::TextBGManager& txtManager);
     Dialogue(bool centered_, int x_, int y_, const char* text_, const char* typeSndPath,
@@ -30,32 +30,32 @@ private:
     void progressTextLeft(bool clear, bool draw);  // Draws text left-aligned
     u16 getLineWidth(int linePos_);
     void getLine();
-    bool paused = false;
-    int startingX, startingY;
-    int x, y;
+    bool _paused = false;
+    int _startingX, _startingY;
+    int _x, _y;
 
-    bool centered;
-    u16 linePos = 0;
-    u16 lineLen = 0;
-    u16 textPos = 0;
-    u16 textLen = 0;
-    const u16 lineSpacing = 20;
+    bool _centered;
+    u16 _linePos = 0;
+    u16 _lineLen = 0;
+    u16 _textPos = 0;
+    u16 _textLen = 0;
+    const u16 _lineSpacing = 20;
 
-    u16 currentTimer;
-    u16 letterFrames = 20;
+    u16 _cTimer;
+    u16 _letterFrames = 20;
 
-    Engine::Texture speakerSpr;
-    Engine::Sprite speakerManager;
-    Engine::Sprite* target;
-    Engine::TextBGManager* textManager;
-    int idleAnim = -1, talkAnim = -1, idleAnim2 = -1, talkAnim2 = -1;
-    char* text = nullptr;
-    char line[100] = {};
-    u8 currentColor = 15;
+    Engine::Texture _speakerTex;
+    Engine::Sprite _speakerSpr;
+    Engine::Sprite* _target;
+    Engine::TextBGManager* _textManager;
+    int _idleAnim = -1, _talkAnim = -1, _idleAnim2 = -1, _talkAnim2 = -1;
+    char* _text = nullptr;
+    char _line[100] = {};
+    u8 _cColor = 15;
 
-    Audio::WAV typeSnd;
+    Audio::WAV _typeSnd;
 
-    Engine::Font font;
+    Engine::Font _fnt;
 };
 
 #endif //UNDERTALE_DIALOGUE_HPP
