@@ -6,18 +6,16 @@
 #define UNDERTALE_SPRITE_3D_MANAGER_HPP
 
 #include "Sprite.hpp"
+#include "Engine/FreeZoneManager.hpp"
 #define ARM9
 #include <nds.h>
 
 namespace Engine {
     class Sprite3DManager {
     public:
-        Sprite3DManager() {
-            _tileFreeZoneCount = 1;
-            _tileFreeZones = new u16[2];
-            _tileFreeZones[0] = 0;
-            _tileFreeZones[1] = 65536 - 8;
-        }
+        Sprite3DManager() :
+            tileFreeZones(0, 65536 - 8, "3D_TILES"),
+            paletteFreeZones(0, 1024, "3D_PALETTE") {}
 
         void draw();
         void updateTextures();
@@ -29,11 +27,9 @@ namespace Engine {
 
         void loadSpriteTexture(Sprite& spr);
         void freeSpriteTexture(Sprite& spr);
-        int reserveTiles(u16 length, u16& start);
-        void freeTiles(u16 length, u16& start);
 
-        u16 _tileFreeZoneCount;
-        u16* _tileFreeZones;
+        FreeZoneManager tileFreeZones;
+        FreeZoneManager paletteFreeZones;
 
         bool _paletteUsed[96] = {false};
 

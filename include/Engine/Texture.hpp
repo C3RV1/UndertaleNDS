@@ -45,7 +45,8 @@ namespace Engine {
         // 3D
         u8 _loaded3DCount = 0;
         u16 * _tileStart = nullptr;
-        u8 _paletteIdx = 0;
+        u16 _paletteIdx = 0;
+        bool _color8bit = false;
 
         friend class Sprite3DManager;
     };

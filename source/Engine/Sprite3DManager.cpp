@@ -36,51 +36,6 @@ namespace Engine {
         return 0;
     }
 
-    int Sprite3DManager::reserveTiles(u16 length, u16& start) {
-        int freeZoneIdx = 0;
-        u16 length_ = 0;
-        for (; freeZoneIdx < _tileFreeZoneCount; freeZoneIdx++) {
-            start = _tileFreeZones[freeZoneIdx * 2];
-            length_ = _tileFreeZones[freeZoneIdx * 2 + 1];
-            if (length_ >= length) {
-                break;
-            }
-        }
-        if (freeZoneIdx >= _tileFreeZoneCount) {
-            char buffer[100];
-            sprintf(buffer, "3d alloc error start %d length %d needed %d",
-                    start, length_, length);
-            nocashMessage(buffer);
-            return 1;
-        }
-
-        if (length == length_) {
-            // Remove free zone
-            _tileFreeZoneCount--;
-            auto* newFreeZones = new u16[_tileFreeZoneCount * 2];
-            // Copy free zones up to freeZoneIdx
-            memcpy(newFreeZones, _tileFreeZones, freeZoneIdx * 4);
-            // Copy free zones after freeZoneIdx
-            memcpy((u8*)newFreeZones + freeZoneIdx * 4,
-                   (u8*)_tileFreeZones + (freeZoneIdx + 1) * 4,
-                   (_tileFreeZoneCount - freeZoneIdx) * 4);
-            // Free old tileZones and change reference
-            delete[] _tileFreeZones;
-            _tileFreeZones = newFreeZones;
-        }
-        else {
-            _tileFreeZones[freeZoneIdx * 2] += length;
-            _tileFreeZones[freeZoneIdx * 2 + 1] -= length;
-        }
-#ifdef DEBUG_3D
-        char buffer[100];
-        sprintf(buffer, "3dalloc start %d length %d",
-                start, length);
-        nocashMessage(buffer);
-#endif
-        return 0;
-    }
-
     void Sprite3DManager::freeSprite(Engine::Sprite &spr) {
         if (spr._memory.allocated != Allocated3D)
             return;
@@ -110,87 +65,34 @@ namespace Engine {
         spr._memory.allocated = NoAlloc;
     }
 
-    void Sprite3DManager::freeTiles(u16 length, u16& start) {
-#ifdef DEBUG_3D
-        char buffer[100];
-        sprintf(buffer, "3dfree start %d length %d",
-                start, length);
-        nocashMessage(buffer);
-#endif
-
-        int freeAfterIdx = 0;
-        for (; freeAfterIdx < _tileFreeZoneCount; freeAfterIdx++) {
-            if (_tileFreeZones[freeAfterIdx * 2] > start) {
-                break;
-            }
-        }
-
-        bool mergePrev = false, mergePost = false;
-
-        if (freeAfterIdx > 0)
-            mergePrev = (_tileFreeZones[freeAfterIdx * 2 - 2] + _tileFreeZones[freeAfterIdx * 2 - 1]) == start;
-        if (freeAfterIdx <= _tileFreeZoneCount - 1) {
-            mergePost = (start + length) == _tileFreeZones[freeAfterIdx * 2];
-        }
-
-        if (mergePost && mergePrev)
-        {
-            _tileFreeZoneCount--;
-            auto* newFreeZones = new u16[_tileFreeZoneCount * 2];
-            memcpy(newFreeZones, _tileFreeZones, freeAfterIdx * 4);
-            newFreeZones[(freeAfterIdx - 1) * 2 + 1] += length + _tileFreeZones[freeAfterIdx * 2 + 1];
-            memcpy((u8*)newFreeZones + freeAfterIdx * 4,
-                   (u8*)_tileFreeZones + (freeAfterIdx + 1) * 4,
-                   (_tileFreeZoneCount - freeAfterIdx) * 4);
-            delete[] _tileFreeZones;
-            _tileFreeZones = newFreeZones;
-        }
-        else if (mergePrev)
-        {
-            _tileFreeZones[(freeAfterIdx - 1) * 2 + 1] += length;
-        }
-        else if (mergePost)
-        {
-            _tileFreeZones[freeAfterIdx * 2] -= length;
-            _tileFreeZones[freeAfterIdx * 2 + 1] += length;
-        }
-        else
-        {
-            _tileFreeZoneCount++;
-            auto* newFreeZones = new u16[2 * _tileFreeZoneCount];
-            memcpy(newFreeZones, _tileFreeZones, freeAfterIdx * 4);
-            newFreeZones[freeAfterIdx * 2] = start;
-            newFreeZones[freeAfterIdx * 2 + 1] = length;
-            memcpy((u8*)newFreeZones + (freeAfterIdx + 1) * 4,
-                   _tileFreeZones + freeAfterIdx * 4,
-                   (_tileFreeZoneCount - (freeAfterIdx + 1)) * 4);
-            delete[] _tileFreeZones;
-            _tileFreeZones = newFreeZones;
-        }
-    }
-
     void Sprite3DManager::loadSpriteTexture(Engine::Sprite &spr) {
         spr._texture->_loaded3DCount += 1;
         if (spr._texture->_loaded3DCount > 1) { // Already loaded to texture
             spr._memory.loadedIntoMemory = true;
             return;
-    }
-
-        spr._texture->_paletteIdx = 96;
-        for (int i = 0; i < 96; i++) {
-            if (!_paletteUsed[i]) {
-                spr._texture->_paletteIdx = i;
-                _paletteUsed[i] = true;
-                break;
-            }
         }
-        if (spr._texture->_paletteIdx == 96) {
+
+        spr._texture->_color8bit = spr._texture->_colorCount >= 16;
+        u16 length, alignment, tileBytes;
+        if (spr._texture->_color8bit) {
+            length = 16;
+            alignment = 16;
+            tileBytes = 64;
+        } else {
+            length = 1;
+            alignment = 1;
+            tileBytes = 32;
+        }
+
+        int res = paletteFreeZones.reserve(length, spr._texture->_paletteIdx, alignment);
+        if (res != 0) {
             // no palette found
             return;
         }
 
-        u16* paletteBase = (u16*) ((u8*) VRAM_E + (256 * spr._texture->_paletteIdx + 1) * 2);
-        dmaCopyHalfWords(3, spr._texture->_colors, paletteBase, spr._texture->_colorCount * 2);
+        u16* paletteBase = &VRAM_E[16 * spr._texture->_paletteIdx + 1];
+        dmaCopyHalfWordsAsynch(3, spr._texture->_colors, paletteBase,
+                               spr._texture->_colorCount * 2);
 
         u8 tileWidth, tileHeight;
         spr._texture->getSizeTiles(tileWidth, tileHeight);
@@ -215,8 +117,8 @@ namespace Engine {
                 while (subTileWidth << 1 <= tileWidth_)
                     subTileWidth <<= 1;
 
-                u16 neededTiles = subTileWidth * subTileHeight * spr._texture->_frameCount * 64;
-                if (reserveTiles(neededTiles, spr._texture->_tileStart[tileIdx]) == 1) {
+                u16 neededTiles = subTileWidth * subTileHeight * spr._texture->_frameCount * tileBytes;
+                if (tileFreeZones.reserve(neededTiles, spr._texture->_tileStart[tileIdx], 1) == 1) {
                     return;
                 }
 
@@ -226,15 +128,22 @@ namespace Engine {
                             int tileX = x / 8;
                             int tileY = y / 8;
                             u8 *tileRamStart = (u8 *) VRAM_B + spr._texture->_tileStart[tileIdx] +
-                                               frame * subTileWidth * subTileHeight * 64;
+                                               frame * subTileWidth * subTileHeight * tileBytes;
 
                             u16 framePos = frame * tileWidth * tileHeight;
                             u32 tileOffset = framePos + tileY * tileWidth + tileX;
                             tileOffset *= 64;
-                            tileOffset += (y % 8) * 8 + (x % 8);
-                            *(u16 *) (tileRamStart + y2 * subTileWidth * 8 + x2) &= ~(0xFF << (8 * (x2 & 1)));
-                            *(u16 *) (tileRamStart + y2 * subTileWidth * 8 + x2) |=
-                                    (spr._texture->_tiles[tileOffset] & 0xFF) << (8 * (x2 & 1));
+                            if (spr._texture->_color8bit) {
+                                tileOffset += (y % 8) * 8 + (x % 8);
+                                u16* dst = (u16*)(tileRamStart + y2 * subTileWidth * 8 + x2);
+                                *dst &= ~(0xFF << (8 * (x2 & 1)));
+                                *dst |= (spr._texture->_tiles[tileOffset] & 0xFF) << (8 * (x2 & 1));
+                            } else {
+                                tileOffset += (y % 8) * 8 + (x % 8);
+                                u16* dst = (u16*)(tileRamStart + (y2 * subTileWidth * 8 + x2) / 2);
+                                *dst &= ~(0xF << (4 * (x2 & 3)));
+                                *dst |= (spr._texture->_tiles[tileOffset] & 0xFF) << (4 * (x2 & 3));
+                            }
                         }
                     }
                 }
@@ -258,6 +167,7 @@ namespace Engine {
         _paletteUsed[spr._texture->_paletteIdx] = false;
 
         u8 tileWidth, tileHeight;
+        u8 tileBytes = spr._texture->_color8bit ? 64 : 32;
         spr._texture->getSizeTiles(tileWidth, tileHeight);
 
         int tileIdx = 0;
@@ -270,8 +180,8 @@ namespace Engine {
                 u8 subTileWidth = 1;
                 while (subTileWidth << 1 <= tileWidth_)
                     subTileWidth <<= 1;
-                u16 neededTiles = subTileWidth * subTileHeight * spr._texture->_frameCount * 64;
-                freeTiles(neededTiles, spr._texture->_tileStart[tileIdx]);
+                u16 neededTiles = subTileWidth * subTileHeight * spr._texture->_frameCount * tileBytes;
+                tileFreeZones.free(neededTiles, spr._texture->_tileStart[tileIdx]);
                 tileIdx++;
                 tileWidth_ -= subTileWidth;
             }
@@ -297,6 +207,8 @@ namespace Engine {
             glPolyFmt( POLY_ALPHA(31) | POLY_CULL_NONE);
 
             u8 tileWidth, tileHeight;
+            u8 tileFormat = spr->_texture->_color8bit ? 4 : 3;
+            u8 tileBytes = spr->_texture->_color8bit ? 64 : 32;
             spr->_texture->getSizeTiles(tileWidth, tileHeight);
 
             int tileIdx = 0;
@@ -337,9 +249,12 @@ namespace Engine {
 
                     MATRIX_CONTROL = GL_MODELVIEW;
                     MATRIX_IDENTITY = 0;
-                    GFX_TEX_FORMAT = (allocXFmt << 20) + (allocYFmt << 23) + (4 << 26) + (1 << 29) +
-                                     (spr->_texture->_tileStart[tileIdx] + spr->_cFrame * subTileWidth * subTileHeight * 64) / 8;
-                    GFX_PAL_FORMAT = spr->_texture->_paletteIdx * 2 * 256 / 16;
+                    GFX_TEX_FORMAT = (allocXFmt << 20) + (allocYFmt << 23) + (tileFormat << 26) + (1 << 29) +
+                                     (spr->_texture->_tileStart[tileIdx] + spr->_cFrame * subTileWidth * subTileHeight * tileBytes) / 8;
+                    if (tileFormat == 4)
+                        GFX_PAL_FORMAT = spr->_texture->_paletteIdx;
+                    else
+                        GFX_PAL_FORMAT = spr->_texture->_paletteIdx * 2;
                     GFX_BEGIN = GL_QUADS;
                     GFX_TEX_COORD = 0;
                     GFX_VERTEX16 = x + (y << 16);

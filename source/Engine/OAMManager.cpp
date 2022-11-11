@@ -165,44 +165,7 @@ namespace Engine {
 
         // load tiles in groups of animations
         u16 neededTiles = oamEntry->tileWidth * oamEntry->tileHeight;
-        int freeZoneIdx = 0;
-        u16 start = 0;
-        u16 length = 0;
-        for (; freeZoneIdx < _tileFreeZoneCount; freeZoneIdx++) {
-            start = _tileFreeZones[freeZoneIdx * 2];
-            length = _tileFreeZones[freeZoneIdx * 2 + 1];
-            if (length >= neededTiles) {
-                break;
-            }
-        }
-        if (freeZoneIdx >= _tileFreeZoneCount) {
-            char buffer[100];
-            sprintf(buffer, "2d alloc error start %d length %d needed %d",
-                    start, length, neededTiles);
-            nocashMessage(buffer);
-            return -2;
-        }
-
-        if (length == neededTiles) {
-            // Remove free zone
-            _tileFreeZoneCount--;
-            auto* newFreeZones = new u16[_tileFreeZoneCount * 2];
-            // Copy free zones up to freeZoneIdx
-            memcpy(newFreeZones, _tileFreeZones, freeZoneIdx * 4);
-            // Copy free zones after freeZoneIdx
-            memcpy((u8*)newFreeZones + freeZoneIdx * 4,
-                   (u8*)_tileFreeZones + (freeZoneIdx + 1) * 4,
-                   (_tileFreeZoneCount - freeZoneIdx) * 4);
-            // Free old tileZones and change reference
-            delete[] _tileFreeZones;
-            _tileFreeZones = newFreeZones;
-        }
-        else {
-            _tileFreeZones[freeZoneIdx * 2] += neededTiles;
-            _tileFreeZones[freeZoneIdx * 2 + 1] -= neededTiles;
-        }
-
-        oamEntry->tileStart = start;
+        _tileZones.reserve(neededTiles, oamEntry->tileStart, 1);
 #ifdef DEBUG_2D
         dumpOamState();
 #endif
@@ -222,64 +185,9 @@ namespace Engine {
         oamStart[1] = 0;
         oamStart[2] = 0;
 
-        u16 start = oamEntry->tileStart;
         u16 length = oamEntry->tileWidth * oamEntry->tileHeight;
+        _tileZones.free(length, oamEntry->tileStart);
 
-#ifdef DEBUG_2D
-        char buffer[100];
-        sprintf(buffer, "2dfree start %d length %d oamId %d",
-                start, length, oamId);
-        nocashMessage(buffer);
-#endif
-
-        int freeAfterIdx = 0;
-        for (; freeAfterIdx < _tileFreeZoneCount; freeAfterIdx++) {
-            if (_tileFreeZones[freeAfterIdx * 2] > start) {
-                break;
-            }
-        }
-
-        bool mergePrev = false, mergePost = false;
-
-        if (freeAfterIdx > 0)
-            mergePrev = (_tileFreeZones[freeAfterIdx * 2 - 2] + _tileFreeZones[freeAfterIdx * 2 - 1]) == start;
-        if (freeAfterIdx <= _tileFreeZoneCount - 1)
-            mergePost = (start + length) == _tileFreeZones[freeAfterIdx * 2];
-
-        if (mergePost && mergePrev)
-        {
-            _tileFreeZoneCount--;
-            auto* newFreeZones = new u16[2 * _tileFreeZoneCount];
-            memcpy(newFreeZones, _tileFreeZones, freeAfterIdx * 4);
-            newFreeZones[(freeAfterIdx - 1) * 2 + 1] += length + _tileFreeZones[freeAfterIdx * 2 + 1];
-            memcpy((u8*)newFreeZones + freeAfterIdx * 4,
-                   (u8*)_tileFreeZones + (freeAfterIdx + 1) * 4,
-                   (_tileFreeZoneCount - freeAfterIdx) * 4);
-            delete[] _tileFreeZones;
-            _tileFreeZones = newFreeZones;
-        }
-        else if (mergePrev)
-        {
-            _tileFreeZones[(freeAfterIdx - 1) * 2 + 1] += length;
-        }
-        else if (mergePost)
-        {
-            _tileFreeZones[freeAfterIdx * 2] -= length;
-            _tileFreeZones[freeAfterIdx * 2 + 1] += length;
-        }
-        else
-        {
-            _tileFreeZoneCount++;
-            auto* newFreeZones = new u16[2 * _tileFreeZoneCount];
-            memcpy(newFreeZones, _tileFreeZones, freeAfterIdx * 4);
-            newFreeZones[freeAfterIdx * 2] = start;
-            newFreeZones[freeAfterIdx * 2 + 1] = length;
-            memcpy((u8*)newFreeZones + (freeAfterIdx + 1) * 4,
-                   _tileFreeZones + freeAfterIdx * 4,
-                   (_tileFreeZoneCount - (freeAfterIdx + 1)) * 4);
-            delete[] _tileFreeZones;
-            _tileFreeZones = newFreeZones;
-        }
 #ifdef DEBUG_2D
         dumpOamState();
 #endif
@@ -288,11 +196,6 @@ namespace Engine {
 #ifdef DEBUG_2D
     void OAMManager::dumpOamState() {
         char buffer[100];
-        for (int i = 0; i < tileFreeZoneCount; i++) {
-            sprintf(buffer, "FREE ZONE %d (%d length)", tileFreeZones[i * 2],
-                    tileFreeZones[i * 2 + 1]);
-            nocashMessage(buffer);
-        }
         for (int i = 0; i < 128; i++) {
             if (oamEntries[i].free_)
                 continue;

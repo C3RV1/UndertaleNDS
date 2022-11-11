@@ -7,6 +7,7 @@
 
 #define ARM9
 #include <nds.h>
+#include "Engine/FreeZoneManager.hpp"
 #include "Sprite.hpp"
 #include "DEBUG_FLAGS.hpp"
 
@@ -24,11 +25,8 @@ namespace Engine {
                    u16* oamRam) :
                 _paletteRam(paletteRam),
                 _oamRam(oamRam),
-                _tileRam(tileRam) {
-            _tileFreeZoneCount = 1;
-            _tileFreeZones = new u16[2];
-            _tileFreeZones[0] = 1;
-            _tileFreeZones[1] = 1023;
+                _tileRam(tileRam),
+                _tileZones(1, 1023, "2D_TILES"){
             *paletteRam = 31 << 5;  // full green for bg
         };
 
@@ -56,8 +54,7 @@ namespace Engine {
         u16* _oamRam;
         u16* _tileRam;
 
-        u16 _tileFreeZoneCount;
-        u16* _tileFreeZones;  // pairs of (starting addr, free tiles)
+        FreeZoneManager _tileZones;
 
         u8 _activeSprCount = 0;
         Sprite** _activeSpr = nullptr;

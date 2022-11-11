@@ -11,8 +11,9 @@ Dialogue::Dialogue(bool centered, u16 textId, const char* speaker, s32 speakerX,
                    const char* idleAnimTxt, const char* talkAnimTxt, Engine::Sprite* target,
                    const char* idleAnim2Txt, const char* talkAnim2Txt, const char* typeSndPath,
                    const char* fontTxt, u16 framesPerLetter, Engine::TextBGManager& txtManager) :
-        _speakerSpr(Engine::AllocatedOAM),
-        _centered(centered), _textManager(&txtManager), _target(target) {
+
+        _centered(centered), _speakerSpr(Engine::AllocatedOAM),
+        _target(target), _textManager(&txtManager) {
     char buffer[100];
 
     _fnt.loadPath(fontTxt);
