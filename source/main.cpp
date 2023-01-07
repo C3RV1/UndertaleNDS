@@ -30,9 +30,9 @@ int main() {
         runMainMenu();
     }
 
-    for (int i = 0; i < 5; i++) {
+    /* for (int i = 0; i < 5; i++) {
         globalSave.items[i] = 1 + (i % 3 == 0);
-    }
+    }*/
 
     Engine::textMain.clear();
     Engine::textSub.clear();
@@ -40,8 +40,8 @@ int main() {
     u16 roomSpawn = globalSave.lastSavedRoom;
 
     // DEBUG
-    roomSpawn = 5;
-    globalSave.flags[0] = 4;
+    // roomSpawn = 5;
+    // globalSave.flags[0] = 4;
 
     globalPlayer = new Player();
     globalPlayer->_playerSpr.setShown(true);

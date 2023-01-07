@@ -27,8 +27,6 @@ void runTitleScreen() {
     const int dotFrames = 40;
     const int otherPunctuationFrames = 25;
     const int letterFrames = 4;
-    const int pressAButtonX = 60;
-    const int pressAButtonY = 90;
     int timer;
 
     char textBuffer[100];
@@ -150,34 +148,27 @@ void runTitleScreen() {
 
     skip = false;
     fclose(textStream);
-    textStream = fopen("nitro:/data/intro2.txt", "rb");
-    if (textStream == nullptr)
-        nocashMessage("Error opening intro text");
     Audio::playBGMusic("mus_intronoise.wav", false);
+
+    Engine::Background titleBottom;
+    titleBottom.loadPath("intro/title_bottom");
 
     cBackground.loadPath("intro/title");
 
     cBackground.loadBgTextMain();
 
     timer = introLogoFrames;
-    int textLen = str_len_file(textStream, '@');
-    fread(textBuffer, textLen + 2, 1, textStream);
-    textBuffer[textLen] = '\0';
+
     while (!skip) {
         Engine::tick();
         skip = keysDown() != 0;
         if (timer > 0) {
             timer--;
             if (timer <= 0) {
-                const char* textPointer = textBuffer;
-                int x = pressAButtonX, y = pressAButtonY;
-                while (*textPointer != 0) {
-                    Engine::textSub.drawGlyph(mainFont, *textPointer, x, y);
-                    textPointer++;
-                }
+                titleBottom.loadBgTextSub();
             }
         }
     }
-    fclose(textStream);
+
     Audio::stopBGMusic();
 }

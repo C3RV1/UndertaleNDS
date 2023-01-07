@@ -9,7 +9,7 @@
 // #define DEBUG_2D
 // #define DEBUG_3D
 // #define DEBUG_AUDIO
-#define DEBUG_ZONES
-#define DEBUG_ZONES_DUMP
+// #define DEBUG_ZONES
+// #define DEBUG_ZONES_DUMP
 
 #endif //UNDERTALE_DEBUG_FLAGS_HPP

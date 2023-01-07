@@ -30,7 +30,7 @@ namespace Engine {
 
         void free(u16 length, u16 start);
 
-#ifdef DEBUG_ZONES
+#ifdef DEBUG_ZONES_DUMP
         void dump();
 #endif
 
