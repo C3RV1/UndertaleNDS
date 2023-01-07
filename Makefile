@@ -35,6 +35,7 @@ NITRO    := nitrofs
 # These set the information text in the nds file
 GAME_TITLE     := Undertale NDS
 GAME_SUBTITLE1 := Toby Fox, Cervi
+GAME_ICON		:=	$(CURDIR)/../icon.bmp
 
 #---------------------------------------------------------------------------------
 # options for code generation
