@@ -22,7 +22,8 @@ notes.txt
 *.pyc
 *.win
 *.zip
-*.aes
+*.rar
+*.patch
 _test*
 
 tsukuyomi_v01

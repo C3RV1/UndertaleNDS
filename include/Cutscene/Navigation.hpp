@@ -44,6 +44,8 @@ public:
                               CutsceneLocation callingLocation);
     static void set_position(u8 targetType, s8 targetId, s32 x, s32 y,
                              CutsceneLocation callingLocation);
+    static void move(u8 targetType, s8 targetId, s32 dx, s32 dy,
+                     CutsceneLocation callingLocation);
     static void set_scale(u8 targetType, s8 targetId, s32 x, s32 y,
                           CutsceneLocation callingLocation);
     static void set_shown(u8 targetType, s8 targetId, bool shown,

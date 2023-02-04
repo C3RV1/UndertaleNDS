@@ -49,6 +49,15 @@
         {"frame": 10, "duration": 10},
         {"frame": 11, "duration": 10, "draw_off_y": -1}
       ]
+    },
+    {
+      "name": "spin",
+      "frames": [
+        {"frame": 6, "duration": 10},
+        {"frame": 0, "duration": 10},
+        {"frame": 4, "duration": 10},
+        {"frame": 8, "duration": 10}
+      ]
     }
   ]
 }

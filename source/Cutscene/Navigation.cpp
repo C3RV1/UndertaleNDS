@@ -166,6 +166,14 @@ void Navigation::set_position(u8 targetType, s8 targetId, s32 x, s32 y,
     spriteManager->_wy = y;
 }
 
+void Navigation::move(u8 targetType, s8 targetId, s32 dx, s32 dy, CutsceneLocation callingLocation) {
+    Engine::Sprite* spriteManager = getTarget(targetType, targetId, callingLocation);
+    if (spriteManager == nullptr)
+        return;
+    spriteManager->_wx += dx;
+    spriteManager->_wy += dy;
+}
+
 void Navigation::set_scale(u8 targetType, s8 targetId, s32 x, s32 y,
                            CutsceneLocation callingLocation) {
     Engine::Sprite* spriteManager = getTarget(targetType, targetId, callingLocation);

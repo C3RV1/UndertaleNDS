@@ -241,6 +241,19 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             Navigation::set_position(targetType, targetId, x, y, callingLocation);
             break;
         }
+        case CMD_MOVE: {
+#ifdef DEBUG_CUTSCENES
+            nocashMessage("CMD_MOVE");
+#endif
+            fread(&targetType, 1, 1, _commandStream);
+            if (targetType == TargetType::SPRITE)
+                fread(&targetId, 1, 1, _commandStream);
+            s32 dx, dy;
+            fread(&dx, 4, 1, _commandStream);
+            fread(&dy, 4, 1, _commandStream);
+            Navigation::move(targetType, targetId, dx, dy, callingLocation);
+            break;
+        }
         case CMD_SET_SCALE: {
 #ifdef DEBUG_CUTSCENES
             nocashMessage("CMD_SET_SCALE");

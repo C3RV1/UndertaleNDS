@@ -23,7 +23,7 @@
         {
           "exit_type": "side",
           "room_id": 10,
-          "spawn_x": 3, "spawn_y": 66,
+          "spawn_x": 5, "spawn_y": 114,
           "side": "right"
         }
       ],
@@ -82,7 +82,7 @@
         {
           "exit_type": "side",
           "room_id": 10,
-          "spawn_x": 3, "spawn_y": 66,
+          "spawn_x": 3, "spawn_y": 114,
           "side": "right"
         }
       ],

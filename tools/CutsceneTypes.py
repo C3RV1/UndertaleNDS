@@ -55,6 +55,7 @@ class CutsceneCommands(enum.IntEnum):
     CLEAR_NAV_TASKS = 36  # Done
     LOAD_SPRITE_RELATIVE = 37  # Done
     SET_CELL = 38  # Done
+    MOVE = 39
     DEBUG = 0xff  # Done
 
 
@@ -280,6 +281,15 @@ class Cutscene:
         self.wtr.write_int32(dx)
         self.wtr.write_int32(dy)
         self.wtr.write_uint16(frames)
+        return self.instructions_address[-1]
+
+    def move(self, target: Target, dx: float, dy: float):
+        self.write_header(CutsceneCommands.MOVE)
+        target.write(self.wtr)
+        dx = to_fixed_point(abs(dx)) * (1 if dx > 0 else -1)
+        dy = to_fixed_point(abs(dy)) * (1 if dy > 0 else -1)
+        self.wtr.write_int32(dx)
+        self.wtr.write_int32(dy)
         return self.instructions_address[-1]
 
     def scale_in_frames(self, target: Target, x: float, y: float, frames: int):

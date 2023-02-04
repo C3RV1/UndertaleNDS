@@ -7,10 +7,9 @@ else:
 
 def cutscene(c: Cutscene):
     c.player_control(False)
-    c.load_sprite_relative(0, 0, 0, Target(TargetType.PLAYER))
-    c.set_animation(Target(TargetType.PLAYER), "rightIdle")
-    c.wait(WaitTypes.FRAMES, 30)
-    c.set_animation(Target(TargetType.PLAYER), "spin")
-    c.move_in_frames(Target(TargetType.PLAYER), 0, 220, 120)
-    c.wait(WaitTypes.FRAMES, 120)
-    c.set_animation(Target(TargetType.PLAYER), "rightIdle")
+    c.manual_camera(True)
+    c.set_animation(Target(TargetType.PLAYER), "downIdle")
+    c.move(Target(TargetType.PLAYER), 0, -200)
+    c.wait(WaitTypes.FRAMES, 10)
+    c.move_in_frames(Target(TargetType.CAMERA), 0, -200, 60)
+    c.wait(WaitTypes.FRAMES, 60)

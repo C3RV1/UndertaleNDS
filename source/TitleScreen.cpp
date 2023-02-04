@@ -170,5 +170,7 @@ void runTitleScreen() {
         }
     }
 
+    Engine::clearSub();
+
     Audio::stopBGMusic();
 }

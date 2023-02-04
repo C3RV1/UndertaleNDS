@@ -45,6 +45,7 @@ enum CutsceneCommands {
     CMD_CLEAR_NAV_TASKS = 36,
     CMD_LOAD_SPRITE_RELATIVE = 37,
     CMD_SET_CELL = 38,
+    CMD_MOVE = 39,
     CMD_DEBUG = 0xff
 };
 

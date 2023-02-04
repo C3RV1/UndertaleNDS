@@ -4,7 +4,7 @@
       "conditions": [],
       "room_bg": "rooms/room10",
       "music_path": "mus_ruins.wav",
-      "spawn_x": 0, "spawn_y": 0,
+      "spawn_x": 5, "spawn_y": 114,
       "exits": [
         {
           "exit_type": "side",
@@ -13,9 +13,32 @@
           "side": "left"
         }
       ],
-      "textures": [],
+      "textures": [
+        "room_sprites/hole"
+      ],
       "sprites": [],
-      "colliders": []
+      "colliders": [
+        {
+          "x": 181, "y": 110, "w": 26, "h": 40,
+          "action": "cutscene", "cutscene_id": 0
+        },
+        {
+          "x": 95, "y": 278, "w": 30, "h": 50,
+          "action": "cutscene", "cutscene_id": 1
+        },
+        {
+          "x": 255, "y": 278, "w": 30, "h": 50,
+          "action": "cutscene", "cutscene_id": 1
+        },
+
+        {"x": 0, "y": 41, "w": 372, "h": 69},
+        {"x": 0, "y": 150, "w": 70, "h": 290},
+        {"x": 310, "y": 150, "w": 62, "h": 290},
+        {"x": 70, "y": 170, "w": 239, "h": 108},
+        {"x": 70, "y": 278, "w": 25, "h": 52},
+        {"x": 285, "y": 278, "w": 25, "h": 52},
+        {"x": 125, "y": 278, "w": 130, "h": 52}
+      ]
     }
   ]
 }
