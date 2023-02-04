@@ -40,7 +40,7 @@ int main() {
     u16 roomSpawn = globalSave.lastSavedRoom;
 
     // DEBUG
-    roomSpawn = 10;
+    // roomSpawn = 10;
     // globalSave.flags[0] = 4;
 
     globalPlayer = new Player();
