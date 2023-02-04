@@ -19,7 +19,7 @@
       "sprites": [],
       "colliders": [
         {
-          "x": 181, "y": 110, "w": 26, "h": 40,
+          "x": 176, "y": 110, "w": 26, "h": 60,
           "action": "cutscene", "cutscene_id": 0
         },
         {

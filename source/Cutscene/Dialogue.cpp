@@ -143,7 +143,13 @@ u16 Dialogue::getLineWidth(int linePos_) {
     u16 lineWidth_ = 0;
     for (char* pLine = _line; pLine < _line + linePos_; pLine++) {
         if (*pLine == '@') {
-            pLine += 1;
+            pLine++;
+            char command = *pLine;
+            if (command == 'a' or command == 'b') {
+                for(;*pLine != '/';pLine++);
+                pLine++;
+                for(;*pLine != '/';pLine++);
+            }
             continue;
         }
         lineWidth_ += _fnt.getGlyphWidth(*pLine);
@@ -221,7 +227,8 @@ void Dialogue::progressTextCentered(bool clear, bool draw) {
             }
             _linePos++;
             *pBuffer = '\0';
-            _idleAnim2 = _speakerSpr.nameToAnimId(buffer);
+            if (_target != nullptr)
+                _idleAnim2 = _target->nameToAnimId(buffer);
             pBuffer = buffer;
             for (char* pLine = (_line + _linePos); *pLine != '/';
                  pLine++, pBuffer++, _linePos++) {
@@ -229,7 +236,8 @@ void Dialogue::progressTextCentered(bool clear, bool draw) {
             }
             _linePos++;
             *pBuffer = '\0';
-            _talkAnim2 = _speakerSpr.nameToAnimId(buffer);
+            if (_target != nullptr)
+                _talkAnim2 = _target->nameToAnimId(buffer);
         }
         _cTimer = 0;
         return;
@@ -244,7 +252,13 @@ void Dialogue::progressTextCentered(bool clear, bool draw) {
     _textManager->setColor(0); // clear color
     for (char* pLine = _line; pLine < _line + _linePos - 1; pLine++) {
         if (*pLine == '@') {
-            pLine += 1;
+            pLine++;
+            char command = *pLine;
+            if (command == 'a' or command == 'b') {
+                for(;*pLine != '/';pLine++);
+                pLine++;
+                for(;*pLine != '/';pLine++);
+            }
             continue;
         }
         if (clear || _linePos > _lineLen)
@@ -276,6 +290,11 @@ void Dialogue::progressTextCentered(bool clear, bool draw) {
                 _textManager->setColor(14);
             else if (command == 'w')
                 _textManager->setColor(15);
+            else if (command == 'a' or command == 'b') {
+                for(;*pLine != '/';pLine++);
+                pLine++;
+                for(;*pLine != '/';pLine++);
+            }
             lineEndColor = _textManager->getColor();
             continue;
         }

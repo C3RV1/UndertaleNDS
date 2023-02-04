@@ -142,8 +142,6 @@ void runTitleScreen() {
         }
     }
 
-    REG_BG3VOFS = 0;
-    setBrightness(3, 0);  // set brightness to full bright
     Engine::textSub.clear();
 
     skip = false;
@@ -156,6 +154,9 @@ void runTitleScreen() {
     cBackground.loadPath("intro/title");
 
     cBackground.loadBgTextMain();
+
+    REG_BG3VOFS = 0;
+    setBrightness(3, 0);  // set brightness to full bright
 
     timer = introLogoFrames;
 

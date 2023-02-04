@@ -308,7 +308,7 @@ void loadNewRoom(int roomId, s32 spawnX, s32 spawnY) {
         delete globalCutscene;
         globalCutscene = nullptr;
         globalInGameMenu.show(false);
-        globalPlayer->_playerControl = true;
+        globalPlayer->setPlayerControl(true);
         globalCamera._manual = false;
     }
     globalCamera.updatePosition(true);

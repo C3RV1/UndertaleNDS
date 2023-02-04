@@ -19,7 +19,7 @@ def cutscene(c: Cutscene):
 
     c.bind(jump_repeated_dialogue)
     c.start_dialogue(11, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4 - 5,
-                     "talkIdle", "talkTalk",
+                     "worriedLeftIdle", "worriedLeftTalk",
                      Target(TargetType.SPRITE, 7),
                      "leftIdle", "leftTalk", type_sound="snd_txttor.wav")
     c.wait(WaitTypes.DIALOGUE)

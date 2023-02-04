@@ -12,7 +12,7 @@ def cutscene(c: Cutscene):
     c.set_animation(Target(TargetType.PLAYER), "rightIdle")
 
     c.start_dialogue(10, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4,
-                     "talkIdle", "talkTalk",
+                     "worriedLeftIdle", "worriedLeftTalk",
                      Target(TargetType.SPRITE, 0),
                      "leftIdle", "leftTalk",
                      type_sound="snd_txttor.wav")
@@ -85,7 +85,7 @@ def cutscene(c: Cutscene):
     c.set_animation(Target(TargetType.PLAYER), "rightIdle")
 
     c.start_dialogue(20, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4,
-                     "talkIdle", "talkTalk",
+                     "worriedLeftIdle", "worriedLeftTalk",
                      Target(TargetType.SPRITE, 0),
                      "leftIdle", "leftTalk",
                      type_sound="snd_txttor.wav")

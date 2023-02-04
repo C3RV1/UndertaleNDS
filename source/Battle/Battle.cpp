@@ -235,7 +235,7 @@ void runBattle(FILE* stream) {
                 delete globalCutscene;
                 globalCutscene = nullptr;
                 globalInGameMenu.show(false);
-                globalPlayer->_playerControl = true;
+                globalPlayer->setPlayerControl(true);
                 globalCamera._manual = false;
             }
         }

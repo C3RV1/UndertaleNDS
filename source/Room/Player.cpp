@@ -22,6 +22,20 @@ Player::Player() : _playerSpr(Engine::Allocated3D) {
     _rightMoveId = _playerSpr.nameToAnimId("rightMove");
 }
 
+void Player::setPlayerControl(bool playerControl) {
+    _playerControl = playerControl;
+    if (!_playerControl) {
+        if (_playerSpr._cAnimation == _upMoveId)
+            _playerSpr.setSpriteAnim(_upIdleId);
+        else if (_playerSpr._cAnimation == _downMoveId)
+            _playerSpr.setSpriteAnim(_downIdleId);
+        else if (_playerSpr._cAnimation == _leftMoveId)
+            _playerSpr.setSpriteAnim(_leftIdleId);
+        else if (_playerSpr._cAnimation == _rightMoveId)
+            _playerSpr.setSpriteAnim(_rightIdleId);
+    }
+}
+
 void Player::update() {
     if (!_playerControl)
         return;
@@ -31,25 +45,25 @@ void Player::update() {
     if (keysHeld() & KEY_DOWN) {
         _playerSpr._wy += kMoveSpeed;
         moveDirection = _downMoveId;
-        if (_cAnimation == _downMoveId)
+        if (_playerSpr._cAnimation == _downMoveId)
             setAnim = false;
     }
     if (keysHeld() & KEY_UP) {
         _playerSpr._wy -= kMoveSpeed;
         moveDirection = _upMoveId;
-        if (_cAnimation == _upMoveId)
+        if (_playerSpr._cAnimation == _upMoveId)
             setAnim = false;
     }
     if (keysHeld() & KEY_RIGHT) {
         _playerSpr._wx += kMoveSpeed;
         moveDirection = _rightMoveId;
-        if (_cAnimation == _rightMoveId)
+        if (_playerSpr._cAnimation == _rightMoveId)
             setAnim = false;
     }
     if (keysHeld() & KEY_LEFT) {
         _playerSpr._wx -= kMoveSpeed;
         moveDirection = _leftMoveId;
-        if (_cAnimation == _leftMoveId)
+        if (_playerSpr._cAnimation == _leftMoveId)
             setAnim = false;
     }
 
@@ -71,22 +85,21 @@ void Player::update() {
     }
 
     if (_playerSpr._wx == prevX && prevY == _playerSpr._wy) {
-        if (moveDirection != -1)
-            _cAnimation = moveDirection;
-        if (_cAnimation == _upMoveId)
-            _cAnimation = _upIdleId;
-        else if (_cAnimation == _downMoveId)
-            _cAnimation = _downIdleId;
-        else if (_cAnimation == _leftMoveId)
-            _cAnimation = _leftIdleId;
-        else if (_cAnimation == _rightMoveId)
-            _cAnimation = _rightIdleId;
+        if (moveDirection == -1)
+            moveDirection = _playerSpr._cAnimation;
+        if (moveDirection == _upMoveId)
+            _playerSpr.setSpriteAnim(_upIdleId);
+        else if (moveDirection == _downMoveId)
+            _playerSpr.setSpriteAnim(_downIdleId);
+        else if (moveDirection == _leftMoveId)
+            _playerSpr.setSpriteAnim(_leftIdleId);
+        else if (moveDirection == _rightMoveId)
+            _playerSpr.setSpriteAnim(_rightIdleId);
     } else {
         if (setAnim) {
-            _cAnimation = moveDirection;
+            _playerSpr.setSpriteAnim(moveDirection);
         }
     }
-    _playerSpr.setSpriteAnim(_cAnimation);
 
     if (keysDown() & KEY_A) {
         check_interact();
@@ -143,14 +156,14 @@ void Player::check_exits() {
 
 void Player::check_interact() const {
     s32 x, y, w = 19, h = 9, x2, y2, w2, h2;
-    if (_cAnimation == _upIdleId || _cAnimation == _upMoveId) {
+    if (_playerSpr._cAnimation == _upIdleId || _playerSpr._cAnimation == _upMoveId) {
         x = 0;
         y = -9;
         h = 19;
-    } else if (_cAnimation == _downIdleId || _cAnimation == _downMoveId) {
+    } else if (_playerSpr._cAnimation == _downIdleId || _playerSpr._cAnimation == _downMoveId) {
         x = 0;
         y = 29;
-    } else if (_cAnimation == _rightIdleId || _cAnimation == _rightMoveId) {
+    } else if (_playerSpr._cAnimation == _rightIdleId || _playerSpr._cAnimation == _rightMoveId) {
         x = 19;
         y = 29 - 9;
     } else {

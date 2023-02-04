@@ -6,9 +6,9 @@ else:
 
 
 def cutscene(c: Cutscene):
-    c.set_animation(Target(TargetType.PLAYER), "upIdle")
     c.set_collider_enabled(0, False)
     c.player_control(False)
+    c.set_animation(Target(TargetType.PLAYER), "upIdle")
     c.manual_camera(True)
     c.move_in_frames(Target(TargetType.CAMERA), 0, -20, 60)
     c.wait(WaitTypes.FRAMES, 60)

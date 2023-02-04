@@ -10,7 +10,7 @@ def cutscene(c: Cutscene):
     c.set_animation(Target(TargetType.PLAYER), "rightIdle")
     c.set_collider_enabled(0, False)
     c.start_dialogue(10, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4,
-                     "talkIdle", "talkTalk",
+                     "slightSmileIdle", "slightSmileTalk",
                      Target(TargetType.SPRITE, 0),
                      "downIdle", "downTalk",
                      type_sound="snd_txttor.wav")

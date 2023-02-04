@@ -192,7 +192,7 @@ def cutscene(c: Cutscene):
     c.wait(WaitTypes.ENTER)
 
     c.start_dialogue(65, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4,
-                     "talkIdle", "talkTalk",
+                     "what", "what",
                      Target(TargetType.SPRITE, 0),
                      "downIdle", "downTalk",
                      type_sound="snd_txttor.wav")

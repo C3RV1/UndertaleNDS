@@ -40,8 +40,8 @@ int main() {
     u16 roomSpawn = globalSave.lastSavedRoom;
 
     // DEBUG
-    // roomSpawn = 10;
-    // globalSave.flags[0] = 4;
+    roomSpawn = 7;
+    globalSave.flags[0] = 6;
 
     globalPlayer = new Player();
     globalPlayer->_playerSpr.setShown(true);
@@ -62,7 +62,7 @@ int main() {
                 delete globalCutscene;
                 globalCutscene = nullptr;
                 globalInGameMenu.show(false);
-                globalPlayer->_playerControl = true;
+                globalPlayer->setPlayerControl(true);
                 globalCamera._manual = false;
             }
         }
