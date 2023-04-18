@@ -25,7 +25,7 @@ enum BattleActions {
 };
 
 class BattleAction {
-    const s32 kAttackSpeed = (5 << 8); // 5 pixels per frame
+    constexpr static s32 kAttackSpeed = (5 << 8); // 5 pixels per frame
 
 public:
     BattleAction(u8 enemyCount, Enemy* enemies);
@@ -59,7 +59,7 @@ private:
     Engine::Sprite _fightBtn, _actBtn, _itemBtn, _mercyBtn, _heartSpr;
 
     Engine::Background _fightBoard;
-    Engine::Texture _attackTex;
+    Engine::Texture _attackTex, _damageNumbers, _missText;
     Engine::Sprite _attackSpr;
 
     int _gfxAnimId, _activeAnimId;

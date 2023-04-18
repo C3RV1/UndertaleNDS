@@ -13,7 +13,7 @@
 #define ARM9
 #include <nds.h>
 
-const int MAX_NAME_LEN = 10;
+constexpr int MAX_NAME_LEN = 10;
 
 enum ClearType {
     INTERNAL_RESET,
@@ -30,7 +30,7 @@ enum Items {
 
 class SaveData {
 public:
-    const u32 saveVersion = 5;
+    constexpr static u32 saveVersion = 5;
     void clear(ClearType clearType);
     void loadData();
     void saveData(u16 roomId);

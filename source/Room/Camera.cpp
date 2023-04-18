@@ -8,7 +8,7 @@
 #include "Room/Player.hpp"
 
 void Camera::updatePosition(bool roomChange) {
-    const int offsetX = 0, offsetY = -20;
+    constexpr int offsetX = 0, offsetY = -20;
     int xTilePrev = (_prevX >> 8) / 8, yTilePrev = (_prevY >> 8) / 8;
     if (!_manual) {
         _pos._wx = globalPlayer->_playerSpr._wx - ((256 / 2 - 9) << 8) + (offsetX << 8);

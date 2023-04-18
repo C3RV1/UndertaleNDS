@@ -21,6 +21,8 @@ BattleAction::BattleAction(u8 enemyCount_, Enemy* enemies) :
     _fnt.loadPath("fnt_maintext.font");
 
     _fightBoard.loadPath("fight_board");
+    _damageNumbers.loadPath("battle/damage_numbers");
+    _missText.loadPath("battle/miss_text");
     _attackTex.loadPath("battle/spr_targetchoice");
     _attackSpr.loadTexture(_attackTex);
 
@@ -375,6 +377,9 @@ bool BattleAction::updateFighting() {
         }
         if (damage < 0)
             damage = 0;
+        char buffer[200];
+        sprintf(buffer, "Damage %d\n", damage);
+        nocashMessage(buffer);
         enemy->_hp -= damage;
         if (enemy->_hp < 0)
             enemy->_hp = 0;

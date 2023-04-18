@@ -14,7 +14,7 @@
 namespace Audio {
     // We do not read a sample at a time, that would take too long. We load in chunks.
     // Size of the buffer:
-    const int kWAVBuffer = 1000;  // in samples
+    constexpr int kWAVBuffer = 1000;  // in samples
 
     class WAV {
     public:

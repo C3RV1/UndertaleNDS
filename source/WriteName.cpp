@@ -16,10 +16,10 @@ void runWriteNameMenu() {
     char buffer[100];
 
     // letter selection
-    const int startX = 30, startY = 30, spacingX = 30, spacingY = 17;
+    constexpr int startX = 30, startY = 30, spacingX = 30, spacingY = 17;
 
-    const int nameX = 80, nameY = 80;
-    const int line1x = 55, line1y = 40;
+    constexpr int nameX = 80, nameY = 80;
+    constexpr int line1x = 55, line1y = 40;
     const int line2x = 50, line2y = 140;
     const int line3x = 65, line3y = 160;
 

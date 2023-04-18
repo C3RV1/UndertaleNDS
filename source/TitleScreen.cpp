@@ -9,24 +9,24 @@
 #include "Formats/utils.hpp"
 
 void runTitleScreen() {
-    const int fadeInFrames = 30;
-    const int holdFrames = 60*5;
+    constexpr int fadeInFrames = 30;
+    constexpr int holdFrames = 60*5;
     int fadeOutFrames = 30;  // replace on last frame to fadeOutLastFrames
-    const int height = 350;
-    const int holdLastFrames = 60 * 4;
-    const int fadeOutLastFrames = 60 * 4;
-    const int scrollFrames = 60 * 7;
-    const int introLogoFrames = 300;
-    const int textX = 30;
-    const int textX_alt = 25;
-    const int textX_centered = 256 / 2 - 43;
-    const int textY = 30;
-    const int lineSpacing = 20;
-    const int characterExtraSpacing = 3;
-    const int characterExtraSpacing_intro3 = 2;
-    const int dotFrames = 40;
-    const int otherPunctuationFrames = 25;
-    const int letterFrames = 4;
+    constexpr int height = 350;
+    constexpr int holdLastFrames = 60 * 4;
+    constexpr int fadeOutLastFrames = 60 * 4;
+    constexpr int scrollFrames = 60 * 7;
+    constexpr int introLogoFrames = 300;
+    constexpr int textX = 30;
+    constexpr int textX_alt = 25;
+    constexpr int textX_centered = 256 / 2 - 43;
+    constexpr int textY = 30;
+    constexpr int lineSpacing = 20;
+    constexpr int characterExtraSpacing = 3;
+    constexpr int characterExtraSpacing_intro3 = 2;
+    constexpr int dotFrames = 40;
+    constexpr int otherPunctuationFrames = 25;
+    constexpr int letterFrames = 4;
     int timer;
 
     char textBuffer[100];

@@ -46,7 +46,7 @@ public:
     Navigation _nav;
 };
 
-const int kRoomChangeFadeFrames = 20;
+constexpr int kRoomChangeFadeFrames = 20;
 void loadNewRoom(int roomId, s32 spawnX, s32 spawnY);
 
 extern Room* globalRoom;

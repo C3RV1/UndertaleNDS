@@ -46,7 +46,7 @@ public:
     Engine::Background _bulletBoard;
     u8 _boardX = 0, _boardY = 0, _boardW = 0, _boardH = 0;
 
-    const s32 _playerSpeed = (60 << 8) / 60;
+    constexpr static s32 _playerSpeed = (60 << 8) / 60;
     Engine::Texture _playerTex;
     Engine::Sprite _playerSpr;
 

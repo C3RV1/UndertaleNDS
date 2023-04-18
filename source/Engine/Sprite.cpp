@@ -8,6 +8,15 @@ namespace Engine {
         _allocMode = allocMode;
     }
 
+    void Sprite::setAllocationMode(Engine::AllocationMode allocMode) {
+        if (allocMode == _allocMode)
+            return;
+        bool lastShown = _shown;
+        setShown(false);
+        _allocMode = allocMode;
+        setShown(true);
+    }
+
     void Sprite::setSpriteAnim(int animId) {
         if (!_loaded)
             return;
@@ -69,6 +78,13 @@ namespace Engine {
         _y >>= 8;
         _scale_x = (_cam_scale_x * _w_scale_x) >> 8;
         _scale_y = (_cam_scale_y * _w_scale_y) >> 8;
+    }
+
+    void Sprite::setFrame(int frameId) {
+        if (!_loaded)
+            return;
+        _cAnimation = -1;
+        _cFrame = frameId;
     }
 
     void Sprite::setShown(bool shown) {

@@ -13,11 +13,11 @@
 #include <cstdio>
 
 void runMainMenu() {
-    const int nameX = 42, nameY = 24 - 4;
-    const int lvX = 132, lvY = 24 - 4;
-    const int roomNameX = 42, roomNameY = 44 - 4;
-    const int continueX = 63, continueY = 67 - 4;
-    const int resetX = 156, resetY = 67 - 4;
+    constexpr int nameX = 42, nameY = 24 - 4;
+    constexpr int lvX = 132, lvY = 24 - 4;
+    constexpr int roomNameX = 42, roomNameY = 44 - 4;
+    constexpr int continueX = 63, continueY = 67 - 4;
+    constexpr int resetX = 156, resetY = 67 - 4;
     char buffer[100];
     char *roomName = nullptr;
     char *continueText = nullptr;

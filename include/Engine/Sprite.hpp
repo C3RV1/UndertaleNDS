@@ -37,8 +37,10 @@ namespace Engine {
 
     class Sprite {
     public:
-        explicit Sprite(AllocationMode allocMode);
+        explicit Sprite(AllocationMode allocMode=NoAlloc);
+        void setAllocationMode(AllocationMode allocMode);
         void setSpriteAnim(int animId);
+        void setFrame(int frameId);
         void loadTexture(Texture& texture);
         int nameToAnimId(const char *animName) const;
         void tick();
@@ -55,7 +57,6 @@ namespace Engine {
         s32 _cam_x = 0, _cam_y = 0;
         s32 _cam_scale_x = 1 << 8, _cam_scale_y = 1 << 8;
         s32 _layer = 0;
-        int _cFrame = 0;
         int _cAnimation = -1;
 
         friend class OAMManager;
@@ -65,6 +66,7 @@ namespace Engine {
         s32 _scale_x = 0, _scale_y = 0;
         u16 _cAnimTimer = 0;
         u16 _cAnimFrame = 0;
+        int _cFrame = 0;
         SpriteInternalMemory _memory;
         AllocationMode _allocMode;
         bool _shown = false;

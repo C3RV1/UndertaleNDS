@@ -10,7 +10,7 @@
 
 struct CSCN {
     char header[4] = {'C', 'S', 'C', 'N'};
-    static const u32 version = 8;
+    static constexpr u32 version = 8;
     u32 fileSize = 0;
     u8* commands = nullptr;
 };
