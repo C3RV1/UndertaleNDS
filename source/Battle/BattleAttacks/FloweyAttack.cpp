@@ -32,7 +32,7 @@ namespace BtlAttacks {
                 int ySteps = (diffY << 8) / kPelletSpeedY;
                 for (int i = 0; i < 5; i++) {
                     auto pellet = _pelletSpr[i];
-                    _pelletVecX[i] = ((globalBattle->_playerSpr._wx + (9 << 8) / 2 - pellet->_wx - (4 << 8)) << 8) / ySteps;
+                    _pelletVecX[i] = ((globalBattle->_playerSpr._wx + (9 << 8) / 2 - pellet._wx - (4 << 8)) << 8) / ySteps;
                 }
             } else {
                 for (auto & pellet : _pelletSpr) {

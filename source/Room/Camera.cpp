@@ -16,17 +16,27 @@ void Camera::updatePosition(bool roomChange) {
     }
     u16 roomW, roomH;
     globalRoom->_bg.getSize(roomW, roomH);
-    if ((_pos._wx >> 8) + 256 > roomW * 8) {
-        _pos._wx = (roomW * 8 - 256) << 8;
+    if (roomW * 8 >= 256) {
+        if ((_pos._wx >> 8) + 256 > roomW * 8) {
+            _pos._wx = (roomW * 8 - 256) << 8;
+        }
+        if (_pos._wx < 0) {
+            _pos._wx = 0;
+        }
     }
-    if (_pos._wx < 0) {
-        _pos._wx = 0;
+    else {
+        _pos._wx = (roomW * 8 / 2 - 128) << 8;
     }
-    if ((_pos._wy >> 8) + 192 > roomH * 8) {
-        _pos._wy = (roomH * 8 - 192) << 8;
+    if (roomH * 8 >= 256) {
+        if ((_pos._wy >> 8) + 192 > roomH * 8) {
+            _pos._wy = (roomH * 8 - 192) << 8;
+        }
+        if (_pos._wy < 0) {
+            _pos._wy = 0;
+        }
     }
-    if (_pos._wy < 0) {
-        _pos._wy = 0;
+    else {
+        _pos._wy = (roomH * 8 / 2 - 96) << 8;
     }
     if (!roomChange) {
         // 3D engine lags behind 1 frame for some reason

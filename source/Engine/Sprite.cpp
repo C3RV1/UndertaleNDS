@@ -14,7 +14,7 @@ namespace Engine {
         bool lastShown = _shown;
         setShown(false);
         _allocMode = allocMode;
-        setShown(true);
+        setShown(lastShown);
     }
 
     void Sprite::setSpriteAnim(int animId) {

@@ -264,14 +264,18 @@ namespace Engine {
         int mapSize = 16 << ((*bg3Reg >> 14) & 3);
         for (int row = y; row < y + h; row++) {
             for (int col = x; col < x + w; col++) {
-                int srcRow = mod(row, _height);
-                int srcCol = mod(col, _width);
                 int dstRow = mod(row, mapSize);
                 int dstCol = mod(col, mapSize);
                 auto* mapRes = (u16*)((u8*)mapRam + (dstRow * mapSize + dstCol) * 2);
                 int tileDst = mod(row, 26) * 34 + mod(col, 34);
                 *mapRes = tileDst;
                 auto* tileRes = (u16*)((u8*)tileRam + tileDst * 64);
+                if (0 > row or row >= _height or 0 > col or col >= _width) {
+                    memset(tileRes, 0, 64);
+                    continue;
+                }
+                int srcRow = row;
+                int srcCol = col;
                 auto* mapSrc = (u16*)((u8 *) _map + (srcRow * _width + srcCol) * 2);
 
                 if (_color8bit) {
