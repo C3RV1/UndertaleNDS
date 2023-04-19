@@ -16,10 +16,11 @@
 class SaveMenu {
 public:
     SaveMenu();
+    ~SaveMenu() {free_();}
     void drawInfo(SaveData& saveData, u8 color);
     bool update();
-    void free_();
 private:
+    void free_();
     constexpr static int kNameX = 41, kNameY = 43 - 4;
     constexpr static int kLvNumX = 131, kLvNumY = 43 - 4;
     constexpr static int kRoomNameX = 41, kRoomNameY = 63 - 4;

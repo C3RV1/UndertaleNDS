@@ -20,9 +20,10 @@ public:
              const char* fontTxt, u16 framesPerLetter, Engine::TextBGManager& txtManager);
     Dialogue(bool centered_, int x_, int y_, const char* text_, const char* typeSndPath,
              const char* fontTxt, u16 framesPerLetter, Engine::TextBGManager& txtManager);
+    ~Dialogue() {free_();}
     bool update();
-    void free_();
 private:
+    void free_();
     void setTalk();
     void setNoTalk();
     void progressText(bool clear, bool draw);

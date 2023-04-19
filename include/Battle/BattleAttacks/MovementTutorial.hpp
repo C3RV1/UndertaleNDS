@@ -13,7 +13,6 @@ namespace BtlAttacks {
     class MovementTutorial : public BattleAttack {
     public:
         MovementTutorial();
-        ~MovementTutorial() noexcept override;
         bool update() override;
     private:
         Engine::Texture _tutorialTex;

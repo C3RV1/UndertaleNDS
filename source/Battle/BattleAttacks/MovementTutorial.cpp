@@ -22,9 +22,4 @@ namespace BtlAttacks {
             return true;
         return false;
     }
-
-    MovementTutorial::~MovementTutorial() noexcept {
-        _tutorialSpr.setShown(false);
-        _tutorialTex.free_();
-    }
 }

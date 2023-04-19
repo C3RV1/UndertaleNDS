@@ -18,7 +18,6 @@ public:
                u8 textureCount, Engine::Texture** textures);
     void update(bool isRoom);
     void draw(bool isRoom);
-    void free_();
     Engine::Sprite _spr;
 
     u8 _interactAction = 0;
@@ -27,6 +26,7 @@ public:
     int _closeAnim = 0;
     int _animationId = 0;
 private:
+    void free_();
     Engine::Texture* _texture = nullptr;
 };
 

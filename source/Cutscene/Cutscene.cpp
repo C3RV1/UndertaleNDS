@@ -78,13 +78,11 @@ bool Cutscene::checkHeader(FILE *f) {
 void Cutscene::update() {
     if (_cDialogue != nullptr) {
         if (_cDialogue->update()) {
-            _cDialogue->free_();
             delete _cDialogue;
             _cDialogue = nullptr;
         }
     } else if (_cSaveMenu != nullptr) {
         if (_cSaveMenu->update()) {
-            _cSaveMenu->free_();
             delete _cSaveMenu;
             _cSaveMenu = nullptr;
         }
@@ -649,12 +647,10 @@ Cutscene::~Cutscene() {
     if (_commandStream != nullptr)
         fclose(_commandStream);
     if (_cDialogue != nullptr) {
-        _cDialogue->free_();
         delete _cDialogue;
         _cDialogue = nullptr;
     }
     if (_cSaveMenu != nullptr) {
-        _cSaveMenu->free_();
         delete _cSaveMenu;
         _cSaveMenu = nullptr;
     }

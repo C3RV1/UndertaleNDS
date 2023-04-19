@@ -21,7 +21,6 @@ namespace Engine {
             width = _width;
             height = _height;
         }
-        void free_();
         ~Background() { free_(); }
 
         int loadBgTextMain();
@@ -33,6 +32,7 @@ namespace Engine {
         int loadBgRectMain(int x, int y, int w, int h);
         int loadBgRectSub(int x, int y, int w, int h);
     private:
+        void free_();
         bool _loaded = false;
         bool _color8bit = false;
         u8 _colorCount = 0;

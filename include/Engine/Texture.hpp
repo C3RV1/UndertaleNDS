@@ -26,9 +26,9 @@ namespace Engine {
             width = _width;
             height = _height;
         }
-        void free_();
         ~Texture() { free_(); }
     private:
+        void free_();
         friend class OAMManager;
         friend class Sprite3DManager;
         friend class Sprite;

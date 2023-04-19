@@ -110,11 +110,6 @@ bool SaveMenu::update() {
 void SaveMenu::free_() {
     delete[] _roomName;
     _roomName = nullptr;
-    _saveSnd.stop();
-    _saveSnd.free_();
     _optionsHeartSpr.setShown(false);
-    _optionsHeartTex.free_();
-    _fnt.free_();
-    _bg.free_();
     Engine::clearSub();
 }

@@ -27,7 +27,7 @@ void Camera::updatePosition(bool roomChange) {
     else {
         _pos._wx = (roomW * 8 / 2 - 128) << 8;
     }
-    if (roomH * 8 >= 256) {
+    if (roomH * 8 >= 192) {
         if ((_pos._wy >> 8) + 192 > roomH * 8) {
             _pos._wy = (roomH * 8 - 192) << 8;
         }

@@ -419,16 +419,4 @@ void BattleAction::free_() {
     _freed = true;
     delete[] _mercyText;
     _mercyText = nullptr;
-    _fightBtn.setShown(false);
-    _actBtn.setShown(false);
-    _itemBtn.setShown(false);
-    _mercyBtn.setShown(false);
-    _heartSpr.setShown(false);
-    _fightTex.free_();
-    _actTex.free_();
-    _itemTex.free_();
-    _mercyTex.free_();
-    _bigHeartTex.free_();
-    _smallHeartTex.free_();
-    _fnt.free_();
 }

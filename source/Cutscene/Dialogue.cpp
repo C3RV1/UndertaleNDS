@@ -303,7 +303,4 @@ void Dialogue::drawTextCentered() {
 
 void Dialogue::free_() {
     _speakerSpr.setShown(false);
-    _speakerTex.free_();
-    _typeSnd.stop();
-    _typeSnd.free_();
 }

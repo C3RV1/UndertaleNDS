@@ -27,9 +27,6 @@ void InGameMenu::load() {
 
 void InGameMenu::unload() {
     hide();
-    _fnt.free_();
-    _littleHeartTex.free_();
-    _itemExplainTex.free_();
 }
 
 void InGameMenu::hide() {

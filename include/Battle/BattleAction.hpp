@@ -31,9 +31,9 @@ public:
     BattleAction(u8 enemyCount, Enemy* enemies);
     bool update();
     int getActionNum() const;
-    void free_();
     ~BattleAction() {free_();}
 private:
+    void free_();
     void setBtn();
     void enter(BattleActionState state);
 

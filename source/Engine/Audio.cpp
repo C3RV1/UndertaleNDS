@@ -90,11 +90,12 @@ namespace Audio {
     void WAV::free_() {
         if (!_loaded)
             return;
+        _loaded = false;
+        stop();
         delete[] _filename;
         _filename = nullptr;
         fclose(_stream);
         _stream = nullptr;
-        _loaded = false;
     }
 
     void initAudioStream() {
@@ -150,7 +151,6 @@ namespace Audio {
         if (_next != nullptr)
             _next->_prev = _prev;
         if (deleteOnStop) {
-            free_();
             delete this;
         }
     }
@@ -232,13 +232,9 @@ namespace Audio {
         cBGMusic.deleteOnStop = false;
         if (cBGMusic.getLoaded())
             cBGMusic.play();
-        else {
-            cBGMusic.free_();
-        }
     }
 
     void stopBGMusic() {
         cBGMusic.stop();
-        cBGMusic.free_();
     }
 }

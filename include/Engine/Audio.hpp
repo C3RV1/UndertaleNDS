@@ -19,7 +19,7 @@ namespace Audio {
     class WAV {
     public:
         int loadWAV(const char* name);
-        void free_();
+        ~WAV() {free_();}
         
         char* getFilename() {return _filename;}
         bool getLoaded() const { return _loaded; }
@@ -37,6 +37,7 @@ namespace Audio {
         // set tne following variable to true.
         bool deleteOnStop = false;
     private:
+        void free_();
         char* _filename = nullptr;
         int _loops = 0;
         bool _loaded = false;

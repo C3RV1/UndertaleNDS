@@ -126,7 +126,6 @@ void Battle::update() {
     updateBattleAttacks();
     if (_cBattleAction != nullptr) {
         if (_cBattleAction->update()) {
-            _cBattleAction->free_();
             delete _cBattleAction;
             _cBattleAction = nullptr;
             show();
@@ -169,9 +168,7 @@ void Battle::update() {
 void Battle::free_() {
     delete[] _winText;
     _winText = nullptr;
-    _bulletBoard.free_();
     _playerSpr.setShown(false);
-    _playerTex.free_();
     for (int i = 0; i < _enemyCount; i++) {
         delete[] _enemies[i]._actText;
         delete _cBattleAttacks[i];
@@ -180,13 +177,9 @@ void Battle::free_() {
     delete[] _cBattleAttacks;
     _enemies = nullptr;
     _enemyCount = 0;
-    for (int i = 0; i < _textureCount; i++) {
-        _textures[i]->free_();
-    }
     delete[] _textures;
     _textures = nullptr;
     for (int i = 0; i < _spriteCount; i++) {
-        _sprites[i]->free_();
         delete _sprites[i];
         _sprites[i] = nullptr;
     }
@@ -249,7 +242,6 @@ void runBattle(FILE* stream) {
         timer--;
     }
 
-    globalBattle->free_();
     delete globalBattle;
     Engine::textMain.clear();
     Engine::textSub.clear();

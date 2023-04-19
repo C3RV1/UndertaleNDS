@@ -41,7 +41,6 @@ void Navigation::unload_texture(s8 textureId, CutsceneLocation callingLocation) 
         if (texId2 >= globalRoom->_textureCount)
             return;
         auto* sprite = globalRoom->_textures[texId2];
-        sprite->free_();
         delete sprite;
 
         auto* newTextures = new Engine::Texture*[globalRoom->_textureCount - 1];
@@ -60,7 +59,6 @@ void Navigation::unload_texture(s8 textureId, CutsceneLocation callingLocation) 
         if (texId2 >= globalBattle->_textureCount)
             return;
         auto* sprite = globalBattle->_textures[texId2];
-        sprite->free_();
         delete sprite;
 
         auto* newTextures = new Engine::Texture*[globalBattle->_textureCount - 1];
@@ -123,7 +121,6 @@ void Navigation::unload_sprite(s8 sprId, CutsceneLocation callingLocation) {
         if (sprId2 >= globalRoom->_spriteCount)
             return;
         auto* sprite = globalRoom->_sprites[sprId2];
-        sprite->free_();
         delete sprite;
 
         auto* newSprites = new ManagedSprite*[globalRoom->_spriteCount - 1];
@@ -144,7 +141,6 @@ void Navigation::unload_sprite(s8 sprId, CutsceneLocation callingLocation) {
         if (sprId >= globalBattle->_spriteCount)
             return;
         auto* sprite = globalBattle->_sprites[sprId2];
-        sprite->free_();
         delete sprite;
 
         auto* newSprites = new ManagedSprite*[globalBattle->_spriteCount - 1];

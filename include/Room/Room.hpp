@@ -15,12 +15,12 @@
 class Room {
 public:
     explicit Room(int roomId);
+    ~Room() {free_();}
     int loadRoom(FILE *f);
     static bool evaluateCondition(FILE *f);
     void loadSprites();
     void update();
     void draw() const;
-    void free_();
 
     void push();
     void pop();
@@ -44,6 +44,9 @@ public:
     u8 _rectExitCount = 0;
     ROOMExit** _rectExits = nullptr;
     Navigation _nav;
+
+private:
+    void free_();
 };
 
 constexpr int kRoomChangeFadeFrames = 20;

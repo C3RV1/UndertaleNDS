@@ -19,7 +19,6 @@ namespace Engine {
         int loadCFNT(FILE* f);
         bool getLoaded() const { return _loaded; }
         u8 getGlyphWidth(u8 glyph);
-        void free_();
         ~Font() { free_(); }
     private:
         u8* getGlyphMap() { return _glyphMap.glyphMap; }
@@ -28,6 +27,7 @@ namespace Engine {
         bool _loaded = false;
         CFNTGlyphs _glyphs;
         CFNTMap _glyphMap;
+        void free_();
     };
 
     class TextBGManager {

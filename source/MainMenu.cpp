@@ -146,11 +146,7 @@ void runMainMenu() {
     }
 
     Audio::stopBGMusic();
-    topBg.free_();
-    btmBg.free_();
     floweySpr.setShown(false);
-    floweyTex.free_();
-    font.free_();
 
     delete[] roomName;
     delete[] continueText;

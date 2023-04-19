@@ -222,11 +222,9 @@ int Room::loadRoom(FILE *f) {
 }
 
 void Room::free_() {
-    _bg.free_();
     delete[] _roomData.roomExits.roomExits;
     _roomData.roomExits.roomExits = nullptr;
     for (int i = 0; i < _spriteCount; i++) {
-        _sprites[i]->free_();
         delete _sprites[i];
     }
     for (int i = 0; i < _textureCount; i++) {
@@ -246,7 +244,6 @@ void Room::free_() {
 
     delete[] _roomData.roomColliders.roomColliders;
     _roomData.roomColliders.roomColliders = nullptr;
-    _bg.free_();
 }
 
 void Room::loadSprites() {
@@ -292,13 +289,12 @@ void loadNewRoom(int roomId, s32 spawnX, s32 spawnY) {
         timer--;
     }
 
-    globalRoom->free_();
+    delete globalRoom;
 
     for (int i = 210; i <= 219; i++) {
         globalSave.flags[i] = 0; // clear room specific flags
     }
 
-    delete globalRoom;
     globalRoom = new Room(roomId);
     globalPlayer->_playerSpr._wx = spawnX << 8;
     globalPlayer->_playerSpr._wy = spawnY << 8;
@@ -332,7 +328,6 @@ void Room::update() {
 
 void Room::push() {
     globalPlayer->_playerSpr.push();
-    _bg.free_();
     for (int i = 0; i < _spriteCount; i++) {
         _sprites[i]->_spr.push();
     }

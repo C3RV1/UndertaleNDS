@@ -20,6 +20,7 @@
 class Battle {
 public:
     Battle();
+    ~Battle() {free_();}
     void exit(bool won);
     void loadFromStream(FILE* stream);
     void show();
@@ -27,7 +28,6 @@ public:
     void update();
     void updateBattleAttacks() const;
     void startBattleAttacks();
-    void free_();
     bool _shown = false;
     bool _running = true;
     bool _stopPostDialogue = false;
@@ -53,6 +53,8 @@ public:
     BattleAttack** _cBattleAttacks = nullptr;
     BattleAction* _cBattleAction = nullptr;
     bool _hitFlag = false;
+private:
+    void free_();
 };
 
 void runBattle(FILE* stream);
