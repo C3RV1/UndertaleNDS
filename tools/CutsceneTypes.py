@@ -80,7 +80,8 @@ class FlagOffsets(enum.IntEnum):
     ROOM_FLAGS = 210
     BATTLE_FLAGS = 220
     BATTLE_ACTION = 230
-    # BATTLE_HIT = 231 ? (replacing check_hit?)
+    DIALOGUE_OPTION = 231
+    # BATTLE_HIT = 232 ? (replacing check_hit?)
     PERSISTENT = 240
 
 

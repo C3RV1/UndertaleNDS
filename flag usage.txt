@@ -29,4 +29,5 @@
 210-219 - specific room flags (cleared upon entering room)
 220-229 - specific battle flags (cleared upon entering battle)
 230 - battle action
+231 - dialogue decision
 240-249 - persistent flags

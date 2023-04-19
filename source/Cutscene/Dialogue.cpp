@@ -161,7 +161,7 @@ u16 Dialogue::getLineWidth(int linePos_) {
 void Dialogue::getLine() {
     if (_text == nullptr)
         return;
-    for (_lineLen = 0; *(_text + _textPos + _lineLen) != '\n'; _lineLen++);
+    for (_lineLen = 0; *(_text + _textPos + _lineLen) != '\n' && *(_text + _textPos + _lineLen) != '\0'; _lineLen++);
     memcpy(_line, _text + _textPos, _lineLen + 1);
     _line[_lineLen] = '\0';
     _textPos += _lineLen + 1;
