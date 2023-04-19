@@ -26,19 +26,17 @@ private:
     void setTalk();
     void setNoTalk();
     void progressText(bool clear, bool draw);
-    void progressTextCentered(bool clear, bool draw);  // Draws text centered
-    void progressTextLeft(bool clear, bool draw);  // Draws text left-aligned
-    u16 getLineWidth(int linePos_);
-    void getLine();
+    void clearText();
+    void drawTextCentered();  // Draws text centered
+    u16 getLineWidth();
     bool _paused = false;
     int _startingX, _startingY;
     int _x, _y;
 
     bool _centered;
-    u16 _linePos = 0;
-    u16 _lineLen = 0;
-    u16 _textPos = 0;
+    char* _lineStart = nullptr;
     u16 _textLen = 0;
+    u8 _lineStartColor = 15;
     const u16 _lineSpacing = 20;
 
     u16 _cTimer;
@@ -50,8 +48,8 @@ private:
     Engine::TextBGManager* _textManager;
     int _idleAnim = -1, _talkAnim = -1, _idleAnim2 = -1, _talkAnim2 = -1;
     char* _text = nullptr;
-    char _line[100] = {};
-    u8 _cColor = 15;
+    char* _textPos = nullptr;
+    char* _textEnd = nullptr;
 
     Audio::WAV _typeSnd;
 

@@ -29,6 +29,9 @@ Dialogue::Dialogue(bool centered, u16 textId, const char* speaker, s32 speakerX,
     fseek(textStream, 0, SEEK_SET);
     _text = new char[_textLen];
     fread(_text, _textLen, 1, textStream);
+    _textPos = _text;
+    _lineStart = _text;
+    _textEnd = _text + _textLen;
     if (centered) {
         if (strlen(speaker) != 0)
             _startingY = 192 / 2;
@@ -45,8 +48,6 @@ Dialogue::Dialogue(bool centered, u16 textId, const char* speaker, s32 speakerX,
     _letterFrames = framesPerLetter;
     _cTimer = _letterFrames;
     if (centered) {
-        getLine();
-
         _speakerSpr.loadTexture(_speakerTex);
         _speakerSpr._wx = speakerX;
         _speakerSpr._wy = speakerY;
@@ -114,16 +115,12 @@ bool Dialogue::update() {
     if (!_paused) {
         setTalk();
         progressText(true, true);
-        if (((keysDown() & (/*KEY_TOUCH |*/ KEY_B)) || _letterFrames == 0) && (_textPos != _textLen)) {
+        if (((keysDown() & (/*KEY_TOUCH |*/ KEY_B)) || _letterFrames == 0)) {
             progressText(true, false);
-            while (!_paused && !(_textPos >= _textLen && (_linePos >= _lineLen || !_centered)))
+            while (!_paused && _textPos < _textEnd)
                 progressText(false, false);
-            if (_centered && _linePos > 0) {
-                _linePos--;
-                progressText(false, true);
-            }
         }
-        if (_textPos == _textLen && (_linePos >= _lineLen || !_centered)) {
+        if (_textPos == _textEnd) {
             setNoTalk();
             return true;
         }
@@ -139,9 +136,9 @@ bool Dialogue::update() {
     return false;
 }
 
-u16 Dialogue::getLineWidth(int linePos_) {
+u16 Dialogue::getLineWidth() {
     u16 lineWidth_ = 0;
-    for (char* pLine = _line; pLine < _line + linePos_; pLine++) {
+    for (char* pLine = _lineStart; pLine < _textPos; pLine++) {
         if (*pLine == '@') {
             pLine++;
             char command = *pLine;
@@ -158,99 +155,99 @@ u16 Dialogue::getLineWidth(int linePos_) {
     return lineWidth_ - 1;
 }
 
-void Dialogue::getLine() {
-    if (_text == nullptr)
-        return;
-    for (_lineLen = 0; *(_text + _textPos + _lineLen) != '\n' && *(_text + _textPos + _lineLen) != '\0'; _lineLen++);
-    memcpy(_line, _text + _textPos, _lineLen + 1);
-    _line[_lineLen] = '\0';
-    _textPos += _lineLen + 1;
-}
-
 void Dialogue::progressText(bool clear, bool draw) {
-    if (_centered)
-        progressTextCentered(clear, draw);
-    else
-        progressTextLeft(clear, draw);
-}
-
-void Dialogue::progressTextCentered(bool clear, bool draw) {
     if (_cTimer > 0 && draw) {
         _cTimer--;
         return;
     }
     _cTimer = _letterFrames;
-    if (_linePos == _lineLen) {
-        if (_textPos >= _textLen) {
-            return;
-        }
-        _y += _lineSpacing;
-        _linePos = 0;
-        getLine();
-    }
-    if (*(_line + _linePos) == '@') {
-        _linePos++;
-        char command = *(_line + _linePos);
-        _linePos++;
-        if (command == 'p') {
+
+    char cChar = *_textPos++;
+    if (cChar == '@') {
+        cChar = *_textPos++;
+        if (cChar == 'p') {
             _paused = true;
+            if (_centered)
+                drawTextCentered();
         }
-        else if (command == 'c') {
+        else if (cChar == 'c') {
             _textManager->clear();
+            _x = _startingX;
             _y = _startingY;
         }
-        else if (command == 'a') {
+        else if (cChar == '0')
+            _textManager->setColor(8);
+        else if (cChar == '1')
+            _textManager->setColor(9);
+        else if (cChar == '2')
+            _textManager->setColor(10);
+        else if (cChar == '3')
+            _textManager->setColor(11);
+        else if (cChar == '4')
+            _textManager->setColor(12);
+        else if (cChar == '5')
+            _textManager->setColor(13);
+        else if (cChar == '6')
+            _textManager->setColor(14);
+        else if (cChar == 'w')
+            _textManager->setColor(15);
+        else if (cChar == 'a') {
+            char* bufferPos;
             char buffer[30];
-            char* pBuffer = buffer;
-            for (char* pLine = (_line + _linePos); *pLine != '/';
-                 pLine++, pBuffer++, _linePos++) {
-                *pBuffer = *pLine;
-            }
-            _linePos++;
-            *pBuffer = '\0';
+            for (bufferPos = buffer; *_textPos != '/'; *bufferPos++ = *_textPos++);
+            *bufferPos = '\0';
+            _textPos++;
             _idleAnim = _speakerSpr.nameToAnimId(buffer);
-            pBuffer = buffer;
-            for (char* pLine = (_line + _linePos); *pLine != '/';
-                 pLine++, pBuffer++, _linePos++) {
-                *pBuffer = *pLine;
-            }
-            _linePos++;
-            *pBuffer = '\0';
+            for (bufferPos = buffer; *_textPos != '/'; *bufferPos++ = *_textPos++);
+            *bufferPos = '\0';
+            _textPos++;
             _talkAnim = _speakerSpr.nameToAnimId(buffer);
         }
-        else if (command == 'b') {
+        else if (cChar == 'b') {
+            char* bufferPos;
             char buffer[30];
-            char* pBuffer = buffer;
-            for (char* pLine = (_line + _linePos); *pLine != '/';
-                 pLine++, pBuffer++, _linePos++) {
-                *pBuffer = *pLine;
-            }
-            _linePos++;
-            *pBuffer = '\0';
+            for (bufferPos = buffer; *_textPos != '/'; *bufferPos++ = *_textPos++);
+            *bufferPos = '\0';
+            _textPos++;
             if (_target != nullptr)
                 _idleAnim2 = _target->nameToAnimId(buffer);
-            pBuffer = buffer;
-            for (char* pLine = (_line + _linePos); *pLine != '/';
-                 pLine++, pBuffer++, _linePos++) {
-                *pBuffer = *pLine;
-            }
-            _linePos++;
-            *pBuffer = '\0';
+            for (bufferPos = buffer; *_textPos != '/'; *bufferPos++ = *_textPos++);
+            *bufferPos = '\0';
+            _textPos++;
             if (_target != nullptr)
                 _talkAnim2 = _target->nameToAnimId(buffer);
         }
-        _cTimer = 0;
+        return;
+    } else if (cChar == '\n') {
+        if (_centered && !draw)
+            drawTextCentered();
+        _y += _lineSpacing;
+        _x = _startingX;
+        _lineStartColor = _textManager->getColor();
+        _lineStart = _textPos;
         return;
     }
-    _linePos++;
-    if (draw && _linePos < _lineLen)
+    if (draw)
         _typeSnd.play();
 
-    // clear current chars
-    u16 width = getLineWidth(_linePos - 1);
-    _startingX = 128 - width / 2;
+    if (clear && _centered)
+        clearText();
+
+    if (_centered) {
+        if (draw)
+            drawTextCentered();
+    }
+    else
+        _textManager->drawGlyph(_fnt, cChar, _x, _y);
+}
+
+void Dialogue::clearText() {
+    _textPos--;
+    u16 width = getLineWidth();
+    u8 color = _textManager->getColor();
     _textManager->setColor(0); // clear color
-    for (char* pLine = _line; pLine < _line + _linePos - 1; pLine++) {
+    _x = 128 - width / 2;
+    for (char* pLine = _lineStart; pLine < _textPos; pLine++) {
         if (*pLine == '@') {
             pLine++;
             char command = *pLine;
@@ -261,16 +258,18 @@ void Dialogue::progressTextCentered(bool clear, bool draw) {
             }
             continue;
         }
-        if (clear || _linePos > _lineLen)
-            _textManager->drawGlyph(_fnt, *pLine, _startingX, _y);
-        _startingX += 1;
+        _textManager->drawGlyph(_fnt, *pLine, _x, _y);
+        _x += 1;
     }
+    _textManager->setColor(color);
+    _textPos++;
+}
 
-    width = getLineWidth(_linePos);
-    _startingX = 128 - width / 2;
-    _textManager->setColor(_cColor); // clear color
-    int lineEndColor = _cColor;
-    for (char* pLine = _line; pLine < _line + _linePos; pLine++) {
+void Dialogue::drawTextCentered() {
+    u16 width = getLineWidth();
+    _x = 128 - width / 2;
+    _textManager->setColor(_lineStartColor); // clear color
+    for (char* pLine = _lineStart; pLine < _textPos; pLine++) {
         if (*pLine == '@') {
             pLine++;
             char command = *pLine;
@@ -295,100 +294,11 @@ void Dialogue::progressTextCentered(bool clear, bool draw) {
                 pLine++;
                 for(;*pLine != '/';pLine++);
             }
-            lineEndColor = _textManager->getColor();
             continue;
         }
-        if (draw || _linePos == _lineLen)
-            _textManager->drawGlyph(_fnt, *pLine, _startingX, _y);
-        _startingX += 1;
+        _textManager->drawGlyph(_fnt, *pLine, _x, _y);
+        _x += 1;
     }
-
-    if (_linePos == _lineLen)
-        _cColor = lineEndColor;
-}
-
-void Dialogue::progressTextLeft(bool, bool draw) {
-    if (_cTimer > 0 && draw) {
-        _cTimer--;
-        return;
-    }
-    _cTimer = _letterFrames;
-    if (_textPos >= _textLen) {
-        return;
-    }
-
-    char cChar;
-    if (_text != nullptr)
-        cChar = _text[_textPos++];
-    else
-        return;
-
-    if (cChar == '@') {
-        cChar = _text[_textPos++];
-        if (cChar == 'p') {
-            _paused = true;
-        }
-        else if (cChar == 'c') {
-            _textManager->clear();
-            _x = _startingX;
-            _y = _startingY;
-        }
-        else if (cChar == '0')
-            _textManager->setColor(8);
-        else if (cChar == '1')
-            _textManager->setColor(9);
-        else if (cChar == '2')
-            _textManager->setColor(10);
-        else if (cChar == '3')
-            _textManager->setColor(11);
-        else if (cChar == '4')
-            _textManager->setColor(12);
-        else if (cChar == '5')
-            _textManager->setColor(13);
-        else if (cChar == '6')
-            _textManager->setColor(14);
-        else if (cChar == 'w')
-            _textManager->setColor(15);
-        else if (cChar == 'a') {
-            int len;
-            for (len = 0; *(_text + _textPos + len) != '/'; len++);
-            char buffer[30];
-            memcpy(buffer, _text + _textPos, len + 1);
-            buffer[len] = '\0';
-            _textPos += len + 1;
-            _idleAnim = _speakerSpr.nameToAnimId(buffer);
-            for (len = 0; *(_text + _textPos + len) != '/'; len++);
-            memcpy(buffer, _text + _textPos, len + 1);
-            buffer[len] = '\0';
-            _textPos += len + 1;
-            _talkAnim = _speakerSpr.nameToAnimId(buffer);
-        }
-        else if (cChar == 'b') {
-            int len;
-            for (len = 0; *(_text + _textPos + len) != '/'; len++);
-            char buffer[30];
-            memcpy(buffer, _text + _textPos, len + 1);
-            buffer[len] = '\0';
-            _textPos += len + 1;
-            if (_target != nullptr)
-                _idleAnim2 = _target->nameToAnimId(buffer);
-            for (len = 0; *(_text + _textPos + len) != '/'; len++);
-            memcpy(buffer, _text + _textPos, len + 1);
-            buffer[len] = '\0';
-            _textPos += len + 1;
-            if (_target != nullptr)
-                _talkAnim2 = _target->nameToAnimId(buffer);
-        }
-        return;
-    } else if (cChar == '\n') {
-        _y += _lineSpacing;
-        _x = _startingX;
-        return;
-    }
-    if (draw)
-        _typeSnd.play();
-
-    _textManager->drawGlyph(_fnt, cChar, _x, _y);
 }
 
 void Dialogue::free_() {

@@ -44,7 +44,7 @@ namespace BtlAttacks {
             }
         } else {
             for (int i = 0; i < kPelletW * 2; i++) {
-                auto pellet = _pelletSpr[i];
+                auto & pellet = _pelletSpr[i];
                 if (i < kPelletW) {
                     pellet._wy += kPelletSpeed;
                 } else if (i - kPelletW < kPelletW) {

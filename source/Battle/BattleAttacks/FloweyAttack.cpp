@@ -31,7 +31,7 @@ namespace BtlAttacks {
                 int diffY = globalBattle->_playerSpr._wy + (9 << 8) / 2 - ((kPelletY + kPelletMoveY) << 8) - (4 << 8);
                 int ySteps = (diffY << 8) / kPelletSpeedY;
                 for (int i = 0; i < 5; i++) {
-                    auto pellet = _pelletSpr[i];
+                    auto & pellet = _pelletSpr[i];
                     _pelletVecX[i] = ((globalBattle->_playerSpr._wx + (9 << 8) / 2 - pellet._wx - (4 << 8)) << 8) / ySteps;
                 }
             } else {
@@ -41,7 +41,7 @@ namespace BtlAttacks {
             }
         } else {
             for (int i = 0; i < 5; i++) {
-                auto pellet = _pelletSpr[i];
+                auto & pellet = _pelletSpr[i];
                 pellet._wx += _pelletVecX[i];
                 pellet._wy += kPelletSpeedY;
                 if (distSquared_fp(pellet._wx + (4 << 8),
