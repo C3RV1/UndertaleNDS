@@ -33,7 +33,7 @@ void runMainMenu() {
     btmBg.loadPath("main_menu_btm");
     font.loadPath("fnt_maintext.font");
 
-    if (globalSave.flags[0] < 20) {
+    if (globalSave.flags[FlagIds::PROGRESS] < 20) {
         floweyTex.loadPath("room_sprites/flowey");
         floweySpr.loadTexture(floweyTex);
         floweySpr._wx = 118 << 8; floweySpr._wy = 116 << 8;

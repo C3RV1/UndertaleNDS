@@ -477,6 +477,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             fread(&flagId, 2, 1, _commandStream);
             fread(&flagValue, 2, 1, _commandStream);
             globalSave.flags[flagId] = flagValue;
+            globalSave.writePermanentFlags();
             break;
         }
         case CMD_MOD_FLAG: {
@@ -488,6 +489,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             fread(&flagId, 2, 1, _commandStream);
             fread(&flagMod, 2, 1, _commandStream);
             globalSave.flags[flagId] += flagMod;
+            globalSave.writePermanentFlags();
             break;
         }
         case CMD_CMP_FLAG: {

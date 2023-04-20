@@ -370,7 +370,7 @@ void Dialogue::updateChoosingOption() {
         _paused = false;
         _choosingOption = false;
         _optionCount = 0;
-        globalSave.flags[231] = _currentOption;
+        globalSave.flags[FlagIds::DIALOGUE_OPTION] = _currentOption;
         _heartSprite.setShown(false);
         return;
     }

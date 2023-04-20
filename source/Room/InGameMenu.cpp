@@ -9,7 +9,7 @@
 
 void InGameMenu::load() {
     _fnt.loadPath("fnt_maintext.font");
-    _bgLoadedCell = globalSave.flags[2] == 1;
+    _bgLoadedCell = globalSave.flags[FlagIds::OWNS_PHONE] == 1;
     if (_bgLoadedCell)
         _bg.loadPath("ingame_menu/bg");
     else
@@ -48,7 +48,7 @@ void InGameMenu::show(bool update) {
     if (_shown && !update)
         return;
 
-    if (globalSave.flags[2] == 1 && !_bgLoadedCell) {
+    if (globalSave.flags[FlagIds::OWNS_PHONE] == 1 && !_bgLoadedCell) {
         _bg.loadPath("ingame_menu/bg");
         _bgLoadedCell = true;
     }
@@ -194,7 +194,7 @@ void InGameMenu::update() {
 
 void InGameMenu::processTouchItems(touchPosition &touch) {
     if (touch.px > 140 && touch.px < 140 + 58 && touch.py > 35 && touch.py < 35 + 19) {
-        if (_selectedMenu != MENU_CELL && globalSave.flags[2] == 1) {
+        if (_selectedMenu != MENU_CELL && globalSave.flags[FlagIds::OWNS_PHONE] == 1) {
             _selectedMenu = MENU_CELL;
             show(true);
         }

@@ -414,7 +414,7 @@ void BattleAction::free_() {
     if (_freed)
         return;
 
-    globalSave.flags[230] = getActionNum();
+    globalSave.flags[FlagIds::BATTLE_ACTION] = getActionNum();
 
     _freed = true;
     delete[] _mercyText;

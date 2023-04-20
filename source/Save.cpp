@@ -19,7 +19,7 @@ void SaveData::clear(ClearType clearType) {
         cWeapon = Items::STICK;
         cArmor = Items::BANDAGE;
     } else if (clearType == PLAYER_RESET) {
-        memset(flags, 0, 2 * 240);  // reset all but persistent flags
+        memset(flags, 0, 2 * FlagIds::PERSISTENT);  // reset all but persistent flags
     }
 }
 
@@ -83,4 +83,12 @@ void SaveData::saveData(u16 roomId) {
     fCard.write(&lastSavedRoom, 2);
 
     saveExists = true;
+}
+
+void SaveData::writePermanentFlags() {
+    fCard.seek(4 + 4 + MAX_NAME_LEN + 1 + 2 * FlagIds::PERSISTENT, SEEK_SET);
+    fCard.write(
+            &flags[FlagIds::PERSISTENT],
+            (FLAG_COUNT - FlagIds::PERSISTENT) * 2
+            );
 }

@@ -83,6 +83,7 @@ class FlagOffsets(enum.IntEnum):
     DIALOGUE_OPTION = 231
     # BATTLE_HIT = 232 ? (replacing check_hit?)
     PERSISTENT = 240
+    CINNAMON_BUTTERSCOTCH = 241
 
 
 class BattleAttackIds(enum.IntEnum):
