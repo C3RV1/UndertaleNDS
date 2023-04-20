@@ -21,6 +21,25 @@ def cutscene(c: Cutscene):
                      "", "", type_sound="snd_txttor.wav")
     c.wait(WaitTypes.DIALOGUE)
 
+    c.cmp_flag(FlagOffsets.DIALOGUE_OPTION, "==", 1)
+    butterscotch_jump = c.jump_if()
+
+    c.start_dialogue(21, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4 - 5,
+                     "talkIdle", "talkTalk",
+                     Target(TargetType.NULL),
+                     "", "", type_sound="snd_txttor.wav")
+    c.wait(WaitTypes.DIALOGUE)
+
+    end_jump = c.jump()
+    c.bind(butterscotch_jump)
+
+    c.start_dialogue(22, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4 - 5,
+                     "talkIdle", "talkTalk",
+                     Target(TargetType.NULL),
+                     "", "", type_sound="snd_txttor.wav")
+    c.wait(WaitTypes.DIALOGUE)
+
+    c.bind(end_jump)
     c.start_dialogue(30, "", 0, 0, "", "",
                      Target(TargetType.NULL), "", "",
                      type_sound="SND_TXT1.wav")

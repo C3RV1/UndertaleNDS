@@ -357,6 +357,23 @@ void Dialogue::updateChoosingOption() {
         if (_currentOption < 0)
             _currentOption = 0;
     }
+    else if (keysDown() & KEY_DOWN && _optionCount > 2) {
+        _currentOption += 2;
+        _currentOption %= _optionCount;
+    }
+    else if (keysDown() & KEY_UP && _optionCount > 2) {
+        _currentOption -= 2;
+        if (_currentOption < 0)
+            _currentOption = 0;
+    }
+    else if (keysDown() & KEY_A) {
+        _paused = false;
+        _choosingOption = false;
+        _optionCount = 0;
+        globalSave.flags[231] = _currentOption;
+        _heartSprite.setShown(false);
+        return;
+    }
     _heartSprite._wx = (_optionPositions[_currentOption][0] - 2) << 8;
     _heartSprite._wy = (_optionPositions[_currentOption][1] + 3) << 8;
 }
