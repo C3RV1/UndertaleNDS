@@ -13,10 +13,12 @@ Dialogue::Dialogue(bool centered, u16 textId, const char* speaker, s32 speakerX,
                    const char* fontTxt, u16 framesPerLetter, Engine::TextBGManager& txtManager) :
 
         _centered(centered), _speakerSpr(Engine::AllocatedOAM),
-        _target(target), _textManager(&txtManager) {
+        _target(target), _textManager(&txtManager), _heartSprite(Engine::AllocatedOAM) {
     char buffer[100];
 
     _fnt.loadPath(fontTxt);
+    _heartTexture.loadPath("spr_heartsmall");
+    _heartSprite.loadTexture(_heartTexture);
 
     if (strlen(speaker) != 0 && centered)
         _speakerTex.loadPath(speaker);
@@ -127,25 +129,32 @@ bool Dialogue::update() {
         return false;
     } else {
         setNoTalk();
+        if (_choosingOption) {
+            updateChoosingOption();
+            return false;
+        }
         if (keysDown() & (/*KEY_TOUCH |*/ KEY_A)) {
             _paused = false;
-            progressText(true, true);
+            // progressText(true, true);
             return false;
         }
     }
     return false;
 }
 
-u16 Dialogue::getLineWidth() {
+u16 Dialogue::getLineWidth(char* pos) {
     u16 lineWidth_ = 0;
-    for (char* pLine = _lineStart; pLine < _textPos; pLine++) {
+    for (char* pLine = _lineStart; pLine < pos; pLine++) {
         if (*pLine == '@') {
-            pLine++;
-            char command = *pLine;
+            char command = *(++pLine);
             if (command == 'a' or command == 'b') {
                 for(;*pLine != '/';pLine++);
                 pLine++;
                 for(;*pLine != '/';pLine++);
+            }
+            else if (command == 'o') {
+                if (*(++pLine) == 'p')
+                    lineWidth_ += 11;
             }
             continue;
         }
@@ -163,6 +172,7 @@ void Dialogue::progressText(bool clear, bool draw) {
     _cTimer = _letterFrames;
 
     char cChar = *_textPos++;
+
     if (cChar == '@') {
         cChar = *_textPos++;
         if (cChar == 'p') {
@@ -217,6 +227,26 @@ void Dialogue::progressText(bool clear, bool draw) {
             if (_target != nullptr)
                 _talkAnim2 = _target->nameToAnimId(buffer);
         }
+        else if (cChar == 'o') {
+            // Options
+            cChar = *_textPos++;
+            if (cChar == 'p') {
+                // present
+                if (_optionCount < 4) {
+                    _optionPositions[_optionCount][0] = _x;
+                    _optionPositions[_optionCount][1] = _y;
+                    _optionCount++;
+                }
+                _x += 11;
+            } else if (cChar == 'c') {
+                // do choose
+                _paused = true;
+                if (_centered)
+                    drawTextCentered();
+                _choosingOption = true;
+                _currentOption = 0;
+            }
+        }
         return;
     } else if (cChar == '\n') {
         if (_centered && !draw)
@@ -224,6 +254,7 @@ void Dialogue::progressText(bool clear, bool draw) {
         _y += _lineSpacing;
         _x = _startingX;
         _lineStartColor = _textManager->getColor();
+        _lineOptionStart = _optionCount;
         _lineStart = _textPos;
         return;
     }
@@ -242,19 +273,22 @@ void Dialogue::progressText(bool clear, bool draw) {
 }
 
 void Dialogue::clearText() {
-    _textPos--;
-    u16 width = getLineWidth();
+    if (_lastPrintedPos == nullptr)
+        return;
+    u16 width = getLineWidth(_lastPrintedPos);
     u8 color = _textManager->getColor();
     _textManager->setColor(0); // clear color
     _x = 128 - width / 2;
-    for (char* pLine = _lineStart; pLine < _textPos; pLine++) {
+    for (char* pLine = _lineStart; pLine < _lastPrintedPos; pLine++) {
         if (*pLine == '@') {
-            pLine++;
-            char command = *pLine;
+            char command = *(++pLine);
             if (command == 'a' or command == 'b') {
                 for(;*pLine != '/';pLine++);
                 pLine++;
                 for(;*pLine != '/';pLine++);
+            } else if (command == 'o') {
+                if (*(++pLine) == 'p')
+                    _x += 11;
             }
             continue;
         }
@@ -262,17 +296,16 @@ void Dialogue::clearText() {
         _x += 1;
     }
     _textManager->setColor(color);
-    _textPos++;
 }
 
 void Dialogue::drawTextCentered() {
-    u16 width = getLineWidth();
+    u16 width = getLineWidth(_textPos);
     _x = 128 - width / 2;
     _textManager->setColor(_lineStartColor); // clear color
+    int optionNum = _lineOptionStart;
     for (char* pLine = _lineStart; pLine < _textPos; pLine++) {
         if (*pLine == '@') {
-            pLine++;
-            char command = *pLine;
+            char command = *(++pLine);
             if (command == '0')
                 _textManager->setColor(8);
             else if (command == '1')
@@ -294,11 +327,38 @@ void Dialogue::drawTextCentered() {
                 pLine++;
                 for(;*pLine != '/';pLine++);
             }
+            else if (command == 'o') {
+                command = *(++pLine);
+                if (command == 'p') {
+                    if (optionNum < 4) {
+                        _optionPositions[optionNum][0] = _x;
+                        _optionPositions[optionNum][1] = _y;
+                        optionNum++;
+                    }
+                    _x += 11;
+                }
+            }
             continue;
         }
         _textManager->drawGlyph(_fnt, *pLine, _x, _y);
         _x += 1;
     }
+    _lastPrintedPos = _textPos;
+}
+
+void Dialogue::updateChoosingOption() {
+    _heartSprite.setShown(true);
+    if (keysDown() & KEY_RIGHT) {
+        _currentOption++;
+        _currentOption %= _optionCount;
+    }
+    else if (keysDown() & KEY_LEFT) {
+        _currentOption--;
+        if (_currentOption < 0)
+            _currentOption = 0;
+    }
+    _heartSprite._wx = (_optionPositions[_currentOption][0] - 2) << 8;
+    _heartSprite._wy = (_optionPositions[_currentOption][1] + 3) << 8;
 }
 
 void Dialogue::free_() {

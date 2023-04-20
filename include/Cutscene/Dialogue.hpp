@@ -29,13 +29,14 @@ private:
     void progressText(bool clear, bool draw);
     void clearText();
     void drawTextCentered();  // Draws text centered
-    u16 getLineWidth();
+    u16 getLineWidth(char* pos);
     bool _paused = false;
     int _startingX, _startingY;
     int _x, _y;
 
     bool _centered;
     char* _lineStart = nullptr;
+    char* _lastPrintedPos = nullptr;
     u16 _textLen = 0;
     u8 _lineStartColor = 15;
     const u16 _lineSpacing = 20;
@@ -55,6 +56,15 @@ private:
     Audio::WAV _typeSnd;
 
     Engine::Font _fnt;
+
+    Engine::Texture _heartTexture;
+    Engine::Sprite _heartSprite;
+    bool _choosingOption = false;
+    int _optionCount = 0;
+    int _lineOptionStart = 0;
+    int _optionPositions[4][2];
+    void updateChoosingOption();
+    int _currentOption = 0;
 };
 
 #endif //UNDERTALE_DIALOGUE_HPP
