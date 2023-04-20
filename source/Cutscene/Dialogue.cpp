@@ -375,7 +375,7 @@ void Dialogue::updateChoosingOption() {
         return;
     }
     _heartSprite._wx = (_optionPositions[_currentOption][0] - 2) << 8;
-    _heartSprite._wy = (_optionPositions[_currentOption][1] + 3) << 8;
+    _heartSprite._wy = (_optionPositions[_currentOption][1] + 4) << 8;
 }
 
 void Dialogue::free_() {
