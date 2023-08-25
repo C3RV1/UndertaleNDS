@@ -26,10 +26,9 @@ namespace Engine {
         AllocationMode allocated = NoAlloc;
 
         // OAM
-        u8 oamEntryCount = 0;
         u8 oamScaleIdx = 0xff;  // all oam entries can share scale
-        u8 * oamEntries = nullptr;
-        u8 *paletteColors = nullptr;
+        std::vector<u8> oamEntries;
+        int palette = -1;
 
         int loadedFrame = -1;
         bool loadedIntoMemory = false;
@@ -42,7 +41,7 @@ namespace Engine {
         void setSpriteAnim(int animId);
         void setFrame(int frameId);
         void loadTexture(Texture& texture);
-        int nameToAnimId(const char *animName) const;
+        int nameToAnimId(const std::string& animName) const;
         void tick();
         void setShown(bool shown);
         void push();

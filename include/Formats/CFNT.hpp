@@ -7,6 +7,7 @@
 
 #define ARM9
 #include <nds.h>
+#include <vector>
 
 struct CFNTHeader {
     char header[4] = {'C', 'F', 'N', 'T'};
@@ -19,13 +20,12 @@ struct CFNTGlyph {
     u8 height = 0;
     u8 shift = 0; // How many pixels moves the current x forward
     u8 offset = 0;  // How much x offset when rendering
-    u8* glyphData = nullptr;  // width x height (rows first), 1 bit per pixel, rounded to byte
+    std::vector<u8> glyphData;  // width x height (rows first), 1 bit per pixel, rounded to byte
 };
 
 struct CFNTGlyphs {
     u8 lineHeight = 0;
-    u8 glyphCount = 0; // (0-255) glyph id 0 reserved for not defined
-    CFNTGlyph* glyphs = nullptr;
+    std::vector<CFNTGlyph> glyphs;
 };
 
 struct CFNTMap {

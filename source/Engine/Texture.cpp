@@ -1,34 +1,30 @@
 #include "Engine/Texture.hpp"
+#include "Engine/Engine.hpp"
 #include "Formats/utils.hpp"
 
 namespace Engine {
-    bool Texture::loadPath(const char *path) {
-        char pathFull[100];
-        char buffer[100];
+    bool Texture::loadPath(const std::string& path) {
+        std::string pathFull;
+        std::string buffer;
 
-        sprintf(pathFull, "nitro:/spr/%s.cspr", path);
+        _path = path;
 
-        FILE* f = fopen(pathFull, "rb");
+        pathFull = "nitro:/spr/" + path + ".cspr";
+
+        FILE* f = fopen(pathFull.c_str(), "rb");
         if (!f) {
-            sprintf(buffer, "Error opening spr %s", path);
-            nocashMessage(buffer);
-            return false;
+            buffer = "Error opening spr #r" + path;
+            throw_(buffer);
         }
 
-        int loadRes = loadCSPR(f);
+        loadCSPR(f);
 
         fclose(f);
-
-        if (loadRes != 0) {
-            sprintf(buffer, "Error loading spr %s: %d", path, loadRes);
-            nocashMessage(buffer);
-            return false;
-        }
 
         return true;
     }
 
-    int Texture::loadCSPR(FILE *f) {
+    void Texture::loadCSPR(FILE *f) {
         free_();
         char header[4];
         u32 fileSize;
@@ -37,7 +33,8 @@ namespace Engine {
 
         const char expectedChar[4] = {'C', 'S', 'P', 'R'};
         if (memcmp(header, expectedChar, 4) != 0) {
-            return 1;
+            std::string buffer = "Error loading spr #r" + _path + "#x: Invalid header.";
+            throw_(buffer);
         }
 
         fread(&fileSize, 4, 1, f);
@@ -47,41 +44,49 @@ namespace Engine {
         fseek(f, pos, SEEK_SET);
 
         if (fileSize != size) {
-            return 2;
+            std::string buffer = "Error loading spr #r" + _path + "#x: File size doesn't match (expected: "
+                    + std::to_string(fileSize) + ", actual: " + std::to_string(size) + ")";
+            throw_(buffer);
         }
 
         fread(&version, 4, 1, f);
-        if (version != 4) {
-            return 3;
+        if (version != 6) {
+            std::string buffer = "Error loading spr #r" + _path + "#x: Invalid version (expected: 6, actual: "
+                    + std::to_string(version) + ")";
+            throw_(buffer);
         }
 
         fread(&_width, 2, 1, f);
         fread(&_height, 2, 1, f);
         fread(&_topDownOffset, 2, 1, f);
-        u16 tileWidth = (_width + 7) / 8, tileHeight = (_height + 7) / 8;
-
-        fread(&_colorCount, 1, 1, f);
-        _colors = new u16[_colorCount];
-        fread(_colors, 2, _colorCount, f);
-
         fread(&_frameCount, 1, 1, f);
-        u16 tileCount = tileWidth * tileHeight;
-        _tiles = new u8[64 * tileCount * _frameCount];
-        fread(_tiles, 8 * 8 * tileCount * _frameCount, 1, f);
+        fread(&_hasOam, 1, 1, f);
+        fread(&_has3D, 1, 1, f);
+
+        u8 colorCount;
+        fread(&colorCount, 1, 1, f);
+        _colors.resize(colorCount);
+        fread(&_colors[0], 2, colorCount, f);
 
         fread(&_animationCount, 1, 1, f);
-        _animations = new CSPRAnimation[_animationCount];
+        _animations.resize(_animationCount);
         for (int i = 0; i < _animationCount; i++) {
             int nameLen = str_len_file(f, 0);
-            _animations[i].name = new char[nameLen + 1];
-            fread(_animations[i].name, nameLen + 1, 1, f);
-            fread(&_animations[i].frameCount, 1, 1, f);
-            _animations[i].frames = new CSPRAnimFrame[_animations[i].frameCount];
-            if (_animations[i].frameCount == 0) {
+            _animations[i].name.resize(nameLen);
+            fread(&_animations[i].name[0], nameLen, 1, f);
+            fseek(f, 1, SEEK_CUR);  // skip null character
+
+            u8 frameCount;
+            fread(&frameCount, 1, 1, f);
+
+            _animations[i].frames.resize(frameCount);
+            if (frameCount == 0) {
                 // should free on error?
-                return 4;
+                std::string buffer = "Error loading spr #r" + _path + "#x: Animation " + std::to_string(i) +
+                        " has no frames.";
+                throw_(buffer);
             }
-            for (int j = 0; j < _animations[i].frameCount; j++) {
+            for (int j = 0; j < frameCount; j++) {
                 fread(&_animations[i].frames[j].frame, 1, 1, f);
                 fread(&_animations[i].frames[j].duration, 2, 1, f);
                 fread(&_animations[i].frames[j].drawOffX, 1, 1, f);
@@ -89,27 +94,58 @@ namespace Engine {
             }
         }
 
+        if (_hasOam) {
+            if (colorCount > 15) {  // OAM can't have more than 15 colors
+                std::string buffer = "Error loading spr #r" + _path + "#x: OAM can't be 8 bit.";
+                throw_(buffer);
+            }
+            loadOam(f);
+        }
+
+        if (_has3D) {
+            load3D(f);
+        }
+
         _loaded = true;
-        return 0;
     }
 
     void Texture::free_() {
         if (!_loaded)
             return;
         _loaded = false;
-        delete[] _colors;
-        _colors = nullptr;
-        delete[] _tiles;
-        _tiles = nullptr;
-        if (_animations != nullptr) {
-            for (int i = 0; i < _animationCount; i++) {
-                delete[] _animations[i].name;
-                _animations[i].name = nullptr;
-                delete[] _animations[i].frames;
-                _animations[i].frames = nullptr;
+    }
+
+    void Texture::loadOam(FILE *f) {
+        fread(&_oamChunk.oamW, 1, 1, f);
+        fread(&_oamChunk.oamH, 1, 1, f);
+        _oamChunk.oamEntries.resize(_oamChunk.oamW * _oamChunk.oamH);
+        for (int oamY = 0; oamY < _oamChunk.oamH; oamY++) {
+            for (int oamX = 0; oamX < _oamChunk.oamW; oamX++) {
+                auto &oamEntry = _oamChunk.oamEntries[oamY * _oamChunk.oamW + oamX];
+                fread(&oamEntry.tilesW, 1, 1, f);
+                fread(&oamEntry.tilesH, 1, 1, f);
+                int tileDataSize = oamEntry.tilesW * oamEntry.tilesH * 32 * _frameCount;
+                oamEntry.tilesFrameData.resize(tileDataSize);
+                fread(&oamEntry.tilesFrameData[0], tileDataSize, 1, f);
             }
-            delete[] _animations;
         }
-        _animations = nullptr;
+    }
+
+    void Texture::load3D(FILE *f) {
+        fread(&_3dChunk.tilesAllocX, 1, 1, f);
+        fread(&_3dChunk.tilesAllocY, 1, 1, f);
+        _3dChunk.tiles.resize(_3dChunk.tilesAllocX * _3dChunk.tilesAllocY);
+        for (int tileY = 0; tileY < _3dChunk.tilesAllocY; tileY++) {
+            for (int tileX = 0; tileX < _3dChunk.tilesAllocX; tileX++) {
+                auto & tile = _3dChunk.tiles[tileY * _3dChunk.tilesAllocX + tileX];
+                fread(&tile.tileWidth, 1, 1, f);
+                fread(&tile.tileHeight, 1, 1, f);
+                int tileDataSize = tile.tileWidth * tile.tileHeight * 32 * _frameCount;
+                if (_colors.size() > 15)
+                    tileDataSize *= 2;
+                tile.tileFrameData.resize(tileDataSize);
+                fread(&tile.tileFrameData[0], tileDataSize, 1, f);
+            }
+        }
     }
 }

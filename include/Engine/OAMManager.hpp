@@ -7,6 +7,8 @@
 
 #define ARM9
 #include <nds.h>
+#include <memory>
+#include <vector>
 #include "Engine/FreeZoneManager.hpp"
 #include "Sprite.hpp"
 #include "DEBUG_FLAGS.hpp"
@@ -27,7 +29,9 @@ namespace Engine {
                 _oamRam(oamRam),
                 _tileRam(tileRam),
                 _tileZones(1, 1023, "2D_TILES"){
-            *paletteRam = 31 << 5;  // full green for bg
+            for (int i = 0; i < 16; i++) {
+                *(paletteRam + i * 16) = 31 << 5;  // full green for bg
+            }
         };
 
 #ifdef DEBUG_2D
@@ -55,11 +59,9 @@ namespace Engine {
         u16* _tileRam;
 
         FreeZoneManager _tileZones;
+        std::vector<Sprite*> _activeSpr;
 
-        u8 _activeSprCount = 0;
-        Sprite** _activeSpr = nullptr;
-
-        u8 _paletteRefCounts[255] = {0};
+        u8 _paletteRefCounts[16] = {0};
         OAMEntry _oamEntries[SPRITE_COUNT];
         bool _oamScaleEntryUsed[32] = {false};
     };

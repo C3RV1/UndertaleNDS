@@ -9,6 +9,7 @@
 #include "Engine/FreeZoneManager.hpp"
 #define ARM9
 #include <nds.h>
+#include <vector>
 
 namespace Engine {
     class Sprite3DManager {
@@ -33,8 +34,7 @@ namespace Engine {
 
         bool _paletteUsed[96] = {false};
 
-        u8 _activeSprCount = 0;
-        Sprite** _activeSpr = nullptr;
+        std::vector<Sprite*> _activeSpr;
     };
 
     extern Sprite3DManager main3dSpr;

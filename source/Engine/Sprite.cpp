@@ -57,7 +57,7 @@ namespace Engine {
                 _cAnimTimer--;
                 if (_cAnimTimer == 0) {
                     _cAnimFrame++;
-                    _cAnimFrame %= current->frameCount;
+                    _cAnimFrame %= current->frames.size();
                     _cFrame = current->frames[_cAnimFrame].frame;
                     _cAnimTimer = current->frames[_cAnimFrame].duration;
                 }
@@ -98,8 +98,9 @@ namespace Engine {
                 return;
             if (_allocMode == Allocated3D)
                 main3dSpr.loadSprite(*this);
-            else if (_allocMode == AllocatedOAM)
+            else if (_allocMode == AllocatedOAM) {
                 OAMManagerSub.loadSprite(*this);
+            }
         } else {
             if (_memory.allocated == Allocated3D)
                 main3dSpr.freeSprite(*this);
@@ -108,11 +109,11 @@ namespace Engine {
         }
     }
 
-    int Sprite::nameToAnimId(const char *animName) const {
+    int Sprite::nameToAnimId(const std::string& animName) const {
         if (!_loaded)
             return -1;
         for (int i = 0; i < _texture->_animationCount; i++) {
-            if (strcmp(animName, _texture->_animations[i].name) == 0) {
+            if (animName == _texture->_animations[i].name) {
                 return i;
             }
         }

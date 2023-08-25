@@ -82,4 +82,61 @@ namespace Engine {
         main3dSpr.updateTextures();  // Update textures in v-blank
         scanKeys();
     }
+
+    [[noreturn]] void throw_(std::string message) {
+        static bool handlingException = false;
+        nocashMessage("Exception caught:");
+        nocashMessage(message.c_str());
+        if (handlingException) {
+            nocashMessage("Recursive call to throw_");
+            while (true);
+        }
+        handlingException = true;
+        lcdMainOnBottom();
+        textMain.clear();
+        clearMain();
+        Font system_font;
+        system_font.loadPath("fnt_maintext.font");
+
+        message = "#rCAUGHT EXCEPTION:#x\n" + message;
+
+        constexpr int spacing = 10;
+        constexpr int lineSpacing = 20;
+        int x = spacing, y = spacing;
+        bool command = false;
+
+        textMain.setPaletteColor(1, 255, 255, 255, true);
+        textMain.setPaletteColor(2, 255, 30, 30, true);
+
+        for (auto const & message_char : message) {
+            if (message_char == '\n') {
+                x = spacing;
+                y += lineSpacing;
+                continue;
+            }
+            else if (message_char == '#') {
+                command = true;
+                continue;
+            }
+            if (command) {
+                if (message_char == 'r') {
+                    textMain.setColor(2);
+                } else if (message_char == 'x') {
+                    textMain.setColor(1);
+                }
+                command = false;
+                continue;
+            }
+            if (system_font.getGlyphWidth(message_char) + x >= 256 - spacing) {
+                x = spacing * 4;
+                y += lineSpacing;
+            }
+            textMain.drawGlyph(system_font, message_char, x, y);
+        }
+
+        while (true) {
+            Engine::tick();
+        }
+
+    }
 }

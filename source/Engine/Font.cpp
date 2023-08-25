@@ -3,35 +3,28 @@
 //
 
 #include "Engine/Font.hpp"
+#include "Engine/Engine.hpp"
 
 namespace Engine {
-    bool Font::loadPath(const char *path) {
-        char pathFull[100];
-        char buffer[100];
+    bool Font::loadPath(std::string path) {
+        std::string pathFull = "nitro:/fnt/" + path + ".cfnt";
+        _path = path;
 
-        sprintf(pathFull, "nitro:/fnt/%s.cfnt", path);
-
-        FILE* f = fopen(pathFull, "rb");
+        FILE* f = fopen(pathFull.c_str(), "rb");
         if (!f) {
-            sprintf(buffer, "Error opening fnt %s", path);
-            nocashMessage(buffer);
+            std::string buffer = "Error opening font #r" + _path;
+            throw_(buffer);
             return false;
         }
 
-        int loadRes = loadCFNT(f);
+        loadCFNT(f);
 
         fclose(f);
-
-        if (loadRes != 0) {
-            sprintf(buffer, "Error loading fnt %s: %d", path, loadRes);
-            nocashMessage(buffer);
-            return false;
-        }
 
         return true;
     }
 
-    int Font::loadCFNT(FILE *f) {
+    void Font::loadCFNT(FILE *f) {
         free_();
         char header[4];
         u32 fileSize;
@@ -40,7 +33,8 @@ namespace Engine {
 
         const char expectedChar[4] = {'C', 'F', 'N', 'T'};
         if (memcmp(header, expectedChar, 4) != 0) {
-            return 1;
+            std::string buffer = "Error loading font #r" + _path + "#x: Invalid header.";
+            throw_(buffer);
         }
 
         fread(&fileSize, 4, 1, f);
@@ -50,46 +44,42 @@ namespace Engine {
         fseek(f, pos, SEEK_SET);
 
         if (fileSize != size) {
-            return 2;
+            std::string buffer = "Error loading font #r" + _path + "#x: File size doesn't match (expected: "
+                                 + std::to_string(fileSize) + ", actual: " + std::to_string(size) + ")";
+            throw_(buffer);
         }
 
         fread(&version, 4, 1, f);
         if (version != 1) {
-            return 3;
+            std::string buffer = "Error loading spr #r" + _path + "#x: Invalid version (expected: 1, actual: "
+                                 + std::to_string(version) + ")";
+            throw_(buffer);
         }
 
         fread(&_glyphs.lineHeight, 1, 1, f);
-        fread(&_glyphs.glyphCount, 1, 1, f);
-        _glyphs.glyphs = new CFNTGlyph[_glyphs.glyphCount];
+        u8 glyphCount;
+        fread(&glyphCount, 1, 1, f);
+        _glyphs.glyphs.resize(glyphCount);
 
-        for (int i = 0; i < _glyphs.glyphCount; i++) {
-            CFNTGlyph* glyph = &_glyphs.glyphs[i];
-            fread(&glyph->width, 1, 1, f);
-            fread(&glyph->height, 1, 1, f);
-            fread(&glyph->shift, 1, 1, f);
-            fread(&glyph->offset, 1, 1, f);
-            u16 dataBytes = ((glyph->width * glyph->height + 7) / 8);
-            glyph->glyphData = new u8[dataBytes];
-            fread(glyph->glyphData, dataBytes, 1, f);
+        for (auto & glyph : _glyphs.glyphs) {
+            fread(&glyph.width, 1, 1, f);
+            fread(&glyph.height, 1, 1, f);
+            fread(&glyph.shift, 1, 1, f);
+            fread(&glyph.offset, 1, 1, f);
+            u16 dataBytes = ((glyph.width * glyph.height + 7) / 8);
+            glyph.glyphData.resize(dataBytes);
+            fread(&glyph.glyphData[0], dataBytes, 1, f);
         }
 
         fread(_glyphMap.glyphMap, 1, 256, f);
 
         _loaded = true;
-        return 0;
     }
 
     void Font::free_() {
         if (!_loaded)
             return;
         _loaded = false;
-
-        for (int glyphIdx = 0; glyphIdx < _glyphs.glyphCount; glyphIdx++) {
-            delete[] _glyphs.glyphs[glyphIdx].glyphData;
-            _glyphs.glyphs[glyphIdx].glyphData = nullptr;
-        }
-        delete[] _glyphs.glyphs;
-        _glyphs.glyphs = nullptr;
     }
 
     void TextBGManager::drawGlyph(Font& font, u8 glyph, int &x, int y) {
@@ -99,7 +89,7 @@ namespace Engine {
         u8 glyphIdx = font._glyphMap.glyphMap[glyph];
         if (glyphIdx == 0)
             return;
-        CFNTGlyph* glyphObj = font.getGlyph(glyphIdx);
+        const CFNTGlyph* glyphObj = font.getGlyph(glyphIdx);
         int endX = x + glyphObj->shift;
         x += glyphObj->offset;
 
@@ -179,7 +169,7 @@ namespace Engine {
         u8 glyphIdx = getGlyphMap()[glyph];
         if (glyphIdx == 0)
             return 0;
-        CFNTGlyph* glyphObj = getGlyph(glyphIdx);
+        const CFNTGlyph* glyphObj = getGlyph(glyphIdx);
         return glyphObj->shift;
     }
 

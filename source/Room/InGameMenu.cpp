@@ -237,7 +237,11 @@ void InGameMenu::processTouchCell(touchPosition &touch) {
         int touchedOption = (touch.py - kItemsY) / kItemSpacingY;
         if (touchedOption != _optionSelected) {
             _optionSelected = touchedOption;
-            show(true);
+            for (_optionCount = 0; globalSave.cell[_optionCount] != 0; _optionCount++);
+            if (_optionSelected > _optionCount - 1)
+                _optionSelected = _optionCount - 1;
+            _listHeartSpr._wx = (kItemsX - 12) << 8;
+            _listHeartSpr._wy = (kItemsY + kItemSpacingY * _optionSelected + 4) << 8;
         } else {
             // Room 1000 for phone cutscenes
             if (globalCutscene == nullptr)
