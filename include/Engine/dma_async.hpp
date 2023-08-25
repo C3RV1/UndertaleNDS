@@ -35,12 +35,12 @@ static inline void dmaFillWordsAsync(uint8 channel, u32 value, void *dest, uint3
     (*(vu32*)0x027FFE04) = value;
     DMA_SRC(channel) = 0x027FFE04;
 #else
-    DMA_FILL(3) = value;
-    DMA_SRC(3) = (uint32) &DMA_FILL(3);
+    DMA_FILL(channel) = value;
+    DMA_SRC(channel) = (uint32) &DMA_FILL(channel);
 #endif
 
-    DMA_DEST(3) = (uint32) dest;
-    DMA_CR(3) = DMA_SRC_FIX | DMA_COPY_WORDS | (size >> 2);
+    DMA_DEST(channel) = (uint32) dest;
+    DMA_CR(channel) = DMA_SRC_FIX | DMA_COPY_WORDS | (size >> 2);
 }
 
 static inline void dmaFillHalfWordsAsync(uint8 channel, u16 value, void *dest, uint32 size) {
@@ -50,7 +50,7 @@ static inline void dmaFillHalfWordsAsync(uint8 channel, u16 value, void *dest, u
     DMA_SRC(channel) = 0x027FFE04;
 #else
     DMA_FILL(channel) = (uint32) value;
-    DMA_SRC(channel) = (uint32) &DMA_FILL(3);
+    DMA_SRC(channel) = (uint32) &DMA_FILL(channel);
 #endif
 
     DMA_DEST(channel) = (uint32) dest;
