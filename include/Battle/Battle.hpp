@@ -37,11 +37,8 @@ public:
     u8 _enemyCount = 0;
     Enemy* _enemies = nullptr;
 
-    u8 _textureCount = 0;
-    Engine::Texture** _textures = nullptr;
-
-    u8 _spriteCount = 0;
-    ManagedSprite** _sprites = nullptr;
+    std::vector<std::shared_ptr<Engine::Texture>> _textures;
+    std::vector<std::unique_ptr<ManagedSprite>> _sprites;
 
     Engine::Background _bulletBoard;
     u8 _boardX = 0, _boardY = 0, _boardW = 0, _boardH = 0;
@@ -58,6 +55,6 @@ private:
 };
 
 void runBattle(FILE* stream);
-extern Battle* globalBattle;
+extern std::unique_ptr<Battle> globalBattle;
 
 #endif //UNDERTALE_BATTLE_HPP

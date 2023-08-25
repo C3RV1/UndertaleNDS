@@ -5,6 +5,7 @@
 #define ARM9
 #include "Engine/Engine.hpp"
 #include "Engine/Font.hpp"
+#include "Engine/FreeZoneManager.hpp"
 #include "TitleScreen.hpp"
 #include "WriteName.hpp"
 #include "MainMenu.hpp"
@@ -14,7 +15,6 @@
 #include "Room/InGameMenu.hpp"
 #include "Cutscene/Cutscene.hpp"
 #include "Save.hpp"
-
 
 int main() {
     /* Configure the VRAM and background control registers. */
@@ -40,14 +40,14 @@ int main() {
     u16 roomSpawn = globalSave.lastSavedRoom;
 
     // DEBUG
-    roomSpawn = 11;
+    // roomSpawn = 11;
     // globalSave.flags[0] = 5;
 
     globalPlayer = new Player();
     globalPlayer->_playerSpr.setShown(true);
     globalInGameMenu.load();
     globalInGameMenu.show(false);
-    globalRoom = new Room(roomSpawn);
+    globalRoom = std::make_unique<Room>(roomSpawn);
     globalCamera.updatePosition(true);
     globalPlayer->_playerSpr._wx = globalRoom->_spawnX << 8;
     globalPlayer->_playerSpr._wy = globalRoom->_spawnY << 8;
@@ -59,7 +59,6 @@ int main() {
         if (globalCutscene != nullptr) {
             globalCutscene->update();
             if (globalCutscene->runCommands(ROOM)) {
-                delete globalCutscene;
                 globalCutscene = nullptr;
                 globalInGameMenu.show(false);
                 globalPlayer->setPlayerControl(true);

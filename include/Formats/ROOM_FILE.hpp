@@ -24,31 +24,28 @@ struct ROOMExit {
 };
 
 struct ROOMExits {
-    u8 exitCount = 0;
-    ROOMExit* roomExits = nullptr;
+    std::vector<ROOMExit> roomExits;
 };
 
 struct ROOMTextures {
-    u8 textureCount = 0;
-    char** texturePaths = nullptr;
+    std::vector<std::string> texturePaths;
 };
 
 struct ROOMSprite {
     s8 textureId = 0;
     u16 x = 0, y = 0;
-    char* animation = nullptr;
+    std::string animation;
     u8 interactAction = 0;  // 0 - none, 1 - cutscene, 2 - proximity
 
     u16 cutsceneId = 0;  // only when interactAction == 1
 
     // only when interactAction == 2
     u16 distance = 0;
-    char *closeAnim = nullptr;
+    std::string closeAnim;
 };
 
 struct ROOMSprites {
-    u8 spriteCount = 0;
-    ROOMSprite* roomSprites = nullptr;
+    std::vector<ROOMSprite> roomSprites;
 };
 
 struct ROOMCollider {
@@ -59,8 +56,7 @@ struct ROOMCollider {
 };
 
 struct ROOMColliders {
-    u16 colliderCount = 0;
-    ROOMCollider* roomColliders = nullptr;
+    std::vector<ROOMCollider> roomColliders;
 };
 
 struct ROOMPartCondition {
@@ -73,8 +69,8 @@ struct ROOMPart {
     u32 lengthBytes = 0;
     u8 conditionCount = 0;
     ROOMPartCondition* conditions = nullptr;
-    char roomBg[50] = {0};
-    char musicBg[50] = {0};
+    std::string roomBg;
+    std::string musicBg;
     u16 spawnX = 0, spawnY = 0;
     ROOMExits roomExits;
     ROOMTextures roomTextures;

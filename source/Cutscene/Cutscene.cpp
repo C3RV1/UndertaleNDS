@@ -16,8 +16,9 @@
 #include "Room/InGameMenu.hpp"
 #include "Room/Camera.hpp"
 #include "DEBUG_FLAGS.hpp"
+#include <memory>
 
-Cutscene* globalCutscene = nullptr;
+std::unique_ptr<Cutscene> globalCutscene = nullptr;
 
 Cutscene::Cutscene(u16 cutsceneId, u16 roomId) : _cutsceneId(cutsceneId), _roomId(roomId) {
     char buffer[100];
@@ -78,12 +79,10 @@ bool Cutscene::checkHeader(FILE *f) {
 void Cutscene::update() {
     if (_cDialogue != nullptr) {
         if (_cDialogue->update()) {
-            delete _cDialogue;
             _cDialogue = nullptr;
         }
     } else if (_cSaveMenu != nullptr) {
         if (_cSaveMenu->update()) {
-            delete _cSaveMenu;
             _cSaveMenu = nullptr;
         }
     }
@@ -360,9 +359,10 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
 
             Engine::Sprite* target = Navigation::getTarget(targetType, targetId, callingLocation);
             if (_cDialogue == nullptr) {
-                _cDialogue = new Dialogue(centered, textId, speaker, x, y, idleAnim, talkAnim,
-                                          target, idleAnim2, talkAnim2, typeSnd,
-                                          font, framesPerLetter, *txt);
+                _cDialogue = std::make_unique<Dialogue>(
+                        centered, textId, speaker, x, y, idleAnim,
+                        talkAnim, target, idleAnim2, talkAnim2,
+                        typeSnd, font, framesPerLetter, *txt);
             }
             break;
         }
@@ -462,8 +462,8 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             len = str_len_file(_commandStream, 0);
             fread(buffer, len + 1, 1, _commandStream);
 
-            auto *sfxWav = new Audio::WAV;
-            sfxWav->deleteOnStop = true;
+            auto sfxWav = std::make_shared<Audio::WAV>();
+            sfxWav->freeOnStop(sfxWav);
             sfxWav->loadWAV(buffer);
             sfxWav->setLoops(loops);
             sfxWav->play();
@@ -521,7 +521,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             fread(&colliderId, 1, 1, _commandStream);
             fread(&enabled, 1, 1, _commandStream);
             if (callingLocation == ROOM || callingLocation == LOAD_ROOM) {
-                if (colliderId < globalRoom->_roomData.roomColliders.colliderCount) {
+                if (colliderId < globalRoom->_roomData.roomColliders.roomColliders.size()) {
                     globalRoom->_roomData.roomColliders.roomColliders[colliderId].enabled = enabled;
                 }
             }
@@ -540,8 +540,8 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             if (interactAction == 1)
                 fread(&cutsceneId_, 2, 1, _commandStream);
             if (callingLocation == ROOM || callingLocation == LOAD_ROOM) {
-                if (targetType == TargetType::SPRITE && targetId < globalRoom->_spriteCount) {
-                    ManagedSprite* sprite = globalRoom->_sprites[targetId];
+                if (targetType == TargetType::SPRITE && targetId < globalRoom->_sprites.size()) {
+                    auto & sprite = globalRoom->_sprites[targetId];
                     sprite->_interactAction = interactAction;
                     if (interactAction == 1)
                         sprite->_cutsceneId = cutsceneId_;
@@ -554,7 +554,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             nocashMessage("CMD_SAVE_MENU");
 #endif
             if (_cSaveMenu == nullptr)
-                _cSaveMenu = new SaveMenu();
+                _cSaveMenu = std::make_unique<SaveMenu>();
             break;
         case CMD_MAX_HEALTH:
 #ifdef DEBUG_CUTSCENES
@@ -648,12 +648,4 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
 Cutscene::~Cutscene() {
     if (_commandStream != nullptr)
         fclose(_commandStream);
-    if (_cDialogue != nullptr) {
-        delete _cDialogue;
-        _cDialogue = nullptr;
-    }
-    if (_cSaveMenu != nullptr) {
-        delete _cSaveMenu;
-        _cSaveMenu = nullptr;
-    }
 }

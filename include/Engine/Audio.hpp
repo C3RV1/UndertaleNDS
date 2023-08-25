@@ -7,6 +7,10 @@
 
 #include <cstdio>
 #include <cstring>
+#include <string>
+#include <list>
+#include <memory>
+#include <utility>
 #define ARM9
 #include <nds.h>
 #include <maxmod9.h>
@@ -18,10 +22,10 @@ namespace Audio {
 
     class WAV {
     public:
-        int loadWAV(const char* name);
-        ~WAV() {free_();}
+        void loadWAV(std::string name);
+        ~WAV();
         
-        char* getFilename() {return _filename;}
+        std::string getFilename() {return _filename;}
         bool getLoaded() const { return _loaded; }
         void setLoops(int loops) { _loops = loops; }
         bool getStereo() const { return _stereo; }
@@ -33,18 +37,21 @@ namespace Audio {
         // Sometimes we'll want to start a WAV without
         // having to keep a reference.
         // We want it to free itself once it finishes playing
-        // Then we allocate it in the heap using new and
-        // set tne following variable to true.
-        bool deleteOnStop = false;
+        // Then we allocate it in the heap as a shared_ptr and
+        // set the selfFreeingPtr variable, which will be freed once it stops playing.
+        inline void freeOnStop(std::shared_ptr<WAV> self) {
+            selfFreeingPtr = std::move(self);
+        }
     private:
+        std::shared_ptr<WAV> selfFreeingPtr = nullptr;
         void free_();
-        char* _filename = nullptr;
+        std::string _filename;
         int _loops = 0;
         bool _loaded = false;
         u16 _sampleRate = 0;
         bool _stereo = false;
         u16 _bitsPerSample = 8;
-        FILE* _stream = nullptr;
+        FILE* _stream = nullptr;  // TODO: Turn to unique_ptr with delete handler, then free() not needed
         u32 _dataEnd = 0;
         u32 _dataStart = 0;
 
@@ -53,8 +60,6 @@ namespace Audio {
         u16 _maxValueIdx = kWAVBuffer;
         u16 _values[kWAVBuffer * 2] = {0};
         bool _active = false;
-        WAV* _prev = nullptr;
-        WAV* _next = nullptr;
     public:
         friend mm_word fillAudioStream(mm_word, mm_addr, mm_stream_formats);
         friend bool fillAudioStreamWav(WAV*, mm_word, u16*, mm_stream_formats);
@@ -64,12 +69,12 @@ namespace Audio {
     mm_word fillAudioStream(mm_word length, mm_addr dest, mm_stream_formats format);
     bool fillAudioStreamWav(WAV* wav, mm_word length, u16* dest, mm_stream_formats format);
 
-    void playBGMusic(const char* filename, bool loop);
+    void playBGMusic(std::string filename, bool loop);
     void stopBGMusic();
 
     extern WAV cBGMusic;
 
-    extern WAV* playingWavHead;
+    extern std::list<WAV*> wavPlaying;
 }
 
 #endif //UNDERTALE_AUDIO_HPP

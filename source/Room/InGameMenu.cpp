@@ -245,8 +245,9 @@ void InGameMenu::processTouchCell(touchPosition &touch) {
         } else {
             // Room 1000 for phone cutscenes
             if (globalCutscene == nullptr)
-                globalCutscene = new Cutscene(globalSave.cell[touchedOption],
-                                              1000);
+                globalCutscene = std::make_unique<Cutscene>(
+                        globalSave.cell[touchedOption],
+                        1000);
         }
     }
 }

@@ -2,6 +2,7 @@
 #include "Engine/Texture.hpp"
 #include "Engine/Engine.hpp"
 #include "DEBUG_FLAGS.hpp"
+#include "dma_async.hpp"
 #include <algorithm>
 
 namespace Engine {
@@ -46,8 +47,7 @@ namespace Engine {
                 throw_(buffer);
             }
             res._memory.palette = freePalette;
-            while (dmaBusy(3));
-            dmaCopyHalfWordsAsynch(3, &res._texture->_colors[0],
+            dmaCopyHalfWordsAsync(3, &res._texture->_colors[0],
                                    &_paletteRam[1 + freePalette * 16],
                                    res._texture->_colors.size() * 2);
         }
@@ -60,7 +60,6 @@ namespace Engine {
 
         for (int oamY = 0; oamY < oamH; oamY++) {
             for (int oamX = 0; oamX < oamW; oamX++) {
-                nocashMessage("oam reserve");
                 auto & oamEntry = res._texture->_oamChunk.oamEntries[oamY * oamW + oamX];
                 int oamId = reserveOAMEntry(oamEntry.tilesW, oamEntry.tilesH);
                 res._memory.oamEntries[oamY * oamW + oamX] = oamId;
@@ -96,9 +95,8 @@ namespace Engine {
                 u32 frameOffset = tileBytes * frame;
                 u8* tileStart = &textureOamEntry.tilesFrameData[0] + frameOffset;
 
-                while (dmaBusy(3));
-                dmaCopyHalfWordsAsynch(3, tileStart, tileRamStart,
-                                       tileBytes);
+                dmaCopyWordsAsync(3, tileStart, tileRamStart,
+                                   tileBytes);
             }
         }
         return 0;

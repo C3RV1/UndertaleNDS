@@ -7,6 +7,7 @@
 
 #include <cstdio>
 #include <cstring>
+#include <vector>
 #include "Engine/Engine.hpp"
 #include "Formats/ROOM_FILE.hpp"
 #include "ManagedSprite.hpp"
@@ -16,7 +17,7 @@ class Room {
 public:
     explicit Room(int roomId);
     ~Room() {free_();}
-    int loadRoom(FILE *f);
+    void loadRoom(FILE *f);
     static bool evaluateCondition(FILE *f);
     void loadSprites();
     void update();
@@ -28,11 +29,8 @@ public:
     u16 _roomId;
     Engine::Background _bg;
 
-    u8 _textureCount = 0;
-    Engine::Texture** _textures = nullptr;
-
-    u8 _spriteCount = 0;
-    ManagedSprite** _sprites = nullptr;
+    std::vector<std::shared_ptr<Engine::Texture>> _textures;
+    std::vector<std::unique_ptr<ManagedSprite>> _sprites;
 
     ROOMPart _roomData;
     u16 _spawnX = 0, _spawnY = 0;
@@ -42,7 +40,7 @@ public:
     ROOMExit* _exitLeft = nullptr;
     ROOMExit* _exitRight = nullptr;
     u8 _rectExitCount = 0;
-    ROOMExit** _rectExits = nullptr;
+    std::vector<ROOMExit*> _rectExits;
     Navigation _nav;
 
 private:
@@ -52,6 +50,6 @@ private:
 constexpr int kRoomChangeFadeFrames = 20;
 void loadNewRoom(int roomId, s32 spawnX, s32 spawnY);
 
-extern Room* globalRoom;
+extern std::unique_ptr<Room> globalRoom;
 
 #endif //UNDERTALE_ROOM_HPP

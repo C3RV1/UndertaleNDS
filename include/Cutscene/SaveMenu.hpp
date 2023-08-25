@@ -29,7 +29,7 @@ private:
     constexpr static int kHoldSaveFrames = 60;
     int _cHoldFrames = -1;
     int _selectedOption = 0;
-    char* _roomName = nullptr;
+    std::string _roomName;
 
     Audio::WAV _saveSnd;
     Engine::Texture _optionsHeartTex;

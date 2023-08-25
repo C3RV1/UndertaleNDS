@@ -172,8 +172,7 @@ void Player::check_interact() const {
     }
     x += _playerSpr._wx >> 8;
     y += _playerSpr._wy >> 8;
-    for (int i = 0; i < globalRoom->_spriteCount; i++) {
-        ManagedSprite* sprite = globalRoom->_sprites[i];
+    for (auto & sprite : globalRoom->_sprites) {
         if (sprite->_interactAction == 0)
             continue;
         x2 = sprite->_spr._wx >> 8;
@@ -185,8 +184,9 @@ void Player::check_interact() const {
         if (collidesRect(x, y, w, h, x2, y2, w2, h2)) {
             if (sprite->_interactAction == 1) {
                 if (globalCutscene == nullptr)
-                    globalCutscene = new Cutscene(sprite->_cutsceneId,
-                                                  globalRoom->_roomId);
+                    globalCutscene = std::make_unique<Cutscene>(
+                            sprite->_cutsceneId,
+                            globalRoom->_roomId);
                 return;
             }
         }
@@ -194,18 +194,18 @@ void Player::check_interact() const {
 }
 
 bool Player::check_collisions() const {
-    for (int i = 0; i < globalRoom->_roomData.roomColliders.colliderCount; i++) {
-        ROOMCollider* collider = &globalRoom->_roomData.roomColliders.roomColliders[i];
-        if (!collider->enabled)
+    for (auto & collider : globalRoom->_roomData.roomColliders.roomColliders) {
+        if (!collider.enabled)
             continue;
         if (collidesRect(_playerSpr._wx >> 8, (_playerSpr._wy >> 8) + 20, 19, 9,
-                         collider->x, collider->y,
-                         collider->w, collider->h)) {
-            if (collider->colliderAction == 0)  // Wall
+                         collider.x, collider.y,
+                         collider.w, collider.h)) {
+            if (collider.colliderAction == 0)  // Wall
                 return true;
-            if (collider->colliderAction == 1 && globalCutscene == nullptr) {  // Cutscene
-                globalCutscene = new Cutscene(collider->cutsceneId,
-                                              globalRoom->_roomId);
+            if (collider.colliderAction == 1 && globalCutscene == nullptr) {  // Cutscene
+                globalCutscene = std::make_unique<Cutscene>(
+                        collider.cutsceneId,
+                        globalRoom->_roomId);
             }
         }
     }

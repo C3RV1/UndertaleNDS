@@ -2,23 +2,28 @@
 // Created by Cervi on 23/08/2022.
 //
 #include "Engine/Audio.hpp"
+#include "Engine/Engine.hpp"
 #include "DEBUG_FLAGS.hpp"
+#include <algorithm>
+#include <utility>
 
 namespace Audio {
     WAV cBGMusic;
 
-    WAV* playingWavHead = nullptr;
+    std::list<WAV*> wavPlaying;
 
-    int WAV::loadWAV(const char *name) {
+    void WAV::loadWAV(std::string name) {
         free_();
+        if (name.empty())  // Loading an empty WAV is the same as freeing it
+            return;
         _loops = 0;
-        char buffer[100];
-        sprintf(buffer, "nitro:/z_audio/%s", name);
-        FILE *f = fopen(buffer, "rb");
-        _filename = new char[strlen(name) + 1];
-        strcpy(_filename, name);
-        if (f == nullptr)
-            return 1;
+        std::string realPath = "nitro:/z_audio/" + name;
+        FILE *f = fopen(realPath.c_str(), "rb");
+        _filename = name;
+        if (f == nullptr) {
+            std::string buffer = "Error opening WAV #r" + name;
+            Engine::throw_(buffer);
+        }
         _stream = f;
 
         char header[4];
@@ -30,23 +35,29 @@ namespace Audio {
 
         fread(header, 4, 1, f);
         if (memcmp(header, riffHeader, 4) != 0) {
+            std::string buffer = "Error opening WAV #r" + name +
+                    "#x: Invalid RIFF header.";
             fclose(f);
-            return 2;
+            Engine::throw_(buffer);
         }
 
         fseek(f, ftell(f) + 4, SEEK_SET); // skip chunk size
 
         fread(header, 4, 1, f);
         if (memcmp(header, waveHeader, 4) != 0) {
+            std::string buffer = "Error opening WAV #r" + name +
+                                 "#x: Invalid WAVE header.";
             fclose(f);
-            return 3;
+            Engine::throw_(buffer);
         }
 
         // fmt header
         fread(header, 4, 1, f);
         if (memcmp(header, fmtHeader, 4) != 0) {
+            std::string buffer = "Error opening WAV #r" + name +
+                                 "#x: Invalid FMT header.";
             fclose(f);
-            return 4;
+            Engine::throw_(buffer);
         }
 
         fseek(f, ftell(f) + 4, SEEK_SET); // skip chunk size == 0x10
@@ -60,12 +71,17 @@ namespace Audio {
         fread(&_bitsPerSample, 2, 1, f);
 
         if (format != 1) {
+            std::string buffer = "Error opening WAV #r" + name +
+                                 "#x: Invalid format.";
             fclose(f);
-            return 5;
+            Engine::throw_(buffer);
         }
 
         if (channels > 2) {
-            return 6;
+            std::string buffer = "Error opening WAV #r" + name +
+                                 "#x: Invalid channels.";
+            fclose(f);
+            Engine::throw_(buffer);
         }
 
         _stereo = channels == 2;
@@ -73,8 +89,10 @@ namespace Audio {
         // data chunk
         fread(header, 4, 1, f);
         if (memcmp(header, dataHeader, 4) != 0) {
+            std::string buffer = "Error opening WAV #r" + name +
+                                 "#x: Invalid DATA header.";
             fclose(f);
-            return 7;
+            Engine::throw_(buffer);
         }
 
         u32 chunkSize;
@@ -83,8 +101,6 @@ namespace Audio {
         _dataStart = ftell(f);
 
         _loaded = true;
-
-        return 0;
     }
 
     void WAV::free_() {
@@ -92,8 +108,10 @@ namespace Audio {
             return;
         _loaded = false;
         stop();
-        delete[] _filename;
-        _filename = nullptr;
+#ifdef DEBUG_AUDIO
+        std::string buffer = "Freeing WAV stream " + _filename;
+        nocashMessage(buffer.c_str());
+#endif
         fclose(_stream);
         _stream = nullptr;
     }
@@ -123,14 +141,11 @@ namespace Audio {
         _co = 44100;
         _maxValueIdx = kWAVBuffer;
         _cValueIdx = kWAVBuffer;
-        _next = playingWavHead;
-        if (playingWavHead != nullptr)
-            playingWavHead->_prev = this;
-        playingWavHead = this;
+        wavPlaying.push_front(this);
 #ifdef DEBUG_AUDIO
         char buffer[100];
-        sprintf(buffer, "Starting wav: %s stereo %d sample rate %d", getFilename(),
-                getStereo(), getSampleRate());
+        sprintf(buffer, "Starting wav: %s stereo %d sample rate %d", getFilename().c_str(),
+                getStereo(), _sampleRate);
         nocashMessage(buffer);
 #endif
     }
@@ -140,30 +155,26 @@ namespace Audio {
             return;
 #ifdef DEBUG_AUDIO
         char buffer[100];
-        sprintf(buffer, "Stopping wav: %s", getFilename());
+        sprintf(buffer, "Stopping wav: %s", getFilename().c_str());
         nocashMessage(buffer);
 #endif
         _active = false;
-        if (_prev != nullptr)
-            _prev->_next = _next;
-        else
-            playingWavHead = _next;
-        if (_next != nullptr)
-            _next->_prev = _prev;
-        if (deleteOnStop) {
-            delete this;
-        }
+        auto idx = std::find(wavPlaying.begin(), wavPlaying.end(), this);
+        if (idx != wavPlaying.end())
+            wavPlaying.erase(idx);
+        // If the reference is no longer held by any shared ptr
+        // this will delete the object
+        selfFreeingPtr = nullptr;
     }
 
     mm_word fillAudioStream(mm_word length, mm_addr dest, mm_stream_formats format) {
-        WAV* current = playingWavHead;
-        memset(dest, 0, 4 * length);
-        while (current != nullptr) {
-            WAV* next = current->_next;
-            if (fillAudioStreamWav(current, length, (u16*)dest, format)) {
-                current->stop();
+        auto current = wavPlaying.begin();
+        dmaFillWords(0, dest, 4 * length);
+        while (current != wavPlaying.end()) {
+            WAV* currentWAV = *(current++);
+            if (fillAudioStreamWav(currentWAV, length, (u16*)dest, format)) {
+                currentWAV->stop();
             }
-            current = next;
         }
         return length;
     }
@@ -225,16 +236,23 @@ namespace Audio {
         return false;
     }
 
-    void playBGMusic(const char* filename, bool loop) {
+    void playBGMusic(std::string filename, bool loop) {
         stopBGMusic();
-        cBGMusic.loadWAV(filename);
+        cBGMusic.loadWAV(std::move(filename));
         cBGMusic.setLoops(loop ? -1 : 0);
-        cBGMusic.deleteOnStop = false;
         if (cBGMusic.getLoaded())
             cBGMusic.play();
     }
 
     void stopBGMusic() {
         cBGMusic.stop();
+    }
+
+    WAV::~WAV() noexcept {
+#ifdef DEBUG_AUDIO
+        std::string buffer = "Called destructor of WAV " + _filename;
+        nocashMessage(buffer.c_str());
+#endif
+        free_();
     }
 }

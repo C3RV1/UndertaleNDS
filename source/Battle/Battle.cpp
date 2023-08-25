@@ -11,7 +11,7 @@
 #include "Room/InGameMenu.hpp"
 #include "Formats/utils.hpp"
 
-Battle* globalBattle = nullptr;
+std::unique_ptr<Battle> globalBattle = nullptr;
 
 Battle::Battle() : _playerSpr(Engine::Allocated3D) {
     _playerTex.loadPath("spr_heartsmall");
@@ -51,9 +51,10 @@ void Battle::exit(bool won) {
         char buffer[200] = {0};
         sprintf(buffer, _winText, earnedExp, earnedGold);
         if (globalCutscene->_cDialogue == nullptr) {
-            globalCutscene->_cDialogue = new Dialogue(true, 0, 0, buffer, "SND_TXT1.wav",
-                                                      "fnt_maintext.font", 2,
-                                                      Engine::textMain);
+            globalCutscene->_cDialogue = std::make_unique<Dialogue>(
+                    true, 0, 0, buffer, "SND_TXT1.wav",
+                    "fnt_maintext.font", 2,
+                    Engine::textMain);
         }
         _stopPostDialogue = true;
     } else {
@@ -177,14 +178,6 @@ void Battle::free_() {
     delete[] _cBattleAttacks;
     _enemies = nullptr;
     _enemyCount = 0;
-    delete[] _textures;
-    _textures = nullptr;
-    for (int i = 0; i < _spriteCount; i++) {
-        delete _sprites[i];
-        _sprites[i] = nullptr;
-    }
-    delete[] _sprites;
-    _sprites = nullptr;
 }
 
 void runBattle(FILE* stream) {
@@ -202,7 +195,7 @@ void runBattle(FILE* stream) {
 
     lcdMainOnBottom();
 
-    globalBattle = new Battle();
+    globalBattle = std::make_unique<Battle>();
     globalBattle->loadFromStream(stream);
     globalBattle->show();
 
@@ -225,7 +218,6 @@ void runBattle(FILE* stream) {
             }
             globalCutscene->update();
             if (globalCutscene->runCommands(BATTLE)) {
-                delete globalCutscene;
                 globalCutscene = nullptr;
                 globalInGameMenu.show(false);
                 globalPlayer->setPlayerControl(true);
@@ -242,7 +234,7 @@ void runBattle(FILE* stream) {
         timer--;
     }
 
-    delete globalBattle;
+    globalBattle = nullptr;
     Engine::textMain.clear();
     Engine::textSub.clear();
 

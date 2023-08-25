@@ -3,38 +3,31 @@
 //
 #include "Engine/Background.hpp"
 #include "Engine/math.hpp"
+#include "Engine/Engine.hpp"
+#include "dma_async.hpp"
 
 namespace Engine {
     s32 bg3ScrollX = 0, bg3ScrollY = 0;
     s16 bg3Pa = 0, bg3Pb = 0, bg3Pc = 0, bg3Pd = 0;
 
-    bool Background::loadPath(const char *path) {
-        char pathFull[100];
-        char buffer[100];
+    bool Background::loadPath(std::string path) {
+        std::string pathFull = "nitro:/bg/" + path + ".cbgf";
+        _path = path;
 
-        sprintf(pathFull, "nitro:/bg/%s.cbgf", path);
-
-        FILE* f = fopen(pathFull, "rb");
+        FILE* f = fopen(pathFull.c_str(), "rb");
         if (!f) {
-            sprintf(buffer, "Error opening bg %s", path);
-            nocashMessage(buffer);
-            return false;
+            std::string buffer = "Error opening bg #r" + path;
+            throw_(buffer);
         }
 
-        int loadRes = loadCBGF(f);
+        loadCBGF(f);
 
         fclose(f);
-
-        if (loadRes != 0) {
-            sprintf(buffer, "Error loading bg %s: %d", path, loadRes);
-            nocashMessage(buffer);
-            return false;
-        }
 
         return true;
     }
 
-    int Background::loadCBGF(FILE *f) {
+    void Background::loadCBGF(FILE *f) {
         free_();
         char header[4];
         u32 fileSize;
@@ -48,30 +41,38 @@ namespace Engine {
 
         const char expectedChar[4] = {'C', 'B', 'G', 'F'};
         if (memcmp(header, expectedChar, 4) != 0) {
-            return 1;
+            std::string buffer = "Error loading bg #r" + _path + "#x: Invalid header.";
+            throw_(buffer);
         }
 
         fread(&fileSize, 4, 1, f);
 
         if (fileSize != size) {
-            return 2;
+            std::string buffer = "Error loading bg #r" + _path + "#x: File size doesn't match (expected: "
+                                 + std::to_string(fileSize) + ", actual: " + std::to_string(size) + ")";
+            throw_(buffer);
         }
 
         fread(&version, 4, 1, f);
         if (version != 1) {
-            return 3;
+            std::string buffer = "Error loading spr #r" + _path + "#x: Invalid version (expected: 1, actual: "
+                                 + std::to_string(version) + ")";
+            throw_(buffer);
         }
 
         fread(&fileFormat, 1, 1, f);
         _color8bit = fileFormat & 1;
 
-        fread(&_colorCount, 1, 1, f);
-        if ((_colorCount > 249 && _color8bit) || (_colorCount > 15 && !_color8bit)) {
-            return 4;
+        u8 colorCount;
+        fread(&colorCount, 1, 1, f);
+        if ((colorCount > 249 && _color8bit) || (colorCount > 15 && !_color8bit)) {
+            std::string buffer = "Error loading bg #r" + _path + "#x: Color count does not match 8 bit flag (colors: "
+                                 + std::to_string(colorCount) + ")";
+            throw_(buffer);
         }
 
-        _colors = new u16[_colorCount];
-        fread(_colors, 2, _colorCount, f);
+        _colors.resize(colorCount);
+        fread(&_colors[0], 2, colorCount, f);
 
         fread(&_tileCount, 2, 1, f);
 
@@ -79,29 +80,22 @@ namespace Engine {
         if (_color8bit)
             tileDataSize = 64;
 
-        _tiles = new u8[_tileCount * tileDataSize];
-        fread(_tiles, tileDataSize, _tileCount, f);
+        _tiles = std::unique_ptr<u8[]>(new u8[_tileCount * tileDataSize]);
+        fread(_tiles.get(), tileDataSize, _tileCount, f);
 
         fread(&_width, 2, 1, f);
         fread(&_height, 2, 1, f);
 
-        _map = new u16[_width * _height];
-        fread(_map, 2, _width * _height, f);
+        _map = std::unique_ptr<u16[]>(new u16[_width * _height]);
+        fread(_map.get(), 2, _width * _height, f);
 
         _loaded = true;
-        return 0;
     }
 
     void Background::free_() {
         if (!_loaded)
             return;
         _loaded = false;
-        delete[] _colors;
-        _colors = nullptr;
-        delete[] _tiles;
-        _tiles = nullptr;
-        delete[] _map;
-        _map = nullptr;
     }
 
     int Background::loadBgTextMain() {
@@ -125,7 +119,7 @@ namespace Engine {
         *bg3Reg = (*bg3Reg & (~0x2080)) + (_color8bit << 7);
 
         // skip first color (2 bytes)
-        dmaCopy(_colors, (u8*)paletteRam + 2, 2 * _colorCount);
+        dmaCopyHalfWordsAsync(3, &_colors[0], (u8*)paletteRam + 2, 2 * _colors.size());
 
         u32 tileDataSize;
         if (_color8bit) {
@@ -137,7 +131,7 @@ namespace Engine {
         if (_tileCount > 1024)
             return 2;
 
-        memcpy(tileRam, _tiles, tileDataSize * _tileCount);
+        dmaCopyWordsAsync(3, _tiles.get(), tileRam, tileDataSize * _tileCount);
 
         u16 sizeFlag = 0;
         u16 mapRamUsage = 0x800;
@@ -151,7 +145,7 @@ namespace Engine {
         }
 
         *bg3Reg = (*bg3Reg & (~0xC000)) + sizeFlag;
-        memset(mapRam, 0, mapRamUsage);
+        dmaFillWordsAsync(3, 0, mapRam, mapRamUsage);
 
         for (int mapX = 0; mapX < (_width + 31) / 32; mapX++) {
             int copyWidth = 32;
@@ -159,10 +153,10 @@ namespace Engine {
                 copyWidth = (_width + 31) - 32 * mapX;
             for (int mapY = 0; mapY < (_height + 31) / 32; mapY++) {
                 u8* mapStart = (u8*)mapRam + (mapY * ((_width + 31) / 32) + mapX) * 2048;
-                memset(mapStart, 0, 0x800);
+                dmaFillWordsAsync(3, 0, mapStart, 0x800);
                 for (int row = mapY*32; row < _height && row < (mapY + 1) * 32; row++) {
-                    dmaCopyHalfWords(3, (u8 *) _map + (row * _width + mapX * 32) * 2,
-                                     mapStart + (row - mapY * 32) * 32 * 2, copyWidth * 2);
+                    dmaCopyWordsAsync(3, (u8 *)_map.get() + (row * _width + mapX * 32) * 2,
+                                      mapStart + (row - mapY * 32) * 32 * 2, copyWidth * 2);
                 }
             }
         }
@@ -199,7 +193,7 @@ namespace Engine {
         *bg3Reg = (*bg3Reg & (~0x2080)) | (1 << 13);
 
         // skip first color (2 bytes)
-        dmaCopy(_colors, (u8 *) paletteRam + 2, 2 * _colorCount);
+        dmaCopyHalfWordsAsync(3, &_colors[0], (u8 *) paletteRam + 2, 2 * _colors.size());
 
         u16 sizeFlag = 0;
         u16 mapRamUsage = 0x200;
@@ -222,7 +216,7 @@ namespace Engine {
         *reg3B = 0;
         *reg3C = 0;
         *reg3D = (1 << 8);
-        memset(mapRam, 0, mapRamUsage);
+        dmaFillWordsAsync(3, 0, mapRam, mapRamUsage);
 
         // loadBgRectEngine(bg3Reg, tileRam, mapRam, -1, -1, 34, 26);
         // An extended engine will need a load bg rect afterwards
@@ -242,7 +236,7 @@ namespace Engine {
 
     void clearEngine(vu16* bg3Reg, u16* tileRam, u16* mapRam) {
         u16 mapRamUsage = 0x800;
-        memset(mapRam, 0, mapRamUsage);
+        dmaFillWordsAsync(3, 0, mapRam, mapRamUsage);
         *bg3Reg = (*bg3Reg & (~0xE080)); // size 32x32
         *tileRam = 0;
     }
@@ -271,19 +265,19 @@ namespace Engine {
                 *mapRes = tileDst;
                 auto* tileRes = (u16*)((u8*)tileRam + tileDst * 64);
                 if (0 > row or row >= _height or 0 > col or col >= _width) {
-                    memset(tileRes, 0, 64);
+                    dmaFillWordsAsync(3, 0, tileRes, 64);
                     continue;
                 }
                 int srcRow = row;
                 int srcCol = col;
-                auto* mapSrc = (u16*)((u8 *) _map + (srcRow * _width + srcCol) * 2);
+                auto* mapSrc = (u16*)((u8 *)_map.get() + (srcRow * _width + srcCol) * 2);
 
                 if (_color8bit) {
-                    u8 *src = (u8 *) _tiles + (*mapSrc) * 64;
-                    dmaCopyHalfWords(3, src, tileRes, 64);
+                    u8 *src = (u8 *)_tiles.get() + (*mapSrc) * 64;
+                    dmaCopyHalfWordsAsync(3, src, tileRes, 64);
                 }
                 else {
-                    u8 *src = (u8 *) _tiles + (*mapSrc) * 32;
+                    u8 *src = (u8 *)_tiles.get() + (*mapSrc) * 32;
                     for (int i = 0; i < 64; i++) {
                         bool highBits = i & 1;
                         tileRes[i / 2] &= ~(0xFF << (8 * highBits));

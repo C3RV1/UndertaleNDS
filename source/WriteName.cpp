@@ -13,8 +13,6 @@
 
 
 void runWriteNameMenu() {
-    char buffer[100];
-
     // letter selection
     constexpr int startX = 30, startY = 30, spacingX = 30, spacingY = 17;
 
@@ -281,6 +279,6 @@ void runWriteNameMenu() {
 
     memset(globalSave.name, 0, currentLen + 1);
     memcpy(globalSave.name, currentName, currentLen + 1);
-    sprintf(buffer, "Selected name: %s", globalSave.name);
-    nocashMessage(buffer);
+    std::string buffer = "Selected name: " + std::string(globalSave.name);
+    nocashMessage(buffer.c_str());
 }

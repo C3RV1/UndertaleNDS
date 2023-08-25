@@ -7,36 +7,36 @@
 #include "Room/Player.hpp"
 #include "Engine/math.hpp"
 
-void ManagedSprite::load(ROOMSprite *sprData, u8 textureCount,
-                         Engine::Texture** textures) {
-    if (sprData->textureId < textureCount) {
-        _texture = textures[sprData->textureId];
+void ManagedSprite::load(ROOMSprite const& sprData,
+                         std::vector<std::shared_ptr<Engine::Texture>>& textures) {
+    if (sprData.textureId < textures.size()) {
+        _texture = textures[sprData.textureId];
         _spr.loadTexture(*_texture);
     }
-    _animationId = _spr.nameToAnimId(sprData->animation);
-    _spr._wx = sprData->x << 8;
-    _spr._wy = sprData->y << 8;
+    _animationId = _spr.nameToAnimId(sprData.animation);
+    _spr._wx = sprData.x << 8;
+    _spr._wy = sprData.y << 8;
     _spr.setSpriteAnim(_animationId);
 
     _spr.setShown(true);
 
-    _interactAction = sprData->interactAction;
+    _interactAction = sprData.interactAction;
     if (_interactAction == 1)
-        _cutsceneId = sprData->cutsceneId;
+        _cutsceneId = sprData.cutsceneId;
     else if (_interactAction == 2) {
-        _distanceSquared = sprData->distance * sprData->distance;
-        _closeAnim = _spr.nameToAnimId(sprData->closeAnim);
+        _distanceSquared = sprData.distance * sprData.distance;
+        _closeAnim = _spr.nameToAnimId(sprData.closeAnim);
     }
 }
 
 void ManagedSprite::spawn(s8 textureId, s32 x, s32 y,
-                          u8 textureCount, Engine::Texture** textures) {
+                          std::vector<std::shared_ptr<Engine::Texture>>& textures) {
     u8 texId2;
     if (textureId < 0)
-        texId2 = textureCount + textureId;
+        texId2 = textures.size() + textureId;
     else
         texId2 = textureId;
-    if (texId2 < textureCount) {
+    if (texId2 < textures.size()) {
         _texture = textures[texId2];
         _spr.loadTexture(*_texture);
     }

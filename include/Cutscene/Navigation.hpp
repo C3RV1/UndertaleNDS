@@ -31,7 +31,7 @@ struct NavigationTask {
 
 class Navigation {
 public:
-    static void load_texture(char* path,
+    static void load_texture(const std::string& path,
                              CutsceneLocation callingLocation);
     static void unload_texture(s8 textureId,
                                CutsceneLocation callingLocation);
@@ -63,11 +63,10 @@ public:
     static Engine::Sprite* getTarget(u8 targetType, s8 targetId,
                                      CutsceneLocation callingLocation);
 private:
-    void startTask(NavigationTask* task);
-    bool updateTask(int taskId);
-    void endTask(int taskId);
-    u8 _taskCount = 0;
-    NavigationTask** _tasks = nullptr;
+    void startTask(std::unique_ptr<NavigationTask> task);
+    bool updateTask(std::vector<std::unique_ptr<NavigationTask>>::iterator& task);
+    void endTask(std::vector<std::unique_ptr<NavigationTask>>::iterator& task);
+    std::vector<std::unique_ptr<NavigationTask>> _tasks;
 };
 
 #endif //UNDERTALE_NAVIGATION_HPP
