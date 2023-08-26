@@ -27,12 +27,13 @@ Battle::Battle() : _playerSpr(Engine::Allocated3D) {
 
     FILE *f = fopen("nitro:/data/battle_win.txt", "rb");
     if (f) {
-        fseek(f, 0, SEEK_END);
-        long len = ftell(f);
-        fseek(f, 0, SEEK_SET);
-        _winText = new char[len + 1];
-        fread(_winText, len + 1, 1, f);
-        _winText[len] = '\0';
+        long len = str_len_file(f, '\0');
+        _winText.resize(len);
+        fread(&_winText[0], len, 1, f);
+        fseek(f, 1, SEEK_CUR);
+    } else {
+        std::string buffer = "Error opening battle win text";
+        Engine::throw_(buffer);
     }
     fclose(f);
 }
@@ -41,18 +42,21 @@ void Battle::exit(bool won) {
     if (won) {
         hide();
         int earnedExp = 0, earnedGold = 0;
-        for (int i = 0; i < _enemyCount; i++) {
-            if (_enemies[i]._hp <= 0)
-                earnedExp += _enemies[i]._expOnKill;
-            earnedGold += _enemies[i]._goldOnWin;
+        for (auto & _enemy : _enemies) {
+            if (_enemy._hp <= 0)
+                earnedExp += _enemy._expOnKill;
+            earnedGold += _enemy._goldOnWin;
         }
         globalSave.exp += earnedExp;
         globalSave.gold += earnedGold;
-        char buffer[200] = {0};
-        sprintf(buffer, _winText, earnedExp, earnedGold);
+
+        int size_s = std::snprintf(nullptr, 0, _winText.c_str());
+        std::string buffer;
+        buffer.resize(size_s);
+        sprintf(&buffer[0], _winText.c_str(), earnedExp, earnedGold);
         if (globalCutscene->_cDialogue == nullptr) {
             globalCutscene->_cDialogue = std::make_unique<Dialogue>(
-                    true, 0, 0, buffer, "SND_TXT1.wav",
+                    true, 0, 0, buffer.c_str(), "SND_TXT1.wav",
                     "fnt_maintext.font", 2,
                     Engine::textMain);
         }
@@ -63,11 +67,12 @@ void Battle::exit(bool won) {
 }
 
 void Battle::loadFromStream(FILE *stream) {
-    fread(&_enemyCount, 1, 1, stream);
-    _enemies = new Enemy[_enemyCount];
-    _cBattleAttacks = new BattleAttack*[_enemyCount];
+    u8 enemyCount;
+    fread(&enemyCount, 1, 1, stream);
+    _enemies.resize(enemyCount);
+    _cBattleAttacks.resize(enemyCount);
     char buffer[100];
-    for (int i = 0; i < _enemyCount; i++) {
+    for (int i = 0; i < enemyCount; i++) {
         _cBattleAttacks[i] = nullptr;
         _enemies[i].readFromStream(stream);
     }
@@ -102,7 +107,7 @@ void Battle::hide() {
 
 void Battle::startBattleAttacks() {
     _hitFlag = false;
-    for (int i = 0; i < _enemyCount; i++) {
+    for (int i = 0; i < _enemies.size(); i++) {
         Enemy* enemy = &_enemies[i];
         if (!enemy->_spared && enemy->_hp > 0) {
             _cBattleAttacks[i] = getBattleAttack(enemy->_attackId);
@@ -110,13 +115,12 @@ void Battle::startBattleAttacks() {
     }
 }
 
-void Battle::updateBattleAttacks() const {
-    for (int i = 0; i < _enemyCount; i++) {
-        BattleAttack* btlAttack = _cBattleAttacks[i];
+void Battle::updateBattleAttacks() {
+    for (int i = 0; i < _enemies.size(); i++) {
+        BattleAttack* btlAttack = _cBattleAttacks[i].get();
         if (btlAttack != nullptr) {
             if (btlAttack->update()) {
-                delete btlAttack;
-                _cBattleAttacks[i] = nullptr;
+                _cBattleAttacks[i].reset();
             }
         }
     }
@@ -127,7 +131,6 @@ void Battle::update() {
     updateBattleAttacks();
     if (_cBattleAction != nullptr) {
         if (_cBattleAction->update()) {
-            delete _cBattleAction;
             _cBattleAction = nullptr;
             show();
         } else {
@@ -167,17 +170,7 @@ void Battle::update() {
 }
 
 void Battle::free_() {
-    delete[] _winText;
-    _winText = nullptr;
     _playerSpr.setShown(false);
-    for (int i = 0; i < _enemyCount; i++) {
-        delete[] _enemies[i]._actText;
-        delete _cBattleAttacks[i];
-    }
-    delete[] _enemies;
-    delete[] _cBattleAttacks;
-    _enemies = nullptr;
-    _enemyCount = 0;
 }
 
 void runBattle(FILE* stream) {

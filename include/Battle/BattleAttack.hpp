@@ -7,6 +7,7 @@
 
 #define ARM9
 #include <nds.h>
+#include <memory>
 
 class BattleAttack {
 public:
@@ -14,6 +15,6 @@ public:
     virtual ~BattleAttack() = default;
 };
 
-BattleAttack* getBattleAttack(u16 attackId);
+std::unique_ptr<BattleAttack> getBattleAttack(u16 attackId);
 
 #endif //UNDERTALE_BATTLE_ATTACK_HPP

@@ -8,17 +8,17 @@
 #define ARM9
 #include <nds.h>
 #include <cstdio>
+#include <string>
 
 class Enemy {
 public:
     void readFromStream(FILE *f);
-    void free_();
     void loadActText(int textId);
     u16 _enemyId = 0;
-    char _enemyName[20] = {0};
+    std::string _enemyName;
     u16 _hp = 0;
     u16 _maxHp = 0;
-    char *_actText = nullptr;
+    std::string _actText;
     u8 _actOptionCount = 0;
     u16 _attackId = 0;
     u8 _spareValue = 0;  // When it reaches 100, enemy can be spared

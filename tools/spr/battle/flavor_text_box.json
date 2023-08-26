@@ -1,0 +1,11 @@
+{
+  "size": [212, 60],
+  "frameCount": 1,
+  "animations": [
+    {
+      "name": "gfx",
+      "frames": [{"frame": 0, "duration": 0}]
+    }
+  ],
+  "excludeOam": true
+}

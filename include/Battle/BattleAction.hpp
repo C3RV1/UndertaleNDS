@@ -7,13 +7,17 @@
 
 #include "Engine/Font.hpp"
 #include "Battle/Enemy.hpp"
+#include <array>
 
 enum BattleActionState {
+    PRINTING_FLAVOR_TEXT,
     CHOOSING_ACTION,
     CHOOSING_TARGET,
     CHOOSING_ACT,
     CHOOSING_ITEM,
     CHOOSING_MERCY,
+    MOVING_BUTTON_IN,
+    MOVING_BUTTON_OUT,
     FIGHTING
 };
 
@@ -26,14 +30,19 @@ enum BattleActions {
 
 class BattleAction {
     constexpr static s32 kAttackSpeed = (5 << 8); // 5 pixels per frame
+    const s32 _buttonPositions[4][2]{
+        {12 << 8, 96 << 8},
+        {134 << 8, 96 << 8},
+        {12 << 8, 144 << 8},
+        {134 << 8, 144 << 8}
+    };
 
 public:
-    BattleAction(u8 enemyCount, Enemy* enemies);
+    explicit BattleAction(std::vector<Enemy>* enemies, int flavorTextId);
     bool update();
     int getActionNum() const;
-    ~BattleAction() {free_();}
+    ~BattleAction();
 private:
-    void free_();
     void setBtn();
     void enter(BattleActionState state);
 
@@ -46,17 +55,22 @@ private:
     bool updateChoosingAct();
     bool updateChoosingMercy();
     bool updateChoosingItem();
+    bool updateMovingButtonIn();
+    bool updateMovingButtonOut();
     bool updateFighting();
-
-    bool _freed = false;
 
     Engine::Font _fnt;
 
-    u8 _enemyCount = 0;
-    Enemy* _enemies = nullptr;
+    std::vector<Enemy>* _enemies;
 
-    Engine::Texture _fightTex, _actTex, _itemTex, _mercyTex, _bigHeartTex, _smallHeartTex;
-    Engine::Sprite _fightBtn, _actBtn, _itemBtn, _mercyBtn, _heartSpr;
+    std::array<Engine::Texture, 4> _textures;
+    std::array<Engine::Sprite, 4> _btn;
+    Engine::Texture _smallHeartTex, _bigHeartTex;
+    Engine::Sprite _bigHeartSpr, _smallHeartSpr;
+
+    std::string _flavorText;
+    Engine::Texture _flavorTextTex;
+    Engine::Sprite _flavorTextSpr;
 
     Engine::Background _fightBoard;
     Engine::Texture _attackTex, _damageNumbers, _missText;
@@ -70,8 +84,12 @@ private:
     u8 _cPage = 0;
     u8 _cAct = 0;
 
+    constexpr static int _moveFrames = 15;
+    constexpr static int _topLeftSpacing = 10 << 8;
+    int _movingFrameCount = 0;
+
     bool _mercyFlee = false;
-    char* _mercyText = nullptr;
+    std::string _mercyText;
 };
 
 #endif //UNDERTALE_BATTLE_ACTION_HPP

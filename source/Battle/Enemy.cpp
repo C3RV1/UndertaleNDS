@@ -3,6 +3,7 @@
 //
 #include "Battle/Enemy.hpp"
 #include "Formats/utils.hpp"
+#include "Engine/Engine.hpp"
 
 void Enemy::readFromStream(FILE *f) {
     fread(&_enemyId, 2, 1, f);
@@ -15,8 +16,9 @@ void Enemy::readFromStream(FILE *f) {
     FILE* enemyNameFile = fopen(buffer, "rb");
     if (enemyNameFile) {
         int len = str_len_file(enemyNameFile, '\n');
-        fread(_enemyName, len + 1, 1, enemyNameFile);
-        _enemyName[len] = '\0';
+        _enemyName.resize(len);
+        fread(&_enemyName[0], len, 1, enemyNameFile);
+        fseek(enemyNameFile, 1, SEEK_CUR);
     } else {
         sprintf(buffer, "Error opening enemy name %d", _enemyId);
         nocashMessage(buffer);
@@ -34,23 +36,16 @@ void Enemy::readFromStream(FILE *f) {
 }
 
 void Enemy::loadActText(int textId) {
-    char buffer[100];
-    sprintf(buffer, "nitro:/data/battle_act_txt/%d.txt", textId);
-    FILE* actTextFile = fopen(buffer, "rb");
+    std::string buffer = "nitro:/data/battle_act_txt/" + std::to_string(textId) + ".txt";
+    FILE* actTextFile = fopen(buffer.c_str(), "rb");
     if (actTextFile) {
         int len = str_len_file(actTextFile, '@');
-        delete[] _actText;
-        _actText = new char[len + 1];
-        fread(_actText, len + 1, 1, actTextFile);
-        _actText[len] = '\0';
+        _actText.resize(len);
+        fread(&_actText[0], len, 1, actTextFile);
+        fseek(actTextFile, 1, SEEK_CUR);
     } else {
-        sprintf(buffer, "Error opening battle act %d", textId);
-        nocashMessage(buffer);
+        buffer = "Error opening battle act " + std::to_string(textId);
+        Engine::throw_(buffer);
     }
     fclose(actTextFile);
-}
-
-void Enemy::free_() {
-    delete[] _actText;
-    _actText = nullptr;
 }

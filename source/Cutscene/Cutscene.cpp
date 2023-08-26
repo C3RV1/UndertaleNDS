@@ -402,8 +402,8 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             if (globalBattle->_cBattleAction != nullptr)
                 break;
             globalBattle->hide();
-            globalBattle->_cBattleAction = new BattleAction(globalBattle->_enemyCount,
-                                                            globalBattle->_enemies);
+            globalBattle->_cBattleAction = std::make_unique<BattleAction>(
+                    &globalBattle->_enemies, -1);
             break;
         case CMD_CHECK_HIT:
 #ifdef DEBUG_CUTSCENES
@@ -571,7 +571,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             fread(&enemyIdx, 1, 1, _commandStream);
             fread(&attackId, 2, 1, _commandStream);
             if (globalBattle != nullptr) {
-                if (enemyIdx < globalBattle->_enemyCount) {
+                if (enemyIdx < globalBattle->_enemies.size()) {
                     globalBattle->_enemies[enemyIdx]._attackId = attackId;
                 }
             }
@@ -588,7 +588,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             fread(&cmpValue, 2, 1, _commandStream);
             if (globalBattle == nullptr)
                 break;
-            if (enemyIdx >= globalBattle->_enemyCount)
+            if (enemyIdx >= globalBattle->_enemies.size())
                 break;
             u16 flagValue = globalBattle->_enemies[enemyIdx]._hp;
             if ((comparator & 3) == ComparisonOperator::EQUALS)

@@ -26,16 +26,15 @@ public:
     void show();
     void hide();
     void update();
-    void updateBattleAttacks() const;
+    void updateBattleAttacks();
     void startBattleAttacks();
     bool _shown = false;
     bool _running = true;
     bool _stopPostDialogue = false;
-    char* _winText = nullptr;
+    std::string _winText;
     Navigation _nav;
 
-    u8 _enemyCount = 0;
-    Enemy* _enemies = nullptr;
+    std::vector<Enemy> _enemies;
 
     std::vector<std::shared_ptr<Engine::Texture>> _textures;
     std::vector<std::unique_ptr<ManagedSprite>> _sprites;
@@ -47,8 +46,8 @@ public:
     Engine::Texture _playerTex;
     Engine::Sprite _playerSpr;
 
-    BattleAttack** _cBattleAttacks = nullptr;
-    BattleAction* _cBattleAction = nullptr;
+    std::vector<std::unique_ptr<BattleAttack>> _cBattleAttacks;
+    std::unique_ptr<BattleAction> _cBattleAction = nullptr;
     bool _hitFlag = false;
 private:
     void free_();
