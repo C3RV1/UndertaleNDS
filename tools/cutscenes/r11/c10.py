@@ -10,9 +10,9 @@ def cutscene(c: Cutscene):
     c.set_animation(Target(TargetType.PLAYER), "rightIdle")
     c.set_collider_enabled(2, False)
     c.play_sfx("snd_phone.wav", 0)
-    c.start_dialogue(10, "", 0, 0, "", "",
-                     Target(TargetType.NULL), "", "",
-                     type_sound="SND_TXT1.wav")
+    c.dialogue_centered(10, "", 0, 0, "", "",
+                        Target(TargetType.NULL), "", "",
+                        type_sound="SND_TXT1.wav")
     c.wait(WaitTypes.DIALOGUE)
 
     c.cmp_flag(FlagOffsets.CINNAMON_BUTTERSCOTCH, "==", 1)
@@ -21,9 +21,9 @@ def cutscene(c: Cutscene):
     chosen_butterscotch_before = c.jump_if()
 
     # == FIRST TIME ==
-    c.start_dialogue(20, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4 - 5,
+    c.dialogue_centered(20, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4 - 5,
                      "talkIdle", "talkTalk",
-                     Target(TargetType.NULL),
+                        Target(TargetType.NULL),
                      "", "", type_sound="snd_txttor.wav")
     c.wait(WaitTypes.DIALOGUE)
     c.cmp_flag(FlagOffsets.DIALOGUE_OPTION, "==", 0)  # cinnamon is 0
@@ -31,9 +31,9 @@ def cutscene(c: Cutscene):
 
     # == CHOSEN CINNAMON BEFORE ==
     c.bind(chosen_cinnamon_before)
-    c.start_dialogue(21, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4 - 5,
+    c.dialogue_centered(21, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4 - 5,
                      "talkIdle", "talkTalk",
-                     Target(TargetType.NULL),
+                        Target(TargetType.NULL),
                      "", "", type_sound="snd_txttor.wav")
     c.wait(WaitTypes.DIALOGUE)
     c.cmp_flag(FlagOffsets.DIALOGUE_OPTION, "==", 0)  # cinnamon is yes
@@ -43,9 +43,9 @@ def cutscene(c: Cutscene):
     # == CHOSEN BUTTERSCOTCH BEFORE ==
     c.bind(chosen_butterscotch_before)
 
-    c.start_dialogue(22, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4 - 5,
+    c.dialogue_centered(22, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4 - 5,
                      "talkIdle", "talkTalk",
-                     Target(TargetType.NULL),
+                        Target(TargetType.NULL),
                      "", "", type_sound="snd_txttor.wav")
     c.wait(WaitTypes.DIALOGUE)
     c.cmp_flag(FlagOffsets.DIALOGUE_OPTION, "==", 1)  # cinnamon is no
@@ -54,9 +54,9 @@ def cutscene(c: Cutscene):
     # == GUESSED CORRECTLY ==
     c.bind(guessed_correctly)
 
-    c.start_dialogue(23, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4 - 5,
+    c.dialogue_centered(23, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4 - 5,
                      "talkIdle", "talkTalk",
-                     Target(TargetType.NULL),
+                        Target(TargetType.NULL),
                      "", "", type_sound="snd_txttor.wav")
     c.wait(WaitTypes.DIALOGUE)
 
@@ -66,9 +66,9 @@ def cutscene(c: Cutscene):
     c.bind(guessed_incorrectly)
     c.bind(guessed_incorrectly2)
 
-    c.start_dialogue(24, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4 - 5,
+    c.dialogue_centered(24, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4 - 5,
                      "talkIdle", "talkTalk",
-                     Target(TargetType.NULL),
+                        Target(TargetType.NULL),
                      "", "", type_sound="snd_txttor.wav")
     c.wait(WaitTypes.DIALOGUE)
 
@@ -85,9 +85,9 @@ def cutscene(c: Cutscene):
     c.set_flag(FlagOffsets.CINNAMON_BUTTERSCOTCH, 2)
 
     c.bind(end_jump)
-    c.start_dialogue(30, "", 0, 0, "", "",
-                     Target(TargetType.NULL), "", "",
-                     type_sound="SND_TXT1.wav")
+    c.dialogue_centered(30, "", 0, 0, "", "",
+                        Target(TargetType.NULL), "", "",
+                        type_sound="SND_TXT1.wav")
     c.wait(WaitTypes.DIALOGUE)
 
     c.set_flag(FlagOffsets.PROGRESS, 9)

@@ -316,8 +316,8 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             u16 textId, framesPerLetter;
             s32 x, y;
             char speaker[50], font[50];
-            char idleAnim[50], talkAnim[50];
-            char idleAnim2[50], talkAnim2[50];
+            char speakerIdle[50], speakerTalk[50];
+            char targetIdle[50], targetTalk[50];
             char typeSnd[50];
             bool mainScreen;
             bool centered;
@@ -325,27 +325,31 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             fread(&centered, 1, 1, _commandStream);
             fread(&textId, 2, 1, _commandStream);
 
-            len = str_len_file(_commandStream, 0);
-            fread(speaker, len + 1, 1, _commandStream);
+            if (centered) {
+                len = str_len_file(_commandStream, 0);
+                fread(speaker, len + 1, 1, _commandStream);
+            }
 
             fread(&x, 4, 1, _commandStream);
             fread(&y, 4, 1, _commandStream);
 
-            len = str_len_file(_commandStream, 0);
-            fread(idleAnim, len + 1, 1, _commandStream);
+            if (centered) {
+                len = str_len_file(_commandStream, 0);
+                fread(speakerIdle, len + 1, 1, _commandStream);
 
-            len = str_len_file(_commandStream, 0);
-            fread(talkAnim, len + 1, 1, _commandStream);
+                len = str_len_file(_commandStream, 0);
+                fread(speakerTalk, len + 1, 1, _commandStream);
+            }
 
             fread(&targetType, 1, 1, _commandStream);
             if (targetType == TargetType::SPRITE)
                 fread(&targetId, 1, 1, _commandStream);
 
             len = str_len_file(_commandStream, 0);
-            fread(idleAnim2, len + 1, 1, _commandStream);
+            fread(targetIdle, len + 1, 1, _commandStream);
 
             len = str_len_file(_commandStream, 0);
-            fread(talkAnim2, len + 1, 1, _commandStream);
+            fread(targetTalk, len + 1, 1, _commandStream);
 
             len = str_len_file(_commandStream, 0);
             fread(typeSnd, len + 1, 1, _commandStream);
@@ -355,14 +359,21 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
 
             fread(&framesPerLetter, 2, 1, _commandStream);
             fread(&mainScreen, 1, 1, _commandStream);
-            Engine::TextBGManager* txt = mainScreen ? &Engine::textMain : &Engine::textSub;
+            Engine::TextBGManager& txt = mainScreen ? Engine::textMain : Engine::textSub;
+            Engine::AllocationMode heartAlloc = mainScreen ? Engine::Allocated3D : Engine::AllocatedOAM;
 
             Engine::Sprite* target = Navigation::getTarget(targetType, targetId, callingLocation);
             if (_cDialogue == nullptr) {
-                _cDialogue = std::make_unique<Dialogue>(
-                        centered, textId, speaker, x, y, idleAnim,
-                        talkAnim, target, idleAnim2, talkAnim2,
-                        typeSnd, font, framesPerLetter, *txt);
+                if (centered)
+                    _cDialogue = std::make_unique<DialogueCentered>(
+                            textId, speaker, x, y, speakerIdle,
+                            speakerTalk, target, targetIdle, targetTalk,
+                            typeSnd, font, framesPerLetter, txt, heartAlloc
+                            );
+                else
+                    _cDialogue = std::make_unique<DialogueLeftAligned>(
+                        textId, x, y, target, targetIdle, targetTalk,
+                        typeSnd, font, framesPerLetter, txt, heartAlloc);
             }
             break;
         }

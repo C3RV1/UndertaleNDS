@@ -23,9 +23,9 @@ def cutscene(c: Cutscene):
 
     c.wait(WaitTypes.ENTER)
 
-    c.start_dialogue_battle(10, 100, 192 // 4 + 20,
-                            Target(TargetType.NULL), "", "",
-                            type_sound="SND_TXT1.wav")
+    c.dialogue_left_align(10, 100, 192 // 4 + 20,
+                          Target(TargetType.NULL), "", "",
+                          type_sound="SND_TXT1.wav")
     c.wait(WaitTypes.DIALOGUE)
 
     # == BATTLE LOOP ==
@@ -56,9 +56,9 @@ def cutscene(c: Cutscene):
 
     # == IDLE 2 ==
 
-    c.start_dialogue_battle(12, 100, 192 // 4 + 20,
-                            Target(TargetType.NULL), "", "",
-                            type_sound="SND_TXT1.wav")
+    c.dialogue_left_align(12, 100, 192 // 4 + 20,
+                          Target(TargetType.NULL), "", "",
+                          type_sound="SND_TXT1.wav")
     c.wait(WaitTypes.DIALOGUE)
 
     c.jump(dst=loop_start)
@@ -67,9 +67,9 @@ def cutscene(c: Cutscene):
 
     c.bind(jump_idle_1)
 
-    c.start_dialogue_battle(11, 100, 192 // 4 + 20,
-                            Target(TargetType.NULL), "", "",
-                            type_sound="SND_TXT1.wav")
+    c.dialogue_left_align(11, 100, 192 // 4 + 20,
+                          Target(TargetType.NULL), "", "",
+                          type_sound="SND_TXT1.wav")
     c.wait(WaitTypes.DIALOGUE)
 
     c.jump(dst=loop_start)
@@ -81,9 +81,9 @@ def cutscene(c: Cutscene):
     c.set_flag(FlagOffsets.DUMMY, 0)
     c.set_animation(Target(TargetType.SPRITE, 0), "hurt")
 
-    c.start_dialogue_battle(20, 100, 192 // 4,
-                            Target(TargetType.NULL), "", "",
-                            type_sound="SND_TXT1.wav")
+    c.dialogue_left_align(20, 100, 192 // 4,
+                          Target(TargetType.NULL), "", "",
+                          type_sound="SND_TXT1.wav")
     c.wait(WaitTypes.DIALOGUE)
 
     c.stop_bgm()
@@ -99,11 +99,11 @@ def cutscene(c: Cutscene):
 
     c.wait(WaitTypes.ENTER)
 
-    c.start_dialogue(25, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4,
+    c.dialogue_centered(25, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4,
                      "talkIdle", "talkTalk",
-                     Target(TargetType.SPRITE, 0),
+                        Target(TargetType.SPRITE, 0),
                      "downIdle", "downTalk",
-                     type_sound="snd_txttor.wav")
+                        type_sound="snd_txttor.wav")
     c.wait(WaitTypes.DIALOGUE)
 
     post_fight_jump = c.jump()
@@ -113,9 +113,9 @@ def cutscene(c: Cutscene):
     c.bind(check_jump)
     c.debug("Check dummy")
 
-    c.start_dialogue_battle(30, 100, 192 // 4,
-                            Target(TargetType.NULL), "", "",
-                            type_sound="SND_TXT1.wav")
+    c.dialogue_left_align(30, 100, 192 // 4,
+                          Target(TargetType.NULL), "", "",
+                          type_sound="SND_TXT1.wav")
     c.wait(WaitTypes.DIALOGUE)
 
     c.jump(continue_battle)
@@ -126,9 +126,9 @@ def cutscene(c: Cutscene):
     c.debug("Talked to dummy")
     c.set_flag(FlagOffsets.DUMMY, 1)
 
-    c.start_dialogue_battle(40, 100, 192 // 4,
-                            Target(TargetType.NULL), "", "",
-                            type_sound="SND_TXT1.wav")
+    c.dialogue_left_align(40, 100, 192 // 4,
+                          Target(TargetType.NULL), "", "",
+                          type_sound="SND_TXT1.wav")
     c.wait(WaitTypes.DIALOGUE)
     c.stop_bgm()
     c.exit_battle(won=True)
@@ -137,11 +137,11 @@ def cutscene(c: Cutscene):
     c.start_bgm("mus_ruins.wav", True)
     c.wait(WaitTypes.ENTER)
 
-    c.start_dialogue(45, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4,
+    c.dialogue_centered(45, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4,
                      "talkIdle", "talkTalk",
-                     Target(TargetType.SPRITE, 0),
+                        Target(TargetType.SPRITE, 0),
                      "downIdle", "downTalk",
-                     type_sound="snd_txttor.wav")
+                        type_sound="snd_txttor.wav")
     c.wait(WaitTypes.DIALOGUE)
 
     post_talk_jump = c.jump()
@@ -157,11 +157,11 @@ def cutscene(c: Cutscene):
     c.start_bgm("mus_ruins.wav", True)
     c.wait(WaitTypes.ENTER)
 
-    c.start_dialogue(50, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4,
+    c.dialogue_centered(50, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4,
                      "talkIdle", "talkTalk",
-                     Target(TargetType.SPRITE, 0),
+                        Target(TargetType.SPRITE, 0),
                      "downIdle", "downTalk",
-                     type_sound="snd_txttor.wav")
+                        type_sound="snd_txttor.wav")
     c.wait(WaitTypes.DIALOGUE)
 
     post_flee_jump = c.jump()
@@ -172,16 +172,16 @@ def cutscene(c: Cutscene):
     c.debug("Dummy got bored")
     c.set_flag(FlagOffsets.DUMMY, 3)
 
-    c.start_dialogue_battle(60, 100, 192 // 4,
-                            Target(TargetType.NULL), "", "",
-                            type_sound="SND_TXT1.wav")
+    c.dialogue_left_align(60, 100, 192 // 4,
+                          Target(TargetType.NULL), "", "",
+                          type_sound="SND_TXT1.wav")
     c.wait(WaitTypes.DIALOGUE)
 
     c.move_in_frames(Target(TargetType.SPRITE, 0), 0, -120, 90)
 
-    c.start_dialogue_battle(61, 100, 192 // 4,
-                            Target(TargetType.NULL), "", "",
-                            type_sound="SND_TXT1.wav")
+    c.dialogue_left_align(61, 100, 192 // 4,
+                          Target(TargetType.NULL), "", "",
+                          type_sound="SND_TXT1.wav")
     c.wait(WaitTypes.FRAMES, value=90)
     c.wait(WaitTypes.DIALOGUE)
 
@@ -191,11 +191,11 @@ def cutscene(c: Cutscene):
     c.start_bgm("mus_ruins.wav", True)
     c.wait(WaitTypes.ENTER)
 
-    c.start_dialogue(65, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4,
+    c.dialogue_centered(65, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4,
                      "what", "what",
-                     Target(TargetType.SPRITE, 0),
+                        Target(TargetType.SPRITE, 0),
                      "downIdle", "downTalk",
-                     type_sound="snd_txttor.wav")
+                        type_sound="snd_txttor.wav")
     c.wait(WaitTypes.DIALOGUE)
 
     # == BRANCH MERGE ==

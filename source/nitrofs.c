@@ -1,8 +1,7 @@
-// Modified by Cervi
+// From libfilesystem, modified by Cervi
 // cardRead and ndsFileFD not static, access from Engine.cpp
 
 #ifndef BLOCKSDS_SDK
-#define ARM9
 #include <nds/memory.h>
 #include <nds/system.h>
 #include <nds/card.h>

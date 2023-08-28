@@ -153,7 +153,7 @@ class Target:
 class Cutscene:
     def __init__(self, wtr: binary.BinaryWriter):
         self.wtr: binary.BinaryWriter = wtr
-        self.version = 8
+        self.version = 9
         self.file_size_pos = 0
         self.instructions_address = []
         self.pending_address = {}
@@ -318,16 +318,18 @@ class Cutscene:
             self.wtr.write_uint16(cutscene_id)
 
     # == DIALOGUE ==
-    def start_dialogue(self, dialogue_text_id: int,
-                       speaker_path: str, x: float, y: float,
-                       idle_anim: str, talk_anim: str,
-                       speaker_target: Target,
-                       idle_anim2: str, talk_anim2: str,
-                       type_sound: str = "",
-                       font: str = "fnt_maintext.font", frames_per_letter=3,
-                       main_screen=False, centered=True):
+    def dialogue_centered(self, dialogue_text_id: int,
+                          speaker_path: str, x: float, y: float,
+                          idle_anim: str, talk_anim: str,
+                          speaker_target: Target,
+                          idle_anim2: str, talk_anim2: str,
+                          type_sound: str = "",
+                          font: str = "fnt_maintext.font", frames_per_letter=3,
+                          main_screen=False, centered=True):
+        if centered is False:
+            raise Exception("Centered can't be False on this function.")
         self.write_header(CutsceneCommands.START_DIALOGUE)
-        self.wtr.write_bool(centered)
+        self.wtr.write_bool(True)
         self.wtr.write_uint16(dialogue_text_id)
         self.wtr.write_string(speaker_path, encoding="ascii")
         self.wtr.write_int32(to_fixed_point(x))
@@ -343,17 +345,27 @@ class Cutscene:
         self.wtr.write_bool(main_screen)
         return self.instructions_address[-1]
 
-    def start_dialogue_battle(self, dialogue_text_id: int,
-                              x: float, y: float,
-                              speaker_target: Target,
-                              idle_anim: str, talk_anim: str, type_sound: str = "",
-                              font: str = "fnt_maintext.font", frames_per_letter=2,
-                              main_screen=False, centered=False):
-        return self.start_dialogue(dialogue_text_id, "", x, y,
-                                   "", "", speaker_target, idle_anim, talk_anim,
-                                   type_sound=type_sound,
-                                   font=font, frames_per_letter=frames_per_letter,
-                                   main_screen=main_screen, centered=centered)
+    def dialogue_left_align(self, dialogue_text_id: int,
+                            x: float, y: float,
+                            speaker_target: Target,
+                            idle_anim: str, talk_anim: str, type_sound: str = "",
+                            font: str = "fnt_maintext.font", frames_per_letter=2,
+                            main_screen=False, centered=False):
+        if centered is True:
+            raise Exception("Centered can't be True on this function.")
+        self.write_header(CutsceneCommands.START_DIALOGUE)
+        self.wtr.write_bool(False)
+        self.wtr.write_uint16(dialogue_text_id)
+        self.wtr.write_int32(to_fixed_point(x))
+        self.wtr.write_int32(to_fixed_point(y))
+        speaker_target.write(self.wtr)
+        self.wtr.write_string(idle_anim, encoding="ascii")
+        self.wtr.write_string(talk_anim, encoding="ascii")
+        self.wtr.write_string(type_sound, encoding="ascii")
+        self.wtr.write_string(font, encoding="ascii")
+        self.wtr.write_uint16(frames_per_letter)
+        self.wtr.write_bool(main_screen)
+        return self.instructions_address[-1]
 
     # == BATTLE ==
     def start_battle(self, enemies: List[Enemy], board_id: int,

@@ -13,44 +13,46 @@
 
 class Dialogue {
 public:
-    Dialogue(bool centered, u16 textId, const char* speaker, s32 speakerX, s32 speakerY,
-             const char* idleAnimTxt, const char* talkAnimTxt, Engine::Sprite* target,
-             const char* idleAnim2Txt, const char* talkAnim2Txt, const char* typeSndPath,
-             const char* fontTxt, u16 framesPerLetter, Engine::TextBGManager& txtManager);
-    Dialogue(bool centered_, int x_, int y_, const char* text_, const char* typeSndPath,
-             const char* fontTxt, u16 framesPerLetter, Engine::TextBGManager& txtManager);
-    ~Dialogue() {free_();}
-    bool update();
-private:
-    void free_();
-    void setTalk();
-    void setNoTalk();
-    void progressText(bool clear, bool draw);
-    void clearText();
-    void drawTextCentered();  // Draws text centered
-    u16 getLineWidth(char* pos);
-    bool _paused = false;
-    int _startingX, _startingY;
-    int _x, _y;
+    Dialogue(u16 textId, Engine::Sprite* target,
+             const std::string& targetIdle, const std::string& targetTalk, const std::string& typeSndPath,
+             const std::string& fontTxt, u16 framesPerLetter, Engine::TextBGManager& txtManager,
+             Engine::AllocationMode heartAlloc);
 
-    bool _centered;
-    char* _lineStart = nullptr;
-    char* _lastPrintedPos = nullptr;
-    u16 _textLen = 0;
-    u8 _lineStartColor = 15;
-    const u16 _lineSpacing = 20;
+    Dialogue(const std::string& text_, const std::string& typeSndPath, const std::string& fontTxt,
+             u16 framesPerLetter, Engine::TextBGManager& txtManager, Engine::AllocationMode heartAlloc);
+    bool update();
+    virtual ~Dialogue() = default;
+
+protected:
+    virtual void setTalk();
+    virtual void setNoTalk();
+    void progressText(bool clear_, bool draw_);
+
+    virtual void handleInline(std::string::iterator& pos, bool doEffect);
+    virtual int sizeInline(std::string::iterator& posToProgress);
+    virtual void onLineBreak();
+    virtual void onClear();
+    virtual void onOptionChoose();
+    virtual void onPause();
+
+    virtual void draw(bool draw_, bool clear_) = 0;
+    bool _paused = false;
+
+    constexpr static u16 _lineSpacing = 20;
+    int _x = 0, _y = 0;
 
     u16 _cTimer;
     u16 _letterFrames = 20;
 
-    Engine::Texture _speakerTex;
-    Engine::Sprite _speakerSpr;
-    Engine::Sprite* _target;
+    Engine::Sprite* _target = nullptr;
     Engine::TextBGManager* _textManager;
-    int _idleAnim = -1, _talkAnim = -1, _idleAnim2 = -1, _talkAnim2 = -1;
-    char* _text = nullptr;
-    char* _textPos = nullptr;
-    char* _textEnd = nullptr;
+    int _targetIdle = -1, _targetTalk = -1;
+    std::string _text;
+    std::string::iterator _textPos;
+    // Maybe will be used to repaint the dialogue
+    // For example, in FIGHTs the flavor text must be redrawn without
+    // going over all the Dialogue animation.
+    std::string::iterator _lastClear;
 
     Audio::WAV _typeSnd;
 
@@ -58,12 +60,65 @@ private:
 
     Engine::Texture _heartTexture;
     Engine::Sprite _heartSprite;
+
     bool _choosingOption = false;
     int _optionCount = 0;
-    int _lineOptionStart = 0;
-    int _optionPositions[4][2];
-    void updateChoosingOption();
+    int _optionPositions[4][2]{0};
     int _currentOption = 0;
+    void updateChoosingOption();
+};
+
+class DialogueCentered : public Dialogue {
+public:
+    DialogueCentered(u16 textId, const std::string& speaker, s32 speakerX, s32 speakerY,
+                     const std::string& speakerIdle, const std::string& speakerTalk, Engine::Sprite* target,
+                     const std::string& targetIdle, const std::string& targetTalk, const std::string& typeSndPath,
+                     const std::string& fontTxt, u16 framesPerLetter, Engine::TextBGManager& txtManager,
+                     Engine::AllocationMode heartAlloc);
+    DialogueCentered(const std::string& text_, const std::string& typeSndPath,
+                     const std::string& fontTxt, u16 framesPerLetter, Engine::TextBGManager& txtManager,
+                     Engine::AllocationMode heartAlloc);
+    ~DialogueCentered() override;
+
+protected:
+    void clearCentered();
+    void draw(bool draw_, bool clear_) override;
+    u16 getLineWidth(std::string::iterator pos);
+    void setTalk() override;
+    void setNoTalk() override;
+    int sizeInline(std::string::iterator &posToProgress) override;
+    void handleInline(std::string::iterator& pos, bool doEffect) override;
+    void onLineBreak() override;
+    void onClear() override;
+    void onPause() override;
+    void onOptionChoose() override;
+
+    Engine::Texture _speakerTex;
+    Engine::Sprite _speakerSpr{Engine::AllocatedOAM};
+    int _speakerIdle = -1, _speakerTalk = -1;
+    int _startingY = 0;
+    std::string::iterator _lineStart, _lastPrintedPos;
+    u8 _lineStartColor = 15;
+    int _lineOptionStart = 0;
+};
+
+class DialogueLeftAligned : public Dialogue {
+public:
+    DialogueLeftAligned(u16 textId, s32 startingX, s32 startingY, Engine::Sprite* target,
+                        const std::string& targetIdle, const std::string& targetTalk,
+                        const std::string& typeSndPath, const std::string& fontTxt,
+                        u16 framesPerLetter, Engine::TextBGManager& txtManager,
+                        Engine::AllocationMode heartAlloc);
+    DialogueLeftAligned(int startingX, int startingY, const std::string& text_, const std::string& typeSndPath,
+                        const std::string& fontTxt, u16 framesPerLetter, Engine::TextBGManager& txtManager,
+                        Engine::AllocationMode heartAlloc);
+
+protected:
+    void draw(bool draw_, bool clear_) override;
+    void onClear() override;
+    void onLineBreak() override;
+
+    int _startingX = 0, _startingY = 0;
 };
 
 #endif //UNDERTALE_DIALOGUE_HPP

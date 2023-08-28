@@ -12,9 +12,9 @@ def cutscene(c: Cutscene):
     c.manual_camera(True)
     c.move_in_frames(Target(TargetType.CAMERA), 0, -20, 60)
     c.wait(WaitTypes.FRAMES, 60)
-    c.start_dialogue(10, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4 - 5,
+    c.dialogue_centered(10, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4 - 5,
                      "talkIdle", "talkTalk",
-                     Target(TargetType.SPRITE, 0),
+                        Target(TargetType.SPRITE, 0),
                      "downIdle", "downTalk", type_sound="snd_txttor.wav")
     c.wait(WaitTypes.DIALOGUE)
 
@@ -62,9 +62,9 @@ def cutscene(c: Cutscene):
 
     c.set_animation(Target(TargetType.SPRITE, 0), "downIdle")
     c.wait(WaitTypes.FRAMES, 20)
-    c.start_dialogue(20, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4 - 5,
+    c.dialogue_centered(20, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4 - 5,
                      "talkIdle", "talkTalk",
-                     Target(TargetType.SPRITE, 0),
+                        Target(TargetType.SPRITE, 0),
                      "downIdle", "downTalk", type_sound="snd_txttor.wav")
     c.wait(WaitTypes.DIALOGUE)
 

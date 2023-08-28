@@ -10,9 +10,9 @@ def cutscene(c: Cutscene):
     c.set_collider_enabled(0, False)
     c.set_animation(Target(TargetType.PLAYER), "upIdle")
     c.set_collider_enabled(0, False)
-    c.start_dialogue(10, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4,
+    c.dialogue_centered(10, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4,
                      "talkIdle", "talkTalk",
-                     Target(TargetType.SPRITE, 0),
+                        Target(TargetType.SPRITE, 0),
                      "downIdle", "downTalk",
-                     type_sound="snd_txttor.wav")
+                        type_sound="snd_txttor.wav")
     c.wait(WaitTypes.DIALOGUE)

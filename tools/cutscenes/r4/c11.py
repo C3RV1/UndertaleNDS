@@ -10,17 +10,17 @@ def cutscene(c: Cutscene):
     c.cmp_flag(FlagOffsets.ROOM_FLAGS, "==", 1)
     jump_repeated_dialogue = c.jump_if()
 
-    c.start_dialogue(10, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4 - 5,
+    c.dialogue_centered(10, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4 - 5,
                      "talkIdle", "talkTalk",
-                     Target(TargetType.SPRITE, 7),
+                        Target(TargetType.SPRITE, 7),
                      "leftIdle", "leftTalk", type_sound="snd_txttor.wav")
     c.wait(WaitTypes.DIALOGUE)
     jump_end = c.jump()
 
     c.bind(jump_repeated_dialogue)
-    c.start_dialogue(11, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4 - 5,
+    c.dialogue_centered(11, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4 - 5,
                      "worriedLeftIdle", "worriedLeftTalk",
-                     Target(TargetType.SPRITE, 7),
+                        Target(TargetType.SPRITE, 7),
                      "leftIdle", "leftTalk", type_sound="snd_txttor.wav")
     c.wait(WaitTypes.DIALOGUE)
 

@@ -4,63 +4,41 @@
 
 #include "Cutscene/Dialogue.hpp"
 #include "Engine/OAMManager.hpp"
+#include "Engine/Engine.hpp"
 #include "Cutscene/Cutscene.hpp"
 #include "Formats/utils.hpp"
 
-Dialogue::Dialogue(bool centered, u16 textId, const char* speaker, s32 speakerX, s32 speakerY,
-                   const char* idleAnimTxt, const char* talkAnimTxt, Engine::Sprite* target,
-                   const char* idleAnim2Txt, const char* talkAnim2Txt, const char* typeSndPath,
-                   const char* fontTxt, u16 framesPerLetter, Engine::TextBGManager& txtManager) :
-
-        _centered(centered), _speakerSpr(Engine::AllocatedOAM),
-        _target(target), _textManager(&txtManager), _heartSprite(Engine::AllocatedOAM) {
-    char buffer[100];
-
+Dialogue::Dialogue(u16 textId, Engine::Sprite* target,
+                   const std::string& targetIdle, const std::string& targetTalk,
+                   const std::string& typeSndPath, const std::string& fontTxt,
+                   u16 framesPerLetter, Engine::TextBGManager& txtManager,
+                   Engine::AllocationMode heartAlloc) :
+        _target(target), _textManager(&txtManager), _heartSprite(heartAlloc) {
     _fnt.loadPath(fontTxt);
     _heartTexture.loadPath("spr_heartsmall");
     _heartSprite.loadTexture(_heartTexture);
 
-    if (strlen(speaker) != 0 && centered)
-        _speakerTex.loadPath(speaker);
+    std::string buffer =
+            "nitro:/data/dialogue/r" + std::to_string(globalCutscene->_roomId) +
+            "/c" + std::to_string(globalCutscene->_cutsceneId) +
+            "/d" + std::to_string(textId) + ".txt";
+    FILE* textStream = fopen(buffer.c_str(), "rb");
+    if (textStream == nullptr) {
+        Engine::throw_("Error opening text file #r" + buffer);
+    }
+    u32 textLen = str_len_file(textStream, '\0');
+    _text.resize(textLen);
+    fread(&_text[0], textLen, 1, textStream);
 
-    sprintf(buffer, "nitro:/data/dialogue/r%d/c%d/d%d.txt",
-            globalCutscene->_roomId, globalCutscene->_cutsceneId, textId);
-    FILE* textStream = fopen(buffer, "rb");
-    fseek(textStream, 0, SEEK_END);
-    _textLen = ftell(textStream);
-    fseek(textStream, 0, SEEK_SET);
-    _text = new char[_textLen];
-    fread(_text, _textLen, 1, textStream);
-    _textPos = _text;
-    _lineStart = _text;
-    _textEnd = _text + _textLen;
-    if (centered) {
-        if (strlen(speaker) != 0)
-            _startingY = 192 / 2;
-        else
-            _startingY = 192 / 4;
-        _y = _startingY;
-    }
-    else {
-        _x = speakerX >> 8;
-        _startingX = _x;
-        _y = speakerY >> 8;
-        _startingY = _y;
-    }
+    _textPos = _text.begin();
+    _lastClear = _text.begin();
+
     _letterFrames = framesPerLetter;
     _cTimer = _letterFrames;
-    if (centered) {
-        _speakerSpr.loadTexture(_speakerTex);
-        _speakerSpr._wx = speakerX;
-        _speakerSpr._wy = speakerY;
-        _speakerSpr.setShown(true);
-        _idleAnim = _speakerSpr.nameToAnimId(idleAnimTxt);
-        _talkAnim = _speakerSpr.nameToAnimId(talkAnimTxt);
-    }
 
     if (target != nullptr) {
-        _idleAnim2 = target->nameToAnimId(idleAnim2Txt);
-        _talkAnim2 = target->nameToAnimId(talkAnim2Txt);
+        _targetIdle = target->nameToAnimId(targetIdle);
+        _targetTalk = target->nameToAnimId(targetTalk);
     }
 
     _textManager->clear();
@@ -69,62 +47,53 @@ Dialogue::Dialogue(bool centered, u16 textId, const char* speaker, s32 speakerX,
 
     _typeSnd.loadWAV(typeSndPath);
     _typeSnd.setLoops(0);
-
-    setTalk();
 }
 
-Dialogue::Dialogue(bool centered_, int x_, int y_, const char *text_, const char *typeSndPath,
-                   const char *fontTxt, u16 framesPerLetter, Engine::TextBGManager& txtManager) :
-        _speakerSpr(Engine::AllocatedOAM) {
-    _centered = centered_;
-    _textManager = &txtManager;
+Dialogue::Dialogue(const std::string& text_, const std::string& typeSndPath, const std::string& fontTxt,
+                   u16 framesPerLetter, Engine::TextBGManager &txtManager, Engine::AllocationMode heartAlloc) :
+        _textManager(&txtManager), _heartSprite(heartAlloc) {
     _fnt.loadPath(fontTxt);
-    _textLen = strlen(text_);
-    _text = new char[_textLen];
-    strcpy(_text, text_);
-    _typeSnd.loadWAV(typeSndPath);
-    _typeSnd.setLoops(0);
+    _heartTexture.loadPath("spr_heartsmall");
+    _heartSprite.loadTexture(_heartTexture);
+
+    _text = text_;
+
+    _textPos = _text.begin();
+    _lastClear = _text.begin();
+
     _letterFrames = framesPerLetter;
     _cTimer = _letterFrames;
-    _target = nullptr;
-    if (centered_) {
-        _startingY = 192 / 4;
-        _y = _startingY;
-    }
-    else {
-        _x = x_;
-        _y = y_;
-        _startingX = _x;
-        _startingY = _y;
-    }
 
-    setTalk();
+    _textManager->clear();
+    _textManager->reloadColors();
+    _textManager->setColor(15);
+
+    _typeSnd.loadWAV(typeSndPath);
+    _typeSnd.setLoops(0);
 }
 
 void Dialogue::setTalk() {
-    _speakerSpr.setSpriteAnim(_talkAnim);
     if (_target != nullptr)
-        _target->setSpriteAnim(_talkAnim2);
+        _target->setSpriteAnim(_targetTalk);
 }
 
 void Dialogue::setNoTalk() {
-    _speakerSpr.setSpriteAnim(_idleAnim);
     if (_target != nullptr)
-        _target->setSpriteAnim(_idleAnim2);
+        _target->setSpriteAnim(_targetIdle);
 }
 
 bool Dialogue::update() {
+    if (_textPos >= _text.end()) {
+        setNoTalk();
+        return true;
+    }
     if (!_paused) {
         setTalk();
         progressText(true, true);
         if (((keysDown() & (/*KEY_TOUCH |*/ KEY_B)) || _letterFrames == 0)) {
             progressText(true, false);
-            while (!_paused && _textPos < _textEnd)
+            while (!_paused && _textPos < _text.end())
                 progressText(false, false);
-        }
-        if (_textPos == _textEnd) {
-            setNoTalk();
-            return true;
         }
         return false;
     } else {
@@ -142,208 +111,40 @@ bool Dialogue::update() {
     return false;
 }
 
-u16 Dialogue::getLineWidth(char* pos) {
-    u16 lineWidth_ = 0;
-    for (char* pLine = _lineStart; pLine < pos; pLine++) {
-        if (*pLine == '@') {
-            char command = *(++pLine);
-            if (command == 'a' or command == 'b') {
-                for(;*pLine != '/';pLine++);
-                pLine++;
-                for(;*pLine != '/';pLine++);
-            }
-            else if (command == 'o') {
-                if (*(++pLine) == 'p')
-                    lineWidth_ += 11;
-            }
-            continue;
-        }
-        lineWidth_ += _fnt.getGlyphWidth(*pLine);
-        lineWidth_++;
+int Dialogue::sizeInline(std::string::iterator &posToProgress) {
+    char cChar = *posToProgress++;
+    if (cChar == 'b') {
+        for(;*posToProgress != '/';posToProgress++);
+        posToProgress++;
+        for(;*posToProgress != '/';posToProgress++);
     }
-    return lineWidth_ - 1;
+    else if (cChar == 'o') {
+        if (*(++posToProgress) == 'p')
+            return 11;
+    }
+    return 0;
 }
 
-void Dialogue::progressText(bool clear, bool draw) {
-    if (_cTimer > 0 && draw) {
+void Dialogue::progressText(bool clear_, bool draw_) {
+    if (_cTimer > 0 && draw_) {
         _cTimer--;
         return;
     }
     _cTimer = _letterFrames;
-
     char cChar = *_textPos++;
 
     if (cChar == '@') {
-        cChar = *_textPos++;
-        if (cChar == 'p') {
-            _paused = true;
-            if (_centered)
-                drawTextCentered();
-        }
-        else if (cChar == 'c') {
-            _textManager->clear();
-            _x = _startingX;
-            _y = _startingY;
-        }
-        else if (cChar == '0')
-            _textManager->setColor(8);
-        else if (cChar == '1')
-            _textManager->setColor(9);
-        else if (cChar == '2')
-            _textManager->setColor(10);
-        else if (cChar == '3')
-            _textManager->setColor(11);
-        else if (cChar == '4')
-            _textManager->setColor(12);
-        else if (cChar == '5')
-            _textManager->setColor(13);
-        else if (cChar == '6')
-            _textManager->setColor(14);
-        else if (cChar == 'w')
-            _textManager->setColor(15);
-        else if (cChar == 'a') {
-            char* bufferPos;
-            char buffer[30];
-            for (bufferPos = buffer; *_textPos != '/'; *bufferPos++ = *_textPos++);
-            *bufferPos = '\0';
-            _textPos++;
-            _idleAnim = _speakerSpr.nameToAnimId(buffer);
-            for (bufferPos = buffer; *_textPos != '/'; *bufferPos++ = *_textPos++);
-            *bufferPos = '\0';
-            _textPos++;
-            _talkAnim = _speakerSpr.nameToAnimId(buffer);
-        }
-        else if (cChar == 'b') {
-            char* bufferPos;
-            char buffer[30];
-            for (bufferPos = buffer; *_textPos != '/'; *bufferPos++ = *_textPos++);
-            *bufferPos = '\0';
-            _textPos++;
-            if (_target != nullptr)
-                _idleAnim2 = _target->nameToAnimId(buffer);
-            for (bufferPos = buffer; *_textPos != '/'; *bufferPos++ = *_textPos++);
-            *bufferPos = '\0';
-            _textPos++;
-            if (_target != nullptr)
-                _talkAnim2 = _target->nameToAnimId(buffer);
-        }
-        else if (cChar == 'o') {
-            // Options
-            cChar = *_textPos++;
-            if (cChar == 'p') {
-                // present
-                if (_optionCount < 4) {
-                    _optionPositions[_optionCount][0] = _x;
-                    _optionPositions[_optionCount][1] = _y;
-                    _optionCount++;
-                }
-                _x += 11;
-            } else if (cChar == 'c') {
-                // do choose
-                _paused = true;
-                if (_centered)
-                    drawTextCentered();
-                _choosingOption = true;
-                _currentOption = 0;
-            }
-        }
+        handleInline(_textPos, true);
+        _cTimer = 0;
         return;
     } else if (cChar == '\n') {
-        if (_centered && !draw)
-            drawTextCentered();
-        _y += _lineSpacing;
-        _x = _startingX;
-        _lineStartColor = _textManager->getColor();
-        _lineOptionStart = _optionCount;
-        _lineStart = _textPos;
+        onLineBreak();
         return;
     }
-    if (draw)
+    if (draw_)
         _typeSnd.play();
 
-    if (clear && _centered)
-        clearText();
-
-    if (_centered) {
-        if (draw)
-            drawTextCentered();
-    }
-    else
-        _textManager->drawGlyph(_fnt, cChar, _x, _y);
-}
-
-void Dialogue::clearText() {
-    if (_lastPrintedPos == nullptr)
-        return;
-    u16 width = getLineWidth(_lastPrintedPos);
-    u8 color = _textManager->getColor();
-    _textManager->setColor(0); // clear color
-    _x = 128 - width / 2;
-    for (char* pLine = _lineStart; pLine < _lastPrintedPos; pLine++) {
-        if (*pLine == '@') {
-            char command = *(++pLine);
-            if (command == 'a' or command == 'b') {
-                for(;*pLine != '/';pLine++);
-                pLine++;
-                for(;*pLine != '/';pLine++);
-            } else if (command == 'o') {
-                if (*(++pLine) == 'p')
-                    _x += 11;
-            }
-            continue;
-        }
-        _textManager->drawGlyph(_fnt, *pLine, _x, _y);
-        _x += 1;
-    }
-    _textManager->setColor(color);
-}
-
-void Dialogue::drawTextCentered() {
-    u16 width = getLineWidth(_textPos);
-    _x = 128 - width / 2;
-    _textManager->setColor(_lineStartColor); // clear color
-    int optionNum = _lineOptionStart;
-    for (char* pLine = _lineStart; pLine < _textPos; pLine++) {
-        if (*pLine == '@') {
-            char command = *(++pLine);
-            if (command == '0')
-                _textManager->setColor(8);
-            else if (command == '1')
-                _textManager->setColor(9);
-            else if (command == '2')
-                _textManager->setColor(10);
-            else if (command == '3')
-                _textManager->setColor(11);
-            else if (command == '4')
-                _textManager->setColor(12);
-            else if (command == '5')
-                _textManager->setColor(13);
-            else if (command == '6')
-                _textManager->setColor(14);
-            else if (command == 'w')
-                _textManager->setColor(15);
-            else if (command == 'a' or command == 'b') {
-                for(;*pLine != '/';pLine++);
-                pLine++;
-                for(;*pLine != '/';pLine++);
-            }
-            else if (command == 'o') {
-                command = *(++pLine);
-                if (command == 'p') {
-                    if (optionNum < 4) {
-                        _optionPositions[optionNum][0] = _x;
-                        _optionPositions[optionNum][1] = _y;
-                        optionNum++;
-                    }
-                    _x += 11;
-                }
-            }
-            continue;
-        }
-        _textManager->drawGlyph(_fnt, *pLine, _x, _y);
-        _x += 1;
-    }
-    _lastPrintedPos = _textPos;
+    draw(draw_, clear_);
 }
 
 void Dialogue::updateChoosingOption() {
@@ -378,6 +179,78 @@ void Dialogue::updateChoosingOption() {
     _heartSprite._wy = (_optionPositions[_currentOption][1] + 4) << 8;
 }
 
-void Dialogue::free_() {
-    _speakerSpr.setShown(false);
+void Dialogue::onClear() {
+    _textManager->clear();
+    _lastClear = _textPos;
+}
+
+void Dialogue::handleInline(std::string::iterator& pos, bool doEffect) {
+    char cChar = *pos++;
+    if (cChar == 'p') {
+        if (doEffect)
+            onPause();
+    }
+    else if (cChar == 'c') {
+        if (doEffect)
+            onClear();
+    }
+    else if (cChar == '0')
+        _textManager->setColor(8);
+    else if (cChar == '1')
+        _textManager->setColor(9);
+    else if (cChar == '2')
+        _textManager->setColor(10);
+    else if (cChar == '3')
+        _textManager->setColor(11);
+    else if (cChar == '4')
+        _textManager->setColor(12);
+    else if (cChar == '5')
+        _textManager->setColor(13);
+    else if (cChar == '6')
+        _textManager->setColor(14);
+    else if (cChar == 'w')
+        _textManager->setColor(15);
+    else if (cChar == 'b') {
+        std::string buffer;
+        buffer.reserve(30);
+        for (; *pos != '/'; buffer += *pos++);
+        pos++;
+        if (_target != nullptr and doEffect)
+            _targetIdle = _target->nameToAnimId(buffer);
+        buffer = "";
+        for (; *pos != '/'; buffer += *pos++);
+        pos++;
+        if (_target != nullptr and doEffect)
+            _targetTalk = _target->nameToAnimId(buffer);
+    }
+    else if (cChar == 'o') {
+        // Options
+        cChar = *pos++;
+        if (cChar == 'p') {
+            // present
+            if (_optionCount < 4) {
+                _optionPositions[_optionCount][0] = _x;
+                _optionPositions[_optionCount][1] = _y;
+                _optionCount++;
+            }
+            _x += 11;
+        } else if (cChar == 'c') {
+            if (doEffect)
+                onOptionChoose();
+        }
+    }
+}
+
+void Dialogue::onPause() {
+    _paused = true;
+}
+
+void Dialogue::onOptionChoose() {
+    _paused = true;
+    _choosingOption = true;
+    _currentOption = 0;
+}
+
+void Dialogue::onLineBreak() {
+    _y += _lineSpacing;
 }

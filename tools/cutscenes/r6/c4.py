@@ -11,11 +11,11 @@ def cutscene(c: Cutscene):
     c.set_animation(Target(TargetType.SPRITE, 0), "leftIdle")
     c.set_animation(Target(TargetType.PLAYER), "rightIdle")
 
-    c.start_dialogue(10, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4,
+    c.dialogue_centered(10, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4,
                      "worriedLeftIdle", "worriedLeftTalk",
-                     Target(TargetType.SPRITE, 0),
+                        Target(TargetType.SPRITE, 0),
                      "leftIdle", "leftTalk",
-                     type_sound="snd_txttor.wav")
+                        type_sound="snd_txttor.wav")
     c.wait(WaitTypes.DIALOGUE)
 
     c.load_texture("room_sprites/toriel_handhold")
@@ -84,11 +84,11 @@ def cutscene(c: Cutscene):
     c.set_animation(Target(TargetType.SPRITE, 0), "leftIdle")
     c.set_animation(Target(TargetType.PLAYER), "rightIdle")
 
-    c.start_dialogue(20, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4,
+    c.dialogue_centered(20, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4,
                      "worriedLeftIdle", "worriedLeftTalk",
-                     Target(TargetType.SPRITE, 0),
+                        Target(TargetType.SPRITE, 0),
                      "leftIdle", "leftTalk",
-                     type_sound="snd_txttor.wav")
+                        type_sound="snd_txttor.wav")
     c.wait(WaitTypes.DIALOGUE)
 
     c.set_animation(Target(TargetType.SPRITE, 0), "rightMove")

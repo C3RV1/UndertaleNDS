@@ -29,9 +29,9 @@ def cutscene(c: Cutscene):
 
     c.wait(WaitTypes.ENTER)
 
-    c.start_dialogue_battle(10, 100, 192 // 4 + 20,
-                            Target(TargetType.NULL), "", "",
-                            type_sound="SND_TXT1.wav")
+    c.dialogue_left_align(10, 100, 192 // 4 + 20,
+                          Target(TargetType.NULL), "", "",
+                          type_sound="SND_TXT1.wav")
     c.wait(WaitTypes.DIALOGUE)
 
     c.debug("Battle loop!")
@@ -56,9 +56,9 @@ def cutscene(c: Cutscene):
     # == CHECK ==
     c.bind(check_jump)
 
-    c.start_dialogue_battle(20, 100, 192 // 4 + 20,
-                            Target(TargetType.NULL), "", "",
-                            type_sound="SND_TXT1.wav")
+    c.dialogue_left_align(20, 100, 192 // 4 + 20,
+                          Target(TargetType.NULL), "", "",
+                          type_sound="SND_TXT1.wav")
     c.wait(WaitTypes.DIALOGUE)
 
     # == TORIEL SCARE ==
@@ -68,8 +68,8 @@ def cutscene(c: Cutscene):
     c.load_texture("battle/spr_torieldisapprove")
     c.load_sprite(256, 192 // 4, -1)
 
-    c.start_dialogue_battle(1, 100, 192 // 4 + 20,
-                            Target(TargetType.NULL), "", "")  # clear
+    c.dialogue_left_align(1, 100, 192 // 4 + 20,
+                          Target(TargetType.NULL), "", "")  # clear
 
     c.wait(WaitTypes.FRAMES, 40)
 

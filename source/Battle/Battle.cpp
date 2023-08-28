@@ -55,10 +55,10 @@ void Battle::exit(bool won) {
         buffer.resize(size_s);
         sprintf(&buffer[0], _winText.c_str(), earnedExp, earnedGold);
         if (globalCutscene->_cDialogue == nullptr) {
-            globalCutscene->_cDialogue = std::make_unique<Dialogue>(
-                    true, 0, 0, buffer.c_str(), "SND_TXT1.wav",
+            globalCutscene->_cDialogue = std::make_unique<DialogueCentered>(
+                    buffer, "SND_TXT1.wav",
                     "fnt_maintext.font", 2,
-                    Engine::textMain);
+                    Engine::textMain, Engine::Allocated3D);
         }
         _stopPostDialogue = true;
     } else {

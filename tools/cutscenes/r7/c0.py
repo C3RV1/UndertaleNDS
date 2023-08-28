@@ -8,11 +8,11 @@ else:
 def cutscene(c: Cutscene):
     c.player_control(False)
     c.set_animation(Target(TargetType.PLAYER), "rightIdle")
-    c.start_dialogue(10, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4,
+    c.dialogue_centered(10, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4,
                      "slightSmileIdle", "slightSmileTalk",
-                     Target(TargetType.SPRITE, 1),
+                        Target(TargetType.SPRITE, 1),
                      "leftIdle", "leftTalk",
-                     type_sound="snd_txttor.wav")
+                        type_sound="snd_txttor.wav")
     c.wait(WaitTypes.DIALOGUE)
     c.start_bgm("mus_tension.wav", True)
     c.player_control(True)
