@@ -79,8 +79,6 @@ BattleAction::BattleAction(std::vector<Enemy>* enemies,
     fclose(f);
 
     enter(PRINTING_FLAVOR_TEXT);
-
-    nocashMessage(("Inited action " + _flavorText).c_str());
 }
 
 void BattleAction::enter(BattleActionState state) {

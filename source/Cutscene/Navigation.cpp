@@ -128,7 +128,7 @@ void Navigation::set_animation(u8 targetType, s8 targetId, char *animName, Cutsc
         return;
     }
     if (spriteManager->_texture == nullptr) {
-        nocashMessage("no sprite");
+        nocashMessage("no texture");
         return;
     }
     int animId = spriteManager->nameToAnimId(animName);

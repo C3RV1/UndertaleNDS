@@ -55,7 +55,6 @@ void DialogueCentered::setNoTalk() {
 }
 
 void DialogueCentered::handleInline(std::string::iterator& pos, bool doEffect) {
-    nocashMessage("centered handler");
     char cChar = *pos++;
     if (cChar == 'a') {
         std::string buffer;
