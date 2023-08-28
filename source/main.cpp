@@ -21,28 +21,6 @@ int main() {
     if (Engine::init() != 0)
         return 0;
 
-    char buffer[1024];
-    int timeTaken[100]{0};
-    FILE *f = fopen("nitro:/z_audio/mus_ruins.wav", "rb");
-    for (int & i : timeTaken) {
-        timerStart(2, ClockDivider::ClockDivider_64, 0, nullptr);
-        for (int j = 0; j < 10; j++) {
-            fread(buffer, 1024, 1, f);
-        }
-        timerPause(2);
-        i = timerElapsed(2);
-    }
-
-    int sum = 0;
-    for (int & i : timeTaken) {
-        sum += i / 100;
-    }
-    std::string res = "Taken, on average, " + std::to_string(sum) + " ticks.";
-    nocashMessage(res.c_str());
-    while(true) {
-        Engine::tick();
-    }
-
     globalSave.loadData();
 
     runTitleScreen();
