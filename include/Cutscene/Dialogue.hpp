@@ -5,7 +5,6 @@
 #ifndef UNDERTALE_DIALOGUE_HPP
 #define UNDERTALE_DIALOGUE_HPP
 
-#define ARM9
 #include <nds.h>
 #include "Engine/Audio.hpp"
 #include "Engine/Sprite.hpp"

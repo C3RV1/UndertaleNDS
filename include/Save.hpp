@@ -10,7 +10,6 @@
 #define CELL_COUNT 8
 
 #include <cstdio>
-#define ARM9
 #include <nds.h>
 
 constexpr int MAX_NAME_LEN = 10;

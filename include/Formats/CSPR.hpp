@@ -1,7 +1,6 @@
 #ifndef UNDERTALE_CSPR_HPP
 #define UNDERTALE_CSPR_HPP
 
-#define ARM9
 #include <nds.h>
 #include <string>
 #include <memory>

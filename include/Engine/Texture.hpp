@@ -2,7 +2,6 @@
 #define UNDERTALE_TEXTURE_HPP
 
 #include <cstdio>
-#define ARM9
 #include <nds.h>
 #include <vector>
 #include "Formats/CSPR.hpp"

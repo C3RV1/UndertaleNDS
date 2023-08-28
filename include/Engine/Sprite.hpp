@@ -9,7 +9,6 @@ namespace Engine {
     class Sprite;
 }
 
-#define ARM9
 #include <nds.h>
 #include "Engine/Texture.hpp"
 #include "Engine/OAMManager.hpp"

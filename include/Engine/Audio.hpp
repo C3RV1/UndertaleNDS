@@ -11,7 +11,6 @@
 #include <list>
 #include <memory>
 #include <utility>
-#define ARM9
 #include <nds.h>
 #include <maxmod9.h>
 

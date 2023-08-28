@@ -1,5 +1,6 @@
 {
   "size": [30, 30],
   "frameCount": 10,
-  "animations": []
+  "animations": [],
+  "exclude3d": true
 }

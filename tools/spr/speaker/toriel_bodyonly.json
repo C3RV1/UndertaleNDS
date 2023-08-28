@@ -6,5 +6,6 @@
       "name": "gfx",
       "frames": [{"frame": 0, "duration": 0, "draw_off_x": -20, "draw_off_y": 26}]
     }
-  ]
+  ],
+  "exclude3d": true
 }

@@ -5,7 +5,6 @@
 #ifndef UNDERTALE_BATTLE_HPP
 #define UNDERTALE_BATTLE_HPP
 
-#define ARM9
 #include <nds.h>
 #include <cstdio>
 #include "Engine/Engine.hpp"

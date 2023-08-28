@@ -5,7 +5,6 @@
 #ifndef UNDERTALE_CARD_HPP
 #define UNDERTALE_CARD_HPP
 
-#define ARM9
 #include <nds.h>
 
 u8 cardCommand(u8 command, bool hold);

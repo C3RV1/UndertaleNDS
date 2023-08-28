@@ -5,7 +5,6 @@
 #ifndef UNDERTALE_DMA_ASYNC_HPP
 #define UNDERTALE_DMA_ASYNC_HPP
 
-#define ARM9
 
 #include <nds.h>
 

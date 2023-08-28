@@ -1,7 +1,7 @@
 //
 // Created by cervi on 30/08/2022.
 //
-#include "Sprite.hpp"
+#include "Engine/Sprite.hpp"
 
 namespace Engine {
     Sprite::Sprite(Engine::AllocationMode allocMode) {

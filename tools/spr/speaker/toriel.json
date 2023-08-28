@@ -56,5 +56,6 @@
             "name": "confused",
             "frames": [{"frame": 27, "duration": 0}]
         }
-    ]
+    ],
+    "exclude3d": true
 }

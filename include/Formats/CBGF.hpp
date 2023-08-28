@@ -2,7 +2,6 @@
 #ifndef UNDERTALE_CBGF_HPP
 #define UNDERTALE_CBGF_HPP
 
-#define ARM9
 #include <nds.h>
 
 struct CBGFHeader {

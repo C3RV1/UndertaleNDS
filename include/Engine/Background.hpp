@@ -11,7 +11,6 @@
 #include <string>
 #include <memory>
 
-#define ARM9
 #include <nds.h>
 
 namespace Engine {

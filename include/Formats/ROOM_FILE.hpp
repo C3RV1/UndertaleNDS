@@ -5,7 +5,6 @@
 #ifndef UNDERTALE_ROOM_FILE_HPP
 #define UNDERTALE_ROOM_FILE_HPP
 
-#define ARM9
 #include <nds.h>
 
 struct ROOMHeader {

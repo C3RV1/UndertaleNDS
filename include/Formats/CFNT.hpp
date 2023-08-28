@@ -5,7 +5,6 @@
 #ifndef UNDERTALE_CFNT_HPP
 #define UNDERTALE_CFNT_HPP
 
-#define ARM9
 #include <nds.h>
 #include <vector>
 

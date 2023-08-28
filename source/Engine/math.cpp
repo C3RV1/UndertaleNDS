@@ -2,7 +2,7 @@
 // Created by cervi on 27/08/2022.
 //
 
-#include "math.hpp"
+#include "Engine/math.hpp"
 
 bool collidesRect(int x1, int y1, int w1, int h1,
                   int x2, int y2, int w2, int h2) {

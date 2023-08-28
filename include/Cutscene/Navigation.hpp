@@ -5,8 +5,8 @@
 #ifndef UNDERTALE_NAVIGATION_HPP
 #define UNDERTALE_NAVIGATION_HPP
 
-#include "Sprite.hpp"
-#include "CutsceneEnums.hpp"
+#include "Engine/Sprite.hpp"
+#include "Cutscene/CutsceneEnums.hpp"
 
 enum NavigationTaskType {
     POSITION = 0,

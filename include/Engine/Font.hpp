@@ -8,7 +8,6 @@
 #include <cstdio>
 #include <string>
 
-#define ARM9
 #include <nds.h>
 #include "Formats/CFNT.hpp"
 

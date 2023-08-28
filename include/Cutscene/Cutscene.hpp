@@ -5,7 +5,6 @@
 #ifndef UNDERTALE_CUTSCENE_HPP
 #define UNDERTALE_CUTSCENE_HPP
 
-#define ARM9
 #include <nds.h>
 #include <cstdio>
 #include "Waiting.hpp"

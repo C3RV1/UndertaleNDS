@@ -4,7 +4,7 @@
 #include "Engine/Background.hpp"
 #include "Engine/math.hpp"
 #include "Engine/Engine.hpp"
-#include "dma_async.hpp"
+#include "Engine/dma_async.hpp"
 
 namespace Engine {
     s32 bg3ScrollX = 0, bg3ScrollY = 0;

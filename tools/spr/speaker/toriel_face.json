@@ -24,5 +24,6 @@
         {"frame": 1, "duration": 10}
       ]
     }
-  ]
+  ],
+  "exclude3d": true
 }

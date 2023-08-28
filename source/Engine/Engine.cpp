@@ -3,7 +3,11 @@
 #include "Engine/Font.hpp"
 #include "Engine/Sprite3DManager.hpp"
 #include "Engine/OAMManager.hpp"
-#include "filesystem.h"
+#ifndef BLOCKSDS_SDK
+#include "nitrofs.h"
+#else
+#include <filesystem.h>
+#endif
 
 namespace Engine {
     int init() {

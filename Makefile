@@ -42,7 +42,7 @@ GAME_ICON		:=	$(CURDIR)/../icon.bmp
 #---------------------------------------------------------------------------------
 ARCH := -marm -mthumb-interwork -march=armv5te -mtune=arm946e-s
 
-CFLAGS   := -g -Wall -O3\
+CFLAGS   := -g -Wall -O3 -DARM9\
             $(ARCH) $(INCLUDE)
 CXXFLAGS := $(CFLAGS) -fno-rtti -fno-exceptions
 ASFLAGS  := -g $(ARCH)

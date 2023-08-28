@@ -7,7 +7,6 @@
 
 #include "Sprite.hpp"
 #include "Engine/FreeZoneManager.hpp"
-#define ARM9
 #include <nds.h>
 #include <vector>
 

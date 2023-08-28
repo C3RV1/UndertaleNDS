@@ -5,7 +5,6 @@
 #ifndef UNDERTALE_MATH_HPP
 #define UNDERTALE_MATH_HPP
 
-#define ARM9
 #include <nds.h>
 #include <cmath>
 

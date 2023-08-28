@@ -5,7 +5,6 @@
 #ifndef UNDERTALE_CSCN_HPP
 #define UNDERTALE_CSCN_HPP
 
-#define ARM9
 #include <nds.h>
 
 struct CSCN {

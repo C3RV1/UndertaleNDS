@@ -5,9 +5,8 @@
 #ifndef UNDERTALE_PLAYER_HPP
 #define UNDERTALE_PLAYER_HPP
 
-#include "Sprite.hpp"
+#include "Engine/Sprite.hpp"
 #include <cstdio>
-#define ARM9
 #include <nds.h>
 
 class Player {

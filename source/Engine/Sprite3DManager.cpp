@@ -2,11 +2,11 @@
 // Created by cervi on 25/08/2022.
 //
 
-#include "Sprite3DManager.hpp"
-#include "Texture.hpp"
-#include "Engine.hpp"
+#include "Engine/Sprite3DManager.hpp"
+#include "Engine/Texture.hpp"
+#include "Engine/Engine.hpp"
 #include "DEBUG_FLAGS.hpp"
-#include "dma_async.hpp"
+#include "Engine/dma_async.hpp"
 #include <algorithm>
 
 namespace Engine {

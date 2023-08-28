@@ -5,7 +5,6 @@
 #ifndef UNDERTALE_OAM_MANAGER_HPP
 #define UNDERTALE_OAM_MANAGER_HPP
 
-#define ARM9
 #include <nds.h>
 #include <memory>
 #include <vector>
