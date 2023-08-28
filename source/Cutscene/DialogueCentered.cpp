@@ -95,12 +95,12 @@ void DialogueCentered::draw(bool draw_, bool _clear) {
     _x = 128 - width / 2;
     _textManager->setColor(_lineStartColor); // clear color
     _optionCount = _lineOptionStart;
-    for (auto pLine = _lineStart; pLine < _textPos; pLine++) {
+    for (auto pLine = _lineStart; pLine < _textPos;) {
         if (*pLine == '@') {
             handleInline(++pLine, false);
             continue;
         }
-        _textManager->drawGlyph(_fnt, *pLine, _x, _y);
+        _textManager->drawGlyph(_fnt, *pLine++, _x, _y);
         _x += 1;
     }
     _lastPrintedPos = _textPos;
@@ -113,12 +113,12 @@ void DialogueCentered::clearCentered() {
     u8 color = _textManager->getColor();
     _textManager->setColor(0); // clear color
     _x = 128 - width / 2;
-    for (auto pLine = _lineStart; pLine < _lastPrintedPos; pLine++) {
+    for (auto pLine = _lineStart; pLine < _lastPrintedPos;) {
         if (*pLine == '@') {
             _x += sizeInline(++pLine);
             continue;
         }
-        _textManager->drawGlyph(_fnt, *pLine, _x, _y);
+        _textManager->drawGlyph(_fnt, *pLine++, _x, _y);
         _x += 1;
     }
     _textManager->setColor(color);
@@ -142,12 +142,12 @@ void DialogueCentered::onClear() {
 
 u16 DialogueCentered::getLineWidth(std::string::iterator pos) {
     u16 lineWidth_ = 0;
-    for (auto pLine = _lineStart; pLine < pos; pLine++) {
+    for (auto pLine = _lineStart; pLine < pos;) {
         if (*pLine == '@') {
             lineWidth_ += sizeInline(++pLine);
             continue;
         }
-        lineWidth_ += _fnt.getGlyphWidth(*pLine);
+        lineWidth_ += _fnt.getGlyphWidth(*pLine++);
         lineWidth_++;
     }
     return lineWidth_ - 1;

@@ -23,6 +23,8 @@ public:
     bool update();
     virtual ~Dialogue() = default;
 
+    void doRedraw();
+
 protected:
     virtual void setTalk();
     virtual void setNoTalk();

@@ -83,7 +83,7 @@ void Dialogue::setNoTalk() {
 }
 
 bool Dialogue::update() {
-    if (_textPos >= _text.end()) {
+    if (_textPos >= _text.end() && !_paused) {
         setNoTalk();
         return true;
     }
@@ -253,4 +253,13 @@ void Dialogue::onOptionChoose() {
 
 void Dialogue::onLineBreak() {
     _y += _lineSpacing;
+}
+
+void Dialogue::doRedraw() {
+    auto currentPos = _textPos;
+    _textPos = _lastClear;  // Rewind to _lastClear
+    onClear();
+    progressText(true, false);
+    while (_textPos < currentPos)
+        progressText(false, false);
 }
