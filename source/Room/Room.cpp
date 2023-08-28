@@ -200,7 +200,7 @@ void Room::loadRoom(FILE *f) {
             fread(&roomSprites[i].distance, 2, 1, f);
             animLen = str_len_file(f, 0);
             roomSprites[i].closeAnim.resize(animLen);
-            fread(&roomSprites[i].closeAnim[0], animLen + 1, 1, f);
+            fread(&roomSprites[i].closeAnim[0], animLen, 1, f);
             fseek(f, 1, SEEK_CUR);
         }
     }

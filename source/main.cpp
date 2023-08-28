@@ -41,7 +41,7 @@ int main() {
 
     // DEBUG
     roomSpawn = 5;
-    globalSave.flags[0] = 4;
+    globalSave.flags[0] = 5;
 
     globalPlayer = new Player();
     globalPlayer->_playerSpr.setShown(true);
