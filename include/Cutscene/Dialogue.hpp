@@ -23,7 +23,7 @@ public:
     bool update();
     virtual ~Dialogue() = default;
 
-    void doRedraw();
+    virtual void doRedraw();
 
 protected:
     virtual void setTalk();
@@ -54,7 +54,8 @@ protected:
     // Maybe will be used to repaint the dialogue
     // For example, in FIGHTs the flavor text must be redrawn without
     // going over all the Dialogue animation.
-    std::string::iterator _lastClear;
+    std::string::iterator _lastClearPos;
+    u8 _lastClearColor = 15;
 
     Audio::WAV _typeSnd;
 
@@ -119,8 +120,12 @@ protected:
     void draw(bool draw_, bool clear_) override;
     void onClear() override;
     void onLineBreak() override;
+    void doRedraw() override;
+    void handleInline(std::string::iterator &pos, bool doEffect) override;
 
     int _startingX = 0, _startingY = 0;
+    int _lastClearStartingX = 0;
+    int _originalStartingX = 0;
 };
 
 #endif //UNDERTALE_DIALOGUE_HPP

@@ -404,7 +404,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             }
             break;
         }
-        case CMD_BATTLE_ACTION:
+        case CMD_BATTLE_ACTION: {
 #ifdef DEBUG_CUTSCENES
             nocashMessage("CMD_BATTLE_ACTION");
 #endif
@@ -413,9 +413,14 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             if (globalBattle->_cBattleAction != nullptr)
                 break;
             globalBattle->hide();
+
+            s16 flavorTextId;
+            fread(&flavorTextId, 2, 1, _commandStream);
+
             globalBattle->_cBattleAction = std::make_unique<BattleAction>(
-                    &globalBattle->_enemies, -1);
+                    &globalBattle->_enemies, flavorTextId);
             break;
+        }
         case CMD_CHECK_HIT:
 #ifdef DEBUG_CUTSCENES
             nocashMessage("CMD_CHECK_HIT");

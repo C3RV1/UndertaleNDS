@@ -22,17 +22,12 @@ def cutscene(c: Cutscene):
     c.start_bgm("mus_prebattle1.wav", True)
 
     c.wait(WaitTypes.ENTER)
-
-    c.dialogue_left_align(10, 100, 192 // 4 + 20,
-                          Target(TargetType.NULL), "", "",
-                          type_sound="SND_TXT1.wav")
-    c.wait(WaitTypes.DIALOGUE)
+    c.battle_action(0)
 
     # == BATTLE LOOP ==
 
-    loop_start = c.debug("Battle loop!")
+    loop_start = c.debug("Battle loop (post action)!")
 
-    c.battle_action()
     c.wait(WaitTypes.BATTLE_ACTION)
 
     c.cmp_enemy_hp(0, "<", 15)
@@ -56,22 +51,24 @@ def cutscene(c: Cutscene):
 
     # == IDLE 2 ==
 
-    c.dialogue_left_align(12, 100, 192 // 4 + 20,
+    c.dialogue_left_align(12, 90, 192 // 4 + 20,
                           Target(TargetType.NULL), "", "",
                           type_sound="SND_TXT1.wav")
     c.wait(WaitTypes.DIALOGUE)
 
+    c.battle_action(1)
     c.jump(dst=loop_start)
 
     # == IDLE 1 ==
 
     c.bind(jump_idle_1)
 
-    c.dialogue_left_align(11, 100, 192 // 4 + 20,
+    c.dialogue_left_align(12, 90, 192 // 4 + 20,
                           Target(TargetType.NULL), "", "",
                           type_sound="SND_TXT1.wav")
     c.wait(WaitTypes.DIALOGUE)
 
+    c.battle_action(2)
     c.jump(dst=loop_start)
 
     # == FIGHT ==
@@ -81,7 +78,7 @@ def cutscene(c: Cutscene):
     c.set_flag(FlagOffsets.DUMMY, 0)
     c.set_animation(Target(TargetType.SPRITE, 0), "hurt")
 
-    c.dialogue_left_align(20, 100, 192 // 4,
+    c.dialogue_left_align(20, 90, 192 // 4,
                           Target(TargetType.NULL), "", "",
                           type_sound="SND_TXT1.wav")
     c.wait(WaitTypes.DIALOGUE)
@@ -113,9 +110,9 @@ def cutscene(c: Cutscene):
     c.bind(check_jump)
     c.debug("Check dummy")
 
-    c.dialogue_left_align(30, 100, 192 // 4,
+    c.dialogue_left_align(30, 90, 192 // 4,
                           Target(TargetType.NULL), "", "",
-                          type_sound="SND_TXT1.wav")
+                          type_sound="SND_TXT1.wav", main_screen=False)
     c.wait(WaitTypes.DIALOGUE)
 
     c.jump(continue_battle)
@@ -126,7 +123,7 @@ def cutscene(c: Cutscene):
     c.debug("Talked to dummy")
     c.set_flag(FlagOffsets.DUMMY, 1)
 
-    c.dialogue_left_align(40, 100, 192 // 4,
+    c.dialogue_left_align(40, 90, 192 // 4,
                           Target(TargetType.NULL), "", "",
                           type_sound="SND_TXT1.wav")
     c.wait(WaitTypes.DIALOGUE)
@@ -172,14 +169,14 @@ def cutscene(c: Cutscene):
     c.debug("Dummy got bored")
     c.set_flag(FlagOffsets.DUMMY, 3)
 
-    c.dialogue_left_align(60, 100, 192 // 4,
+    c.dialogue_left_align(12, 90, 192 // 4,
                           Target(TargetType.NULL), "", "",
                           type_sound="SND_TXT1.wav")
     c.wait(WaitTypes.DIALOGUE)
 
     c.move_in_frames(Target(TargetType.SPRITE, 0), 0, -120, 90)
 
-    c.dialogue_left_align(61, 100, 192 // 4,
+    c.dialogue_left_align(61, 90, 192 // 4,
                           Target(TargetType.NULL), "", "",
                           type_sound="SND_TXT1.wav")
     c.wait(WaitTypes.FRAMES, value=90)

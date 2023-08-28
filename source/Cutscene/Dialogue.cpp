@@ -31,7 +31,8 @@ Dialogue::Dialogue(u16 textId, Engine::Sprite* target,
     fread(&_text[0], textLen, 1, textStream);
 
     _textPos = _text.begin();
-    _lastClear = _text.begin();
+    _lastClearPos = _text.begin();
+    _lastClearColor = _textManager->getColor();
 
     _letterFrames = framesPerLetter;
     _cTimer = _letterFrames;
@@ -59,7 +60,7 @@ Dialogue::Dialogue(const std::string& text_, const std::string& typeSndPath, con
     _text = text_;
 
     _textPos = _text.begin();
-    _lastClear = _text.begin();
+    _lastClearPos = _text.begin();
 
     _letterFrames = framesPerLetter;
     _cTimer = _letterFrames;
@@ -181,7 +182,8 @@ void Dialogue::updateChoosingOption() {
 
 void Dialogue::onClear() {
     _textManager->clear();
-    _lastClear = _textPos;
+    _lastClearPos = _textPos;
+    _lastClearColor = _textManager->getColor();
 }
 
 void Dialogue::handleInline(std::string::iterator& pos, bool doEffect) {
@@ -257,7 +259,8 @@ void Dialogue::onLineBreak() {
 
 void Dialogue::doRedraw() {
     auto currentPos = _textPos;
-    _textPos = _lastClear;  // Rewind to _lastClear
+    _textPos = _lastClearPos;  // Rewind to _lastClear
+    _textManager->setColor(_lastClearColor);
     onClear();
     progressText(true, false);
     while (_textPos < currentPos)

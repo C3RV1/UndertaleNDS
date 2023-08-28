@@ -153,7 +153,7 @@ class Target:
 class Cutscene:
     def __init__(self, wtr: binary.BinaryWriter):
         self.wtr: binary.BinaryWriter = wtr
-        self.version = 9
+        self.version = 10
         self.file_size_pos = 0
         self.instructions_address = []
         self.pending_address = {}
@@ -390,8 +390,9 @@ class Cutscene:
         self.write_header(CutsceneCommands.BATTLE_ATTACK)
         return self.instructions_address[-1]
 
-    def battle_action(self):
+    def battle_action(self, flavor_text_id):
         self.write_header(CutsceneCommands.BATTLE_ACTION)
+        self.wtr.write_int16(flavor_text_id)
         return self.instructions_address[-1]
 
     def check_hit(self):

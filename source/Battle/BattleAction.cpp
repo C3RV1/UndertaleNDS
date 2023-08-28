@@ -5,7 +5,6 @@
 #include "Battle/Battle.hpp"
 #include "Battle/BattleAction.hpp"
 
-#include <utility>
 #include "Formats/utils.hpp"
 #include "Save.hpp"
 
@@ -50,7 +49,7 @@ BattleAction::BattleAction(std::vector<Enemy>* enemies,
     _bigHeartTex.loadPath("spr_heart");
     _smallHeartTex.loadPath("spr_heartsmall");
     _bigHeartSpr.loadTexture(_bigHeartTex);
-    _bigHeartSpr.setShown(true);
+    _bigHeartSpr.setShown(false);
     _smallHeartSpr.loadTexture(_smallHeartTex);
     _bigHeartSpr._layer = 3;
     _smallHeartSpr._layer = 3;
@@ -76,15 +75,18 @@ BattleAction::BattleAction(std::vector<Enemy>* enemies,
     len = str_len_file(f, '\0');
     _flavorText.resize(len);
     fread(&_flavorText[0], len, 1, f);
-    fseek(f, 1, SEEK_CUR);
+    // fseek(f, 1, SEEK_CUR); FIXME: not needed right?
     fclose(f);
 
     enter(PRINTING_FLAVOR_TEXT);
+
+    nocashMessage(("Inited action " + _flavorText).c_str());
 }
 
 void BattleAction::enter(BattleActionState state) {
     _cState = state;
     _smallHeartSpr.setShown(
+            state != PRINTING_FLAVOR_TEXT &&
             state != CHOOSING_ACTION &&
             state != MOVING_BUTTON_IN &&
             state != MOVING_BUTTON_OUT &&
@@ -97,7 +99,13 @@ void BattleAction::enter(BattleActionState state) {
     Engine::textMain.clear();
     switch (state) {
         case PRINTING_FLAVOR_TEXT:
+            _flavorTextDialogue = std::make_unique<DialogueLeftAligned>(
+                    30 << 8, 25 << 8, _flavorText, "SND_TXT1.wav", "fnt_maintext.font",
+                    2, Engine::textMain, Engine::Allocated3D);
+            break;
         case CHOOSING_ACTION:
+            _bigHeartSpr.setShown(true);
+            _flavorTextDialogue->doRedraw();
             setBtn();
             break;
         case CHOOSING_TARGET:
@@ -132,7 +140,7 @@ void BattleAction::enter(BattleActionState state) {
 }
 
 void BattleAction::drawAct(bool draw) {
-    constexpr int optionX = 40, optionY = 50, optionSpacingX = 90, optionSpacingY = 20;
+    constexpr int optionX = 50, optionY = 80, optionSpacingX = 90, optionSpacingY = 20;
     constexpr int offsetX = -15, offsetY = 4;
     if (draw) {
         Engine::textMain.setColor(15);
@@ -162,7 +170,7 @@ void BattleAction::drawAct(bool draw) {
 }
 
 void BattleAction::drawMercy(bool draw) {
-    const int optionX = 100, optionY = 66, optionSpacingY = 20;
+    const int optionX = 100, optionY = 80, optionSpacingY = 20;
     const int offsetX = -15, offsetY = 4;
     if (draw) {
         Engine::textMain.setColor(15);
@@ -245,6 +253,8 @@ bool BattleAction::update() {
             return updateMovingButtonIn();
         case MOVING_BUTTON_OUT:
             return updateMovingButtonOut();
+        case PRINTING_FLAVOR_TEXT:
+            return updatePrintingFlavor();
     }
     return true;
 }
@@ -444,5 +454,11 @@ bool BattleAction::updateMovingButtonOut() {
         }
         enter(CHOOSING_ACTION);
     }
+    return false;
+}
+
+bool BattleAction::updatePrintingFlavor() {
+    if (_flavorTextDialogue->update())
+        enter(CHOOSING_ACTION);
     return false;
 }

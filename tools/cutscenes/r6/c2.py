@@ -36,7 +36,7 @@ def cutscene(c: Cutscene):
 
     c.debug("Battle loop!")
 
-    c.battle_action()
+    c.battle_action(-1)
     c.wait(WaitTypes.BATTLE_ACTION)
 
     c.cmp_enemy_hp(0, "<", 20)

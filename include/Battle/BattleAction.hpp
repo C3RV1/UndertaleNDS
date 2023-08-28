@@ -8,6 +8,7 @@
 #include "Engine/Font.hpp"
 #include "Battle/Enemy.hpp"
 #include <array>
+#include "Cutscene/Dialogue.hpp"
 
 enum BattleActionState {
     PRINTING_FLAVOR_TEXT,
@@ -30,11 +31,11 @@ enum BattleActions {
 
 class BattleAction {
     constexpr static s32 kAttackSpeed = (5 << 8); // 5 pixels per frame
-    const s32 _buttonPositions[4][2]{
-        {12 << 8, 96 << 8},
-        {134 << 8, 96 << 8},
-        {12 << 8, 144 << 8},
-        {134 << 8, 144 << 8}
+    constexpr const static s32 _buttonPositions[4][2]{
+        {12 << 8, 92 << 8},
+        {134 << 8, 92 << 8},
+        {12 << 8, 142 << 8},
+        {134 << 8, 142 << 8}
     };
 
 public:
@@ -57,6 +58,7 @@ private:
     bool updateChoosingItem();
     bool updateMovingButtonIn();
     bool updateMovingButtonOut();
+    bool updatePrintingFlavor();
     bool updateFighting();
 
     Engine::Font _fnt;
@@ -90,6 +92,8 @@ private:
 
     bool _mercyFlee = false;
     std::string _mercyText;
+
+    std::unique_ptr<Dialogue> _flavorTextDialogue;
 };
 
 #endif //UNDERTALE_BATTLE_ACTION_HPP
