@@ -241,6 +241,7 @@ void runBattle(FILE* stream) {
     globalBattle = nullptr;
     Engine::textMain.clear();
     Engine::textSub.clear();
+    Engine::clearSub();
 
     lcdMainOnTop();
 
