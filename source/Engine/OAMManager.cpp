@@ -6,6 +6,22 @@
 #include <algorithm>
 
 namespace Engine {
+    OAMManager::OAMManager(u16* paletteRam,
+                           u16* tileRam,
+                           u16* oamRam) :
+                           _paletteRam(paletteRam),
+                           _oamRam(oamRam),
+                           _tileRam(tileRam),
+                           _tileZones(0, 4096, "2D_TILES") {
+        for (int i = 0; i < 16; i++) {
+            *(paletteRam + i * 16) = 31 << 5;  // full green for bg
+        }
+        for (int oamId = 0; oamId < SPRITE_COUNT; oamId++) {
+            auto* oamStart = (u16*) ((u8*) _oamRam + oamId * 8);
+            oamStart[0] = 1 << 9;
+        }
+    }
+
     int OAMManager::loadSprite(Sprite& res) {
         if (!res._loaded)
             return -1;
@@ -90,7 +106,7 @@ namespace Engine {
 
                 int oamId = spr._memory.oamEntries[oamY * oamW + oamX];
                 auto & oamEntry = _oamEntries[oamId];
-                u16* tileRamStart = (u16*)((u8*) _tileRam + oamEntry.tileStart * 64);
+                u16* tileRamStart = (u16*)((u8*) _tileRam + oamEntry.tileStart * 32);
                 u32 tileBytes = textureOamEntry.tilesW * textureOamEntry.tilesH * 32;
                 u32 frameOffset = tileBytes * frame;
                 u8* tileStart = &textureOamEntry.tilesFrameData[0] + frameOffset;
@@ -122,7 +138,7 @@ namespace Engine {
 
         // load tiles in groups of animations
         u16 neededTiles = oamEntry->tileWidth * oamEntry->tileHeight;
-        _tileZones.reserve(neededTiles, oamEntry->tileStart, 1);
+        _tileZones.reserve(neededTiles, oamEntry->tileStart, 2);
 #ifdef DEBUG_2D
         dumpOamState();
 #endif
@@ -211,7 +227,7 @@ namespace Engine {
             oamStart[0] = 0 << 13; // set 16 color mode
             oamStart[1] = 0;
             // set start tile and priority 0 and palette
-            oamStart[2] = oamEntry->tileStart + (0 << 10) + (spr._memory.palette << 12);
+            oamStart[2] = oamEntry->tileStart / 2 + (0 << 10) + (spr._memory.palette << 12);
             // set size mode
             if (oamEntry->tileWidth == oamEntry->tileHeight) {
                 switch (oamEntry->tileWidth) {

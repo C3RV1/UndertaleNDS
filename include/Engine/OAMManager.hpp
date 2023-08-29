@@ -23,15 +23,7 @@ namespace Engine {
     public:
         OAMManager(u16* paletteRam,
                    u16* tileRam,
-                   u16* oamRam) :
-                _paletteRam(paletteRam),
-                _oamRam(oamRam),
-                _tileRam(tileRam),
-                _tileZones(1, 1023, "2D_TILES"){
-            for (int i = 0; i < 16; i++) {
-                *(paletteRam + i * 16) = 31 << 5;  // full green for bg
-            }
-        };
+                   u16* oamRam);
 
 #ifdef DEBUG_2D
         void dumpOamState();
