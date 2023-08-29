@@ -3,6 +3,7 @@
 //
 
 #include "Engine/FreeZoneManager.hpp"
+#include "Engine/Engine.hpp"
 
 namespace Engine {
     int FreeZoneManager::reserve(u16 length, u16 &start, u16 alignment) {
@@ -21,10 +22,10 @@ namespace Engine {
         if (freeZoneIdx >= _zones.end()) {
             sprintf(buffer, "FZM %s error reserve %d length %d (needed %d) alignment %d",
                     _name.c_str(), start, length_, length, alignment);
-            nocashMessage(buffer);
 #ifdef DEBUG_ZONES_DUMP
             dump();
 #endif
+            throw_(buffer);
             return 1;
         }
 
