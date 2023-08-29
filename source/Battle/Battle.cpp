@@ -71,7 +71,7 @@ void Battle::loadFromStream(FILE *stream) {
     fread(&enemyCount, 1, 1, stream);
     _enemies.resize(enemyCount);
     _cBattleAttacks.resize(enemyCount);
-    char buffer[100];
+    std::string buffer;
     for (int i = 0; i < enemyCount; i++) {
         _cBattleAttacks[i] = nullptr;
         _enemies[i].readFromStream(stream);
@@ -79,13 +79,24 @@ void Battle::loadFromStream(FILE *stream) {
 
     u8 boardId;
     fread(&boardId, 1, 1, stream);
-    sprintf(buffer, "battle/board%d", boardId);
+    buffer = "battle/board" + std::to_string(boardId);
     _bulletBoard.loadPath(buffer);
 
     fread(&_boardX, 1, 1, stream);
     fread(&_boardY, 1, 1, stream);
     fread(&_boardW, 1, 1, stream);
     fread(&_boardH, 1, 1, stream);
+
+    int len = str_len_file(stream, '\0');
+    std::string bgPath;
+    bgPath.resize(len);
+    fread(&bgPath[0], len, 1, stream);
+    fseek(stream, 1, SEEK_CUR);
+    _battleBackground.loadPath(bgPath);
+    _battleBackground.loadBgTextSub();
+
+    buffer = "Loading bg " + bgPath;
+    nocashMessage(buffer.c_str());
 
     _playerSpr._wx = ((_boardX + _boardW / 2) << 8) - (9 << 8) / 2;
     _playerSpr._wy = ((_boardY + _boardH / 2) << 8) - (9 << 8) / 2;

@@ -153,7 +153,7 @@ class Target:
 class Cutscene:
     def __init__(self, wtr: binary.BinaryWriter):
         self.wtr: binary.BinaryWriter = wtr
-        self.version = 10
+        self.version = 11
         self.file_size_pos = 0
         self.instructions_address = []
         self.pending_address = {}
@@ -369,7 +369,8 @@ class Cutscene:
 
     # == BATTLE ==
     def start_battle(self, enemies: List[Enemy], board_id: int,
-                     board_x: int, board_y: int, board_w: int, board_h: int):
+                     board_x: int, board_y: int, board_w: int, board_h: int,
+                     battle_background: str = "battle/battle_bg_simple"):
         self.write_header(CutsceneCommands.START_BATTLE)
         self.wtr.write_uint8(len(enemies))
         for enemy in enemies:
@@ -379,6 +380,7 @@ class Cutscene:
         self.wtr.write_uint8(board_y)
         self.wtr.write_uint8(board_w)
         self.wtr.write_uint8(board_h)
+        self.wtr.write_string(battle_background, encoding="ascii")
         return self.instructions_address[-1]
 
     def exit_battle(self, won=False):

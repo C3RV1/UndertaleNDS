@@ -11,6 +11,8 @@
 #include "Dialogue.hpp"
 #include "SaveMenu.hpp"
 
+// TODO: Modernize Cutscene
+
 class Cutscene {
 public:
     explicit Cutscene(u16 cutsceneId, u16 roomId);
