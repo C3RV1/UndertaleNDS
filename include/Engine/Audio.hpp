@@ -21,7 +21,7 @@ namespace Audio {
 
     class WAV {
     public:
-        void loadWAV(std::string name);
+        void loadWAV(const std::string& name);
         ~WAV();
         
         std::string getFilename() {return _filename;}

@@ -12,7 +12,7 @@ namespace Audio {
 
     std::list<WAV*> wavPlaying;
 
-    void WAV::loadWAV(std::string name) {
+    void WAV::loadWAV(const std::string& name) {
         free_();
         if (name.empty())  // Loading an empty WAV is the same as freeing it
             return;
@@ -24,7 +24,6 @@ namespace Audio {
             std::string buffer = "Error opening WAV #r" + name;
             Engine::throw_(buffer);
         }
-        _stream = f;
 
         char header[4];
 
@@ -41,7 +40,8 @@ namespace Audio {
             Engine::throw_(buffer);
         }
 
-        fseek(f, ftell(f) + 4, SEEK_SET); // skip chunk size
+        u32 fileSize;
+        fread(&fileSize, 4, 1, f);
 
         fread(header, 4, 1, f);
         if (memcmp(header, waveHeader, 4) != 0) {
@@ -86,21 +86,27 @@ namespace Audio {
 
         _stereo = channels == 2;
 
+        u32 chunkSize = 0;
         // data chunk
-        fread(header, 4, 1, f);
-        if (memcmp(header, dataHeader, 4) != 0) {
+        while (ftell(f) < fileSize + 8) {
+            fread(header, 4, 1, f);
+            fread(&chunkSize, 4, 1, f);
+            if (memcmp(header, dataHeader, 4) == 0)
+                break;
+            fseek(f, chunkSize, SEEK_CUR);
+        }
+        if (chunkSize == 0) {
             std::string buffer = "Error opening WAV #r" + name +
-                                 "#x: Invalid DATA header.";
+                                 "#x: Couldn't find DATA chunk.";
             fclose(f);
             Engine::throw_(buffer);
         }
 
-        u32 chunkSize;
-        fread(&chunkSize, 4, 1, f);
         _dataEnd = ftell(f) + chunkSize;
         _dataStart = ftell(f);
 
         _loaded = true;
+        _stream = f;
     }
 
     void WAV::free_() {
