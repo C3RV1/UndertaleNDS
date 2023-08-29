@@ -17,8 +17,6 @@ enum BattleActionState {
     CHOOSING_ACT,
     CHOOSING_ITEM,
     CHOOSING_MERCY,
-    MOVING_BUTTON_IN,
-    MOVING_BUTTON_OUT,
     FIGHTING
 };
 
@@ -56,8 +54,6 @@ private:
     bool updateChoosingAct();
     bool updateChoosingMercy();
     bool updateChoosingItem();
-    bool updateMovingButtonIn();
-    bool updateMovingButtonOut();
     bool updatePrintingFlavor();
     bool updateFighting();
 
@@ -77,6 +73,8 @@ private:
     Engine::Background _fightBoard;
     Engine::Texture _attackTex, _damageNumbers, _missText;
     Engine::Sprite _attackSpr;
+
+    Audio::WAV _selectSnd;
 
     int _gfxAnimId, _activeAnimId;
     BattleActionState _cState = CHOOSING_ACTION;

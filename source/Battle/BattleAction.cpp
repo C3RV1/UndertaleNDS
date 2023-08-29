@@ -19,6 +19,7 @@ BattleAction::BattleAction(std::vector<Enemy>* enemies,
         _attackSpr(Engine::Allocated3D)
 {
     _fnt.loadPath("fnt_maintext.font");
+    _selectSnd.loadWAV("snd_select.wav");
 
     _fightBoard.loadPath("fight_board");
     _damageNumbers.loadPath("battle/damage_numbers");
@@ -83,27 +84,27 @@ BattleAction::BattleAction(std::vector<Enemy>* enemies,
 
 void BattleAction::enter(BattleActionState state) {
     _cState = state;
+    _bigHeartSpr.setShown(
+            state == CHOOSING_ACTION
+            );
     _smallHeartSpr.setShown(
             state != PRINTING_FLAVOR_TEXT &&
             state != CHOOSING_ACTION &&
-            state != MOVING_BUTTON_IN &&
-            state != MOVING_BUTTON_OUT &&
             state != FIGHTING
             );
     _flavorTextSpr.setShown(
-            state == PRINTING_FLAVOR_TEXT ||
-            state == CHOOSING_ACTION
+            state != FIGHTING
             );
     Engine::textMain.clear();
+    if (state != PRINTING_FLAVOR_TEXT and state != FIGHTING)
+        _flavorTextDialogue->doRedraw();
     switch (state) {
         case PRINTING_FLAVOR_TEXT:
             _flavorTextDialogue = std::make_unique<DialogueLeftAligned>(
-                    30 << 8, 25 << 8, _flavorText, "SND_TXT1.wav", "fnt_maintext.font",
+                    30 << 8, 25 << 8, _flavorText, "SND_TXT2.wav", "fnt_maintext.font",
                     2, Engine::textMain, Engine::Allocated3D);
             break;
         case CHOOSING_ACTION:
-            _bigHeartSpr.setShown(true);
-            _flavorTextDialogue->doRedraw();
             setBtn();
             break;
         case CHOOSING_TARGET:
@@ -125,12 +126,6 @@ void BattleAction::enter(BattleActionState state) {
             _attackSpr._wx = 0;
             _attackSpr._wy = (192 - _attackTex.getHeight()) / 2;
             break;
-        case MOVING_BUTTON_IN:
-            _movingFrameCount = _moveFrames;
-            break;
-        case MOVING_BUTTON_OUT:
-            _movingFrameCount = 0;
-            break;
         case CHOOSING_ITEM:
             _smallHeartSpr.setShown(false);
             break;
@@ -138,7 +133,7 @@ void BattleAction::enter(BattleActionState state) {
 }
 
 void BattleAction::drawAct(bool draw) {
-    constexpr int optionX = 50, optionY = 80, optionSpacingX = 90, optionSpacingY = 20;
+    constexpr int optionX = 50, optionY = 110, optionSpacingX = 90, optionSpacingY = 20;
     constexpr int offsetX = -15, offsetY = 4;
     if (draw) {
         Engine::textMain.setColor(15);
@@ -168,7 +163,7 @@ void BattleAction::drawAct(bool draw) {
 }
 
 void BattleAction::drawMercy(bool draw) {
-    const int optionX = 100, optionY = 80, optionSpacingY = 20;
+    const int optionX = 100, optionY = 110, optionSpacingY = 20;
     const int offsetX = -15, offsetY = 4;
     if (draw) {
         Engine::textMain.setColor(15);
@@ -198,7 +193,7 @@ void BattleAction::drawTarget() {
 
     int enemyPageCount = (*_enemies).size() - (_cTarget / 4) * 4;
     const int enemyNameX = 100, enemySpacing = 20;
-    int enemyNameY = 96 - (enemySpacing * (enemyPageCount + 1) / 2);
+    int enemyNameY = 120 - (enemySpacing * (enemyPageCount + 1) / 2);
     _smallHeartSpr._wx = (enemyNameX - 15) << 8;
     _smallHeartSpr._wy = (enemyNameY + enemySpacing * (_cTarget % 4) + 4) << 8;
 
@@ -225,6 +220,7 @@ void BattleAction::drawTarget() {
 
 void BattleAction::setBtn() {
     for (auto & btn : _btn) {
+        btn.setShown(true);
         btn.setSpriteAnim(_gfxAnimId);
     }
 
@@ -247,10 +243,6 @@ bool BattleAction::update() {
             return updateChoosingItem();
         case FIGHTING:
             return updateFighting();
-        case MOVING_BUTTON_IN:
-            return updateMovingButtonIn();
-        case MOVING_BUTTON_OUT:
-            return updateMovingButtonOut();
         case PRINTING_FLAVOR_TEXT:
             return updatePrintingFlavor();
     }
@@ -273,10 +265,20 @@ bool BattleAction::updateChoosingAction() {
 
     if (keysDown() & KEY_A) {
         for (int i = 0; i < 4; i++) {
-            if (i != _cAction)
-                _btn[i].setShown(false);
+            _btn[i].setShown(false);
         }
-        enter(MOVING_BUTTON_IN);
+        switch (_cAction) {
+            case ACTION_FIGHT:
+            case ACTION_ACT:
+                enter(CHOOSING_TARGET);
+                break;
+            case ACTION_MERCY:
+                enter(CHOOSING_MERCY);
+                break;
+            case ACTION_ITEM:
+                enter(CHOOSING_ITEM);
+                break;
+        }
     }
     return false;
 }
@@ -298,7 +300,7 @@ bool BattleAction::updateChoosingTarget() {
                 break;
             case ACTION_ACT:
             case ACTION_FIGHT:
-                enter(MOVING_BUTTON_OUT);
+                enter(CHOOSING_ACTION);
                 break;
         }
     }
@@ -341,7 +343,7 @@ bool BattleAction::updateChoosingMercy() {
         _mercyFlee = false;
     drawMercy(false);
     if (keysDown() & KEY_B) {
-        enter(MOVING_BUTTON_OUT);
+        enter(CHOOSING_ACTION);
     }
     else if (keysDown() & KEY_A) {
         if (_mercyFlee)
@@ -354,7 +356,7 @@ bool BattleAction::updateChoosingMercy() {
 
 bool BattleAction::updateChoosingItem() {
     if (keysDown() & KEY_B)
-        enter(MOVING_BUTTON_OUT);
+        enter(CHOOSING_ACTION);
     return false;
 }
 
@@ -415,44 +417,6 @@ int BattleAction::getActionNum() const {
 
 BattleAction::~BattleAction() {
     globalSave.flags[FlagIds::BATTLE_ACTION] = getActionNum();
-}
-
-bool BattleAction::updateMovingButtonIn() {
-    _movingFrameCount--;
-    _btn[_cAction]._wx = _topLeftSpacing + (_buttonPositions[_cAction][0] - _topLeftSpacing) * _movingFrameCount / _moveFrames;
-    _btn[_cAction]._wy = _topLeftSpacing + (_buttonPositions[_cAction][1] - _topLeftSpacing) * _movingFrameCount / _moveFrames;
-    _bigHeartSpr._wx = _btn[_cAction]._wx + (8 << 8);
-    _bigHeartSpr._wy = _btn[_cAction]._wy + (13 << 8);
-    if (_movingFrameCount <= 0) {
-        switch (_cAction) {
-            case ACTION_FIGHT:
-            case ACTION_ACT:
-                enter(CHOOSING_TARGET);
-                break;
-            case ACTION_MERCY:
-                enter(CHOOSING_MERCY);
-                break;
-            case ACTION_ITEM:
-                enter(CHOOSING_ITEM);
-                break;
-        }
-    }
-    return false;
-}
-
-bool BattleAction::updateMovingButtonOut() {
-    _movingFrameCount++;
-    _btn[_cAction]._wx = _topLeftSpacing + (_buttonPositions[_cAction][0] - _topLeftSpacing) * _movingFrameCount / _moveFrames;
-    _btn[_cAction]._wy = _topLeftSpacing + (_buttonPositions[_cAction][1] - _topLeftSpacing) * _movingFrameCount / _moveFrames;
-    _bigHeartSpr._wx = _btn[_cAction]._wx + (8 << 8);
-    _bigHeartSpr._wy = _btn[_cAction]._wy + (13 << 8);
-    if (_movingFrameCount >= _moveFrames) {
-        for (auto & btn : _btn) {
-            btn.setShown(true);
-        }
-        enter(CHOOSING_ACTION);
-    }
-    return false;
 }
 
 bool BattleAction::updatePrintingFlavor() {
