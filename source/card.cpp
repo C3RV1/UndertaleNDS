@@ -2,7 +2,29 @@
 // Created by cervi on 28/09/2022.
 //
 
+#include <cstdio>
 #include "card.hpp"
+
+void CardBuffer::open(const char *mode) {
+    if (_opened)
+        return;
+    // If opening fails, then we know we are in an emulator
+    // fopen will return nullptr, which is checked for in
+    // read and write.
+    _pos = 0;
+    _fatFile = fopen("fat:/Undertale.save", mode);
+    _opened = true;
+}
+
+void CardBuffer::close() {
+    if (!_opened)
+        return;
+    if (_fatFile != nullptr) {
+        fclose(_fatFile);
+        _fatFile = nullptr;
+    }
+    _opened = false;
+}
 
 u8 cardCommand(u8 command, bool hold) {
     REG_AUXSPICNT = 0xa000 + (hold ? 0x40 : 0);
@@ -73,22 +95,48 @@ void cardWriteBytes(u8* src, u32 addr, u16 size) {
 }
 
 void CardBuffer::read(void *data, size_t size) {
-    cardReadBytes((u8*)data, _pos, size);
+    if (!_opened)
+        return;
+    if (_fatFile == nullptr) {
+        cardReadBytes((u8 *) data, _pos, size);
+    } else {
+        size_t bytes_read = fread(data, size, 1, _fatFile);
+        for(;bytes_read < size; bytes_read++) {
+            static_cast<u8*>(data)[bytes_read] = 0xff;
+        }
+    }
     _pos += size;
 }
 
 void CardBuffer::write(void *src, size_t size) {
-    cardWriteBytes((u8*)src, _pos, size);
+    if (!_opened)
+        return;
+    if (_fatFile == nullptr) {
+        cardWriteBytes((u8*)src, _pos, size);
+    } else {
+        fwrite(src, size, 1, _fatFile);
+    }
     _pos += size;
 }
 
 void CardBuffer::seek(s32 offset, u8 mode) {
+    if (!_opened)
+        return;
     if (mode == SEEK_SET)
         _pos = offset;
     else if (mode == SEEK_CUR)
         _pos += offset;
     else if (mode == SEEK_END)
         _pos = 7999 + offset;
+    if (_fatFile != nullptr) {
+        fseek(_fatFile, _pos, SEEK_SET);
+    }
+}
+
+int CardBuffer::tell() const {
+    if (!_opened)
+        return -1;
+    return _pos;
 }
 
 CardBuffer fCard;

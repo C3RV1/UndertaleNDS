@@ -15,12 +15,17 @@ void cardWriteBytes(u8* src, u32 addr, u16 size);
 
 class CardBuffer {
 public:
+    void open(const char* mode);
+    void close();
     void read(void* data, size_t size);
     void write(void* src, size_t size);
-    u16 tell() const { return _pos; }
+    int tell() const;
     void seek(s32 offset, u8 mode);
+    ~CardBuffer() {close();}
 private:
-    u16 _pos = 0;
+    int _pos = 0;
+    FILE* _fatFile = nullptr;
+    bool _opened = false;
 };
 
 extern CardBuffer fCard;
