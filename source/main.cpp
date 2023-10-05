@@ -62,7 +62,7 @@ int main() {
                 delete globalCutscene;
                 globalCutscene = nullptr;
                 globalInGameMenu.show(false);
-                globalPlayer->setPlayerControl(true);
+                 globalPlayer->_playerControl = true;;
                 globalCamera._manual = false;
             }
         }
