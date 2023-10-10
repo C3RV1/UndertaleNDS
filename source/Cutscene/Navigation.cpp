@@ -132,7 +132,7 @@ void Navigation::set_animation(u8 targetType, s8 targetId, char *animName, Cutsc
         return;
     }
     int animId = spriteManager->nameToAnimId(animName);
-    spriteManager->setSpriteAnim(animId);
+    spriteManager->setAnimation(animId);
 }
 
 void Navigation::set_pos_in_frames(u8 targetType, s8 targetId, s32 x, s32 y, u16 frames,

@@ -23,11 +23,13 @@ public:
     void seek(s32 offset, u8 mode);
     ~CardBuffer() {close();}
 private:
+    bool _running_in_fat;
     int _pos = 0;
     FILE* _fatFile = nullptr;
     bool _opened = false;
 };
 
 extern CardBuffer fCard;
+extern bool cardRead;
 
 #endif //UNDERTALE_CARD_HPP

@@ -6,7 +6,7 @@
 #include "Engine/Texture.hpp"
 #include "Engine/Engine.hpp"
 #include "DEBUG_FLAGS.hpp"
-#include "Engine/dma_async.hpp"
+#include "Engine/dma.hpp"
 #include <algorithm>
 
 namespace Engine {
@@ -68,7 +68,7 @@ namespace Engine {
         }
 
         u16* paletteBase = &VRAM_E[16 * spr._texture->_paletteIdx + 1];
-        dmaCopyHalfWordsAsync(3, &spr._texture->_colors[0], paletteBase,
+        dmaCopySafe(3, &spr._texture->_colors[0], paletteBase,
                                spr._texture->_colors.size() * 2);
 
         int allocX = spr._texture->_3dChunk.tilesAllocX;
@@ -88,7 +88,7 @@ namespace Engine {
                 }
 
                 u8 *tileRamStart = (u8 *) VRAM_B + spr._texture->_tileStart[tileIdx];
-                dmaCopyWordsAsync(3, &textureTile.tileFrameData[0],
+                dmaCopySafe(3, &textureTile.tileFrameData[0],
                                    tileRamStart, neededBytes);
             }
         }

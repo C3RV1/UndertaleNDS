@@ -15,7 +15,6 @@ BattleAction::BattleAction(std::vector<Enemy>* enemies,
         _enemies(enemies),
         _bigHeartSpr(Engine::Allocated3D),
         _smallHeartSpr(Engine::Allocated3D),
-        _flavorTextSpr(Engine::Allocated3D),
         _attackSpr(Engine::Allocated3D)
 {
     _fnt.loadPath("fnt_maintext.font");
@@ -26,10 +25,6 @@ BattleAction::BattleAction(std::vector<Enemy>* enemies,
     _missText.loadPath("battle/miss_text");
     _attackTex.loadPath("battle/spr_targetchoice");
     _attackSpr.loadTexture(_attackTex);
-    _flavorTextTex.loadPath("battle/flavor_text_box");
-    _flavorTextSpr.loadTexture(_flavorTextTex);
-    _flavorTextSpr._wx = 22 << 8;
-    _flavorTextSpr._wy = 18 << 8;
 
     _textures[ACTION_FIGHT].loadPath("btn/spr_fightbt");
     _textures[ACTION_ACT].loadPath("btn/spr_talkbt");
@@ -92,17 +87,18 @@ void BattleAction::enter(BattleActionState state) {
             state != CHOOSING_ACTION &&
             state != FIGHTING
             );
-    _flavorTextSpr.setShown(
+    _flavorTextDialogue->setShown(
             state != FIGHTING
             );
     Engine::textMain.clear();
-    if (state != PRINTING_FLAVOR_TEXT and state != FIGHTING)
-        _flavorTextDialogue->doRedraw();
+    if (state != PRINTING_FLAVOR_TEXT and state != FIGHTING) {
+        if (_flavorTextDialogue)
+            _flavorTextDialogue->doRedraw();
+    }
     switch (state) {
         case PRINTING_FLAVOR_TEXT:
-            _flavorTextDialogue = std::make_unique<DialogueLeftAligned>(
-                    30 << 8, 25 << 8, _flavorText, "SND_TXT2.wav", "fnt_maintext.font",
-                    2, Engine::textMain, Engine::Allocated3D);
+            _flavorTextDialogue = std::make_unique<FlavorTextDialogue>(_flavorText);
+            _flavorTextDialogue->setShown(true);
             break;
         case CHOOSING_ACTION:
             setBtn();
@@ -221,10 +217,10 @@ void BattleAction::drawTarget() {
 void BattleAction::setBtn() {
     for (auto & btn : _btn) {
         btn.setShown(true);
-        btn.setSpriteAnim(_gfxAnimId);
+        btn.setAnimation(_gfxAnimId);
     }
 
-    _btn[_cAction].setSpriteAnim(_activeAnimId);
+    _btn[_cAction].setAnimation(_activeAnimId);
     _bigHeartSpr._wx = _btn[_cAction]._wx + (8 << 8);
     _bigHeartSpr._wy = _btn[_cAction]._wy + (13 << 8);
 }

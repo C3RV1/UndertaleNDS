@@ -46,12 +46,12 @@ DialogueCentered::DialogueCentered(const std::string& text_, const std::string& 
 
 void DialogueCentered::setTalk() {
     Dialogue::setTalk();
-    _speakerSpr.setSpriteAnim(_speakerTalk);
+    _speakerSpr.setAnimation(_speakerTalk);
 }
 
 void DialogueCentered::setNoTalk() {
     Dialogue::setNoTalk();
-    _speakerSpr.setSpriteAnim(_speakerIdle);
+    _speakerSpr.setAnimation(_speakerIdle);
 }
 
 void DialogueCentered::handleInline(std::string::iterator& pos, bool doEffect) {

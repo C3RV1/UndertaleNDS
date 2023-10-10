@@ -16,7 +16,7 @@ void ManagedSprite::load(ROOMSprite const& sprData,
     _animationId = _spr.nameToAnimId(sprData.animation);
     _spr._wx = sprData.x << 8;
     _spr._wy = sprData.y << 8;
-    _spr.setSpriteAnim(_animationId);
+    _spr.setAnimation(_animationId);
 
     _spr.setShown(true);
 
@@ -71,9 +71,9 @@ void ManagedSprite::update(bool isRoom) {
                                       globalPlayer->_playerSpr._wx + pw / 2,
                                       globalPlayer->_playerSpr._wy + ph / 2);
         if (distance >> 8 < _distanceSquared)
-            _spr.setSpriteAnim(_closeAnim);
+            _spr.setAnimation(_closeAnim);
         else
-            _spr.setSpriteAnim(_animationId);
+            _spr.setAnimation(_animationId);
     }
 }
 

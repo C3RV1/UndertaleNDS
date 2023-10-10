@@ -24,7 +24,7 @@ void runWriteNameMenu() {
     const int letterCount = 26 * 2;
     const int maxLen = MAX_NAME_LEN;
 
-    Audio::playBGMusic("mus_menu0.wav", true);
+    Audio2::playBGMusic("mus_menu0.wav", true);
 
     Engine::clearMain();
 
@@ -275,7 +275,7 @@ void runWriteNameMenu() {
             }
         }
     }
-    Audio::stopBGMusic();
+    Audio2::stopBGMusic();
 
     memset(globalSave.name, 0, currentLen + 1);
     memcpy(globalSave.name, currentName, currentLen + 1);

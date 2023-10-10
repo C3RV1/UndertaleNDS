@@ -40,7 +40,7 @@ void runTitleScreen() {
     Engine::Font mainFont;
     mainFont.loadPath("fnt_maintext.font");
 
-    Audio::playBGMusic("mus_story_mod.wav", true);
+    Audio2::playBGMusic("mus_story_mod.wav", true);
 
     setBrightness(1, -16);
     bool skip = false;
@@ -147,7 +147,7 @@ void runTitleScreen() {
 
     skip = false;
     fclose(textStream);
-    Audio::playBGMusic("mus_intronoise.wav", false);
+    Audio2::playBGMusic("mus_intronoise.wav", false);
 
     Engine::Background titleBottom;
     titleBottom.loadPath("intro/title_bottom");
@@ -174,5 +174,5 @@ void runTitleScreen() {
 
     Engine::clearSub();
 
-    Audio::stopBGMusic();
+    Audio2::stopBGMusic();
 }

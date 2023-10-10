@@ -26,13 +26,13 @@ void Player::setPlayerControl(bool playerControl) {
     _playerControl = playerControl;
     if (!_playerControl) {
         if (_playerSpr._cAnimation == _upMoveId)
-            _playerSpr.setSpriteAnim(_upIdleId);
+            _playerSpr.setAnimation(_upIdleId);
         else if (_playerSpr._cAnimation == _downMoveId)
-            _playerSpr.setSpriteAnim(_downIdleId);
+            _playerSpr.setAnimation(_downIdleId);
         else if (_playerSpr._cAnimation == _leftMoveId)
-            _playerSpr.setSpriteAnim(_leftIdleId);
+            _playerSpr.setAnimation(_leftIdleId);
         else if (_playerSpr._cAnimation == _rightMoveId)
-            _playerSpr.setSpriteAnim(_rightIdleId);
+            _playerSpr.setAnimation(_rightIdleId);
     }
 }
 
@@ -88,16 +88,16 @@ void Player::update() {
         if (moveDirection == -1)
             moveDirection = _playerSpr._cAnimation;
         if (moveDirection == _upMoveId)
-            _playerSpr.setSpriteAnim(_upIdleId);
+            _playerSpr.setAnimation(_upIdleId);
         else if (moveDirection == _downMoveId)
-            _playerSpr.setSpriteAnim(_downIdleId);
+            _playerSpr.setAnimation(_downIdleId);
         else if (moveDirection == _leftMoveId)
-            _playerSpr.setSpriteAnim(_leftIdleId);
+            _playerSpr.setAnimation(_leftIdleId);
         else if (moveDirection == _rightMoveId)
-            _playerSpr.setSpriteAnim(_rightIdleId);
+            _playerSpr.setAnimation(_rightIdleId);
     } else {
         if (setAnim) {
-            _playerSpr.setSpriteAnim(moveDirection);
+            _playerSpr.setAnimation(moveDirection);
         }
     }
 

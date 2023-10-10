@@ -3,6 +3,8 @@
 #include "Engine/Font.hpp"
 #include "Engine/Sprite3DManager.hpp"
 #include "Engine/OAMManager.hpp"
+#include "Engine/dma.hpp"
+
 #ifndef BLOCKSDS_SDK
 #include "nitrofs.h"
 #else
@@ -18,15 +20,6 @@ namespace Engine {
         }
 
         srand(time(nullptr));
-
-        mm_ds_system sys;
-        sys.mod_count 			= 0;
-        sys.samp_count			= 0;
-        sys.mem_bank			= nullptr;
-        sys.fifo_channel		= FIFO_MAXMOD;
-        mmInit( &sys );
-
-        Audio::initAudioStream();
 
         lcdMainOnTop();
 
@@ -48,13 +41,13 @@ namespace Engine {
         GFX_CLEAR_COLOR = 0;
 
         REG_BG1CNT = BG_PRIORITY(1) | BG_TILE_BASE(5) | BG_MAP_BASE(4);
-        memset(BG_TILE_RAM(5), 0, 1);
-        memset(BG_MAP_RAM(4), 0, 32 * 32 * 2);
+        dmaFillSafe(3, 0, BG_TILE_RAM(5), 64);
+        dmaFillSafe(3, 0, BG_MAP_RAM(4), 32 * 32 * 2);
         REG_BG3CNT = BG_PRIORITY(3) | BG_TILE_BASE(1) | BG_MAP_BASE(0);
 
         REG_BG1CNT_SUB = BG_PRIORITY(1) | BG_TILE_BASE(5) | BG_MAP_BASE(1);
-        memset(BG_TILE_RAM_SUB(5), 0, 1);
-        memset(BG_MAP_RAM_SUB(1), 0, 32 * 32 * 2);
+        dmaFillSafe(3, 0, BG_TILE_RAM_SUB(5), 64);
+        dmaFillSafe(3, 0, BG_MAP_RAM_SUB(1), 32 * 32 * 2);
         REG_BG3CNT_SUB = BG_PRIORITY(3) | BG_TILE_BASE(1) | BG_MAP_BASE(0);
 
         // Init 3d
@@ -70,7 +63,7 @@ namespace Engine {
     void tick() {
         main3dSpr.draw();
         glFlush(0);
-        mmStreamUpdate();
+        Audio2::audioManager.update();
         swiWaitForVBlank();
         // TODO: Scroll and bg3 negative? Sub screen?
         REG_BG3X = bg3ScrollX;

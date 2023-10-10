@@ -4,7 +4,7 @@
 
 #include "Engine/Font.hpp"
 #include "Engine/Engine.hpp"
-#include "Engine/dma_async.hpp"
+#include "Engine/dma.hpp"
 
 namespace Engine {
     bool Font::loadPath(std::string path) {
@@ -187,7 +187,7 @@ namespace Engine {
     }
 
     void TextBGManager::clear() {
-        dmaFillWordsAsync(3, 0, _mapRam, 2 * 32 * 32);
+        dmaFillSafe(3, 0, _mapRam, 2 * 32 * 32);
         _tileReserve = 1;
     }
 
@@ -220,7 +220,7 @@ namespace Engine {
 
                 if (tileX == 0 && tileY == 0 && x_ + 8 < x + w && y + 8 < dstY) {
                     x_ += 8;
-                    dmaFillWordsAsync(3, 0, tilePointer, 32);
+                    dmaFillSafe(3, 0, tilePointer, 32);
                     continue;
                 }
                 for (;tileY < 8 && y / 8 + tileY < dstY; tileY++) {
@@ -246,7 +246,7 @@ namespace Engine {
             tileId = _tileReserve++;
             *(u16*)((u8 *) _mapRam + (y * 32 + x) * 2) = (15 << 12) + tileId;
             // Initialize tile to blank
-            dmaFillWordsAsync(3, 0, ((u8*)_tileRam) + (tileId * 32), 32);
+            dmaFillSafe(3, 0, ((u8*)_tileRam) + (tileId * 32), 32);
         }
         return ((u8*)_tileRam) + (tileId * 32);
     }

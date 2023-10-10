@@ -320,12 +320,12 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             char targetIdle[50], targetTalk[50];
             char typeSnd[50];
             bool mainScreen;
-            bool centered;
+            DialogueType dialogue_type;
 
-            fread(&centered, 1, 1, _commandStream);
+            fread(&dialogue_type, 1, 1, _commandStream);
             fread(&textId, 2, 1, _commandStream);
 
-            if (centered) {
+            if (dialogue_type == DIALOGUE_CENTERED) {
                 len = str_len_file(_commandStream, 0);
                 fread(speaker, len + 1, 1, _commandStream);
             }
@@ -333,7 +333,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             fread(&x, 4, 1, _commandStream);
             fread(&y, 4, 1, _commandStream);
 
-            if (centered) {
+            if (dialogue_type == DIALOGUE_CENTERED) {
                 len = str_len_file(_commandStream, 0);
                 fread(speakerIdle, len + 1, 1, _commandStream);
 
@@ -364,13 +364,13 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
 
             Engine::Sprite* target = Navigation::getTarget(targetType, targetId, callingLocation);
             if (_cDialogue == nullptr) {
-                if (centered)
+                if (dialogue_type == DIALOGUE_CENTERED)
                     _cDialogue = std::make_unique<DialogueCentered>(
                             textId, speaker, x, y, speakerIdle,
                             speakerTalk, target, targetIdle, targetTalk,
                             typeSnd, font, framesPerLetter, txt, heartAlloc
                             );
-                else
+                else if (dialogue_type == DIALOGUE_LEFT_ALIGNED)
                     _cDialogue = std::make_unique<DialogueLeftAligned>(
                         textId, x, y, target, targetIdle, targetTalk,
                         typeSnd, font, framesPerLetter, txt, heartAlloc);
@@ -460,14 +460,14 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
 
             len = str_len_file(_commandStream, 0);
             fread(buffer, len + 1, 1, _commandStream);
-            Audio::playBGMusic(buffer, loop);
+            Audio2::playBGMusic(buffer, loop);
             break;
         }
         case CMD_STOP_BGM:
 #ifdef DEBUG_CUTSCENES
             nocashMessage("CMD_STOP_BGM");
 #endif
-            Audio::stopBGMusic();
+            Audio2::stopBGMusic();
             break;
         case CMD_PLAY_SFX: {
 #ifdef DEBUG_CUTSCENES
@@ -478,7 +478,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             len = str_len_file(_commandStream, 0);
             fread(buffer, len + 1, 1, _commandStream);
 
-            auto sfxWav = std::make_shared<Audio::WAV>();
+            auto sfxWav = std::make_shared<Audio2::WAV>();
             sfxWav->freeOnStop(sfxWav);
             sfxWav->loadWAV(buffer);
             sfxWav->setLoops(loops);

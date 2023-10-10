@@ -32,12 +32,12 @@ Room::Room(int roomId) : _roomId(roomId) {
     }
 
     if (!_roomData.musicBg.empty()) {
-        bool musicChange = _roomData.musicBg != Audio::cBGMusic.getFilename();
+        bool musicChange = _roomData.musicBg != Audio2::cBGMusic.getFilename();
         if (musicChange) {
-            Audio::playBGMusic(_roomData.musicBg, true);
+            Audio2::playBGMusic(_roomData.musicBg, true);
         }
     } else {
-        Audio::stopBGMusic();
+        Audio2::stopBGMusic();
     }
 
     loadSprites();

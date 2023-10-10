@@ -42,7 +42,7 @@ GAME_ICON		:=	$(CURDIR)/../icon.bmp
 #---------------------------------------------------------------------------------
 ARCH := -marm -mthumb-interwork -march=armv5te -mtune=arm946e-s
 
-CFLAGS   := -g -Wall -O3 -DARM9\
+CFLAGS   := -g -Wall -O2 -DARM9\
             $(ARCH) $(INCLUDE)
 CXXFLAGS := $(CFLAGS) -fno-rtti -fno-exceptions
 ASFLAGS  := -g $(ARCH)
@@ -58,7 +58,7 @@ ifneq ($(strip $(NITRO)),)
 LIBS := -lfat $(LIBS)
 endif
 # automagically add maxmod library
-LIBS := -lmm9 $(LIBS)
+# LIBS := -lmm9 $(LIBS)
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing

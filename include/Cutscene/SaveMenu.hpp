@@ -30,7 +30,7 @@ private:
     int _selectedOption = 0;
     std::string _roomName;
 
-    Audio::WAV _saveSnd;
+    Audio2::WAV _saveSnd;
     Engine::Texture _optionsHeartTex;
     Engine::Sprite _optionsHeartSpr;
     Engine::Font _fnt;

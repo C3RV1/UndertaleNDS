@@ -29,14 +29,9 @@ def cutscene(c: Cutscene):
 
     c.wait(WaitTypes.ENTER)
 
-    c.dialogue_left_align(10, 100, 192 // 4 + 20,
-                          Target(TargetType.NULL), "", "",
-                          type_sound="SND_TXT1.wav")
-    c.wait(WaitTypes.DIALOGUE)
-
     c.debug("Battle loop!")
 
-    c.battle_action(-1)
+    c.battle_action(3)
     c.wait(WaitTypes.BATTLE_ACTION)
 
     c.cmp_enemy_hp(0, "<", 20)
@@ -44,6 +39,10 @@ def cutscene(c: Cutscene):
 
     c.cmp_flag(FlagOffsets.BATTLE_ACTION, "==", BtlActionOff.ACT)
     check_jump = c.jump_if()
+
+    # If we chose Compliment
+    c.cmp_flag(FlagOffsets.BATTLE_ACTION, "==", BtlActionOff.ACT + 1)
+    compliment_jump = c.jump_if()
 
     toriel_scare_jump = c.jump()
 
@@ -60,16 +59,23 @@ def cutscene(c: Cutscene):
                           Target(TargetType.NULL), "", "",
                           type_sound="SND_TXT1.wav")
     c.wait(WaitTypes.DIALOGUE)
+    toriel_scare_jump_2 = c.jump()
+
+    # == COMPLIMENT ==
+
+    c.bind(compliment_jump)
+    c.dialogue_left_align(30, 100, 192 // 4 + 20,
+                          Target(TargetType.NULL), "", "",
+                          type_sound="SND_TXT1.wav")
+    c.wait(WaitTypes.DIALOGUE)
 
     # == TORIEL SCARE ==
     c.bind(toriel_scare_jump)
+    c.bind(toriel_scare_jump_2)
 
     c.debug("Toriel scare")
     c.load_texture("battle/spr_torieldisapprove")
     c.load_sprite(256, 192 // 4, -1)
-
-    c.dialogue_left_align(1, 100, 192 // 4 + 20,
-                          Target(TargetType.NULL), "", "")  # clear
 
     c.wait(WaitTypes.FRAMES, 40)
 

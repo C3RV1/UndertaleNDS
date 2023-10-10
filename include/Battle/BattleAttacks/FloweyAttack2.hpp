@@ -13,7 +13,9 @@ namespace BtlAttacks {
     class FloweyAttack2 : public BattleAttack {
     public:
         FloweyAttack2();
+
         bool update() override;
+
     private:
         static constexpr int kShowFrames = 4;
         int _counter = 0;

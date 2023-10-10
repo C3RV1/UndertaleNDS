@@ -17,7 +17,7 @@ namespace Engine {
         setShown(lastShown);
     }
 
-    void Sprite::setSpriteAnim(int animId) {
+    void Sprite::setAnimation(int animId) {
         if (!_loaded)
             return;
         if (animId >= _texture->_animationCount)
@@ -44,7 +44,7 @@ namespace Engine {
 
         int animId = nameToAnimId("gfx");  // default animation
         if (animId != -1)
-            setSpriteAnim(animId);
+            setAnimation(animId);
         pop();
     }
 
@@ -52,7 +52,7 @@ namespace Engine {
         if (!_loaded)
             return;
         if (_cAnimation >= 0) {
-            CSPRAnimation* current = &_texture->_animations[_cAnimation];
+            CSPRAnimation *current = &_texture->_animations[_cAnimation];
             if (current->frames[_cAnimFrame].duration != 0) {
                 _cAnimTimer--;
                 if (_cAnimTimer == 0) {
@@ -109,7 +109,7 @@ namespace Engine {
         }
     }
 
-    int Sprite::nameToAnimId(const std::string& animName) const {
+    int Sprite::nameToAnimId(const std::string &animName) const {
         if (!_loaded)
             return -1;
         for (int i = 0; i < _texture->_animationCount; i++) {

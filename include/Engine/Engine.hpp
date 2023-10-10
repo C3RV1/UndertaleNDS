@@ -6,7 +6,6 @@
 #include <ctime>
 #include <string>
 #include "Engine/Background.hpp"
-#include <maxmod9.h>
 
 namespace Engine {
     int init();

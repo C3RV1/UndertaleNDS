@@ -75,12 +75,12 @@ Dialogue::Dialogue(const std::string& text_, const std::string& typeSndPath, con
 
 void Dialogue::setTalk() {
     if (_target != nullptr)
-        _target->setSpriteAnim(_targetTalk);
+        _target->setAnimation(_targetTalk);
 }
 
 void Dialogue::setNoTalk() {
     if (_target != nullptr)
-        _target->setSpriteAnim(_targetIdle);
+        _target->setAnimation(_targetIdle);
 }
 
 bool Dialogue::update() {

@@ -57,7 +57,7 @@ protected:
     std::string::iterator _lastClearPos;
     u8 _lastClearColor = 15;
 
-    Audio::WAV _typeSnd;
+    Audio2::WAV _typeSnd;
 
     Engine::Font _fnt;
 
@@ -116,11 +116,12 @@ public:
                         const std::string& fontTxt, u16 framesPerLetter, Engine::TextBGManager& txtManager,
                         Engine::AllocationMode heartAlloc);
 
+    void doRedraw() override;
+
 protected:
     void draw(bool draw_, bool clear_) override;
     void onClear() override;
     void onLineBreak() override;
-    void doRedraw() override;
     void handleInline(std::string::iterator &pos, bool doEffect) override;
 
     int _startingX = 0, _startingY = 0;

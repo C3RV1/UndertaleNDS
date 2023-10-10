@@ -38,7 +38,7 @@ void runMainMenu() {
         floweySpr.loadTexture(floweyTex);
         floweySpr._wx = 118 << 8; floweySpr._wy = 116 << 8;
         floweySpr.setShown(true);
-        Audio::playBGMusic("mus_menu1.wav", true);
+        Audio2::playBGMusic("mus_menu1.wav", true);
     }
 
     buffer = "nitro:/data/room_names/" + std::to_string(globalSave.lastSavedRoom) + ".txt";
@@ -144,6 +144,6 @@ void runMainMenu() {
         }
     }
 
-    Audio::stopBGMusic();
+    Audio2::stopBGMusic();
     floweySpr.setShown(false);
 }

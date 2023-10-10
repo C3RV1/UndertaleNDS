@@ -13,7 +13,9 @@ namespace BtlAttacks {
     class MovementTutorial : public BattleAttack {
     public:
         MovementTutorial();
+
         bool update() override;
+
     private:
         Engine::Texture _tutorialTex;
         Engine::Sprite _tutorialSpr;

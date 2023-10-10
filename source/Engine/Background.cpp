@@ -4,7 +4,7 @@
 #include "Engine/Background.hpp"
 #include "Engine/math.hpp"
 #include "Engine/Engine.hpp"
-#include "Engine/dma_async.hpp"
+#include "Engine/dma.hpp"
 
 namespace Engine {
     s32 bg3ScrollX = 0, bg3ScrollY = 0;
@@ -119,7 +119,7 @@ namespace Engine {
         *bg3Reg = (*bg3Reg & (~0x2080)) + (_color8bit << 7);
 
         // skip first color (2 bytes)
-        dmaCopyHalfWordsAsync(3, &_colors[0], (u8*)paletteRam + 2, 2 * _colors.size());
+        dmaCopySafe(3, &_colors[0], (u8*)paletteRam + 2, 2 * _colors.size());
 
         u32 tileDataSize;
         if (_color8bit) {
@@ -131,7 +131,7 @@ namespace Engine {
         if (_tileCount > 1024)
             return 2;
 
-        dmaCopyWordsAsync(3, _tiles.get(), tileRam, tileDataSize * _tileCount);
+        dmaCopySafe(3, _tiles.get(), tileRam, tileDataSize * _tileCount);
 
         u16 sizeFlag = 0;
         u16 mapRamUsage = 0x800;
@@ -145,7 +145,7 @@ namespace Engine {
         }
 
         *bg3Reg = (*bg3Reg & (~0xC000)) + sizeFlag;
-        dmaFillWordsAsync(3, 0, mapRam, mapRamUsage);
+        dmaFillSafe(3, 0, mapRam, mapRamUsage);
 
         for (int mapX = 0; mapX < (_width + 31) / 32; mapX++) {
             int copyWidth = 32;
@@ -153,9 +153,9 @@ namespace Engine {
                 copyWidth = (_width + 31) - 32 * mapX;
             for (int mapY = 0; mapY < (_height + 31) / 32; mapY++) {
                 u8* mapStart = (u8*)mapRam + (mapY * ((_width + 31) / 32) + mapX) * 2048;
-                dmaFillWordsAsync(3, 0, mapStart, 0x800);
+                dmaFillSafe(3, 0, mapStart, 0x800);
                 for (int row = mapY*32; row < _height && row < (mapY + 1) * 32; row++) {
-                    dmaCopyWordsAsync(3, (u8 *)_map.get() + (row * _width + mapX * 32) * 2,
+                    dmaCopySafe(3, (u8 *)_map.get() + (row * _width + mapX * 32) * 2,
                                       mapStart + (row - mapY * 32) * 32 * 2, copyWidth * 2);
                 }
             }
@@ -193,7 +193,7 @@ namespace Engine {
         *bg3Reg = (*bg3Reg & (~0x2080)) | (1 << 13);
 
         // skip first color (2 bytes)
-        dmaCopyHalfWordsAsync(3, &_colors[0], (u8 *) paletteRam + 2, 2 * _colors.size());
+        dmaCopySafe(3, &_colors[0], (u8 *) paletteRam + 2, 2 * _colors.size());
 
         u16 sizeFlag = 0;
         u16 mapRamUsage = 0x200;
@@ -216,7 +216,7 @@ namespace Engine {
         *reg3B = 0;
         *reg3C = 0;
         *reg3D = (1 << 8);
-        dmaFillWordsAsync(3, 0, mapRam, mapRamUsage);
+        dmaFillSafe(3, 0, mapRam, mapRamUsage);
 
         // loadBgRectEngine(bg3Reg, tileRam, mapRam, -1, -1, 34, 26);
         // An extended engine will need a load bg rect afterwards
@@ -236,7 +236,7 @@ namespace Engine {
 
     void clearEngine(vu16* bg3Reg, u16* tileRam, u16* mapRam) {
         u16 mapRamUsage = 0x800;
-        dmaFillWordsAsync(3, 0, mapRam, mapRamUsage);
+        dmaFillSafe(3, 0, mapRam, mapRamUsage);
         *bg3Reg = (*bg3Reg & (~0xE080)); // size 32x32
         *tileRam = 0;
     }
@@ -265,7 +265,7 @@ namespace Engine {
                 *mapRes = tileDst;
                 auto* tileRes = (u16*)((u8*)tileRam + tileDst * 64);
                 if (0 > row or row >= _height or 0 > col or col >= _width) {
-                    dmaFillWordsAsync(3, 0, tileRes, 64);
+                    dmaFillSafe(3, 0, tileRes, 64);
                     continue;
                 }
                 int srcRow = row;
@@ -274,7 +274,7 @@ namespace Engine {
 
                 if (_color8bit) {
                     u8 *src = (u8 *)_tiles.get() + (*mapSrc) * 64;
-                    dmaCopyHalfWordsAsync(3, src, tileRes, 64);
+                    dmaCopySafe(3, src, tileRes, 64);
                 }
                 else {
                     u8 *src = (u8 *)_tiles.get() + (*mapSrc) * 32;

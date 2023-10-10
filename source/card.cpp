@@ -4,15 +4,19 @@
 
 #include <cstdio>
 #include "card.hpp"
+#include "Engine/Engine.hpp"
+#include <fat.h>
 
 void CardBuffer::open(const char *mode) {
     if (_opened)
         return;
-    // If opening fails, then we know we are in an emulator
-    // fopen will return nullptr, which is checked for in
-    // read and write.
     _pos = 0;
-    _fatFile = fopen("fat:/Undertale.save", mode);
+    _running_in_fat = access("sd:/", F_OK);
+    if (_running_in_fat)  // check if sd was inited
+        _fatFile = fopen("sd:/Undertale.save", mode);
+    else {
+        _fatFile = nullptr;
+    }
     _opened = true;
 }
 
@@ -31,16 +35,22 @@ u8 cardCommand(u8 command, bool hold) {
     eepromWaitBusy();
     REG_AUXSPIDATA = command;
     eepromWaitBusy();
-    return REG_AUXSPIDATA;
+    return REG_AUXSPIDATA & 0xFF;
 }
 
 u8 cardTransfer(u8 data) {
     REG_AUXSPIDATA = data;
     eepromWaitBusy();
-    return REG_AUXSPIDATA;
+    return REG_AUXSPIDATA & 0xFF;
 }
 
 void cardWaitInProgress() {
+    cardCommand(SPI_EEPROM_RDSR, true);
+    cardCommand(0, false);
+
+    if (REG_AUXSPIDATA == 0xFF)
+        Engine::throw_("Error accessing savefile.");
+
     do {
         cardCommand(SPI_EEPROM_RDSR, true);
         cardCommand(0, false);
@@ -97,11 +107,19 @@ void cardWriteBytes(u8* src, u32 addr, u16 size) {
 void CardBuffer::read(void *data, size_t size) {
     if (!_opened)
         return;
-    if (_fatFile == nullptr) {
-        cardReadBytes((u8 *) data, _pos, size);
-    } else {
+    if (!_running_in_fat) {
+        cardReadBytes((u8*)data, _pos, size);
+    }
+    else if (_fatFile != nullptr) {
         size_t bytes_read = fread(data, size, 1, _fatFile);
-        for(;bytes_read < size; bytes_read++) {
+        for (;bytes_read < size; bytes_read++) {
+            static_cast<u8*>(data)[bytes_read] = 0xff;
+        }
+    }
+    else {
+        // We are running in fat but file was not opened
+        // We simulate that behaviour by writing 0xff
+        for (size_t bytes_read = 0; bytes_read < size; bytes_read++) {
             static_cast<u8*>(data)[bytes_read] = 0xff;
         }
     }
@@ -111,11 +129,13 @@ void CardBuffer::read(void *data, size_t size) {
 void CardBuffer::write(void *src, size_t size) {
     if (!_opened)
         return;
-    if (_fatFile == nullptr) {
+    if (_running_in_fat) {
         cardWriteBytes((u8*)src, _pos, size);
-    } else {
+    }
+    else if (_fatFile != nullptr) {
         fwrite(src, size, 1, _fatFile);
     }
+    // The else branch would be running in file but file couldn't be opened
     _pos += size;
 }
 
