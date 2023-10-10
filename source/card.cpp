@@ -11,7 +11,7 @@ void CardBuffer::open(const char *mode) {
     if (_opened)
         return;
     _pos = 0;
-    _running_in_fat = access("sd:/", F_OK);
+    _running_in_fat = access("sd:/", F_OK) == 0; // Returns 0 on success
     if (_running_in_fat)  // check if sd was inited
         _fatFile = fopen("sd:/Undertale.save", mode);
     else {
