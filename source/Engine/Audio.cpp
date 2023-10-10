@@ -5,11 +5,102 @@
 #include "Engine/Engine.hpp"
 #include "DEBUG_FLAGS.hpp"
 #include <algorithm>
-#include <utility>
 #include "Engine/dma.hpp"
 
 namespace Audio2 {
-    void WAV::loadWAV(const std::string& name) {
+    void AudioFile::allocateBuffers() {
+        _leftBuffer = new u8[(_bitsPerSample * kAudioBuffer) / 8];
+
+        if (_stereo) {
+            _rightBuffer = new u8[(_bitsPerSample * kAudioBuffer) / 8];
+        }
+    }
+
+    void AudioFile::play() {
+        if (!_loaded)
+            return;
+        if (_active) {
+            stop();
+        }
+        _active = true;
+
+#ifdef DEBUG_AUDIO
+        std::string buffer = "Starting wav: " + getFilename() + " stereo " + std::to_string(getStereo()) +
+            " sample rate " + std::to_string(_sampleRate) + " format " + std::to_string(_format);
+        nocashMessage(buffer.c_str());
+#endif
+        resetPlaying();
+
+        if (_stereo) {
+            _leftChannel = soundPlaySample(_leftBuffer, _format, (_bitsPerSample * kAudioBuffer) / 8,
+                                           _sampleRate, 127, 0, true, 0);
+            _rightChannel = soundPlaySample(_rightBuffer, _format,
+                                            (_bitsPerSample * kAudioBuffer) / 8, _sampleRate,
+                                            127, 127, true, 0);
+        }
+        else {
+            _leftChannel = soundPlaySample(_leftBuffer, _format, (_bitsPerSample * kAudioBuffer) / 8,
+                                           _sampleRate, 127, 64, true, 0);
+        }
+
+        _timerLast = timerTick(audioManager.getTimerId());
+        audioManager.addPlaying(this);
+
+        progress(kAudioBuffer / 2);
+    }
+
+    void AudioFile::stop() {
+        if (!_active)
+            return;
+
+#ifdef DEBUG_AUDIO
+        char buffer[100];
+        sprintf(buffer, "Stopping wav: %s", getFilename().c_str());
+        nocashMessage(buffer);
+#endif
+
+        _active = false;
+
+        soundKill(_leftChannel);
+        if (_stereo)
+            soundKill(_rightChannel);
+
+        audioManager.removePlaying(this);
+        selfFreeingPtr = nullptr;
+    }
+
+    void AudioFile::update() {
+        if (!_active)
+            return;
+        u16 timerTicks = timerTick(audioManager.getTimerId());
+        u16 timerElapsed = timerTicks - _timerLast;
+        u32 samples = ((u32)timerElapsed * (u32)_sampleRate) / (BUS_CLOCK / 1024);
+        _expectedSampleBufferPos += samples;
+
+        progress(samples);
+
+        _timerLast = timerTicks;
+    }
+
+    void AudioManager::addPlaying(Audio2::AudioFile *wav) {
+        _playing.push_front(wav);
+    }
+
+    void AudioManager::removePlaying(Audio2::AudioFile *wav) {
+        auto idx = std::find(_playing.begin(), _playing.end(), wav);
+        if (idx != _playing.end())
+            _playing.erase(idx);
+    }
+
+    void AudioManager::update() {
+        auto current = _playing.begin();
+        while (current != _playing.end()) {
+            AudioFile* current_audio_file = *(current++);
+            current_audio_file->update();
+        }
+    }
+
+    void WAV::load(const std::string& name) {
         free_();
         if (name.empty())  // Loading an empty WAV is the same as freeing it
             return;
@@ -59,19 +150,19 @@ namespace Audio2 {
 
         fseek(f, ftell(f) + 4, SEEK_SET); // skip chunk size == 0x10
 
-        u16 format, channels, bitsPerSample;
+        u16 format, channels;
         fread(&format, 2, 1, f);
         fread(&channels, 2, 1, f);
         fread(&_sampleRate, 4, 1, f);
         fseek(f, ftell(f) + 4, SEEK_SET); // skip byte rate == self.sample_rate * self.bits_per_sample * self.num_channels // 8
         fseek(f, ftell(f) + 2, SEEK_SET); // skip block align == self.num_channels * self.bits_per_sample // 8
-        fread(&bitsPerSample, 2, 1, f);
+        fread(&_bitsPerSample, 2, 1, f);
 
         if (format == 1) {
-            if (bitsPerSample == 8) {
+            if (_bitsPerSample == 8) {
                 _format = SoundFormat_8Bit;
             }
-            else if (bitsPerSample == 16) {
+            else if (_bitsPerSample == 16) {
                 _format = SoundFormat_16Bit;
             }
             else {
@@ -116,24 +207,7 @@ namespace Audio2 {
         _dataEnd = ftell(f) + chunkSize;
         _dataStart = ftell(f);
 
-        u8 bytesPerSample;
-        switch (_format) {
-            case SoundFormat_8Bit:
-                bytesPerSample = 1;
-                break;
-            case SoundFormat_16Bit:
-            case SoundFormat_ADPCM:
-                bytesPerSample = 2;
-                break;
-            default:
-                Engine::throw_("Format error 2!");
-        }
-
-        _leftBuffer = new u8[bytesPerSample * kWAVBuffer];
-
-        if (_stereo) {
-            _rightBuffer = new u8[bytesPerSample * kWAVBuffer];
-        }
+        allocateBuffers();
 
         _loaded = true;
         _stream = f;
@@ -146,7 +220,7 @@ namespace Audio2 {
         u8* fileBuffer = _fileBuffer;
         while (samples > 0) {
             u32 remainingFileBuffer = _fileBufferSampleEnd - _fileBufferSamplePos;
-            u32 remainingLeftBuffer = kWAVBuffer * (_sampleBufferPos / kWAVBuffer + 1) - _sampleBufferPos;
+            u32 remainingLeftBuffer = kAudioBuffer * (_sampleBufferPos / kAudioBuffer + 1) - _sampleBufferPos;
             u32 max_copy = remainingFileBuffer < remainingLeftBuffer ? remainingFileBuffer : remainingLeftBuffer;
             max_copy = samples < max_copy ? samples : max_copy;
             dmaCopy(leftBuffer + _sampleBufferPos, fileBuffer + _fileBufferSamplePos, max_copy);
@@ -178,8 +252,8 @@ namespace Audio2 {
         }
 
         u32 maxReadSize = _dataEnd - ftell(_stream);
-        if (maxReadSize >= kWAVBuffer * 2)
-            maxReadSize = kWAVBuffer * 2;
+        if (maxReadSize >= kAudioBuffer * 2)
+            maxReadSize = kAudioBuffer * 2;
         fread(_fileBuffer, maxReadSize, 1, _stream);
         _fileBufferSamplePos = 0;
         _fileBufferSampleEnd = maxReadSize;
@@ -194,7 +268,7 @@ namespace Audio2 {
         u8* fileBuffer = _fileBuffer;
         while (samples > 0) {
             u32 remainingFileBuffer = _fileBufferSampleEnd - _fileBufferSamplePos;
-            u32 remainingLeftBuffer = kWAVBuffer * (_sampleBufferPos / kWAVBuffer + 1) - _sampleBufferPos;
+            u32 remainingLeftBuffer = kAudioBuffer * (_sampleBufferPos / kAudioBuffer + 1) - _sampleBufferPos;
             u32 max_copy = remainingFileBuffer < remainingLeftBuffer ? remainingFileBuffer : remainingLeftBuffer;
             max_copy = samples < max_copy ? samples : max_copy;
 
@@ -223,8 +297,8 @@ namespace Audio2 {
             samples -= max_copy;
         }
 
-        DC_FlushRange(leftBuffer, kWAVBuffer);
-        DC_FlushRange(rightBuffer, kWAVBuffer);
+        DC_FlushRange(leftBuffer, kAudioBuffer);
+        DC_FlushRange(rightBuffer, kAudioBuffer);
     }
 
     bool WAV::renew_pcm8_stereo_file_buffer() {
@@ -239,8 +313,8 @@ namespace Audio2 {
         }
 
         u32 maxReadSize = _dataEnd - ftell(_stream);
-        if (maxReadSize >= kWAVBuffer * 2)
-            maxReadSize = kWAVBuffer * 2;
+        if (maxReadSize >= kAudioBuffer * 2)
+            maxReadSize = kAudioBuffer * 2;
         fread(_fileBuffer, maxReadSize, 1, _stream);
         _fileBufferSamplePos = 0;
         _fileBufferSampleEnd = maxReadSize / 2;
@@ -254,10 +328,10 @@ namespace Audio2 {
         u16* fileBuffer = reinterpret_cast<u16 *>(_fileBuffer);
         while (samples > 0) {
             u32 remainingFileBuffer = _fileBufferSampleEnd - _fileBufferSamplePos;
-            u32 remainingLeftBuffer = kWAVBuffer * (_sampleBufferPos / kWAVBuffer + 1) - _sampleBufferPos;
+            u32 remainingLeftBuffer = kAudioBuffer * (_sampleBufferPos / kAudioBuffer + 1) - _sampleBufferPos;
             u32 max_copy = remainingFileBuffer < remainingLeftBuffer ? remainingFileBuffer : remainingLeftBuffer;
             max_copy = samples < max_copy ? samples : max_copy;
-            dmaCopy(leftBuffer + _sampleBufferPos % kWAVBuffer, fileBuffer + _fileBufferSamplePos, max_copy * 2);
+            dmaCopy(leftBuffer + _sampleBufferPos % kAudioBuffer, fileBuffer + _fileBufferSamplePos, max_copy * 2);
 
             _fileBufferSamplePos += max_copy;
 
@@ -288,8 +362,8 @@ namespace Audio2 {
         }
 
         u32 maxReadSize = _dataEnd - ftell(_stream);
-        if (maxReadSize >= kWAVBuffer * 2)
-            maxReadSize = kWAVBuffer * 2;
+        if (maxReadSize >= kAudioBuffer * 2)
+            maxReadSize = kAudioBuffer * 2;
         fread(_fileBuffer, maxReadSize, 1, _stream);
         _fileBufferSamplePos = 0;
         _fileBufferSampleEnd = maxReadSize / 4;
@@ -304,16 +378,16 @@ namespace Audio2 {
         u16* fileBuffer = reinterpret_cast<u16*>(_fileBuffer);
         while (samples > 0) {
             u32 remainingFileBuffer = _fileBufferSampleEnd - _fileBufferSamplePos;
-            u32 remainingLeftBuffer = kWAVBuffer * (_sampleBufferPos / kWAVBuffer + 1) - _sampleBufferPos;
+            u32 remainingLeftBuffer = kAudioBuffer * (_sampleBufferPos / kAudioBuffer + 1) - _sampleBufferPos;
             u32 max_copy = remainingFileBuffer < remainingLeftBuffer ? remainingFileBuffer : remainingLeftBuffer;
             max_copy = samples < max_copy ? samples : max_copy;
 
             for (int i = 0; i < max_copy * 2; i++) {
                 if (i % 2 == 0) {
-                    leftBuffer[_sampleBufferPos % kWAVBuffer + i / 2] = *(fileBuffer + 2*_fileBufferSamplePos);
+                    leftBuffer[_sampleBufferPos % kAudioBuffer + i / 2] = *(fileBuffer + 2 * _fileBufferSamplePos);
                 }
                 else {
-                    rightBuffer[_sampleBufferPos % kWAVBuffer + i / 2] = *(fileBuffer + 2*_fileBufferSamplePos + 1);
+                    rightBuffer[_sampleBufferPos % kAudioBuffer + i / 2] = *(fileBuffer + 2 * _fileBufferSamplePos + 1);
                     _fileBufferSamplePos++;
                 }
             }
@@ -333,8 +407,8 @@ namespace Audio2 {
             samples -= max_copy;
         }
 
-        DC_FlushRange(leftBuffer, kWAVBuffer * 2);
-        DC_FlushRange(rightBuffer, kWAVBuffer * 2);
+        DC_FlushRange(leftBuffer, kAudioBuffer * 2);
+        DC_FlushRange(rightBuffer, kAudioBuffer * 2);
     }
 
     bool WAV::renew_pcm16_stereo_file_buffer() {
@@ -349,8 +423,8 @@ namespace Audio2 {
         }
 
         u32 maxReadSize = _dataEnd - ftell(_stream);
-        if (maxReadSize >= kWAVBuffer * 2)
-            maxReadSize = kWAVBuffer * 2;
+        if (maxReadSize >= kAudioBuffer * 2)
+            maxReadSize = kAudioBuffer * 2;
         fread(_fileBuffer, maxReadSize, 1, _stream);
         _fileBufferSamplePos = 0;
         _fileBufferSampleEnd = maxReadSize / 4;
@@ -367,7 +441,7 @@ namespace Audio2 {
                     progress_pcm16_mono(samples);
                     break;
                 default:
-                    Engine::throw_("Format error 3!");
+                    Engine::throw_("WAV: Format " + std::to_string(_format) + " not implemented");
             }
         }
         else {
@@ -379,91 +453,17 @@ namespace Audio2 {
                     progress_pcm16_stereo(samples);
                     break;
                 default:
-                    Engine::throw_("Format " + std::to_string(_format) + " error 4!");
+                    Engine::throw_("WAV: Format " + std::to_string(_format) + " not implemented");
             }
         }
     }
 
-    void WAV::update() {
-        u16 timerTicks = timerTick(audioManager.getTimerId());
-        u16 timerElapsed = timerTicks - _timerLast;
-        u32 samples = ((u32)timerElapsed * (u32)_sampleRate) / (BUS_CLOCK / 1024);
-        _expectedSampleBufferPos += samples;
-
-        progress(samples);
-
-        _timerLast = timerTicks;
-    }
-
-    void WAV::play() {
-        if (!_loaded)
-            return;
-        if (_active) {
-            stop();
-        }
-        _active = true;
-
-#ifdef DEBUG_AUDIO
-        std::string buffer = "Starting wav: " + getFilename() + " stereo " + std::to_string(getStereo()) +
-            " sample rate " + std::to_string(_sampleRate) + " format " + std::to_string(_format);
-        nocashMessage(buffer.c_str());
-#endif
-
-        u8 bytesPerSample;
-        switch (_format) {
-            case SoundFormat_8Bit:
-                bytesPerSample = 1;
-                break;
-            case SoundFormat_16Bit:
-            case SoundFormat_ADPCM:
-                bytesPerSample = 2;
-                break;
-            default:
-                Engine::throw_("Format error 1!");
-        }
-
+    void WAV::resetPlaying() {
         fseek(_stream, _dataStart, SEEK_SET);
         _sampleBufferPos = 0;
         _expectedSampleBufferPos = 0;
         _fileBufferSamplePos = 0;
         _fileBufferSampleEnd = 0;
-
-        if (_stereo) {
-            _leftChannel = soundPlaySample(_leftBuffer, _format, bytesPerSample * kWAVBuffer, _sampleRate,
-                                           127, 0, true, 0);
-            _rightChannel = soundPlaySample(_rightBuffer, _format, bytesPerSample * kWAVBuffer, _sampleRate,
-                                            127, 127, true, 0);
-        }
-        else {
-            _leftChannel = soundPlaySample(_leftBuffer, _format, bytesPerSample * kWAVBuffer, _sampleRate,
-                            127, 64, true, 0);
-        }
-
-        _timerLast = timerTick(audioManager.getTimerId());
-        audioManager.addPlayingWAV(this);
-
-        progress(kWAVBuffer / 2);
-        nocashMessage("End load");
-    }
-
-    void WAV::stop() {
-        if (!_active)
-            return;
-
-#ifdef DEBUG_AUDIO
-        char buffer[100];
-        sprintf(buffer, "Stopping wav: %s", getFilename().c_str());
-        nocashMessage(buffer);
-#endif
-
-        _active = false;
-
-        soundKill(_leftChannel);
-        if (_stereo)
-            soundKill(_rightChannel);
-
-        audioManager.removePlayingWAV(this);
-        selfFreeingPtr = nullptr;
     }
 
     WAV::~WAV() {
@@ -490,53 +490,16 @@ namespace Audio2 {
     }
 
     AudioManager::AudioManager(int timerId) {
-        for (int i = 0; i < 16; i++) {
-            _enabledChannels[i] = true;
-            _activeChannels[i] = false;
-        }
         soundEnable();
         _timerId = timerId;
         timerStart(timerId, ClockDivider_1024, 0, nullptr);
-    }
-
-    int AudioManager::getFreeChannel() {
-        for (int i = 0; i < 16; i++) {
-            if (!_activeChannels[i] && _enabledChannels[i]) {
-                _activeChannels[i] = true;
-                return i;
-            }
-        }
-        Engine::throw_("Couldn't get free channel!");
-    }
-
-    void AudioManager::freeChannel(int channel) {
-        if (0 <= channel && channel <= 15)
-            _activeChannels[channel] = false;
-    }
-
-    void AudioManager::addPlayingWAV(Audio2::WAV *wav) {
-        _wavPlaying.push_front(wav);
-    }
-
-    void AudioManager::removePlayingWAV(Audio2::WAV *wav) {
-        auto idx = std::find(_wavPlaying.begin(), _wavPlaying.end(), wav);
-        if (idx != _wavPlaying.end())
-            _wavPlaying.erase(idx);
-    }
-
-    void AudioManager::update() {
-        auto current = _wavPlaying.begin();
-        while (current != _wavPlaying.end()) {
-            WAV* currentWAV = *(current++);
-            currentWAV->update();
-        }
     }
 
     AudioManager audioManager(0);
 
     void playBGMusic(const std::string& filename, bool loop) {
         stopBGMusic();
-        cBGMusic.loadWAV(filename);
+        cBGMusic.load(filename);
         cBGMusic.setLoops(loop ? -1 : 0);
         if (cBGMusic.getLoaded())
             cBGMusic.play();

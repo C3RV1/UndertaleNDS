@@ -18,7 +18,7 @@ BattleAction::BattleAction(std::vector<Enemy>* enemies,
         _attackSpr(Engine::Allocated3D)
 {
     _fnt.loadPath("fnt_maintext.font");
-    _selectSnd.loadWAV("snd_select.wav");
+    _selectSnd.load("snd_select.wav");
 
     _fightBoard.loadPath("fight_board");
     _damageNumbers.loadPath("battle/damage_numbers");

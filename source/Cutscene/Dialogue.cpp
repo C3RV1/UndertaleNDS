@@ -46,7 +46,7 @@ Dialogue::Dialogue(u16 textId, Engine::Sprite* target,
     _textManager->reloadColors();
     _textManager->setColor(15);
 
-    _typeSnd.loadWAV(typeSndPath);
+    _typeSnd.load(typeSndPath);
     _typeSnd.setLoops(0);
 }
 
@@ -69,7 +69,7 @@ Dialogue::Dialogue(const std::string& text_, const std::string& typeSndPath, con
     _textManager->reloadColors();
     _textManager->setColor(15);
 
-    _typeSnd.loadWAV(typeSndPath);
+    _typeSnd.load(typeSndPath);
     _typeSnd.setLoops(0);
 }
 

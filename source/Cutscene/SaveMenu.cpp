@@ -17,7 +17,7 @@ SaveMenu::SaveMenu() : _optionsHeartSpr(Engine::AllocatedOAM) {
     _optionsHeartSpr._wx = kHrtSaveX << 8;
     _optionsHeartSpr._wy = kHrtSaveY << 8;
 
-    _saveSnd.loadWAV("snd_save.wav");
+    _saveSnd.load("snd_save.wav");
     _saveSnd.setLoops(0);
 
     SaveData lastSave;

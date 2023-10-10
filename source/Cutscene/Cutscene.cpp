@@ -480,7 +480,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
 
             auto sfxWav = std::make_shared<Audio2::WAV>();
             sfxWav->freeOnStop(sfxWav);
-            sfxWav->loadWAV(buffer);
+            sfxWav->load(buffer);
             sfxWav->setLoops(loops);
             sfxWav->play();
             break;
