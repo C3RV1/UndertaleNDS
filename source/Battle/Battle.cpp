@@ -95,9 +95,6 @@ void Battle::loadFromStream(FILE *stream) {
     _battleBackground.loadPath(bgPath);
     _battleBackground.loadBgTextSub();
 
-    buffer = "Loading bg " + bgPath;
-    nocashMessage(buffer.c_str());
-
     _playerSpr._wx = ((_boardX + _boardW / 2) << 8) - (9 << 8) / 2;
     _playerSpr._wy = ((_boardY + _boardH / 2) << 8) - (9 << 8) / 2;
 }

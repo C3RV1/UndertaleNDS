@@ -9,6 +9,8 @@
 #include "Engine/Sprite.hpp"
 #include "Engine/Texture.hpp"
 
+// TODO: Also check for touchscreen
+
 namespace BtlAttacks {
     class MovementTutorial : public BattleAttack {
     public:
