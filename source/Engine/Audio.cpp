@@ -32,20 +32,30 @@ namespace Audio2 {
 
         if (_stereo) {
             _leftChannel = soundPlaySample(_leftBuffer, _format, (_bitsPerSample * kAudioBuffer) / 8,
-                                           _sampleRate, 127, 0, true, 0);
+                                           _sampleRate, _volume, 0, true, 0);
             _rightChannel = soundPlaySample(_rightBuffer, _format,
                                             (_bitsPerSample * kAudioBuffer) / 8, _sampleRate,
-                                            127, 127, true, 0);
+                                            _volume, 127, true, 0);
         }
         else {
             _leftChannel = soundPlaySample(_leftBuffer, _format, (_bitsPerSample * kAudioBuffer) / 8,
-                                           _sampleRate, 127, 64, true, 0);
+                                           _sampleRate, _volume, 64, true, 0);
         }
 
         _timerLast = timerTick(audioManager.getTimerId());
         audioManager.addPlaying(this);
 
         progress(kAudioBuffer / 2);
+    }
+
+    void AudioFile::setVolume(u8 volume) {
+        if (volume == _volume)
+            return;
+        if (_leftChannel != -1)
+            soundSetVolume(_leftChannel, volume);
+        if (_rightChannel != -1)
+            soundSetVolume(_rightChannel, volume);
+        _volume = volume;
     }
 
     void AudioFile::stop() {
@@ -64,6 +74,9 @@ namespace Audio2 {
         if (_stereo)
             soundKill(_rightChannel);
 
+        _leftChannel = -1;
+        _rightChannel = -1;
+
         audioManager.removePlaying(this);
         selfFreeingPtr = nullptr;
     }
@@ -79,11 +92,6 @@ namespace Audio2 {
         progress(samples);
 
         _timerLast = timerTicks;
-    }
-
-    AudioFile::~AudioFile() {
-        if (_active)
-            stop();
     }
 
     void AudioManager::addPlaying(Audio2::AudioFile *wav) {
@@ -108,6 +116,20 @@ namespace Audio2 {
         soundEnable();
         _timerId = timerId;
         timerStart(timerId, ClockDivider_1024, 0, nullptr);
+    }
+
+    void AudioFile::free_() {
+        if (_active) {
+            stop();
+        }
+
+        delete[] _leftBuffer;
+        _leftBuffer = nullptr;
+
+        delete[] _rightBuffer;
+        _rightBuffer = nullptr;
+
+        _loaded = false;
     }
 
     AudioManager audioManager(0);

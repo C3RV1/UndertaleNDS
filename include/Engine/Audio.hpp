@@ -23,13 +23,14 @@ namespace Audio2 {
         virtual void load(const std::string& name) = 0;
         void play();
         void stop();
-        virtual ~AudioFile();
 
         std::string getFilename() {return _filename;}
         void setLoops(int loops) {_loops = loops;}
         bool getStereo() const {return _stereo;}
         bool getPlaying() const {return _active;}
         bool getLoaded() const {return _loaded;}
+        u8 getVolume() const {return _volume;}
+        void setVolume(u8 volume);
 
         // Sometimes we'll want to start a WAV without
         // having to keep a reference.
@@ -39,7 +40,11 @@ namespace Audio2 {
         inline void freeOnStop(std::shared_ptr<AudioFile> self) {
             selfFreeingPtr = std::move(self);
         }
+
+        virtual ~AudioFile() { if (_loaded) AudioFile::free_(); }
     protected:
+        virtual void free_();
+
         virtual void allocateBuffers();
         virtual void resetPlaying() = 0;
 
@@ -64,6 +69,7 @@ namespace Audio2 {
         u32 _expectedSampleBufferPos;
         u16 _sampleRate = 1;
         u8 _bitsPerSample;
+        u8 _volume = 127;
 
         std::shared_ptr<AudioFile> selfFreeingPtr = nullptr;
 

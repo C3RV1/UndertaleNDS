@@ -7,6 +7,9 @@
 
 // Based on NFLib and http://www.coranac.com/2009/05/dma-vs-arm9-fight/
 void dmaCopySafe(u8 channel, const void *src, void* dst, size_t size) {
+    if (size == 0)
+        return;
+
     auto source = reinterpret_cast<std::uintptr_t>(src);
     auto destination = reinterpret_cast<std::uintptr_t>(dst);
 
@@ -28,6 +31,9 @@ void dmaCopySafe(u8 channel, const void *src, void* dst, size_t size) {
 }
 
 void dmaFillSafe(u8 channel, u32 value, void* dst, size_t size) {
+    if (size == 0)
+        return;
+
     auto destination = reinterpret_cast<std::uintptr_t>(dst);
 
     if (destination & 1) {

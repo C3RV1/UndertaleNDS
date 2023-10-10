@@ -3,12 +3,14 @@
 //
 #include "Engine/Engine.hpp"
 #include "Engine/WAV.hpp"
+#include "Engine/dma.hpp"
 
 namespace Audio2 {
     void WAV::load(const std::string& name) {
         free_();
         if (name.empty())  // Loading an empty WAV is the same as freeing it
             return;
+
         _loops = 0;
         std::string realPath = "nitro:/z_audio/" + name;
         FILE *f = fopen(realPath.c_str(), "rb");
@@ -55,13 +57,16 @@ namespace Audio2 {
 
         fseek(f, ftell(f) + 4, SEEK_SET); // skip chunk size == 0x10
 
-        u16 format, channels;
+        u16 format, channels, bitsPerSample;
+        u32 sampleRate;
         fread(&format, 2, 1, f);
         fread(&channels, 2, 1, f);
-        fread(&_sampleRate, 4, 1, f);
+        fread(&sampleRate, 4, 1, f);
+        _sampleRate = sampleRate;
         fseek(f, ftell(f) + 4, SEEK_SET); // skip byte rate == self.sample_rate * self.bits_per_sample * self.num_channels // 8
         fseek(f, ftell(f) + 2, SEEK_SET); // skip block align == self.num_channels * self.bits_per_sample // 8
-        fread(&_bitsPerSample, 2, 1, f);
+        fread(&bitsPerSample, 2, 1, f);
+        _bitsPerSample = bitsPerSample;
 
         if (format == 1) {
             if (_bitsPerSample == 8) {
@@ -128,7 +133,10 @@ namespace Audio2 {
             u32 remainingLeftBuffer = kAudioBuffer * (_sampleBufferPos / kAudioBuffer + 1) - _sampleBufferPos;
             u32 max_copy = remainingFileBuffer < remainingLeftBuffer ? remainingFileBuffer : remainingLeftBuffer;
             max_copy = samples < max_copy ? samples : max_copy;
-            dmaCopy(leftBuffer + _sampleBufferPos, fileBuffer + _fileBufferSamplePos, max_copy);
+            dmaCopySafe(3,
+                        fileBuffer + _fileBufferSamplePos,
+                        leftBuffer + _sampleBufferPos,
+                        max_copy);
 
             _fileBufferSamplePos += max_copy;
             _sampleBufferPos += max_copy;
@@ -236,7 +244,10 @@ namespace Audio2 {
             u32 remainingLeftBuffer = kAudioBuffer * (_sampleBufferPos / kAudioBuffer + 1) - _sampleBufferPos;
             u32 max_copy = remainingFileBuffer < remainingLeftBuffer ? remainingFileBuffer : remainingLeftBuffer;
             max_copy = samples < max_copy ? samples : max_copy;
-            dmaCopy(leftBuffer + _sampleBufferPos % kAudioBuffer, fileBuffer + _fileBufferSamplePos, max_copy * 2);
+            dmaCopySafe(3,
+                        fileBuffer + _fileBufferSamplePos,
+                        leftBuffer + _sampleBufferPos % kAudioBuffer,
+                        max_copy * 2);
 
             _fileBufferSamplePos += max_copy;
 
@@ -372,26 +383,19 @@ namespace Audio2 {
     }
 
     WAV::~WAV() {
-        free_();
+        WAV::free_();
     }
 
     void WAV::free_() {
-        if (_active) {
-            stop();
-        }
+        if (!_loaded)
+            return;
 
         if (_stream != nullptr) {
             fclose(_stream);
             _stream = nullptr;
         }
 
-        _loaded = false;
-
-        delete[] _leftBuffer;
-        _leftBuffer = nullptr;
-
-        delete[] _rightBuffer;
-        _rightBuffer = nullptr;
+        AudioFile::free_();
     }
 
     void playBGMusic(const std::string& filename, bool loop) {
