@@ -90,6 +90,7 @@ namespace Engine {
         }
         handlingException = true;
         lcdMainOnBottom();
+        setBrightness(1, 0);
         textMain.clear();
         clearMain();
         Font system_font;
