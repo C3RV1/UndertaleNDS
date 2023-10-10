@@ -7,7 +7,7 @@
 #include "Engine/Engine.hpp"
 #include "Engine/Texture.hpp"
 #include "Engine/Sprite.hpp"
-#include "Engine/Audio.hpp"
+#include "Engine/WAV.hpp"
 #include "Save.hpp"
 #include "Formats/utils.hpp"
 #include <cstdio>

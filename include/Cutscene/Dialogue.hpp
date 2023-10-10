@@ -6,7 +6,7 @@
 #define UNDERTALE_DIALOGUE_HPP
 
 #include <nds.h>
-#include "Engine/Audio.hpp"
+#include "Engine/WAV.hpp"
 #include "Engine/Sprite.hpp"
 #include "Engine/Font.hpp"
 #include <cstdio>

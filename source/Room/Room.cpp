@@ -4,7 +4,7 @@
 
 #include "Room/Room.hpp"
 #include "Engine/Engine.hpp"
-#include "Engine/Audio.hpp"
+#include "Engine/WAV.hpp"
 #include "Save.hpp"
 #include "Cutscene/Cutscene.hpp"
 #include "Room/Player.hpp"
