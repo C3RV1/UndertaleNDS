@@ -12,8 +12,9 @@ void CardBuffer::open(const char *mode) {
         return;
     _pos = 0;
     _running_in_fat = access("sd:/", F_OK) == 0; // Returns 0 on success
-    if (_running_in_fat)  // check if sd was inited
-        _fatFile = fopen("sd:/Undertale.save", mode);
+    if (_running_in_fat) {  // check if sd was inited
+        _fatFile = fopen("sd:/Undertale.sav", mode);
+    }
     else {
         _fatFile = nullptr;
     }
@@ -111,7 +112,7 @@ void CardBuffer::read(void *data, size_t size) {
         cardReadBytes((u8*)data, _pos, size);
     }
     else if (_fatFile != nullptr) {
-        size_t bytes_read = fread(data, size, 1, _fatFile);
+        size_t bytes_read = fread(data, 1, size, _fatFile);
         for (;bytes_read < size; bytes_read++) {
             static_cast<u8*>(data)[bytes_read] = 0xff;
         }
@@ -129,7 +130,7 @@ void CardBuffer::read(void *data, size_t size) {
 void CardBuffer::write(void *src, size_t size) {
     if (!_opened)
         return;
-    if (_running_in_fat) {
+    if (!_running_in_fat) {
         cardWriteBytes((u8*)src, _pos, size);
     }
     else if (_fatFile != nullptr) {

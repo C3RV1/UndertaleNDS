@@ -23,8 +23,11 @@ void SaveData::clear(ClearType clearType) {
     }
 }
 
+#include "Engine/Engine.hpp"
+
 void SaveData::loadData() {
-    char header[4];
+    // Initializing it like this for some reason fixes the issues
+    unsigned char header[4] = {0xDE, 0xAD, 0xBE, 0xEF};
     char expectedHeader[4] = {'U', 'S', 'A', 'V'};
 
     fCard.open("rb");
