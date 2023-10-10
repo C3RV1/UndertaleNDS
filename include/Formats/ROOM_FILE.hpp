@@ -34,13 +34,16 @@ struct ROOMSprite {
     s8 textureId = 0;
     u16 x = 0, y = 0;
     std::string animation;
-    u8 interactAction = 0;  // 0 - none, 1 - cutscene, 2 - proximity
+    u8 interactAction = 0;  // 0 - none, 1 - cutscene, 2 - proximity, 3 - parallax
 
     u16 cutsceneId = 0;  // only when interactAction == 1
 
     // only when interactAction == 2
     u16 distance = 0;
     std::string closeAnim;
+
+    // only when interactAction == 3
+    s32 parallax_x, parallax_y;
 };
 
 struct ROOMSprites {
@@ -70,6 +73,7 @@ struct ROOMPart {
     ROOMPartCondition* conditions = nullptr;
     std::string roomBg;
     std::string musicBg;
+    u8 musicVolume;
     u16 spawnX = 0, spawnY = 0;
     ROOMExits roomExits;
     ROOMTextures roomTextures;

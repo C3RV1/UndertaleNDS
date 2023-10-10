@@ -6,11 +6,15 @@ import json
 import os
 
 
+def to_fixed_point(f: float):
+    return int(f * (2 ** 8))
+
+
 class RoomHeader:
     def __init__(self):
         self.header = b"ROOM"
         self.file_size_pos = 0
-        self.version = 8
+        self.version = 9
 
     def write(self, wtr: binary.BinaryWriter):
         wtr.write(self.header)
@@ -118,11 +122,13 @@ class RoomSprite:
         self.cutscene_id = 0
         self.distance = 0
         self.close_anim = ""
+        self.parallax_x = 0
+        self.parallax_y = 0
 
     def write(self, wtr: binary.BinaryWriter):
         wtr.write_uint8(self.texture_id)
-        wtr.write_uint16(self.x)
-        wtr.write_uint16(self.y)
+        wtr.write_uint16(int(self.x))
+        wtr.write_uint16(int(self.y))
         wtr.write_string(self.animation, encoding="ascii")
         wtr.write_uint8(self.action)
         if self.action == 1:
@@ -130,6 +136,9 @@ class RoomSprite:
         elif self.action == 2:
             wtr.write_uint16(self.distance)
             wtr.write_string(self.close_anim, encoding="ascii")
+        elif self.action == 3:
+            wtr.write_int32(to_fixed_point(self.parallax_x))
+            wtr.write_int32(to_fixed_point(self.parallax_y))
 
     @classmethod
     def from_dict(cls, dct):
@@ -137,17 +146,29 @@ class RoomSprite:
         res.texture_id = dct["texture_id"]
         res.x = dct["x"]
         res.y = dct["y"]
-        res.animation = dct["animation"]
+        res.animation = dct.get("animation", "gfx")
         res.action = {
             "none": 0,
             "cutscene": 1,
-            "proximity": 2
+            "proximity": 2,
+            "parallax": 3
         }[dct.get("action", "none")]
         if res.action == 1:
             res.cutscene_id = dct["cutscene_id"]
         elif res.action == 2:
             res.distance = dct["distance"]
             res.close_anim = dct["close_animation"]
+        elif res.action == 3:
+            res.parallax_x = dct.get("parallax_x", 1.0)
+            res.parallax_y = dct.get("parallax_y", 1.0)
+            res.x -= 256//2
+            res.y -= 192//2
+            if res.parallax_x != 0:
+                res.x *= res.parallax_x
+            if res.parallax_y != 0:
+                res.y *= res.parallax_y
+            res.x += 256//2
+            res.y += 192//2
         return res
 
 
@@ -255,6 +276,7 @@ class RoomPart:
         self.conditions: List[RoomPartCondition] = []
         self.room_bg = ""
         self.music_path = ""
+        self.music_volume = 127
         self.spawn_x = 0
         self.spawn_y = 0
         self.room_exits = RoomExits()
@@ -270,6 +292,7 @@ class RoomPart:
             condition.write(wtr)
         wtr.write_string(self.room_bg, encoding="ascii")
         wtr.write_string(self.music_path, encoding="ascii")
+        wtr.write_uint8(self.music_volume)
         wtr.write_uint16(self.spawn_x)
         wtr.write_uint16(self.spawn_y)
         self.room_exits.write(wtr)
@@ -288,6 +311,7 @@ class RoomPart:
             res.conditions.append(RoomPartCondition.from_dict(condition))
         res.room_bg = dct["room_bg"]
         res.music_path = dct["music_path"]
+        res.music_volume = dct.get("music_volume", 127)
         res.spawn_x = dct.get("spawn_x")
         res.spawn_y = dct.get("spawn_y")
         res.room_exits = RoomExits.from_list(dct["exits"])

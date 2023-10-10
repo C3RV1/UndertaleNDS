@@ -33,6 +33,7 @@ Room::Room(int roomId) : _roomId(roomId) {
 
     if (!_roomData.musicBg.empty()) {
         bool musicChange = _roomData.musicBg != Audio2::cBGMusic.getFilename();
+        Audio2::cBGMusic.setVolume(_roomData.musicVolume);
         if (musicChange) {
             Audio2::playBGMusic(_roomData.musicBg, true);
         }
@@ -69,7 +70,7 @@ void Room::loadRoom(FILE *f) {
     }
 
     fread(&roomFile.header.version, 4, 1, f);
-    if (roomFile.header.version != 8) {
+    if (roomFile.header.version != 9) {
         std::string buffer = "Error loading room #r" + std::to_string(_roomId) +
                 "#x: Invalid version (expected: 8, actual: "
                 + std::to_string(roomFile.header.version) + ")";
@@ -110,6 +111,8 @@ void Room::loadRoom(FILE *f) {
     _roomData.musicBg.resize(musicPathLen);
     fread(&_roomData.musicBg[0], musicPathLen, 1, f);
     fseek(f, 1, SEEK_CUR);
+
+    fread(&_roomData.musicVolume, 1, 1, f);
 
     fread(&_spawnX, 2, 1, f);
     fread(&_spawnY, 2, 1, f);
@@ -196,12 +199,17 @@ void Room::loadRoom(FILE *f) {
         fread(&roomSprites[i].interactAction, 1, 1, f);
         if (roomSprites[i].interactAction == 1) {
             fread(&roomSprites[i].cutsceneId, 2, 1, f);
-        } else if (roomSprites[i].interactAction == 2) {
+        }
+        else if (roomSprites[i].interactAction == 2) {
             fread(&roomSprites[i].distance, 2, 1, f);
             animLen = str_len_file(f, 0);
             roomSprites[i].closeAnim.resize(animLen);
             fread(&roomSprites[i].closeAnim[0], animLen, 1, f);
             fseek(f, 1, SEEK_CUR);
+        }
+        else if (roomSprites[i].interactAction == 3) {
+            fread(&roomSprites[i].parallax_x, 4, 1, f);
+            fread(&roomSprites[i].parallax_y, 4, 1, f);
         }
     }
 

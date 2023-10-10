@@ -26,6 +26,8 @@ public:
     u32 _distanceSquared = 0;
     int _closeAnim = 0;
     int _animationId = 0;
+    s32 _parallax_x = 1 << 8;
+    s32 _parallax_y = 1 << 8;
 private:
     void free_();
     std::shared_ptr<Engine::Texture> _texture = nullptr;

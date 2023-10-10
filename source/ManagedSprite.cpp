@@ -21,11 +21,17 @@ void ManagedSprite::load(ROOMSprite const& sprData,
     _spr.setShown(true);
 
     _interactAction = sprData.interactAction;
+    _parallax_x = 1 << 8;
+    _parallax_y = 1 << 8;
     if (_interactAction == 1)
         _cutsceneId = sprData.cutsceneId;
     else if (_interactAction == 2) {
         _distanceSquared = sprData.distance * sprData.distance;
         _closeAnim = _spr.nameToAnimId(sprData.closeAnim);
+    }
+    else if (_interactAction == 3) {
+        _parallax_x = sprData.parallax_x;
+        _parallax_y = sprData.parallax_y;
     }
 }
 
@@ -48,8 +54,8 @@ void ManagedSprite::spawn(s8 textureId, s32 x, s32 y,
 
 void ManagedSprite::draw(bool isRoom) {
     if (isRoom) {
-        _spr._cam_x = globalCamera._pos._wx;
-        _spr._cam_y = globalCamera._pos._wy;
+        _spr._cam_x = (globalCamera._pos._wx * _parallax_x) >> 8;
+        _spr._cam_y = (globalCamera._pos._wy * _parallax_y) >> 8;
         _spr._cam_scale_x = globalCamera._pos._w_scale_x;
         _spr._cam_scale_y = globalCamera._pos._w_scale_y;
         _spr._layer = _spr._wy >> 8;
