@@ -52,7 +52,7 @@ def convert(input_file, output_file):
                        dtype=np.dtype(np.uint16).newbyteorder("<"))
 
     width, height = data["size"]
-    top_down_offset = data.get("top_down_offset", height)
+    top_down_offset = data.get("topDownOffset", height)
     frame_count = data["frameCount"]
 
     contain_oam = not data.get("excludeOam", False)

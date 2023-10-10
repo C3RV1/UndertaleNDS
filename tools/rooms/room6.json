@@ -35,7 +35,6 @@
         {
           "texture_id": 2,
           "x": 549, "y": 109,
-          "animation": "gfx",
           "action": "cutscene", "cutscene_id": 10
         },
         {
@@ -426,7 +425,6 @@
         {
           "texture_id": 1,
           "x": 549, "y": 109,
-          "animation": "gfx",
           "action": "cutscene", "cutscene_id": 10
         },
         {

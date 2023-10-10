@@ -26,13 +26,11 @@
       "sprites": [
         {
           "texture_id": 0,
-          "x": 157, "y": 135,
-          "animation": "gfx"
+          "x": 157, "y": 135
         },
         {
           "texture_id": 1,
-          "x": 136, "y": 34,
-          "animation": "gfx"
+          "x": 136, "y": 34
         }
       ],
       "colliders": [

@@ -1,0 +1,20 @@
+{
+  "size": [16, 38],
+  "frameCount": 2,
+  "excludeOam": true,
+  "topDownOffset": 0,
+  "animations": [
+    {
+      "name": "not_broken",
+      "frames": [
+        {"frame": 0, "duration": 0}
+      ]
+    },
+    {
+      "name": "broken",
+      "frames": [
+        {"frame": 1, "duration": 0}
+      ]
+    }
+  ]
+}

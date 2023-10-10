@@ -28,8 +28,7 @@
       "sprites": [
         {
           "texture_id": 0,
-          "x": 1174, "y": 37,
-          "animation": "gfx"
+          "x": 1174, "y": 37
         },
         {
           "texture_id": 1,
@@ -85,8 +84,7 @@
       "sprites": [
         {
           "texture_id": 0,
-          "x": 1174, "y": 37,
-          "animation": "gfx"
+          "x": 1174, "y": 37
         }
       ],
       "colliders": [

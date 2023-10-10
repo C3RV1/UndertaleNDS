@@ -87,14 +87,12 @@
           "texture_id": 2,
           "x": 49,
           "y": 40,
-          "animation": "gfx",
           "action": "cutscene",
           "cutscene_id": 1
         },
         {
           "texture_id": 4,
-          "x": 89, "y": 20,
-          "animation": "gfx"
+          "x": 89, "y": 20
         }
       ],
       "colliders": [
@@ -196,7 +194,6 @@
           "texture_id": 1,
           "x": 49,
           "y": 40,
-          "animation": "gfx",
           "action": "cutscene",
           "cutscene_id": 1
         }

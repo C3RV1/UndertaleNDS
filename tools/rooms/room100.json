@@ -1,0 +1,22 @@
+{
+  "parts": [
+    {
+      "conditions": [],
+      "room_bg": "rooms/room100",
+      "music_path": "mus_tone2.wav",
+      "music_volume": 64,
+      "spawn_x": 73, "spawn_y": 176,
+      "exits": [
+        {
+          "exit_type": "side",
+          "side": "right",
+          "room_id": 101,
+          "spawn_x": 6, "spawn_y": 166
+        }
+      ],
+      "textures": [],
+      "sprites": [],
+      "colliders": []
+    }
+  ]
+}

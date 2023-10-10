@@ -1,0 +1,106 @@
+{
+  "parts": [
+    {
+      "conditions": [],
+      "room_bg": "rooms/room101",
+      "music_path": "mus_tone2.wav",
+      "spawn_x": 0, "spawn_y": 0,
+      "music_volume": 64,
+      "exits": [],
+      "textures": [
+        "room_sprites/spr_treeshadow",
+        "room_sprites/spr_stick",
+        "room_sprites/spr_tundragate",
+        "room_sprites/sans"
+      ],
+      "sprites": [
+        {
+          "texture_id": 1,
+          "x": 590, "y": 172,
+          "animation": "not_broken"
+        },
+        {
+          "texture_id": 2,
+          "x": 2223, "y": 146
+        },
+        {
+          "texture_id": 0,
+          "x": 300, "y": 0,
+          "action": "parallax",
+          "parallax_x": 2,
+          "parallax_y": 0
+        },
+        {
+          "texture_id": 0,
+          "x": 610, "y": 0,
+          "action": "parallax",
+          "parallax_x": 2,
+          "parallax_y": 0
+        },
+        {
+          "texture_id": 0,
+          "x": 720, "y": 0,
+          "action": "parallax",
+          "parallax_x": 2,
+          "parallax_y": 0
+        },
+        {
+          "texture_id": 0,
+          "x": 920, "y": 0,
+          "action": "parallax",
+          "parallax_x": 2,
+          "parallax_y": 0
+        },
+        {
+          "texture_id": 0,
+          "x": 1304, "y": 0,
+          "action": "parallax",
+          "parallax_x": 2,
+          "parallax_y": 0
+        },
+        {
+          "texture_id": 0,
+          "x": 1334, "y": 0,
+          "action": "parallax",
+          "parallax_x": 2,
+          "parallax_y": 0
+        },
+        {
+          "texture_id": 0,
+          "x": 1500, "y": 0,
+          "action": "parallax",
+          "parallax_x": 2,
+          "parallax_y": 0
+        },
+        {
+          "texture_id": 0,
+          "x": 1749, "y": 0,
+          "action": "parallax",
+          "parallax_x": 2,
+          "parallax_y": 0
+        },
+        {
+          "texture_id": 0,
+          "x": 1769, "y": 0,
+          "action": "parallax",
+          "parallax_x": 2,
+          "parallax_y": 0
+        }
+      ],
+      "colliders": [
+        {
+          "_comment": "Break Stick Cutscene",
+          "x": 675, "y": 0, "w": 30, "h": 200,
+          "action": "cutscene",
+          "cutscene_id": 10
+        },
+        {
+          "_comment": "Sans Between Trees",
+          "x": 1385, "y": 0, "w": 30, "h": 200,
+          "action": "cutscene",
+          "cutscene_id": 20
+        }
+      ]
+    }
+  ]
+}
