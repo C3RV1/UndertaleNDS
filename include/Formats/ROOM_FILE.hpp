@@ -11,7 +11,8 @@ struct ROOMHeader {
     char header[4] = {'R', 'O', 'O', 'M'};
     u32 fileSize = 0;
 
-    u32 version = 8;
+    u32 version = 9;
+    static constexpr u32 version_expected = 9;
 };
 
 struct ROOMExit {

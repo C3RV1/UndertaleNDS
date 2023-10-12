@@ -1,6 +1,7 @@
 //
 // Created by cervi on 19/08/2022.
 //
+#include "Formats/CBGF.hpp"
 #include "Engine/Background.hpp"
 #include "Engine/math.hpp"
 #include "Engine/Engine.hpp"
@@ -54,7 +55,7 @@ namespace Engine {
         }
 
         fread(&version, 4, 1, f);
-        if (version != 1) {
+        if (version != CBGFHeader::version) {
             std::string buffer = "Error loading spr #r" + _path + "#x: Invalid version (expected: 1, actual: "
                                  + std::to_string(version) + ")";
             throw_(buffer);
@@ -85,9 +86,11 @@ namespace Engine {
 
         fread(&_width, 2, 1, f);
         fread(&_height, 2, 1, f);
+        _mapWidth = (_width + 7) / 8;
+        _mapHeight = (_height + 7) / 8;
 
-        _map = std::unique_ptr<u16[]>(new u16[_width * _height]);
-        fread(_map.get(), 2, _width * _height, f);
+        _map = std::unique_ptr<u16[]>(new u16[_mapWidth * _mapHeight]);
+        fread(_map.get(), 2, _mapWidth * _mapHeight, f);
 
         _loaded = true;
     }
@@ -135,11 +138,11 @@ namespace Engine {
 
         u16 sizeFlag = 0;
         u16 mapRamUsage = 0x800;
-        if (_width > 32) {
+        if (_mapWidth > 32) {
             sizeFlag += 1 << 14;  // bit 14 for 64 tile width
             mapRamUsage *= 2;
         }
-        if (_height > 32) {
+        if (_mapHeight > 32) {
             sizeFlag += 1 << 15;  // bit 15 for 64 tile height
             mapRamUsage *= 2;
         }
@@ -147,15 +150,15 @@ namespace Engine {
         *bg3Reg = (*bg3Reg & (~0xC000)) + sizeFlag;
         dmaFillSafe(3, 0, mapRam, mapRamUsage);
 
-        for (int mapX = 0; mapX < (_width + 31) / 32; mapX++) {
+        for (int mapX = 0; mapX < (_mapWidth + 31) / 32; mapX++) {
             int copyWidth = 32;
-            if (mapX == (_width + 31) / 32)
-                copyWidth = (_width + 31) - 32 * mapX;
-            for (int mapY = 0; mapY < (_height + 31) / 32; mapY++) {
-                u8* mapStart = (u8*)mapRam + (mapY * ((_width + 31) / 32) + mapX) * 2048;
+            if (mapX == (_mapWidth + 31) / 32)
+                copyWidth = (_mapWidth + 31) - 32 * mapX;
+            for (int mapY = 0; mapY < (_mapHeight + 31) / 32; mapY++) {
+                u8* mapStart = (u8*)mapRam + (mapY * ((_mapWidth + 31) / 32) + mapX) * 2048;
                 dmaFillSafe(3, 0, mapStart, 0x800);
-                for (int row = mapY*32; row < _height && row < (mapY + 1) * 32; row++) {
-                    dmaCopySafe(3, (u8 *)_map.get() + (row * _width + mapX * 32) * 2,
+                for (int row = mapY*32; row < _mapHeight && row < (mapY + 1) * 32; row++) {
+                    dmaCopySafe(3, (u8 *)_map.get() + (row * _mapWidth + mapX * 32) * 2,
                                       mapStart + (row - mapY * 32) * 32 * 2, copyWidth * 2);
                 }
             }
@@ -197,14 +200,14 @@ namespace Engine {
 
         u16 sizeFlag = 0;
         u16 mapRamUsage = 0x200;
-        u8 mapW = _width, mapH = _height;
+        u8 mapW = _mapWidth, mapH = _mapHeight;
         if (forceSize != 0) {
             mapW = forceSize;
             mapH = forceSize;
         }
         if (mapW > 64 || mapH > 64) {
             sizeFlag = 3;
-        } else if (mapW > 32 || mapH >= 32) {
+        } else if (mapW > 32 || mapH > 32) {
             sizeFlag = 2;
         } else if (mapW > 16 || mapH > 16) {
             sizeFlag = 1;
@@ -264,13 +267,13 @@ namespace Engine {
                 int tileDst = mod(row, 26) * 34 + mod(col, 34);
                 *mapRes = tileDst;
                 auto* tileRes = (u16*)((u8*)tileRam + tileDst * 64);
-                if (0 > row or row >= _height or 0 > col or col >= _width) {
+                if (0 > row or row >= _mapHeight or 0 > col or col >= _mapWidth) {
                     dmaFillSafe(3, 0, tileRes, 64);
                     continue;
                 }
                 int srcRow = row;
                 int srcCol = col;
-                auto* mapSrc = (u16*)((u8 *)_map.get() + (srcRow * _width + srcCol) * 2);
+                auto* mapSrc = (u16*)((u8 *)_map.get() + (srcRow * _mapWidth + srcCol) * 2);
 
                 if (_color8bit) {
                     u8 *src = (u8 *)_tiles.get() + (*mapSrc) * 64;

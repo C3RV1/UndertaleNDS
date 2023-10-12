@@ -14,7 +14,7 @@
 namespace Engine {
     class Font {
     public:
-        bool loadPath(std::string path);
+        bool loadPath(const std::string& path);
         void loadCFNT(FILE* f);
         bool getLoaded() const { return _loaded; }
         u8 getGlyphWidth(u8 glyph);

@@ -50,7 +50,7 @@ namespace Engine {
         }
 
         fread(&version, 4, 1, f);
-        if (version != 6) {
+        if (version != CSPRHeader::version) {
             std::string buffer = "Error loading spr #r" + _path + "#x: Invalid version (expected: 6, actual: "
                     + std::to_string(version) + ")";
             throw_(buffer);

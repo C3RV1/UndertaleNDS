@@ -8,7 +8,7 @@ struct CBGFHeader {
     char header[4] = {'C', 'B', 'G', 'F'};
     u32 fileSize = 0;
 
-    u32 version = 1;
+    static constexpr u32 version = 2;
 
     // abcd efgh
     // abcdefg - unused for now
@@ -27,7 +27,7 @@ struct CBGFTiles {
 };
 
 struct CBGFMap {
-    u16 width = 0, height = 0;
+    u16 width = 0, height = 0;  // In pixels
     u16* tileMap = nullptr;  // 0 - 1023 (index cbgf tiles)
 };
 

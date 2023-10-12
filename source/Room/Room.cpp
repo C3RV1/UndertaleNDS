@@ -70,7 +70,7 @@ void Room::loadRoom(FILE *f) {
     }
 
     fread(&roomFile.header.version, 4, 1, f);
-    if (roomFile.header.version != 9) {
+    if (roomFile.header.version != ROOMHeader::version_expected) {
         std::string buffer = "Error loading room #r" + std::to_string(_roomId) +
                 "#x: Invalid version (expected: 8, actual: "
                 + std::to_string(roomFile.header.version) + ")";

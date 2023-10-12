@@ -59,11 +59,15 @@ def convert(input_file, output_file):
 
     tiles = []
 
-    tile_map = np.zeros(((np_array.shape[0] + 7) // 8, (np_array.shape[1] + 7) // 8),
+    height = np_array.shape[0]
+    width = np_array.shape[1]
+    map_height = (height + 7) // 8
+    map_width = (width + 7) // 8
+    tile_map = np.zeros((map_height, map_width),
                         dtype=np.dtype(np.uint16).newbyteorder("<"))
 
-    for tile_row in range((np_array.shape[0] + 7) // 8):
-        for tile_col in range((np_array.shape[1] + 7) // 8):
+    for tile_row in range(map_height):
+        for tile_col in range(map_width):
             tile = get_tile(tile_col, tile_row)
 
             for i, t in enumerate(tiles):
@@ -83,7 +87,7 @@ def convert(input_file, output_file):
     wtr.write(b"CBGF")
     file_size_pos = wtr.tell()
     wtr.write_uint32(0)
-    wtr.write_uint32(1)  # Version
+    wtr.write_uint32(2)  # Version
     wtr.write_uint8(1 if color8bit else 0)
 
     # begin palette
@@ -95,8 +99,8 @@ def convert(input_file, output_file):
     wtr.write(tiles.tobytes())
 
     # begin map
-    wtr.write_uint16(tile_map.shape[1])
-    wtr.write_uint16(tile_map.shape[0])
+    wtr.write_uint16(width)  # pixels
+    wtr.write_uint16(height)  # pixels
     wtr.write(tile_map.tobytes())
 
     size = wtr.tell()

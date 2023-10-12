@@ -41,6 +41,7 @@ namespace Engine {
         u16 _tileCount = 0;
         std::unique_ptr<u8[]> _tiles = nullptr;
         u16 _width = 0, _height = 0;
+        u16 _mapWidth = 0, _mapHeight = 0;
         std::unique_ptr<u16[]> _map = nullptr;
 
         int loadBgTextEngine(vu16* bg3Reg, u16* paletteRam, u16* tileRam, u16* mapRam);

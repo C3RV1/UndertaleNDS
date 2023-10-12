@@ -117,8 +117,8 @@ void Player::check_exits() {
                         globalRoom->_exitLeft->spawnY);
         }
     }
-    else if ((_playerSpr._wx >> 8) + 19 > width * 8) {
-        _playerSpr._wx = (width * 8 - 19) << 8;
+    else if ((_playerSpr._wx >> 8) + 19 > width) {
+        _playerSpr._wx = (width - 19) << 8;
         if (globalRoom->_exitRight != nullptr) {
             loadNewRoom(globalRoom->_exitRight->roomId,
                         globalRoom->_exitRight->spawnX,
@@ -133,8 +133,8 @@ void Player::check_exits() {
                         globalRoom->_exitTop->spawnY);
         }
     }
-    else if ((_playerSpr._wy >> 8) + 29 > height * 8) {
-        _playerSpr._wy = (height * 8 - 29) << 8;
+    else if ((_playerSpr._wy >> 8) + 29 > height) {
+        _playerSpr._wy = (height - 29) << 8;
         if (globalRoom->_exitBtm != nullptr) {
             loadNewRoom(globalRoom->_exitBtm->roomId,
                         globalRoom->_exitBtm->spawnX,

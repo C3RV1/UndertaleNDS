@@ -9,7 +9,7 @@ struct CSPRHeader {
     char header[4] = {'C', 'S', 'P', 'R'};
     u32 fileSize = 0;
 
-    u32 version = 6;
+    static constexpr u32 version = 6;
 
     u16 width = 0;
     u16 height = 0;

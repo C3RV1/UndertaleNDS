@@ -11,7 +11,7 @@
 struct CFNTHeader {
     char header[4] = {'C', 'F', 'N', 'T'};
     u32 fileSize = 0;
-    u32 version = 1;
+    static constexpr u32 version = 1;
 };
 
 struct CFNTGlyph {

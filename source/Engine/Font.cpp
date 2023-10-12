@@ -7,7 +7,7 @@
 #include "Engine/dma.hpp"
 
 namespace Engine {
-    bool Font::loadPath(std::string path) {
+    bool Font::loadPath(const std::string& path) {
         std::string pathFull = "nitro:/fnt/" + path + ".cfnt";
         _path = path;
 
@@ -15,7 +15,6 @@ namespace Engine {
         if (!f) {
             std::string buffer = "Error opening font #r" + _path;
             throw_(buffer);
-            return false;
         }
 
         loadCFNT(f);
@@ -51,7 +50,7 @@ namespace Engine {
         }
 
         fread(&version, 4, 1, f);
-        if (version != 1) {
+        if (version != CFNTHeader::version) {
             std::string buffer = "Error loading spr #r" + _path + "#x: Invalid version (expected: 1, actual: "
                                  + std::to_string(version) + ")";
             throw_(buffer);
