@@ -61,10 +61,12 @@ namespace Engine {
     }
 
     void tick() {
+        main3dSpr.updateTextures();
         main3dSpr.draw();
         glFlush(0);
         Audio2::audioManager.update();
         swiWaitForVBlank();
+        OAMManagerSub.draw();  // Update oam in v-blank
         // TODO: Scroll and bg3 negative? Sub screen?
         REG_BG3X = bg3ScrollX;
         REG_BG3Y = bg3ScrollY;
@@ -72,11 +74,6 @@ namespace Engine {
         REG_BG3PB = bg3Pb;
         REG_BG3PC = bg3Pc;
         REG_BG3PD = bg3Pd;
-        // Render post v-blank
-        REG_DISPCNT_SUB |= (1 << 7);
-        OAMManagerSub.draw();  // Update oam in v-blank
-        REG_DISPCNT_SUB &= ~(1 << 7);
-        main3dSpr.updateTextures();  // Update textures in v-blank
         scanKeys();
     }
 

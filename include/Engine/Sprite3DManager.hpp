@@ -31,8 +31,6 @@ namespace Engine {
         FreeZoneManager tileFreeZones;
         FreeZoneManager paletteFreeZones;
 
-        bool _paletteUsed[96] = {false};
-
         std::vector<Sprite*> _activeSpr;
     };
 

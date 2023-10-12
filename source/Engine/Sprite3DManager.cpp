@@ -102,8 +102,6 @@ namespace Engine {
         if (spr._texture->_loaded3DCount > 0) // Texture used by another sprite
             return;
 
-        _paletteUsed[spr._texture->_paletteIdx] = false;
-
         u8 tileBytes = spr._texture->_colors.size() > 15 ? 64 : 32;
 
         int allocX = spr._texture->_3dChunk.tilesAllocX;
