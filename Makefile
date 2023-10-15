@@ -19,7 +19,7 @@ include $(DEVKITARM)/ds_rules
 # ICON is the image used to create the game icon, leave blank to use default rule
 # NITRO is a directory that will be accessible via NitroFS
 #---------------------------------------------------------------------------------
-TARGET   := $(shell basename $(CURDIR))
+TARGET   := Undertale
 BUILD    := build
 SOURCES  := source source/Engine source/Formats source/Cutscene source/Battle source/Room source/Battle/BattleAttacks
 INCLUDES := include include/Engine include/Formats include/Cutscene include/Battle include/Room include/Battle/BattleAttacks

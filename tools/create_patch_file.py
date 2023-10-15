@@ -39,7 +39,7 @@ if __name__ == '__main__':
     if os.path.isdir(sys.argv[1]):
         print(sys.argv[1] + ".zip")
         shutil.make_archive(sys.argv[1], 'zip', sys.argv[1])
-        main(sys.argv[1] + ".zip", "../data.win", sys.argv[2])
+        main(sys.argv[1] + ".zip", "../data.win", sys.argv[2].strip())
         os.remove(sys.argv[1] + ".zip")
     else:
-        main(sys.argv[1], "../data.win", sys.argv[2])
+        main(sys.argv[1], "../data.win", sys.argv[2].strip())
