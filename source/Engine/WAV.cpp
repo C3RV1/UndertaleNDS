@@ -7,9 +7,9 @@
 
 namespace Audio2 {
     void WAV::load(const std::string& name) {
-        free_();
         if (name.empty())  // Loading an empty WAV is the same as freeing it
             return;
+        free_();
 
         _loops = 0;
         std::string realPath = "nitro:/z_audio/" + name;
@@ -55,7 +55,9 @@ namespace Audio2 {
             Engine::throw_(buffer);
         }
 
-        fseek(f, ftell(f) + 4, SEEK_SET); // skip chunk size == 0x10
+        u32 chunkSize = 0;
+        fread(&chunkSize, 4, 1, f); // skip chunk size == 0x10
+        u32 chunkEnd = ftell(f) + chunkSize;
 
         u16 format, channels, bitsPerSample;
         u32 sampleRate;
@@ -63,8 +65,8 @@ namespace Audio2 {
         fread(&channels, 2, 1, f);
         fread(&sampleRate, 4, 1, f);
         _sampleRate = sampleRate;
-        fseek(f, ftell(f) + 4, SEEK_SET); // skip byte rate == self.sample_rate * self.bits_per_sample * self.num_channels // 8
-        fseek(f, ftell(f) + 2, SEEK_SET); // skip block align == self.num_channels * self.bits_per_sample // 8
+        fseek(f, 4, SEEK_CUR); // skip byte rate == self.sample_rate * self.bits_per_sample * self.num_channels // 8
+        fread(&_blockAlign, 2, 1, f); // TODO: Needed to be taken into account when decoding PCM?
         fread(&bitsPerSample, 2, 1, f);
         _bitsPerSample = bitsPerSample;
 
@@ -82,6 +84,22 @@ namespace Audio2 {
                 Engine::throw_(buffer);
             }
         }
+        else if (format == 0x11) {
+            _format = SoundFormat_ADPCM;
+            if (_bitsPerSample != 4) {
+                std::string buffer = "Error opening WAV #r" + name +
+                                     "#x: Invalid bits per sample.";
+                fclose(f);
+                Engine::throw_(buffer);
+            }
+            if (channels > 1) {
+                std::string buffer = "Error opening WAV #r" + name +
+                                     "#x: Invalid channels.";
+                fclose(f);
+                Engine::throw_(buffer);
+            }
+            _bitsPerSample = 16;  // When allocating audio buffers we convert to s16.
+        }
         else {
             std::string buffer = "Error opening WAV #r" + name +
                                  "#x: Invalid format.";
@@ -98,7 +116,8 @@ namespace Audio2 {
 
         _stereo = channels == 2;
 
-        u32 chunkSize = 0;
+        fseek(f, chunkEnd, SEEK_SET);
+
         // data chunk
         while (ftell(f) < fileSize + 8) {
             fread(header, 4, 1, f);
@@ -126,11 +145,11 @@ namespace Audio2 {
     void WAV::progress_pcm8_mono(u16 samples) {
         if (_leftBuffer == nullptr)
             return;
-        u8* leftBuffer = static_cast<u8 *>(_leftBuffer);
+        u8* leftBuffer = _leftBuffer.get();
         u8* fileBuffer = _fileBuffer;
         while (samples > 0) {
             u32 remainingFileBuffer = _fileBufferSampleEnd - _fileBufferSamplePos;
-            u32 remainingLeftBuffer = kAudioBuffer * (_sampleBufferPos / kAudioBuffer + 1) - _sampleBufferPos;
+            u32 remainingLeftBuffer = kAudioBuffer - _sampleBufferPos % kAudioBuffer;
             u32 max_copy = remainingFileBuffer < remainingLeftBuffer ? remainingFileBuffer : remainingLeftBuffer;
             max_copy = samples < max_copy ? samples : max_copy;
             dmaCopySafe(3,
@@ -176,12 +195,12 @@ namespace Audio2 {
     void WAV::progress_pcm8_stereo(u16 samples) {
         if (_leftBuffer == nullptr || _rightBuffer == nullptr)
             return;
-        u8* leftBuffer = static_cast<u8 *>(_leftBuffer);
-        u8* rightBuffer = static_cast<u8 *>(_rightBuffer);
+        u8* leftBuffer = _leftBuffer.get();
+        u8* rightBuffer = _rightBuffer.get();
         u8* fileBuffer = _fileBuffer;
         while (samples > 0) {
             u32 remainingFileBuffer = _fileBufferSampleEnd - _fileBufferSamplePos;
-            u32 remainingLeftBuffer = kAudioBuffer * (_sampleBufferPos / kAudioBuffer + 1) - _sampleBufferPos;
+            u32 remainingLeftBuffer = kAudioBuffer - _sampleBufferPos % kAudioBuffer;
             u32 max_copy = remainingFileBuffer < remainingLeftBuffer ? remainingFileBuffer : remainingLeftBuffer;
             max_copy = samples < max_copy ? samples : max_copy;
 
@@ -237,11 +256,11 @@ namespace Audio2 {
     void WAV::progress_pcm16_mono(u16 samples) {
         if (_leftBuffer == nullptr)
             return;
-        u16* leftBuffer = reinterpret_cast<u16 *>(_leftBuffer);
+        u16* leftBuffer = reinterpret_cast<u16 *>(_leftBuffer.get());
         u16* fileBuffer = reinterpret_cast<u16 *>(_fileBuffer);
         while (samples > 0) {
             u32 remainingFileBuffer = _fileBufferSampleEnd - _fileBufferSamplePos;
-            u32 remainingLeftBuffer = kAudioBuffer * (_sampleBufferPos / kAudioBuffer + 1) - _sampleBufferPos;
+            u32 remainingLeftBuffer = kAudioBuffer - _sampleBufferPos % kAudioBuffer;
             u32 max_copy = remainingFileBuffer < remainingLeftBuffer ? remainingFileBuffer : remainingLeftBuffer;
             max_copy = samples < max_copy ? samples : max_copy;
             dmaCopySafe(3,
@@ -289,12 +308,12 @@ namespace Audio2 {
     void WAV::progress_pcm16_stereo(u16 samples) {
         if (_leftBuffer == nullptr || _rightBuffer == nullptr)
             return;
-        u16* leftBuffer = reinterpret_cast<u16*>(_leftBuffer);
-        u16* rightBuffer = reinterpret_cast<u16*>(_rightBuffer);
+        u16* leftBuffer = reinterpret_cast<u16*>(_leftBuffer.get());
+        u16* rightBuffer = reinterpret_cast<u16*>(_rightBuffer.get());
         u16* fileBuffer = reinterpret_cast<u16*>(_fileBuffer);
         while (samples > 0) {
             u32 remainingFileBuffer = _fileBufferSampleEnd - _fileBufferSamplePos;
-            u32 remainingLeftBuffer = kAudioBuffer * (_sampleBufferPos / kAudioBuffer + 1) - _sampleBufferPos;
+            u32 remainingLeftBuffer = kAudioBuffer - _sampleBufferPos % kAudioBuffer;
             u32 max_copy = remainingFileBuffer < remainingLeftBuffer ? remainingFileBuffer : remainingLeftBuffer;
             max_copy = samples < max_copy ? samples : max_copy;
 
@@ -356,6 +375,9 @@ namespace Audio2 {
                 case SoundFormat_16Bit:
                     progress_pcm16_mono(samples);
                     break;
+                case SoundFormat_ADPCM:
+                    progress_ima_adpcm_mono(samples);
+                    break;
                 default:
                     Engine::throw_("WAV: Format " + std::to_string(_format) + " not implemented");
             }
@@ -374,6 +396,21 @@ namespace Audio2 {
         }
     }
 
+    void WAV::ima_adpcm_read_predictor() {
+        s16 new_sample;
+        u8 index;
+        fread(&new_sample, 2, 1, _stream);
+        fread(&index, 1, 1, _stream);
+        fseek(_stream, 1, SEEK_CUR);
+        _leftChannelDecoder.initPredictor(new_sample, index);
+        if (_stereo) {
+            fread(&new_sample, 2, 1, _stream);
+            fread(&index, 1, 1, _stream);
+            fseek(_stream, 1, SEEK_CUR);
+            _rightChannelDecoder.initPredictor(new_sample, index);
+        }
+    }
+
     void WAV::resetPlaying() {
         fseek(_stream, _dataStart, SEEK_SET);
         _sampleBufferPos = 0;
@@ -383,19 +420,17 @@ namespace Audio2 {
     }
 
     WAV::~WAV() {
-        WAV::free_();
+        free_();
     }
 
     void WAV::free_() {
-        if (!_loaded)
-            return;
+        if (_active)
+            stop();
 
         if (_stream != nullptr) {
             fclose(_stream);
             _stream = nullptr;
         }
-
-        AudioFile::free_();
     }
 
     void playBGMusic(const std::string& filename, bool loop) {

@@ -8,10 +8,13 @@
 
 namespace Audio2 {
     void AudioFile::allocateBuffers() {
-        _leftBuffer = new u8[(_bitsPerSample * kAudioBuffer) / 8];
+        _leftBuffer = nullptr;
+        _rightBuffer = nullptr;
+
+        _leftBuffer = std::unique_ptr<u8[]>(new u8[(_bitsPerSample * kAudioBuffer) / 8]);
 
         if (_stereo) {
-            _rightBuffer = new u8[(_bitsPerSample * kAudioBuffer) / 8];
+            _rightBuffer = std::unique_ptr<u8[]>(new u8[(_bitsPerSample * kAudioBuffer) / 8]);
         }
     }
 
@@ -31,15 +34,17 @@ namespace Audio2 {
         resetPlaying();
 
         if (_stereo) {
-            _leftChannel = soundPlaySample(_leftBuffer, _format, (_bitsPerSample * kAudioBuffer) / 8,
+            _leftChannel = soundPlaySample(_leftBuffer.get(), getAllocFormat(),
+                                           (_bitsPerSample * kAudioBuffer) / 8,
                                            _sampleRate, _volume, 0, true, 0);
-            _rightChannel = soundPlaySample(_rightBuffer, _format,
+            _rightChannel = soundPlaySample(_rightBuffer.get(), getAllocFormat(),
                                             (_bitsPerSample * kAudioBuffer) / 8, _sampleRate,
                                             _volume, 127, true, 0);
         }
         else {
-            _leftChannel = soundPlaySample(_leftBuffer, _format, (_bitsPerSample * kAudioBuffer) / 8,
-                                           _sampleRate, _volume, 64, true, 0);
+            _leftChannel = soundPlaySample(_leftBuffer.get(), getAllocFormat(),
+                                           (_bitsPerSample * kAudioBuffer) / 8, _sampleRate, _volume,
+                                           64, true, 0);
         }
 
         _timerLast = timerTick(audioManager.getTimerId());
@@ -91,7 +96,12 @@ namespace Audio2 {
 
         progress(samples);
 
-        _timerLast = timerTicks;
+        _timerLast = timerTicks;  // TODO: Better precision when saving last ticks
+                                  //       The rounding error can cause it to create
+                                  //       audio glitches. For fixing, look at maxmod
+                                  //       remainder. (Basically, save how many ticks
+                                  //       we have "missed" and account for those when
+                                  //       saving timerLast.
     }
 
     void AudioManager::addPlaying(Audio2::AudioFile *wav) {
@@ -116,20 +126,6 @@ namespace Audio2 {
         soundEnable();
         _timerId = timerId;
         timerStart(timerId, ClockDivider_1024, 0, nullptr);
-    }
-
-    void AudioFile::free_() {
-        if (_active) {
-            stop();
-        }
-
-        delete[] _leftBuffer;
-        _leftBuffer = nullptr;
-
-        delete[] _rightBuffer;
-        _rightBuffer = nullptr;
-
-        _loaded = false;
     }
 
     AudioManager audioManager(0);
