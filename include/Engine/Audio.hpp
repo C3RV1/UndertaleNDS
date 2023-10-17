@@ -130,8 +130,6 @@ namespace Audio2 {
          */
         virtual void resetPlaying() = 0;
 
-        SoundFormat _format;
-
         int _leftChannel = -1;
         // When allocated has kAudioBuffer samples of size
         // The size of each sample is determined by _bitsPerSample.
@@ -145,18 +143,9 @@ namespace Audio2 {
         // The position in the audio buffers in samples.
         u32 _sampleBufferPos;
 
-        virtual SoundFormat getAllocFormat() {
-            return _format;
-        }
+        virtual SoundFormat getAllocFormat() = 0;
 
-    private:
-        /**
-         * Should be called in every frame to stream the audio to the buffers.
-         * Is called by the AudioManager.
-         */
-        void update();
-
-    protected:
+        virtual u8 getBitsPerSample() = 0;
         /**
          * Should only be called from update(). Should stream the desired samples
          * to the audio buffers.
@@ -169,14 +158,20 @@ namespace Audio2 {
         bool _stereo = false;
         bool _loaded = false;
         int _loops = 0;  // TODO: Maybe copy to internal value when played?
-        u16 _timerLast;
         u32 _expectedSampleBufferPos;
-        u32 _ticksRemain;
         u16 _sampleRate = 1;
-        u8 _bitsPerSample;
         u8 _volume = 127;
 
         std::shared_ptr<AudioFile> selfFreeingPtr = nullptr;
+
+    private:
+        /**
+         * Should be called in every frame to stream the audio to the buffers.
+         * Is called by the AudioManager.
+         */
+        void update();
+        u16 _timerLast;
+        u32 _ticksRemain;
 
         friend class AudioManager;
     };

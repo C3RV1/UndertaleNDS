@@ -158,10 +158,4 @@ namespace Audio2 {
         + " FILE END " + std::to_string(_fileBufferSampleEnd)).c_str());
         return false;
     }
-
-    SoundFormat WAV::getAllocFormat() {
-        if (_format == SoundFormat_ADPCM)
-            return SoundFormat_16Bit;
-        return _format;
-    }
 }

@@ -11,10 +11,10 @@ namespace Audio2 {
         _leftBuffer = nullptr;
         _rightBuffer = nullptr;
 
-        _leftBuffer = std::unique_ptr<u8[]>(new u8[(_bitsPerSample * kAudioBuffer) / 8]);
+        _leftBuffer = std::unique_ptr<u8[]>(new u8[(getBitsPerSample() * kAudioBuffer) / 8]);
 
         if (_stereo) {
-            _rightBuffer = std::unique_ptr<u8[]>(new u8[(_bitsPerSample * kAudioBuffer) / 8]);
+            _rightBuffer = std::unique_ptr<u8[]>(new u8[(getBitsPerSample() * kAudioBuffer) / 8]);
         }
     }
 
@@ -35,16 +35,16 @@ namespace Audio2 {
 
         if (_stereo) {
             _leftChannel = soundPlaySample(_leftBuffer.get(), getAllocFormat(),
-                                           (_bitsPerSample * kAudioBuffer) / 8,
+                                           (getBitsPerSample() * kAudioBuffer) / 8,
                                            _sampleRate, _volume, 0, true, 0);
             _rightChannel = soundPlaySample(_rightBuffer.get(), getAllocFormat(),
-                                            (_bitsPerSample * kAudioBuffer) / 8, _sampleRate,
+                                            (getBitsPerSample() * kAudioBuffer) / 8, _sampleRate,
                                             _volume, 127, true, 0);
         }
         else {
             _leftChannel = soundPlaySample(_leftBuffer.get(), getAllocFormat(),
-                                           (_bitsPerSample * kAudioBuffer) / 8, _sampleRate, _volume,
-                                           64, true, 0);
+                                           (getBitsPerSample() * kAudioBuffer) / 8, _sampleRate,
+                                           _volume, 64, true, 0);
         }
 
         _timerLast = timerTick(audioManager.getTimerId());

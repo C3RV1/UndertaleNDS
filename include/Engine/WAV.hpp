@@ -44,6 +44,7 @@ namespace Audio2 {
     protected:
         void resetPlaying() override;
         SoundFormat getAllocFormat() override;
+        u8 getBitsPerSample() override;
     private:
         void progress(u16 samples) override;
 
@@ -86,6 +87,8 @@ namespace Audio2 {
         u32 _fileBufferSamplePos;
         u32 _fileBufferSampleEnd;
 
+        SoundFormat _format;
+        u8 _bitsPerSample;
 
         // TODO: Implement channels as variable length?
         ADPCM_Decoder _leftChannelDecoder;
