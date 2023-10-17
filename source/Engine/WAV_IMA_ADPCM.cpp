@@ -73,89 +73,87 @@ namespace Audio2 {
     void WAV::progress_ima_adpcm_mono(u16 samples) {
         if (_leftBuffer == nullptr)
             return;
-        s16* leftBuffer = reinterpret_cast<s16 *>(_leftBuffer.get());
-        u8* fileBuffer = _fileBuffer;
-        while (samples > 0) {
-            u32 remainingFileBuffer = _fileBufferSampleEnd - _fileBufferSamplePos;
-            u32 remainingLeftBuffer = kAudioBuffer - _sampleBufferPos % kAudioBuffer;
-            u32 max_copy = remainingFileBuffer < remainingLeftBuffer ? remainingFileBuffer : remainingLeftBuffer;
-            max_copy = samples < max_copy ? samples : max_copy;
-
-            for (int i = 0; i < max_copy; i++) {
-                bool highBits, readHeader;
-                u32 samplePos;
-                samplePos = ima_adpcm_get_sample_position(_sourceBufferPos + i, 0,
-                                                          highBits, readHeader);
-                if (readHeader) {
-                    u16 new_sample;
-                    u8 index;
-                    samplePos %= kAudioBuffer * 2;
-                    new_sample = fileBuffer[samplePos];
-                    new_sample += fileBuffer[samplePos + 1] << 8;
-                    index = fileBuffer[samplePos + 2];
-                    _leftChannelDecoder.initPredictor((s16)new_sample, index);
-                    leftBuffer[(_sampleBufferPos + i) % kAudioBuffer] = (s16)new_sample;
-                    continue;
-                }
-
-                u8 byte = fileBuffer[samplePos % (kAudioBuffer * 2)];
-                u8 nibble = byte;
-                if (highBits)
-                    nibble >>= 4;
-                nibble &= 0xF;
-
-                s16 sample = _leftChannelDecoder.decodeSample(nibble);
-                if (sample > 30000) {
-                    std::string buffer = "SAMPLE POS " + std::to_string(samplePos) + " SAMPLE " + std::to_string(sample);
-                    nocashMessage(buffer.c_str());
-                }
-
-                leftBuffer[(_sampleBufferPos + i) % kAudioBuffer] = sample;
+        s16 *leftBuffer = reinterpret_cast<s16 *>(_leftBuffer.get());
+        u8 *fileBuffer = _fileBuffer;
+        for (int i = 0; i < samples; i++) {
+            bool highBits, readHeader;
+            u32 samplePos;
+            samplePos = ima_adpcm_get_sample_position(
+                _sourceBufferPos + i, 0,
+                highBits, readHeader
+            );
+            if (readHeader) {
+                u16 new_sample;
+                u8 index;
+                samplePos %= kAudioBuffer * 2;
+                new_sample = fileBuffer[samplePos];
+                new_sample += fileBuffer[samplePos + 1] << 8;
+                index = fileBuffer[samplePos + 2];
+                _leftChannelDecoder.initPredictor((s16) new_sample, index);
+                leftBuffer[(_sampleBufferPos + i) % kAudioBuffer] = (s16) new_sample;
+                continue;
             }
 
-            _fileBufferSamplePos += max_copy;
-            _sampleBufferPos += max_copy;
-            _sourceBufferPos += max_copy;
+            u8 byte = fileBuffer[samplePos % (kAudioBuffer * 2)];
+            u8 nibble = byte;
+            if (highBits)
+                nibble >>= 4;
+            nibble &= 0xF;
 
-            if (_fileBufferSamplePos >= _fileBufferSampleEnd) {
-                if (renew_ima_adpcm_mono_file_buffer()) {
-                    nocashMessage("Completed");
-                    // We should stop the audio if we have completed.
-                    if (_expectedSampleBufferPos > _sampleBufferPos)
-                        stop();
-                    break;
-                }
-            }
-
-            samples -= max_copy;
+            s16 sample = _leftChannelDecoder.decodeSample(nibble);
+            leftBuffer[(_sampleBufferPos + i) % kAudioBuffer] = sample;
         }
+
+        DC_FlushRange(leftBuffer + _sampleBufferPos % kAudioBuffer, samples * 2);
     }
 
-    bool WAV::renew_ima_adpcm_mono_file_buffer() {
-        if (ftell(_stream) >= _dataEnd) {
-            if (_loops == 0) {
-                return true;
+    void WAV::progress_ima_adpcm_stereo(u16 samples) {
+        if (_leftBuffer == nullptr || _rightBuffer == nullptr)
+            return;
+        s16 *leftBuffer = reinterpret_cast<s16 *>(_leftBuffer.get());
+        s16 *rightBuffer = reinterpret_cast<s16 *>(_rightBuffer.get());
+        u8 *fileBuffer = _fileBuffer;
+        for (int i = 0; i < samples * 2; i++) {
+            u8 channelIdx = i % 2;
+            bool highBits, readHeader;
+            u32 samplePos;
+            samplePos = ima_adpcm_get_sample_position(
+                _sourceBufferPos + i / 2, channelIdx,
+                highBits, readHeader
+            );
+            if (readHeader) {
+                u16 new_sample;
+                u8 index;
+                samplePos %= kAudioBuffer * 2;
+                new_sample = fileBuffer[samplePos];
+                new_sample += fileBuffer[samplePos + 1] << 8;
+                index = fileBuffer[samplePos + 2];
+                if (channelIdx == 0) {
+                    _leftChannelDecoder.initPredictor((s16) new_sample, index);
+                    leftBuffer[(_sampleBufferPos + i / 2) % kAudioBuffer] = (s16) new_sample;
+                } else {
+                    _rightChannelDecoder.initPredictor((s16) new_sample, index);
+                    rightBuffer[(_sampleBufferPos + i / 2) % kAudioBuffer] = (s16) new_sample;
+                }
+                continue;
             }
-            else if (_loops > 0) {
-                _loops--;
+
+            u8 byte = fileBuffer[samplePos % (kAudioBuffer * 2)];
+            u8 nibble = byte;
+            if (highBits)
+                nibble >>= 4;
+            nibble &= 0xF;
+
+            if (channelIdx == 0) {
+                s16 sample = _leftChannelDecoder.decodeSample(nibble);
+                leftBuffer[(_sampleBufferPos + i / 2) % kAudioBuffer] = sample;
+            } else {
+                s16 sample = _rightChannelDecoder.decodeSample(nibble);
+                rightBuffer[(_sampleBufferPos + i / 2) % kAudioBuffer] = sample;
             }
-            fseek(_stream, _dataStart, SEEK_SET);
-            _sourceBufferPos = 0;
         }
 
-        u32 maxReadSize = _dataEnd - ftell(_stream);
-        if (maxReadSize >= kAudioBuffer * 2)
-            maxReadSize = kAudioBuffer * 2;
-        fread(_fileBuffer, maxReadSize, 1, _stream);
-
-        u8 channels = 1;
-        u32 samplesPerBlock = (_blockAlign * 2) / channels - 7;
-
-        _fileBufferSamplePos = 0;
-        _fileBufferSampleEnd = (maxReadSize * samplesPerBlock) / (u32)_blockAlign;
-        nocashMessage(("SAMPLES " + std::to_string(samplesPerBlock) + " BLOCK ALIGN " +
-        std::to_string(_blockAlign) + " MAX READ SIZE " + std::to_string(maxReadSize)
-        + " FILE END " + std::to_string(_fileBufferSampleEnd)).c_str());
-        return false;
+        DC_FlushRange(leftBuffer + _sampleBufferPos % kAudioBuffer, samples * 2);
+        DC_FlushRange(rightBuffer + _sampleBufferPos % kAudioBuffer, samples * 2);
     }
 }

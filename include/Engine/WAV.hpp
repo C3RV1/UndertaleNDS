@@ -47,25 +47,20 @@ namespace Audio2 {
         u8 getBitsPerSample() override;
     private:
         void progress(u16 samples) override;
+        void copy_from_file_buffer(u16 copy_length_samples);
+        bool renew_file_buffer();
 
         void progress_pcm8_mono(u16 samples);
-        bool renew_pcm8_mono_file_buffer();
 
         void progress_pcm8_stereo(u16 samples);
-        bool renew_pcm8_stereo_file_buffer();
 
         void progress_pcm16_mono(u16 samples);
-        bool renew_pcm16_mono_file_buffer();
 
         void progress_pcm16_stereo(u16 samples);
-        bool renew_pcm16_stereo_file_buffer();
 
-        // TODO: Implement IMA_ADPCM (and other codecs?)
         void progress_ima_adpcm_mono(u16 samples);
-        bool renew_ima_adpcm_mono_file_buffer();
 
         void progress_ima_adpcm_stereo(u16 samples);
-        bool renew_ima_adpcm_stereo_file_buffer();
 
         u32 ima_adpcm_get_sample_position(u32 sampleIdx, u8 channelIdx,
                                           bool& highBits, bool& readHeader);

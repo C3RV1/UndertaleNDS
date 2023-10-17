@@ -92,12 +92,6 @@ namespace Audio2 {
                 fclose(f);
                 Engine::throw_(buffer);
             }
-            if (channels > 1) {
-                std::string buffer = "Error opening WAV #r" + name +
-                                     "#x: Invalid channels.";
-                fclose(f);
-                Engine::throw_(buffer);
-            }
         }
         else {
             std::string buffer = "Error opening WAV #r" + name +
@@ -141,38 +135,9 @@ namespace Audio2 {
         _stream = f;
     }
 
-    void WAV::progress(u16 samples) {
-        if (!_stereo) {
-            switch (_format) {
-                case SoundFormat_8Bit:
-                    progress_pcm8_mono(samples);
-                    break;
-                case SoundFormat_16Bit:
-                    progress_pcm16_mono(samples);
-                    break;
-                case SoundFormat_ADPCM:
-                    progress_ima_adpcm_mono(samples);
-                    break;
-                default:
-                    Engine::throw_("WAV: Format " + std::to_string(_format) + " not implemented");
-            }
-        }
-        else {
-            switch (_format) {
-                case SoundFormat_8Bit:
-                    progress_pcm8_stereo(samples);
-                    break;
-                case SoundFormat_16Bit:
-                    progress_pcm16_stereo(samples);
-                    break;
-                default:
-                    Engine::throw_("WAV: Format " + std::to_string(_format) + " not implemented");
-            }
-        }
-    }
-
     void WAV::resetPlaying() {
         fseek(_stream, _dataStart, SEEK_SET);
+        _sourceBufferPos = 0;
         _sampleBufferPos = 0;
         _expectedSampleBufferPos = 0;
         _fileBufferSamplePos = 0;
@@ -203,6 +168,122 @@ namespace Audio2 {
         if (_format == SoundFormat_ADPCM)
             return 16;
         return _bitsPerSample;
+    }
+
+    void WAV::progress(u16 samples) {
+        while (samples > 0) {
+            u32 remainingFileBuffer = _fileBufferSampleEnd - _fileBufferSamplePos;
+            u32 remainingLeftBuffer = kAudioBuffer - _sampleBufferPos % kAudioBuffer;
+            u32 max_copy = remainingFileBuffer < remainingLeftBuffer ? remainingFileBuffer : remainingLeftBuffer;
+            max_copy = samples < max_copy ? samples : max_copy;
+
+            copy_from_file_buffer(max_copy);
+
+            _fileBufferSamplePos += max_copy;
+            _sampleBufferPos += max_copy;
+            _sourceBufferPos += max_copy;
+
+            if (_fileBufferSamplePos >= _fileBufferSampleEnd) {
+                if (renew_file_buffer()) {
+                    nocashMessage("Completed");
+                    // We should stop the audio if we have completed.
+                    if (_expectedSampleBufferPos > _sampleBufferPos)
+                        stop();
+                    break;
+                }
+            }
+
+            samples -= max_copy;
+        }
+    }
+
+    void WAV::copy_from_file_buffer(u16 copy_length_samples) {
+        if (!_stereo) {
+            switch (_format) {
+                case SoundFormat_8Bit:
+                    progress_pcm8_mono(copy_length_samples);
+                    break;
+                case SoundFormat_16Bit:
+                    progress_pcm16_mono(copy_length_samples);
+                    break;
+                case SoundFormat_ADPCM:
+                    progress_ima_adpcm_mono(copy_length_samples);
+                    break;
+                default:
+                    Engine::throw_("WAV: Format " + std::to_string(_format) + " not implemented");
+            }
+        }
+        else {
+            switch (_format) {
+                case SoundFormat_8Bit:
+                    progress_pcm8_stereo(copy_length_samples);
+                    break;
+                case SoundFormat_16Bit:
+                    progress_pcm16_stereo(copy_length_samples);
+                    break;
+                case SoundFormat_ADPCM:
+                    progress_ima_adpcm_stereo(copy_length_samples);
+                    break;
+                default:
+                    Engine::throw_("WAV: Format " + std::to_string(_format) + " not implemented");
+            }
+        }
+    }
+
+    bool WAV::renew_file_buffer() {
+        if (ftell(_stream) >= _dataEnd) {
+            if (_loops == 0) {
+                return true;
+            }
+            else if (_loops > 0) {
+                _loops--;
+            }
+            fseek(_stream, _dataStart, SEEK_SET);
+            _sourceBufferPos = 0;
+        }
+
+        u32 maxReadSize = _dataEnd - ftell(_stream);
+        if (maxReadSize >= kAudioBuffer * 2)
+            maxReadSize = kAudioBuffer * 2;
+        fread(_fileBuffer, maxReadSize, 1, _stream);
+        _fileBufferSamplePos = 0;
+
+        // Calculate _fileBufferSampleEnd
+        if (!_stereo) {
+            switch (_format) {
+                case SoundFormat_8Bit:
+                    _fileBufferSampleEnd = maxReadSize;
+                    break;
+                case SoundFormat_16Bit:
+                    _fileBufferSampleEnd = maxReadSize / 2;
+                    break;
+                case SoundFormat_ADPCM: {
+                    u32 samplesPerBlock = (_blockAlign * 2) - 7;
+                    _fileBufferSampleEnd = (maxReadSize * samplesPerBlock) / (u32)_blockAlign;
+                    break;
+                }
+                default:
+                    Engine::throw_("WAV: Format (2) " + std::to_string(_format) + " not implemented");
+            }
+        }
+        else {
+            switch (_format) {
+                case SoundFormat_8Bit:
+                    _fileBufferSampleEnd = maxReadSize / 2;
+                    break;
+                case SoundFormat_16Bit:
+                    _fileBufferSampleEnd = maxReadSize / 4;
+                    break;
+                case SoundFormat_ADPCM: {
+                    u32 samplesPerBlock = (_blockAlign * 2) / 2 - 7;
+                    _fileBufferSampleEnd = (maxReadSize * samplesPerBlock) / (u32)_blockAlign;
+                    break;
+                }
+                default:
+                    Engine::throw_("WAV: Format (2) " + std::to_string(_format) + " not implemented");
+            }
+        }
+        return false;
     }
 
     void playBGMusic(const std::string& filename, bool loop) {
