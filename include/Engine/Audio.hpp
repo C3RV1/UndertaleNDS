@@ -171,6 +171,7 @@ namespace Audio2 {
         int _loops = 0;  // TODO: Maybe copy to internal value when played?
         u16 _timerLast;
         u32 _expectedSampleBufferPos;
+        u32 _ticksRemain;
         u16 _sampleRate = 1;
         u8 _bitsPerSample;
         u8 _volume = 127;

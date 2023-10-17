@@ -91,17 +91,13 @@ namespace Audio2 {
             return;
         u16 timerTicks = timerTick(audioManager.getTimerId());
         u16 timerElapsed = timerTicks - _timerLast;
-        u32 samples = ((u32)timerElapsed * (u32)_sampleRate) / (BUS_CLOCK / 1024);
+        u32 samples = ((u32)timerElapsed * (u32)_sampleRate + _ticksRemain) / (BUS_CLOCK / 1024);
+        _ticksRemain = ((u32)timerElapsed * (u32)_sampleRate + _ticksRemain) % (BUS_CLOCK / 1024);
         _expectedSampleBufferPos += samples;
 
         progress(samples);
 
-        _timerLast = timerTicks;  // TODO: Better precision when saving last ticks
-                                  //       The rounding error can cause it to create
-                                  //       audio glitches. For fixing, look at maxmod
-                                  //       remainder. (Basically, save how many ticks
-                                  //       we have "missed" and account for those when
-                                  //       saving timerLast.
+        _timerLast = timerTicks;
     }
 
     void AudioManager::addPlaying(Audio2::AudioFile *wav) {

@@ -396,21 +396,6 @@ namespace Audio2 {
         }
     }
 
-    void WAV::ima_adpcm_read_predictor() {
-        s16 new_sample;
-        u8 index;
-        fread(&new_sample, 2, 1, _stream);
-        fread(&index, 1, 1, _stream);
-        fseek(_stream, 1, SEEK_CUR);
-        _leftChannelDecoder.initPredictor(new_sample, index);
-        if (_stereo) {
-            fread(&new_sample, 2, 1, _stream);
-            fread(&index, 1, 1, _stream);
-            fseek(_stream, 1, SEEK_CUR);
-            _rightChannelDecoder.initPredictor(new_sample, index);
-        }
-    }
-
     void WAV::resetPlaying() {
         fseek(_stream, _dataStart, SEEK_SET);
         _sampleBufferPos = 0;

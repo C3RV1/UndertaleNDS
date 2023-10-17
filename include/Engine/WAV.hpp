@@ -69,8 +69,6 @@ namespace Audio2 {
         u32 ima_adpcm_get_sample_position(u32 sampleIdx, u8 channelIdx,
                                           bool& highBits, bool& readHeader);
 
-        void ima_adpcm_read_predictor();
-
         /**
          * Frees the playing _stream. Called on the destructor and when loading,
          * to ensure that no file is left open.
