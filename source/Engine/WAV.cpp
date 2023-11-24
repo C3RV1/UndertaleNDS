@@ -5,6 +5,8 @@
 #include "Engine/WAV.hpp"
 #include "Engine/dma.hpp"
 
+constexpr bool enableAdpcm = false;
+
 namespace Audio2 {
     void WAV::load(const std::string& name) {
         if (name.empty())  // Loading an empty WAV is the same as freeing it
@@ -84,7 +86,7 @@ namespace Audio2 {
                 Engine::throw_(buffer);
             }
         }
-        else if (format == 0x11) {
+        else if (format == 0x11 && enableAdpcm) {
             _format = SoundFormat_ADPCM;
             if (_bitsPerSample != 4) {
                 std::string buffer = "Error opening WAV #r" + name +
