@@ -6,8 +6,8 @@ try:
     from Crypto.Hash import SHA256
 except ImportError as e:
     messagebox.showerror(
-        title="Couldn't find requirement",
-        message="Couldn't import the pycryptodome, a library"
+        title="Couldn't find requirement.",
+        message="Couldn't import pycryptodome,"
                 "required for patching."
     )
     raise e
