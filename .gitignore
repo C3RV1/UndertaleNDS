@@ -1,13 +1,19 @@
 # Specify filepatterns you want git to ignore.
 
-# Exclude copyrighted material
+# Remove following if I want to release the media extracted from the game
 nitrofs
-*.cspr
-*.cbgf
-*.cfnt
-*.gmx
 *.png
+*.gmx
+
+# Exclude media (copyrighted? it's in the demo so far) material
+nitrofs/bg
+nitrofs/spr
+nitrofs/data/cutscenes
+nitrofs/data/rooms
+nitrofs/fnt
+nitrofs/stamp_file.txt
 *.aseprite
+_*
 *.ase
 
 # Exclude misc internal

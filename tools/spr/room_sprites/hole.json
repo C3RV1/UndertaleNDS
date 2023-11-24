@@ -1,7 +1,7 @@
 {
   "size": [20, 10],
   "frameCount": 1,
-  "top_down_offset": 0,
+  "topDownOffset": 0,
   "animations": [
     {"name": "gfx", "frames": [{"frame": 0, "duration": 0}]}
   ]

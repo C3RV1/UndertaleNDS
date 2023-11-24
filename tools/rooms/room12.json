@@ -1,0 +1,27 @@
+{
+  "parts": [
+    {
+      "conditions": [],
+      "room_bg": "rooms/room12",
+      "music_path": "mus_ruins.wav",
+      "spawn_x": 4, "spawn_y": 63,
+      "exits": [
+        {
+          "exit_type": "side",
+          "room_id": 11,
+          "spawn_x": 432, "spawn_y": 88,
+          "side": "left"
+        },
+        {
+          "exit_type": "side",
+          "room_id": 13,
+          "spawn_x": 0, "spawn_y": 0,
+          "side": "right"
+        }
+      ],
+      "textures": [],
+      "sprites": [],
+      "colliders": []
+    }
+  ]
+}

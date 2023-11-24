@@ -17,7 +17,7 @@ SaveMenu::SaveMenu() : _optionsHeartSpr(Engine::AllocatedOAM) {
     _optionsHeartSpr._wx = kHrtSaveX << 8;
     _optionsHeartSpr._wy = kHrtSaveY << 8;
 
-    _saveSnd.loadWAV("snd_save.wav");
+    _saveSnd.load("snd_save.wav");
     _saveSnd.setLoops(0);
 
     SaveData lastSave;
@@ -40,33 +40,30 @@ void SaveMenu::drawInfo(SaveData& saveData, u8 color) {
         return;
     }
 
-    char buffer[100];
-    sprintf(buffer, "nitro:/data/room_names/%d.txt", saveData.lastSavedRoom);
-    FILE *f = fopen(buffer, "rb");
+    std::string buffer = "nitro:/data/room_names/" + std::to_string(saveData.lastSavedRoom) +
+            ".txt";
+    FILE *f = fopen(buffer.c_str(), "rb");
     if (f) {
-        delete[] _roomName;
-
         int len = str_len_file(f, '\n');
-        _roomName = new char[len + 1];
+        _roomName.resize(len);
 
-        fread(_roomName, len, 1, f);
-        _roomName[len] = 0;
+        fread(&_roomName[0], len, 1, f);
     } else {
         nocashMessage("Error opening room name file");
     }
     fclose(f);
 
-    sprintf(buffer, "%d", saveData.lv);
+    buffer = std::to_string(saveData.lv);
     int x = kLvNumX;
-    for (char *p = buffer; *p != 0; p++) {
-        Engine::textSub.drawGlyph(_fnt, *p, x, kLvNumY);
+    for (auto const & c : buffer) {
+        Engine::textSub.drawGlyph(_fnt, c, x, kLvNumY);
     }
 
     Engine::textSub.setColor(color);
 
     x = kRoomNameX;
-    for (char *p = _roomName; *p != 0; p++) {
-        Engine::textSub.drawGlyph(_fnt, *p, x, kRoomNameY);
+    for (auto const & c : _roomName) {
+        Engine::textSub.drawGlyph(_fnt, c, x, kRoomNameY);
     }
 
     x = kNameX;
@@ -108,13 +105,5 @@ bool SaveMenu::update() {
 }
 
 void SaveMenu::free_() {
-    delete[] _roomName;
-    _roomName = nullptr;
-    _saveSnd.stop();
-    _saveSnd.free_();
-    _optionsHeartSpr.setShown(false);
-    _optionsHeartTex.free_();
-    _fnt.free_();
-    _bg.free_();
     Engine::clearSub();
 }

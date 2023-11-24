@@ -7,21 +7,21 @@
 #include "Engine/Engine.hpp"
 #include "Engine/Texture.hpp"
 #include "Engine/Sprite.hpp"
-#include "Engine/Audio.hpp"
+#include "Engine/WAV.hpp"
 #include "Save.hpp"
 #include "Formats/utils.hpp"
 #include <cstdio>
 
 void runMainMenu() {
-    const int nameX = 42, nameY = 24 - 4;
-    const int lvX = 132, lvY = 24 - 4;
-    const int roomNameX = 42, roomNameY = 44 - 4;
-    const int continueX = 63, continueY = 67 - 4;
-    const int resetX = 156, resetY = 67 - 4;
-    char buffer[100];
-    char *roomName = nullptr;
-    char *continueText = nullptr;
-    char *resetText = nullptr;
+    constexpr int nameX = 42, nameY = 24 - 4;
+    constexpr int lvX = 132, lvY = 24 - 4;
+    constexpr int roomNameX = 42, roomNameY = 44 - 4;
+    constexpr int continueX = 63, continueY = 67 - 4;
+    constexpr int resetX = 156, resetY = 67 - 4;
+    std::string buffer;
+    std::string roomName;
+    std::string continueText;
+    std::string resetText;
 
     Engine::Background topBg;
     Engine::Background btmBg;
@@ -33,41 +33,40 @@ void runMainMenu() {
     btmBg.loadPath("main_menu_btm");
     font.loadPath("fnt_maintext.font");
 
-    if (globalSave.flags[0] < 20) {
+    if (globalSave.flags[FlagIds::PROGRESS] < 20) {
         floweyTex.loadPath("room_sprites/flowey");
         floweySpr.loadTexture(floweyTex);
         floweySpr._wx = 118 << 8; floweySpr._wy = 116 << 8;
         floweySpr.setShown(true);
-        Audio::playBGMusic("mus_menu1.wav", true);
+        Audio2::playBGMusic("mus_menu1.wav", true);
     }
 
-    sprintf(buffer, "nitro:/data/room_names/%d.txt", globalSave.lastSavedRoom);
-    FILE* f = fopen(buffer, "rb");
+    buffer = "nitro:/data/room_names/" + std::to_string(globalSave.lastSavedRoom) + ".txt";
+    FILE* f = fopen(buffer.c_str(), "rb");
     if (f) {
         int len = str_len_file(f, '\n');
-        roomName = new char[len + 1];
-        fread(roomName, len, 1, f);
-        roomName[len] = 0;
+        roomName.resize(len);
+        fread(&roomName[0], len, 1, f);
+        fseek(f, 1, SEEK_CUR);
     } else {
-        sprintf(buffer, "Error opening room %d name", globalSave.lastSavedRoom);
-        nocashMessage(buffer);
+        buffer = "Error opening room " + std::to_string(globalSave.lastSavedRoom) + " name";
+        nocashMessage(buffer.c_str());
     }
     fclose(f);
 
     f = fopen("nitro:/data/main_menu.txt", "rb");
     if (f) {
         int len = str_len_file(f, '\n');
-        continueText = new char[len + 1];
-        fread(continueText, len + 1, 1, f);
-        continueText[len] = 0;
+        continueText.resize(len);
+        fread(&continueText[0], len, 1, f);
+        fseek(f, 1, SEEK_CUR);
 
         len = str_len_file(f, '\n');
-        resetText = new char[len + 1];
-        fread(resetText, len + 1, 1, f);
-        resetText[len] = 0;
+        resetText.resize(len);
+        fread(&resetText[0], len, 1, f);
+        fseek(f, 1, SEEK_CUR);
     } else {
-        sprintf(buffer, "Error opening room %d name", globalSave.lastSavedRoom);
-        nocashMessage(buffer);
+        nocashMessage("Error opening main menu text");
     }
     fclose(f);
 
@@ -80,16 +79,16 @@ void runMainMenu() {
         Engine::textSub.drawGlyph(font, *p, x, nameY);
     }
 
-    sprintf(buffer, "%d", globalSave.lv);
+    buffer = std::to_string(globalSave.lv);
     x = lvX;
-    for (char* p = buffer; *p != 0; p++) {
-        Engine::textSub.drawGlyph(font, *p, x, lvY);
+    for (auto const & c : buffer) {
+        Engine::textSub.drawGlyph(font, c, x, lvY);
     }
 
-    if (roomName != nullptr) {
+    if (!roomName.empty()) {
         x = roomNameX;
-        for (char* p = roomName; *p != 0; p++) {
-            Engine::textSub.drawGlyph(font, *p, x, roomNameY);
+        for (auto const & c : roomName) {
+            Engine::textSub.drawGlyph(font, c, x, roomNameY);
         }
     }
 
@@ -120,14 +119,14 @@ void runMainMenu() {
             }
         }
 
-        if (draw && continueText != nullptr && resetText != nullptr) {
+        if (draw && !continueText.empty() && !resetText.empty()) {
             if (selected == 0)
                 Engine::textSub.setColor(12);
             else
                 Engine::textSub.setColor(15);
             x = continueX;
-            for (char *p = continueText; *p != 0; p++) {
-                Engine::textSub.drawGlyph(font, *p, x, continueY);
+            for (auto const & c : continueText) {
+                Engine::textSub.drawGlyph(font, c, x, continueY);
             }
 
             if (selected == 1 && !resetConfirm)
@@ -137,22 +136,14 @@ void runMainMenu() {
             else
                 Engine::textSub.setColor(15);
             x = resetX;
-            for (char *p = resetText; *p != 0; p++) {
-                Engine::textSub.drawGlyph(font, *p, x, resetY);
+            for (auto const & c : resetText) {
+                Engine::textSub.drawGlyph(font, c, x, resetY);
             }
 
             draw = false;
         }
     }
 
-    Audio::stopBGMusic();
-    topBg.free_();
-    btmBg.free_();
+    Audio2::stopBGMusic();
     floweySpr.setShown(false);
-    floweyTex.free_();
-    font.free_();
-
-    delete[] roomName;
-    delete[] continueText;
-    delete[] resetText;
 }

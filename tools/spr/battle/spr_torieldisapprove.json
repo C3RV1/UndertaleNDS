@@ -10,5 +10,6 @@
       "name": "up",
       "frames": [{"frame": 1, "duration": 0}]
     }
-  ]
+  ],
+  "exclude3d": true
 }

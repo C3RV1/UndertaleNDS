@@ -5,26 +5,20 @@
 #ifndef UNDERTALE_FREEZONEMANAGER_HPP
 #define UNDERTALE_FREEZONEMANAGER_HPP
 
-#define ARM9
 #include <nds.h>
-#include <stdio.h>
+#include <cstdio>
+#include <string>
+#include <utility>
+#include <vector>
 #include "DEBUG_FLAGS.hpp"
 
 namespace Engine {
     class FreeZoneManager {
     public:
-        FreeZoneManager(int start, int length, const char* name) {
-            _zoneCount = 1;
-            _zones = new u16[2];
-            _zones[0] = start;
-            _zones[1] = length;
-            _name = name;
+        FreeZoneManager(int start, int length, std::string name) {
+            _zones.emplace_back(start, length);
+            _name = std::move(name);
         };
-
-        ~FreeZoneManager() {
-            delete[] _zones;
-            _zones = nullptr;
-        }
 
         int reserve(u16 length, u16 &start, u16 alignment);
 
@@ -35,9 +29,8 @@ namespace Engine {
 #endif
 
     private:
-        u16 _zoneCount;
-        u16 *_zones;
-        const char* _name;
+        std::vector<std::pair<u16, u16>> _zones;
+        std::string _name;
     };
 }
 

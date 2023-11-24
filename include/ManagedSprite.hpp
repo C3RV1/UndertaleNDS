@@ -13,12 +13,12 @@ class ManagedSprite;
 class ManagedSprite {
 public:
     explicit ManagedSprite(Engine::AllocationMode alloc) : _spr(alloc) {}
-    void load(ROOMSprite* sprData, u8 textureCount, Engine::Texture** textures);
+    void load(ROOMSprite const& sprData,
+              std::vector<std::shared_ptr<Engine::Texture>>& textures);
     void spawn(s8 textureId, s32 x, s32 y,
-               u8 textureCount, Engine::Texture** textures);
+               std::vector<std::shared_ptr<Engine::Texture>>& textures);
     void update(bool isRoom);
     void draw(bool isRoom);
-    void free_();
     Engine::Sprite _spr;
 
     u8 _interactAction = 0;
@@ -26,8 +26,11 @@ public:
     u32 _distanceSquared = 0;
     int _closeAnim = 0;
     int _animationId = 0;
+    s32 _parallax_x = 1 << 8;
+    s32 _parallax_y = 1 << 8;
 private:
-    Engine::Texture* _texture = nullptr;
+    void free_();
+    std::shared_ptr<Engine::Texture> _texture = nullptr;
 };
 
 #endif //UNDERTALE_MANAGED_SPRITE_HPP

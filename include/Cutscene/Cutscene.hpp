@@ -5,12 +5,13 @@
 #ifndef UNDERTALE_CUTSCENE_HPP
 #define UNDERTALE_CUTSCENE_HPP
 
-#define ARM9
 #include <nds.h>
 #include <cstdio>
 #include "Waiting.hpp"
 #include "Dialogue.hpp"
 #include "SaveMenu.hpp"
+
+// TODO: Modernize Cutscene
 
 class Cutscene {
 public:
@@ -22,8 +23,8 @@ public:
     u16 _cutsceneId;
     u16 _roomId;
     ~Cutscene();
-    Dialogue* _cDialogue = nullptr;
-    SaveMenu* _cSaveMenu = nullptr;
+    std::unique_ptr<Dialogue> _cDialogue = nullptr;
+    std::unique_ptr<SaveMenu> _cSaveMenu = nullptr;
 private:
     Waiting _waiting;
     bool _flag = false;
@@ -31,6 +32,6 @@ private:
     long _commandStreamLen = 0;
 };
 
-extern Cutscene* globalCutscene;
+extern std::unique_ptr<Cutscene> globalCutscene;
 
 #endif //UNDERTALE_CUTSCENE_HPP

@@ -38,5 +38,6 @@
         {"frame": 13, "duration": 10, "draw_off_x": 19}
       ]
     }
-  ]
+  ],
+  "excludeOam": true
 }

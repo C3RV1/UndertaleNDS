@@ -1,7 +1,7 @@
-// Modified by Cervi
+// From libfilesystem, modified by Cervi
 // cardRead and ndsFileFD not static, access from Engine.cpp
 
-#define ARM9
+#ifndef BLOCKSDS_SDK
 #include <nds/memory.h>
 #include <nds/system.h>
 #include <nds/card.h>
@@ -309,7 +309,7 @@ static int nitroFSDirClose(struct _reent *r, DIR_ITER *dirState) {
 	return(0);
 }
 
-/*Consts containing relative system path strings*/
+// Consts containing relative system path strings
 const char *syspaths[2]={
 ".",
 ".."
@@ -516,4 +516,4 @@ static int nitroFSChdir(struct _reent *r,const char *name) {
 		return(-1);
 	}
 }
-
+#endif

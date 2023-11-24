@@ -14,17 +14,12 @@ namespace BtlAttacks {
         _tutorialSpr._wy = globalBattle->_playerSpr._wy - (10 << 8);
         _tutorialSpr._layer = 50;
         int animId = _tutorialSpr.nameToAnimId("tutorial");
-        _tutorialSpr.setSpriteAnim(animId);
+        _tutorialSpr.setAnimation(animId);
     }
 
     bool MovementTutorial::update() {
         if (keysDown() & (KEY_LEFT | KEY_RIGHT | KEY_UP | KEY_DOWN))
             return true;
         return false;
-    }
-
-    MovementTutorial::~MovementTutorial() noexcept {
-        _tutorialSpr.setShown(false);
-        _tutorialTex.free_();
     }
 }

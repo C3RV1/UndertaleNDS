@@ -8,6 +8,7 @@
     6 - following toriel to room 7 (toriel hold hand done)
     7 - toriel ran away room done
     8 - received call from toriel
+    9 - received call cinnamon/butterscotch
 1 - dummy behaviour
     0 - killed
     1 - talked
@@ -29,4 +30,6 @@
 210-219 - specific room flags (cleared upon entering room)
 220-229 - specific battle flags (cleared upon entering battle)
 230 - battle action
+231 - dialogue decision
 240-249 - persistent flags
+240 - not_chosen(0)/cinnamon(1)/butterscotch(2)

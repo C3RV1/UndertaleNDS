@@ -42,7 +42,6 @@
           "texture_id": 1,
           "x": 130,
           "y": 175,
-          "animation": "gfx",
           "action": "cutscene",
           "cutscene_id": 100
         }
@@ -108,7 +107,6 @@
           "texture_id": 0,
           "x": 130,
           "y": 175,
-          "animation": "gfx",
           "action": "cutscene",
           "cutscene_id": 100
         }

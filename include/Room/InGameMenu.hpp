@@ -28,13 +28,13 @@ public:
     void hide();
     void update();
 private:
-    const int kNameX = 18, kNameY = 10;
-    const int kHpX = 120, kHpY = 10;
-    const int kLvX = 226, kLvY = 10;
-    const int kExpX = 226, kExpY = 22;
-    const int kSelectedMenuX = 59 << 8, kSelectedMenuY = 40 << 8;
-    const int kSelectedMenuSeparation = (146 - 59) << 8;
-    const int kItemsX = 58, kItemsY = 58, kItemSpacingY = 15;
+    constexpr static int kNameX = 18, kNameY = 10;
+    constexpr static int kHpX = 120, kHpY = 10;
+    constexpr static int kLvX = 226, kLvY = 10;
+    constexpr static int kExpX = 226, kExpY = 22;
+    constexpr static int kSelectedMenuX = 59 << 8, kSelectedMenuY = 40 << 8;
+    constexpr static int kSelectedMenuSeparation = (146 - 59) << 8;
+    constexpr static int kItemsX = 58, kItemsY = 58, kItemSpacingY = 15;
     const int kPageChangeY = kItemsY + kItemSpacingY - kItemSpacingY / 2;
     const int kButtonWidth = 90;
 

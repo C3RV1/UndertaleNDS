@@ -35,13 +35,11 @@
         {
           "texture_id": 0,
           "x": 209, "y": 140,
-          "animation": "gfx",
           "action": "cutscene", "cutscene_id": 100
         },
         {
           "texture_id": 1,
           "x": 100, "y": 80,
-          "animation": "gfx",
           "action": "cutscene", "cutscene_id": 0
         }
       ],
@@ -94,13 +92,11 @@
         {
           "texture_id": 0,
           "x": 209, "y": 140,
-          "animation": "gfx",
           "action": "cutscene", "cutscene_id": 100
         },
         {
           "texture_id": 1,
           "x": 100, "y": 80,
-          "animation": "gfx",
           "action": "cutscene", "cutscene_id": 0
         }
       ],

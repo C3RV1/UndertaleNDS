@@ -1,4 +1,5 @@
 {
   "size": [222, 57],
-  "frameCount": 1
+  "frameCount": 1,
+  "exclude3d": true
 }

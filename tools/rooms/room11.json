@@ -1,0 +1,66 @@
+{
+  "parts": [
+    {
+      "conditions": [],
+      "room_bg": "rooms/room11",
+      "music_path": "mus_ruins.wav",
+      "spawn_x": 3, "spawn_y": 91,
+      "exits": [
+        {
+          "exit_type": "side",
+          "room_id": 10,
+          "spawn_x": 351, "spawn_y": 104,
+          "side": "left"
+        },
+        {
+          "exit_type": "side",
+          "room_id": 12,
+          "spawn_x": 4, "spawn_y": 63,
+          "side": "right"
+        }
+      ],
+      "textures": [
+        "room_sprites/spr_rock",
+        "room_sprites/wall_panel_ruins"
+      ],
+      "sprites": [
+        {
+          "texture_id": 0,
+          "x": 157, "y": 135
+        },
+        {
+          "texture_id": 1,
+          "x": 136, "y": 34
+        }
+      ],
+      "colliders": [
+        {
+          "_comment": "Rock",
+          "x": 157, "y": 135, "w": 20, "h": 18
+        },
+
+        {
+          "_comment": "Spikes",
+          "x": 276, "y": 74, "w": 20, "h": 120
+        },
+
+        {
+          "_comment": "Call trigger",
+          "x": 33, "y": 94, "w": 6, "h": 40,
+          "action": "cutscene",
+          "cutscene_id": 10
+        },
+
+        {
+          "_comment": "Walls start here",
+          "x": 0, "y": 0, "w": 36, "h": 94
+        },
+        {"x": 36, "y": 0, "w": 380, "h": 74},
+        {"x": 416, "y": 0, "w": 40, "h": 94},
+        {"x": 0, "y": 134, "w": 36, "h": 74},
+        {"x": 36, "y": 194, "w": 380, "h": 14},
+        {"x": 416, "y": 134, "w": 40, "h": 74}
+      ]
+    }
+  ]
+}

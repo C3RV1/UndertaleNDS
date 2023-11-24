@@ -11,6 +11,12 @@
           "room_id": 8,
           "spawn_x": 301, "spawn_y": 336,
           "side": "left"
+        },
+        {
+          "exit_type": "side",
+          "room_id": 11,
+          "spawn_x": 3, "spawn_y": 91,
+          "side": "right"
         }
       ],
       "textures": [

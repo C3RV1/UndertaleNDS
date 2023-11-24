@@ -3,7 +3,13 @@
 #include "Engine/Font.hpp"
 #include "Engine/Sprite3DManager.hpp"
 #include "Engine/OAMManager.hpp"
-#include "filesystem.h"
+#include "Engine/dma.hpp"
+
+#ifndef BLOCKSDS_SDK
+#include "nitrofs.h"
+#else
+#include <filesystem.h>
+#endif
 
 namespace Engine {
     int init() {
@@ -14,15 +20,6 @@ namespace Engine {
         }
 
         srand(time(nullptr));
-
-        mm_ds_system sys;
-        sys.mod_count 			= 0;
-        sys.samp_count			= 0;
-        sys.mem_bank			= nullptr;
-        sys.fifo_channel		= FIFO_MAXMOD;
-        mmInit( &sys );
-
-        Audio::initAudioStream();
 
         lcdMainOnTop();
 
@@ -44,13 +41,13 @@ namespace Engine {
         GFX_CLEAR_COLOR = 0;
 
         REG_BG1CNT = BG_PRIORITY(1) | BG_TILE_BASE(5) | BG_MAP_BASE(4);
-        memset(BG_TILE_RAM(5), 0, 1);
-        memset(BG_MAP_RAM(4), 0, 32 * 32 * 2);
+        dmaFillSafe(3, 0, BG_TILE_RAM(5), 64);
+        dmaFillSafe(3, 0, BG_MAP_RAM(4), 32 * 32 * 2);
         REG_BG3CNT = BG_PRIORITY(3) | BG_TILE_BASE(1) | BG_MAP_BASE(0);
 
         REG_BG1CNT_SUB = BG_PRIORITY(1) | BG_TILE_BASE(5) | BG_MAP_BASE(1);
-        memset(BG_TILE_RAM_SUB(5), 0, 1);
-        memset(BG_MAP_RAM_SUB(1), 0, 32 * 32 * 2);
+        dmaFillSafe(3, 0, BG_TILE_RAM_SUB(5), 64);
+        dmaFillSafe(3, 0, BG_MAP_RAM_SUB(1), 32 * 32 * 2);
         REG_BG3CNT_SUB = BG_PRIORITY(3) | BG_TILE_BASE(1) | BG_MAP_BASE(0);
 
         // Init 3d
@@ -64,10 +61,12 @@ namespace Engine {
     }
 
     void tick() {
+        main3dSpr.updateTextures();
         main3dSpr.draw();
         glFlush(0);
-        mmStreamUpdate();
+        Audio2::audioManager.update();
         swiWaitForVBlank();
+        OAMManagerSub.draw();  // Update oam in v-blank
         // TODO: Scroll and bg3 negative? Sub screen?
         REG_BG3X = bg3ScrollX;
         REG_BG3Y = bg3ScrollY;
@@ -75,11 +74,64 @@ namespace Engine {
         REG_BG3PB = bg3Pb;
         REG_BG3PC = bg3Pc;
         REG_BG3PD = bg3Pd;
-        // Render post v-blank
-        REG_DISPCNT_SUB |= (1 << 7);
-        OAMManagerSub.draw();  // Update oam in v-blank
-        REG_DISPCNT_SUB &= ~(1 << 7);
-        main3dSpr.updateTextures();  // Update textures in v-blank
         scanKeys();
+    }
+
+    [[noreturn]] void throw_(std::string message) {
+        static bool handlingException = false;
+        nocashMessage("Exception caught:");
+        nocashMessage(message.c_str());
+        if (handlingException) {
+            nocashMessage("Recursive call to throw_");
+            while (true);
+        }
+        handlingException = true;
+        lcdMainOnBottom();
+        setBrightness(1, 0);
+        textMain.clear();
+        clearMain();
+        Font system_font;
+        system_font.loadPath("fnt_maintext.font");
+
+        message = "#rCAUGHT EXCEPTION:#x\n" + message;
+
+        constexpr int spacing = 10;
+        constexpr int lineSpacing = 20;
+        int x = spacing, y = spacing;
+        bool command = false;
+
+        textMain.setPaletteColor(1, 255, 255, 255, true);
+        textMain.setPaletteColor(2, 255, 30, 30, true);
+
+        for (auto const & message_char : message) {
+            if (message_char == '\n') {
+                x = spacing;
+                y += lineSpacing;
+                continue;
+            }
+            else if (message_char == '#') {
+                command = true;
+                continue;
+            }
+            if (command) {
+                if (message_char == 'r') {
+                    textMain.setColor(2);
+                } else if (message_char == 'x') {
+                    textMain.setColor(1);
+                }
+                command = false;
+                continue;
+            }
+            if (system_font.getGlyphWidth(message_char) + x >= 256 - spacing) {
+                x = spacing * 4;
+                y += lineSpacing;
+            }
+            textMain.drawGlyph(system_font, message_char, x, y);
+        }
+
+        while (true) {
+            Engine::tick();
+        }
+
     }
 }

@@ -6,14 +6,14 @@
 #include "Battle/BattleAttacks/FloweyAttack.hpp"
 #include "Battle/BattleAttacks/FloweyAttack2.hpp"
 
-BattleAttack* getBattleAttack(u16 attackId) {
+std::unique_ptr<BattleAttack> getBattleAttack(u16 attackId) {
     switch (attackId) {
         case 1:
-            return new BtlAttacks::MovementTutorial();
+            return std::make_unique<BtlAttacks::MovementTutorial>();
         case 2:
-            return new BtlAttacks::FloweyAttack();
+            return std::make_unique<BtlAttacks::FloweyAttack>();
         case 3:
-            return new BtlAttacks::FloweyAttack2();
+            return std::make_unique<BtlAttacks::FloweyAttack2>();
         default:
             return nullptr;
     }

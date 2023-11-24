@@ -73,4 +73,10 @@ enum WaitingType {
     WAIT_BATTLE_ACTION
 };
 
+enum DialogueType {
+    DIALOGUE_LEFT_ALIGNED = 0,
+    DIALOGUE_CENTERED = 1,
+    DIALOGUE_FLAVOR_TEXT = 2
+};
+
 #endif //UNDERTALE_CUTSCENE_ENUMS_HPP

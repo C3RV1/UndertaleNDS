@@ -7,21 +7,22 @@
 
 #include <cstdio>
 #include <cstring>
+#include <vector>
+#include <string>
+#include <memory>
 
-#define ARM9
 #include <nds.h>
 
 namespace Engine {
     class Background {
     public:
-        bool loadPath(const char* path);
-        int loadCBGF(FILE* f);
+        bool loadPath(std::string path);
+        void loadCBGF(FILE* f);
         bool getLoaded() const { return _loaded; }
         void getSize(u16& width, u16& height) const {
             width = _width;
             height = _height;
         }
-        void free_();
         ~Background() { free_(); }
 
         int loadBgTextMain();
@@ -33,14 +34,15 @@ namespace Engine {
         int loadBgRectMain(int x, int y, int w, int h);
         int loadBgRectSub(int x, int y, int w, int h);
     private:
+        void free_();
         bool _loaded = false;
         bool _color8bit = false;
-        u8 _colorCount = 0;
-        u16* _colors = nullptr;
+        std::vector<u16> _colors;
         u16 _tileCount = 0;
-        u8* _tiles = nullptr;
+        std::unique_ptr<u8[]> _tiles = nullptr;
         u16 _width = 0, _height = 0;
-        u16* _map = nullptr;
+        u16 _mapWidth = 0, _mapHeight = 0;
+        std::unique_ptr<u16[]> _map = nullptr;
 
         int loadBgTextEngine(vu16* bg3Reg, u16* paletteRam, u16* tileRam, u16* mapRam);
         int loadBgExtendedEngine(vu16* bg3Reg, u16* paletteRam, u16* tileRam, u16* mapRam,
@@ -48,6 +50,8 @@ namespace Engine {
                                  int forceSize);
         int loadBgRectEngine(const vu16* bg3Reg, u16* tileRam, u16* mapRam,
                              int x, int y, int w, int h);
+
+        std::string _path;
     };
 
     void clearMain();

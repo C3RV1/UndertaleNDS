@@ -132,5 +132,6 @@
       "name": "side",
       "frames": [{"frame": 20, "duration": 0}]
     }
-  ]
+  ],
+  "exclude3d": true
 }

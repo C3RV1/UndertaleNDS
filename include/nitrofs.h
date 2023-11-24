@@ -1,3 +1,4 @@
+#ifndef BLOCKSDS_SDK
 #ifndef _filesystem_h_
 
 #ifdef __cplusplus
@@ -11,3 +12,4 @@ bool nitroFSInit(char **base_path);
 #endif
 
 #endif // _filesystem_h_
+#endif

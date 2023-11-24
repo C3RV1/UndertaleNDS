@@ -5,7 +5,6 @@
 #ifndef UNDERTALE_BATTLE_HPP
 #define UNDERTALE_BATTLE_HPP
 
-#define ARM9
 #include <nds.h>
 #include <cstdio>
 #include "Engine/Engine.hpp"
@@ -20,42 +19,41 @@
 class Battle {
 public:
     Battle();
+    ~Battle() {free_();}
     void exit(bool won);
     void loadFromStream(FILE* stream);
     void show();
     void hide();
     void update();
-    void updateBattleAttacks() const;
+    void updateBattleAttacks();
     void startBattleAttacks();
-    void free_();
     bool _shown = false;
     bool _running = true;
     bool _stopPostDialogue = false;
-    char* _winText = nullptr;
+    std::string _winText;
     Navigation _nav;
 
-    u8 _enemyCount = 0;
-    Enemy* _enemies = nullptr;
+    std::vector<Enemy> _enemies;
 
-    u8 _textureCount = 0;
-    Engine::Texture** _textures = nullptr;
-
-    u8 _spriteCount = 0;
-    ManagedSprite** _sprites = nullptr;
+    std::vector<std::shared_ptr<Engine::Texture>> _textures;
+    std::vector<std::unique_ptr<ManagedSprite>> _sprites;
 
     Engine::Background _bulletBoard;
     u8 _boardX = 0, _boardY = 0, _boardW = 0, _boardH = 0;
 
-    const s32 _playerSpeed = (60 << 8) / 60;
+    constexpr static s32 _playerSpeed = (60 << 8) / 60;
     Engine::Texture _playerTex;
     Engine::Sprite _playerSpr;
+    Engine::Background _battleBackground;
 
-    BattleAttack** _cBattleAttacks = nullptr;
-    BattleAction* _cBattleAction = nullptr;
+    std::vector<std::unique_ptr<BattleAttack>> _cBattleAttacks;
+    std::unique_ptr<BattleAction> _cBattleAction = nullptr;
     bool _hitFlag = false;
+private:
+    void free_();
 };
 
 void runBattle(FILE* stream);
-extern Battle* globalBattle;
+extern std::unique_ptr<Battle> globalBattle;
 
 #endif //UNDERTALE_BATTLE_HPP

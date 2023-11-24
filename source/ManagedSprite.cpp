@@ -7,36 +7,42 @@
 #include "Room/Player.hpp"
 #include "Engine/math.hpp"
 
-void ManagedSprite::load(ROOMSprite *sprData, u8 textureCount,
-                         Engine::Texture** textures) {
-    if (sprData->textureId < textureCount) {
-        _texture = textures[sprData->textureId];
+void ManagedSprite::load(ROOMSprite const& sprData,
+                         std::vector<std::shared_ptr<Engine::Texture>>& textures) {
+    if (sprData.textureId < textures.size()) {
+        _texture = textures[sprData.textureId];
         _spr.loadTexture(*_texture);
     }
-    _animationId = _spr.nameToAnimId(sprData->animation);
-    _spr._wx = sprData->x << 8;
-    _spr._wy = sprData->y << 8;
-    _spr.setSpriteAnim(_animationId);
+    _animationId = _spr.nameToAnimId(sprData.animation);
+    _spr._wx = sprData.x << 8;
+    _spr._wy = sprData.y << 8;
+    _spr.setAnimation(_animationId);
 
     _spr.setShown(true);
 
-    _interactAction = sprData->interactAction;
+    _interactAction = sprData.interactAction;
+    _parallax_x = 1 << 8;
+    _parallax_y = 1 << 8;
     if (_interactAction == 1)
-        _cutsceneId = sprData->cutsceneId;
+        _cutsceneId = sprData.cutsceneId;
     else if (_interactAction == 2) {
-        _distanceSquared = sprData->distance * sprData->distance;
-        _closeAnim = _spr.nameToAnimId(sprData->closeAnim);
+        _distanceSquared = sprData.distance * sprData.distance;
+        _closeAnim = _spr.nameToAnimId(sprData.closeAnim);
+    }
+    else if (_interactAction == 3) {
+        _parallax_x = sprData.parallax_x;
+        _parallax_y = sprData.parallax_y;
     }
 }
 
 void ManagedSprite::spawn(s8 textureId, s32 x, s32 y,
-                          u8 textureCount, Engine::Texture** textures) {
+                          std::vector<std::shared_ptr<Engine::Texture>>& textures) {
     u8 texId2;
     if (textureId < 0)
-        texId2 = textureCount + textureId;
+        texId2 = textures.size() + textureId;
     else
         texId2 = textureId;
-    if (texId2 < textureCount) {
+    if (texId2 < textures.size()) {
         _texture = textures[texId2];
         _spr.loadTexture(*_texture);
     }
@@ -48,8 +54,8 @@ void ManagedSprite::spawn(s8 textureId, s32 x, s32 y,
 
 void ManagedSprite::draw(bool isRoom) {
     if (isRoom) {
-        _spr._cam_x = globalCamera._pos._wx;
-        _spr._cam_y = globalCamera._pos._wy;
+        _spr._cam_x = (globalCamera._pos._wx * _parallax_x) >> 8;
+        _spr._cam_y = (globalCamera._pos._wy * _parallax_y) >> 8;
         _spr._cam_scale_x = globalCamera._pos._w_scale_x;
         _spr._cam_scale_y = globalCamera._pos._w_scale_y;
         _spr._layer = _spr._wy >> 8;
@@ -71,9 +77,9 @@ void ManagedSprite::update(bool isRoom) {
                                       globalPlayer->_playerSpr._wx + pw / 2,
                                       globalPlayer->_playerSpr._wy + ph / 2);
         if (distance >> 8 < _distanceSquared)
-            _spr.setSpriteAnim(_closeAnim);
+            _spr.setAnimation(_closeAnim);
         else
-            _spr.setSpriteAnim(_animationId);
+            _spr.setAnimation(_animationId);
     }
 }
 

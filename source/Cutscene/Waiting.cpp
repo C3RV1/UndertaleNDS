@@ -43,7 +43,7 @@ void Waiting::update(CutsceneLocation callingLocation, bool frame) {
     } else if (_cWait == WAIT_BATTLE_ATTACK) {
         if (callingLocation == BATTLE || callingLocation == LOAD_BATTLE) {
             _cWait = NONE;
-            for (int i = 0; i < globalBattle->_enemyCount; i++) {
+            for (int i = 0; i < globalBattle->_enemies.size(); i++) {
                 if (globalBattle->_cBattleAttacks[i] != nullptr) {
                     _cWait = WAIT_BATTLE_ATTACK;
                     break;

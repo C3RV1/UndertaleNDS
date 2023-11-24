@@ -1,7 +1,7 @@
 {
   "size": [36, 60],
   "frameCount": 1,
-  "top_down_offset": 58,
+  "topDownOffset": 58,
   "animations": [
     {
       "name": "gfx",

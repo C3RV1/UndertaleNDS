@@ -35,7 +35,6 @@
         {
           "texture_id": 0,
           "x": 69, "y": 40,
-          "animation": "gfx",
           "action": "cutscene", "cutscene_id": 0
         },
         {
@@ -59,7 +58,6 @@
         {
           "texture_id": 2,
           "x": 99, "y": 120,
-          "animation": "gfx",
           "action": "cutscene", "cutscene_id": 1
         },
         {
@@ -134,7 +132,6 @@
         {
           "texture_id": 0,
           "x": 69, "y": 40,
-          "animation": "gfx",
           "action": "cutscene", "cutscene_id": 0
         },
         {
@@ -156,7 +153,6 @@
         {
           "texture_id": 2,
           "x": 99, "y": 120,
-          "animation": "gfx",
           "action": "cutscene", "cutscene_id": 1
         },
         {

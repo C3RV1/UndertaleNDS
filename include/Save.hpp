@@ -10,10 +10,9 @@
 #define CELL_COUNT 8
 
 #include <cstdio>
-#define ARM9
 #include <nds.h>
 
-const int MAX_NAME_LEN = 10;
+constexpr int MAX_NAME_LEN = 10;
 
 enum ClearType {
     INTERNAL_RESET,
@@ -28,12 +27,28 @@ enum Items {
     BANDAGE
 };
 
+enum FlagIds {
+    PROGRESS = 0,
+    DUMMY = 1,
+    OWNS_PHONE = 2,
+    TORIEL_HELLO_COUNT = 3,
+    TORIEL_FLIRT_COUNT = 4,
+    TORIEL_CALL_MOM = 5,
+    ROOM_FLAGS = 210,
+    BATTLE_FLAGS = 220,
+    BATTLE_ACTION = 230,
+    DIALOGUE_OPTION = 231,
+    PERSISTENT = 240,
+    CINNAMON_BUTTERSCOTCH = 241
+};
+
 class SaveData {
 public:
-    const u32 saveVersion = 5;
+    constexpr static u32 saveVersion = 5;
     void clear(ClearType clearType);
     void loadData();
     void saveData(u16 roomId);
+    void writePermanentFlags();
 
     bool saveExists = false;
     char name[MAX_NAME_LEN + 1] = {0};

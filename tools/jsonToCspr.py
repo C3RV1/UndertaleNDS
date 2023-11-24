@@ -7,6 +7,15 @@ import json
 import os
 
 
+def get_ones_in_bin(x):
+    count = 0
+    while x > 0:
+        count += x & 1;
+        x >>= 1
+    return count
+
+
+# TODO: Rewrite for version 6
 def convert(input_file, output_file):
     print(f"Converting {input_file} to {output_file}")
     with open(input_file, "r") as f:
@@ -38,45 +47,52 @@ def convert(input_file, output_file):
             np_array_palette[row][col] = i  # color 0 reserved for transparent
 
     palette = palette[1:]  # remove transparent color
+    # TODO: Sort palette
     palette = np.array([c[0] + (c[1] << 5) + (c[2] << 10) for c in palette],
                        dtype=np.dtype(np.uint16).newbyteorder("<"))
 
     width, height = data["size"]
-    top_down_offset = data.get("top_down_offset", height)
+    top_down_offset = data.get("topDownOffset", height)
     frame_count = data["frameCount"]
 
-    tile_w, tile_h = (width + 7) // 8, (height + 7) // 8
+    contain_oam = not data.get("excludeOam", False)
+    contain_3d = not data.get("exclude3d", False)
+    if contain_oam and len(palette) > 15:
+        raise Exception("OAM with more than 15 colors")
 
-    def get_tile(frame_, tile_x_, tile_y_):
-        tile_ = np.zeros((8, 8), np.uint8)
-        for y in range(8):
-            if tile_y_ * 8 + y >= height:
+    def get_big_tile(frame_, _tile_x, _tile_y, _tile_w, _tile_h):
+        tile_ = np.zeros((_tile_h * 8, _tile_w * 8), np.uint8)
+        for y in range(_tile_h * 8):
+            if _tile_y * 8 + y >= height:
                 break
-            copy_length = min(8, width - tile_x_*8)
-            tile_[y][:copy_length] = np_array_palette[tile_y_*8 + frame_ * height + y][tile_x_*8:tile_x_*8+copy_length]
+            copy_length = max(0, min(_tile_w * 8, width - _tile_x*8))
+            tile_[y][:copy_length] = np_array_palette[_tile_y*8 + frame_ * height + y][_tile_x*8:_tile_x*8+copy_length]
+        if len(palette) < 16:
+            tile_4_bit = np.zeros((_tile_h * 8, _tile_w * 4), np.uint8)
+            for y in range(_tile_h * 8):
+                for x in range(_tile_w * 8):
+                    tile_4_bit[y][x // 2] += tile_[y][x] << ((x & 1) * 4)
+            tile_ = tile_4_bit
         return tile_
 
-    tiles = []
-    for frame in range(frame_count):
-        for tile_y in range(tile_h):
-            for tile_x in range(tile_w):
-                tiles.append(get_tile(frame, tile_x, tile_y))
-    tiles = np.array(tiles)
+    def get_tile(frame_, _tile_x, _tile_y):
+        return get_big_tile(frame_, _tile_x, _tile_y, 1, 1)
+
 
     wtr = binary.BinaryWriter(open(output_file, "wb"))
     wtr.write(b"CSPR")
     file_size_pos = wtr.tell()
     wtr.write_uint32(0)
-    wtr.write_uint32(4)  # Version
+    wtr.write_uint32(6)  # Version
     wtr.write_uint16(width)
     wtr.write_uint16(height)
     wtr.write_uint16(top_down_offset)
+    wtr.write_uint8(frame_count)
+    wtr.write_bool(contain_oam)
+    wtr.write_bool(contain_3d)
 
     wtr.write_uint8(len(palette))
     wtr.write(palette.tobytes())
-
-    wtr.write_uint8(frame_count)
-    wtr.write(tiles.tobytes())
 
     animations = data.get("animations", [])
     wtr.write_uint8(len(animations))
@@ -90,7 +106,73 @@ def convert(input_file, output_file):
             wtr.write_int8(frame.get("draw_off_x", 0))
             wtr.write_int8(frame.get("draw_off_y", 0))
 
+    tile_w, tile_h = (width + 7) // 8, (height + 7) // 8
+
+    if contain_oam:
+        oam_w = (tile_w + 7) // 8
+        oam_h = (tile_h + 7) // 8
+        wtr.write_uint8(oam_w)
+        wtr.write_uint8(oam_h)
+        for oam_y in range(oam_h):
+            for oam_x in range(oam_w):
+                reserve_x = 8
+                reserve_y = 8
+                if oam_x == oam_w - 1:
+                    reserve_x = tile_w - (oam_w - 1) * 8
+                if oam_y == oam_h - 1:
+                    reserve_y = tile_h - (oam_h - 1) * 8
+                if reserve_x > 4:
+                    reserve_x = 8
+                elif reserve_x > 2:
+                    reserve_x = 4
+                if reserve_y > 4:
+                    reserve_y = 8
+                elif reserve_y > 2:
+                    reserve_y = 4
+                if reserve_x == 8 and reserve_y < 8:
+                    reserve_y = 4
+                if reserve_y == 8 and reserve_x < 8:
+                    reserve_x = 4
+                wtr.write_uint8(reserve_x)
+                wtr.write_uint8(reserve_y)
+                for frame in range(frame_count):
+                    for tile_y in range(oam_y*8, oam_y*8 + reserve_y):
+                        for tile_x in range(oam_x*8, oam_x*8 + reserve_x):
+                            wtr.write(get_tile(frame, tile_x, tile_y).tobytes())
+
+    if contain_3d:
+        alloc_x = get_ones_in_bin(tile_w)
+        alloc_y = get_ones_in_bin(tile_h)
+        wtr.write_uint8(alloc_x)
+        wtr.write_uint8(alloc_y)
+
+        tile_y = 0
+        tile_h_ = tile_h
+        while tile_h_ > 0:
+            sub_tile_h = 1
+            while (sub_tile_h << 1) <= tile_h_:
+                sub_tile_h <<= 1
+
+            tile_x = 0
+            tile_w_ = tile_w
+            while tile_w_ > 0:
+                sub_tile_w = 1
+                while (sub_tile_w << 1) <= tile_w_:
+                    sub_tile_w <<= 1
+
+                print(sub_tile_w, sub_tile_h)
+                wtr.write_uint8(sub_tile_w)
+                wtr.write_uint8(sub_tile_h)
+                for frame in range(frame_count):
+                    wtr.write(get_big_tile(frame, tile_x, tile_y, sub_tile_w, sub_tile_h).tobytes())
+
+                tile_w_ -= sub_tile_w
+                tile_x += sub_tile_w
+            tile_h_ -= sub_tile_h
+            tile_y += sub_tile_h
+
     size = wtr.tell()
+    print(size, file_size_pos)
     wtr.seek(file_size_pos)
     wtr.write_uint32(size)
     wtr.close()

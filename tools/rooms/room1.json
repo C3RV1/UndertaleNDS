@@ -34,8 +34,7 @@
         {
           "texture_id": 0,
           "x": 151,
-          "y": 227,
-          "animation": "gfx"
+          "y": 227
         }
       ],
       "colliders": [

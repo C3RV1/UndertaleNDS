@@ -12,9 +12,9 @@ def cutscene(c: Cutscene):
     c.wait(WaitTypes.FRAMES, 120)
     c.start_bgm("mus_flowey.wav", True)
     c.set_animation(Target(TargetType.PLAYER), "upIdle")
-    c.start_dialogue(10, "speaker/flowey", 128 - 21, (192 - 44) // 4 - 5, "nice1", "nice1_talk",
-                     Target(TargetType.SPRITE, 0), "gfx", "talk",
-                     type_sound="snd_floweytalk1.wav")
+    c.dialogue_centered(10, "speaker/flowey", 128 - 21, (192 - 44) // 4 - 5, "nice1", "nice1_talk",
+                        Target(TargetType.SPRITE, 0), "gfx", "talk",
+                        type_sound="snd_floweytalk1.wav")
     c.wait(WaitTypes.DIALOGUE)
 
     c.start_battle([Enemy(0, 100, 0, 0, 0, BattleAttackIds.MOVEMENT_TUTORIAL)], 0, 61, 63, 134, 75)
@@ -28,8 +28,8 @@ def cutscene(c: Cutscene):
     c.wait(WaitTypes.ENTER)
     c.debug("In battle!")
     c.wait(WaitTypes.FRAMES, 60)
-    c.start_dialogue_battle(20, 90, 192 // 4, Target(TargetType.SPRITE, 0), "nice1", "nice1_talk",
-                            type_sound="snd_floweytalk1.wav")
+    c.dialogue_left_align(20, 90, 192 // 4, Target(TargetType.SPRITE, 0), "nice1", "nice1_talk",
+                          type_sound="snd_floweytalk1.wav")
     c.wait(WaitTypes.DIALOGUE)
     c.start_battle_attacks()
     c.wait(WaitTypes.FRAMES, 120)
@@ -37,8 +37,8 @@ def cutscene(c: Cutscene):
 
     c.set_enemy_attack(0, BattleAttackIds.FLOWEY_ATTACK)
 
-    c.start_dialogue_battle(25, 90, 192 // 4, Target(TargetType.SPRITE, 0), "nice1", "nice1_talk",
-                            type_sound="snd_floweytalk1.wav")
+    c.dialogue_left_align(25, 90, 192 // 4, Target(TargetType.SPRITE, 0), "nice1", "nice1_talk",
+                          type_sound="snd_floweytalk1.wav")
     c.wait(WaitTypes.DIALOGUE)
     c.set_animation(Target(TargetType.SPRITE, 0), "wink")
     c.wait(WaitTypes.FRAMES, 120)
@@ -59,8 +59,8 @@ def cutscene(c: Cutscene):
         c.wait(WaitTypes.FRAMES, 160)
     set_pellet_pos()
 
-    c.start_dialogue_battle(30, 90, 192 // 4, Target(TargetType.SPRITE, 0), "nice2", "nice2_talk",
-                            type_sound="snd_floweytalk1.wav")
+    c.dialogue_left_align(30, 90, 192 // 4, Target(TargetType.SPRITE, 0), "nice2", "nice2_talk",
+                          type_sound="snd_floweytalk1.wav")
     c.wait(WaitTypes.DIALOGUE)
     c.wait(WaitTypes.FRAMES, 60)
 
@@ -78,8 +78,8 @@ def cutscene(c: Cutscene):
     c.check_hit()
     hit_1 = c.jump_if()
 
-    c.start_dialogue_battle(40, 90, 192 // 4, Target(TargetType.SPRITE, 0), "sassy", "sassy_talk",
-                            type_sound="snd_floweytalk1.wav")
+    c.dialogue_left_align(40, 90, 192 // 4, Target(TargetType.SPRITE, 0), "sassy", "sassy_talk",
+                          type_sound="snd_floweytalk1.wav")
     c.wait(WaitTypes.DIALOGUE)
     c.wait(WaitTypes.FRAMES, 60)
     c.set_animation(Target(TargetType.SPRITE, 0), "nice1")
@@ -92,12 +92,12 @@ def cutscene(c: Cutscene):
 
     c.set_animation(Target(TargetType.SPRITE, 0), "annoyed")
     c.wait(WaitTypes.FRAMES, 60)
-    c.start_dialogue_battle(50, 90, 192 // 4, Target(TargetType.SPRITE, 0), "annoyed", "annoyed_talk",
-                            type_sound="snd_floweytalk1.wav")
+    c.dialogue_left_align(50, 90, 192 // 4, Target(TargetType.SPRITE, 0), "annoyed", "annoyed_talk",
+                          type_sound="snd_floweytalk1.wav")
     c.wait(WaitTypes.DIALOGUE)
     c.wait(WaitTypes.FRAMES, 40)
-    c.start_dialogue_battle(60, 90, 192 // 4, Target(TargetType.SPRITE, 0), "nice1", "nice1_talk",
-                            frames_per_letter=0)
+    c.dialogue_left_align(60, 90, 192 // 4, Target(TargetType.SPRITE, 0), "nice1", "nice1_talk",
+                          frames_per_letter=0)
     c.wait(WaitTypes.DIALOGUE)
 
     set_pellet_pos()
@@ -112,8 +112,8 @@ def cutscene(c: Cutscene):
 
     c.stop_bgm()
 
-    c.start_dialogue_battle(71, 90, 192 // 4, Target(TargetType.SPRITE, 0), "skull_idle", "skull_talk",
-                            type_sound="snd_floweytalk2.wav")
+    c.dialogue_left_align(71, 90, 192 // 4, Target(TargetType.SPRITE, 0), "skull_idle", "skull_talk",
+                          type_sound="snd_floweytalk2.wav")
     c.wait(WaitTypes.DIALOGUE)
 
     post_no_hit = c.jump()
@@ -124,15 +124,15 @@ def cutscene(c: Cutscene):
     c.debug("Player avoided getting hit!")
     c.set_animation(Target(TargetType.SPRITE, 0), "evil")
     c.wait(WaitTypes.FRAMES, 40)
-    c.start_dialogue_battle(70, 90, 192 // 4, Target(TargetType.SPRITE, 0), "evil", "evil_talk",
-                            type_sound="snd_floweytalk2.wav")
+    c.dialogue_left_align(70, 90, 192 // 4, Target(TargetType.SPRITE, 0), "evil", "evil_talk",
+                          type_sound="snd_floweytalk2.wav")
     c.wait(WaitTypes.DIALOGUE)
 
     c.bind(post_no_hit)
     c.debug("Branch merge reached!")
 
-    c.start_dialogue_battle(80, 80, 192 // 4, Target(TargetType.SPRITE, 0), "evil", "evil_talk",
-                            font="fnt_plainbig.font")
+    c.dialogue_left_align(80, 80, 192 // 4, Target(TargetType.SPRITE, 0), "evil", "evil_talk",
+                          font="fnt_plainbig.font")
     c.wait(WaitTypes.DIALOGUE)
 
     # Unload pellets
@@ -187,9 +187,9 @@ def cutscene(c: Cutscene):
     c.move_in_frames(Target(TargetType.SPRITE, 0), -220, 0, 180)
     c.move_in_frames(Target(TargetType.SPRITE, 1), -220, 0, 180)
     c.wait(WaitTypes.FRAMES, 180)
-    c.start_dialogue_battle(90, 100, 192 // 4, Target(TargetType.SPRITE, 0),
+    c.dialogue_left_align(90, 100, 192 // 4, Target(TargetType.SPRITE, 0),
                             "worried_side", "worried_side_talk",
-                            type_sound="snd_txttor.wav")
+                          type_sound="snd_txttor.wav")
     c.wait(WaitTypes.DIALOGUE)
     c.wait(WaitTypes.FRAMES, 30)
 
@@ -207,9 +207,9 @@ def cutscene(c: Cutscene):
     c.wait(WaitTypes.ENTER)
     c.debug("Entered room!")
 
-    c.start_dialogue(100, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4, "talkIdle", "talkTalk",
-                     Target(TargetType.SPRITE, 0), "downIdle", "downTalk",
-                     type_sound="snd_txttor.wav")
+    c.dialogue_centered(100, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4, "talkIdle", "talkTalk",
+                        Target(TargetType.SPRITE, 0), "downIdle", "downTalk",
+                        type_sound="snd_txttor.wav")
     c.wait(WaitTypes.DIALOGUE)
     c.set_animation(Target(TargetType.SPRITE, 0), "upMove")
     c.set_pos_in_frames(Target(TargetType.SPRITE, 0), 149, 67, 180)

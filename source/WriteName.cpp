@@ -6,27 +6,25 @@
 
 #include "Engine/Background.hpp"
 #include "Engine/Engine.hpp"
-#include "Engine/Audio.hpp"
+#include "Engine/WAV.hpp"
 #include "Engine/Font.hpp"
 #include "Save.hpp"
 #include "Formats/utils.hpp"
 
 
 void runWriteNameMenu() {
-    char buffer[100];
-
     // letter selection
-    const int startX = 30, startY = 30, spacingX = 30, spacingY = 17;
+    constexpr int startX = 30, startY = 30, spacingX = 30, spacingY = 17;
 
-    const int nameX = 80, nameY = 80;
-    const int line1x = 55, line1y = 40;
+    constexpr int nameX = 80, nameY = 80;
+    constexpr int line1x = 55, line1y = 40;
     const int line2x = 50, line2y = 140;
     const int line3x = 65, line3y = 160;
 
     const int letterCount = 26 * 2;
     const int maxLen = MAX_NAME_LEN;
 
-    Audio::playBGMusic("mus_menu0.wav", true);
+    Audio2::playBGMusic("mus_menu0.wav", true);
 
     Engine::clearMain();
 
@@ -277,10 +275,10 @@ void runWriteNameMenu() {
             }
         }
     }
-    Audio::stopBGMusic();
+    Audio2::stopBGMusic();
 
     memset(globalSave.name, 0, currentLen + 1);
     memcpy(globalSave.name, currentName, currentLen + 1);
-    sprintf(buffer, "Selected name: %s", globalSave.name);
-    nocashMessage(buffer);
+    std::string buffer = "Selected name: " + std::string(globalSave.name);
+    nocashMessage(buffer.c_str());
 }

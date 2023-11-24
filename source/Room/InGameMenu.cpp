@@ -9,7 +9,7 @@
 
 void InGameMenu::load() {
     _fnt.loadPath("fnt_maintext.font");
-    _bgLoadedCell = globalSave.flags[2] == 1;
+    _bgLoadedCell = globalSave.flags[FlagIds::OWNS_PHONE] == 1;
     if (_bgLoadedCell)
         _bg.loadPath("ingame_menu/bg");
     else
@@ -27,9 +27,6 @@ void InGameMenu::load() {
 
 void InGameMenu::unload() {
     hide();
-    _fnt.free_();
-    _littleHeartTex.free_();
-    _itemExplainTex.free_();
 }
 
 void InGameMenu::hide() {
@@ -51,7 +48,7 @@ void InGameMenu::show(bool update) {
     if (_shown && !update)
         return;
 
-    if (globalSave.flags[2] == 1 && !_bgLoadedCell) {
+    if (globalSave.flags[FlagIds::OWNS_PHONE] == 1 && !_bgLoadedCell) {
         _bg.loadPath("ingame_menu/bg");
         _bgLoadedCell = true;
     }
@@ -197,7 +194,7 @@ void InGameMenu::update() {
 
 void InGameMenu::processTouchItems(touchPosition &touch) {
     if (touch.px > 140 && touch.px < 140 + 58 && touch.py > 35 && touch.py < 35 + 19) {
-        if (_selectedMenu != MENU_CELL && globalSave.flags[2] == 1) {
+        if (_selectedMenu != MENU_CELL && globalSave.flags[FlagIds::OWNS_PHONE] == 1) {
             _selectedMenu = MENU_CELL;
             show(true);
         }
@@ -240,12 +237,17 @@ void InGameMenu::processTouchCell(touchPosition &touch) {
         int touchedOption = (touch.py - kItemsY) / kItemSpacingY;
         if (touchedOption != _optionSelected) {
             _optionSelected = touchedOption;
-            show(true);
+            for (_optionCount = 0; globalSave.cell[_optionCount] != 0; _optionCount++);
+            if (_optionSelected > _optionCount - 1)
+                _optionSelected = _optionCount - 1;
+            _listHeartSpr._wx = (kItemsX - 12) << 8;
+            _listHeartSpr._wy = (kItemsY + kItemSpacingY * _optionSelected + 4) << 8;
         } else {
             // Room 1000 for phone cutscenes
             if (globalCutscene == nullptr)
-                globalCutscene = new Cutscene(globalSave.cell[touchedOption],
-                                              1000);
+                globalCutscene = std::make_unique<Cutscene>(
+                        globalSave.cell[touchedOption],
+                        1000);
         }
     }
 }

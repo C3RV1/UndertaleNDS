@@ -19,7 +19,7 @@ include $(DEVKITARM)/ds_rules
 # ICON is the image used to create the game icon, leave blank to use default rule
 # NITRO is a directory that will be accessible via NitroFS
 #---------------------------------------------------------------------------------
-TARGET   := $(shell basename $(CURDIR))
+TARGET   := Undertale
 BUILD    := build
 SOURCES  := source source/Engine source/Formats source/Cutscene source/Battle source/Room source/Battle/BattleAttacks
 INCLUDES := include include/Engine include/Formats include/Cutscene include/Battle include/Room include/Battle/BattleAttacks
@@ -42,7 +42,7 @@ GAME_ICON		:=	$(CURDIR)/../icon.bmp
 #---------------------------------------------------------------------------------
 ARCH := -marm -mthumb-interwork -march=armv5te -mtune=arm946e-s
 
-CFLAGS   := -g -Wall -O3\
+CFLAGS   := -g -Wall -O2 -DARM9\
             $(ARCH) $(INCLUDE)
 CXXFLAGS := $(CFLAGS) -fno-rtti -fno-exceptions
 ASFLAGS  := -g $(ARCH)
@@ -58,7 +58,7 @@ ifneq ($(strip $(NITRO)),)
 LIBS := -lfat $(LIBS)
 endif
 # automagically add maxmod library
-LIBS := -lmm9 $(LIBS)
+# LIBS := -lmm9 $(LIBS)
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing

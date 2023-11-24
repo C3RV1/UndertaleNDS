@@ -75,5 +75,6 @@
                 {"frame": 13, "duration": 10}
             ]
         }
-    ]
+    ],
+    "excludeOam": true
 }

@@ -6,28 +6,29 @@
 #define UNDERTALE_FONT_HPP
 
 #include <cstdio>
-#include <cstring>
+#include <string>
 
-#define ARM9
 #include <nds.h>
 #include "Formats/CFNT.hpp"
 
 namespace Engine {
     class Font {
     public:
-        bool loadPath(const char* path);
-        int loadCFNT(FILE* f);
+        bool loadPath(const std::string& path);
+        void loadCFNT(FILE* f);
         bool getLoaded() const { return _loaded; }
         u8 getGlyphWidth(u8 glyph);
-        void free_();
         ~Font() { free_(); }
     private:
         u8* getGlyphMap() { return _glyphMap.glyphMap; }
-        CFNTGlyph* getGlyph(int glyphIdx) const { return &_glyphs.glyphs[glyphIdx - 1]; }
+        const CFNTGlyph *getGlyph(int glyphIdx) const { return &_glyphs.glyphs[glyphIdx - 1]; }
         friend class TextBGManager;
         bool _loaded = false;
         CFNTGlyphs _glyphs;
         CFNTMap _glyphMap;
+        void free_();
+
+        std::string _path;
     };
 
     class TextBGManager {

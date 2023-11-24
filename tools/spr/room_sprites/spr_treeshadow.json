@@ -1,0 +1,13 @@
+{
+  "size": [80, 250],
+  "frameCount": 1,
+  "excludeOam": true,
+  "animations": [
+    {
+      "name": "gfx",
+      "frames": [
+        {"frame": 0, "duration": 0}
+      ]
+    }
+  ]
+}

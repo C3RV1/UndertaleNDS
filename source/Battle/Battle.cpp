@@ -11,7 +11,7 @@
 #include "Room/InGameMenu.hpp"
 #include "Formats/utils.hpp"
 
-Battle* globalBattle = nullptr;
+std::unique_ptr<Battle> globalBattle = nullptr;
 
 Battle::Battle() : _playerSpr(Engine::Allocated3D) {
     _playerTex.loadPath("spr_heartsmall");
@@ -27,12 +27,13 @@ Battle::Battle() : _playerSpr(Engine::Allocated3D) {
 
     FILE *f = fopen("nitro:/data/battle_win.txt", "rb");
     if (f) {
-        fseek(f, 0, SEEK_END);
-        long len = ftell(f);
-        fseek(f, 0, SEEK_SET);
-        _winText = new char[len + 1];
-        fread(_winText, len + 1, 1, f);
-        _winText[len] = '\0';
+        long len = str_len_file(f, '\0');
+        _winText.resize(len);
+        fread(&_winText[0], len, 1, f);
+        fseek(f, 1, SEEK_CUR);
+    } else {
+        std::string buffer = "Error opening battle win text";
+        Engine::throw_(buffer);
     }
     fclose(f);
 }
@@ -41,19 +42,23 @@ void Battle::exit(bool won) {
     if (won) {
         hide();
         int earnedExp = 0, earnedGold = 0;
-        for (int i = 0; i < _enemyCount; i++) {
-            if (_enemies[i]._hp <= 0)
-                earnedExp += _enemies[i]._expOnKill;
-            earnedGold += _enemies[i]._goldOnWin;
+        for (auto & _enemy : _enemies) {
+            if (_enemy._hp <= 0)
+                earnedExp += _enemy._expOnKill;
+            earnedGold += _enemy._goldOnWin;
         }
         globalSave.exp += earnedExp;
         globalSave.gold += earnedGold;
-        char buffer[200] = {0};
-        sprintf(buffer, _winText, earnedExp, earnedGold);
+
+        int size_s = std::snprintf(nullptr, 0, _winText.c_str());
+        std::string buffer;
+        buffer.resize(size_s);
+        sprintf(&buffer[0], _winText.c_str(), earnedExp, earnedGold);
         if (globalCutscene->_cDialogue == nullptr) {
-            globalCutscene->_cDialogue = new Dialogue(true, 0, 0, buffer, "SND_TXT1.wav",
-                                                      "fnt_maintext.font", 2,
-                                                      Engine::textMain);
+            globalCutscene->_cDialogue = std::make_unique<DialogueCentered>(
+                    buffer, "SND_TXT1.wav",
+                    "fnt_maintext.font", 2,
+                    Engine::textMain, Engine::Allocated3D);
         }
         _stopPostDialogue = true;
     } else {
@@ -62,24 +67,33 @@ void Battle::exit(bool won) {
 }
 
 void Battle::loadFromStream(FILE *stream) {
-    fread(&_enemyCount, 1, 1, stream);
-    _enemies = new Enemy[_enemyCount];
-    _cBattleAttacks = new BattleAttack*[_enemyCount];
-    char buffer[100];
-    for (int i = 0; i < _enemyCount; i++) {
+    u8 enemyCount;
+    fread(&enemyCount, 1, 1, stream);
+    _enemies.resize(enemyCount);
+    _cBattleAttacks.resize(enemyCount);
+    std::string buffer;
+    for (int i = 0; i < enemyCount; i++) {
         _cBattleAttacks[i] = nullptr;
         _enemies[i].readFromStream(stream);
     }
 
     u8 boardId;
     fread(&boardId, 1, 1, stream);
-    sprintf(buffer, "battle/board%d", boardId);
+    buffer = "battle/board" + std::to_string(boardId);
     _bulletBoard.loadPath(buffer);
 
     fread(&_boardX, 1, 1, stream);
     fread(&_boardY, 1, 1, stream);
     fread(&_boardW, 1, 1, stream);
     fread(&_boardH, 1, 1, stream);
+
+    int len = str_len_file(stream, '\0');
+    std::string bgPath;
+    bgPath.resize(len);
+    fread(&bgPath[0], len, 1, stream);
+    fseek(stream, 1, SEEK_CUR);
+    _battleBackground.loadPath(bgPath);
+    _battleBackground.loadBgTextSub();
 
     _playerSpr._wx = ((_boardX + _boardW / 2) << 8) - (9 << 8) / 2;
     _playerSpr._wy = ((_boardY + _boardH / 2) << 8) - (9 << 8) / 2;
@@ -101,7 +115,7 @@ void Battle::hide() {
 
 void Battle::startBattleAttacks() {
     _hitFlag = false;
-    for (int i = 0; i < _enemyCount; i++) {
+    for (int i = 0; i < _enemies.size(); i++) {
         Enemy* enemy = &_enemies[i];
         if (!enemy->_spared && enemy->_hp > 0) {
             _cBattleAttacks[i] = getBattleAttack(enemy->_attackId);
@@ -109,13 +123,12 @@ void Battle::startBattleAttacks() {
     }
 }
 
-void Battle::updateBattleAttacks() const {
-    for (int i = 0; i < _enemyCount; i++) {
-        BattleAttack* btlAttack = _cBattleAttacks[i];
+void Battle::updateBattleAttacks() {
+    for (int i = 0; i < _enemies.size(); i++) {
+        BattleAttack* btlAttack = _cBattleAttacks[i].get();
         if (btlAttack != nullptr) {
             if (btlAttack->update()) {
-                delete btlAttack;
-                _cBattleAttacks[i] = nullptr;
+                _cBattleAttacks[i].reset();
             }
         }
     }
@@ -126,8 +139,6 @@ void Battle::update() {
     updateBattleAttacks();
     if (_cBattleAction != nullptr) {
         if (_cBattleAction->update()) {
-            _cBattleAction->free_();
-            delete _cBattleAction;
             _cBattleAction = nullptr;
             show();
         } else {
@@ -167,31 +178,7 @@ void Battle::update() {
 }
 
 void Battle::free_() {
-    delete[] _winText;
-    _winText = nullptr;
-    _bulletBoard.free_();
     _playerSpr.setShown(false);
-    _playerTex.free_();
-    for (int i = 0; i < _enemyCount; i++) {
-        delete[] _enemies[i]._actText;
-        delete _cBattleAttacks[i];
-    }
-    delete[] _enemies;
-    delete[] _cBattleAttacks;
-    _enemies = nullptr;
-    _enemyCount = 0;
-    for (int i = 0; i < _textureCount; i++) {
-        _textures[i]->free_();
-    }
-    delete[] _textures;
-    _textures = nullptr;
-    for (int i = 0; i < _spriteCount; i++) {
-        _sprites[i]->free_();
-        delete _sprites[i];
-        _sprites[i] = nullptr;
-    }
-    delete[] _sprites;
-    _sprites = nullptr;
 }
 
 void runBattle(FILE* stream) {
@@ -209,7 +196,7 @@ void runBattle(FILE* stream) {
 
     lcdMainOnBottom();
 
-    globalBattle = new Battle();
+    globalBattle = std::make_unique<Battle>();
     globalBattle->loadFromStream(stream);
     globalBattle->show();
 
@@ -232,7 +219,6 @@ void runBattle(FILE* stream) {
             }
             globalCutscene->update();
             if (globalCutscene->runCommands(BATTLE)) {
-                delete globalCutscene;
                 globalCutscene = nullptr;
                 globalInGameMenu.show(false);
                 globalPlayer->setPlayerControl(true);
@@ -249,10 +235,10 @@ void runBattle(FILE* stream) {
         timer--;
     }
 
-    globalBattle->free_();
-    delete globalBattle;
+    globalBattle = nullptr;
     Engine::textMain.clear();
     Engine::textSub.clear();
+    Engine::clearSub();
 
     lcdMainOnTop();
 

@@ -5,12 +5,11 @@
 #ifndef UNDERTALE_CSCN_HPP
 #define UNDERTALE_CSCN_HPP
 
-#define ARM9
 #include <nds.h>
 
 struct CSCN {
     char header[4] = {'C', 'S', 'C', 'N'};
-    static const u32 version = 8;
+    static constexpr u32 version = 11;
     u32 fileSize = 0;
     u8* commands = nullptr;
 };

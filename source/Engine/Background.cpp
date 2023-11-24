@@ -1,40 +1,34 @@
 //
 // Created by cervi on 19/08/2022.
 //
+#include "Formats/CBGF.hpp"
 #include "Engine/Background.hpp"
 #include "Engine/math.hpp"
+#include "Engine/Engine.hpp"
+#include "Engine/dma.hpp"
 
 namespace Engine {
     s32 bg3ScrollX = 0, bg3ScrollY = 0;
     s16 bg3Pa = 0, bg3Pb = 0, bg3Pc = 0, bg3Pd = 0;
 
-    bool Background::loadPath(const char *path) {
-        char pathFull[100];
-        char buffer[100];
+    bool Background::loadPath(std::string path) {
+        std::string pathFull = "nitro:/bg/" + path + ".cbgf";
+        _path = path;
 
-        sprintf(pathFull, "nitro:/bg/%s.cbgf", path);
-
-        FILE* f = fopen(pathFull, "rb");
+        FILE* f = fopen(pathFull.c_str(), "rb");
         if (!f) {
-            sprintf(buffer, "Error opening bg %s", path);
-            nocashMessage(buffer);
-            return false;
+            std::string buffer = "Error opening bg #r" + path;
+            throw_(buffer);
         }
 
-        int loadRes = loadCBGF(f);
+        loadCBGF(f);
 
         fclose(f);
-
-        if (loadRes != 0) {
-            sprintf(buffer, "Error loading bg %s: %d", path, loadRes);
-            nocashMessage(buffer);
-            return false;
-        }
 
         return true;
     }
 
-    int Background::loadCBGF(FILE *f) {
+    void Background::loadCBGF(FILE *f) {
         free_();
         char header[4];
         u32 fileSize;
@@ -48,30 +42,38 @@ namespace Engine {
 
         const char expectedChar[4] = {'C', 'B', 'G', 'F'};
         if (memcmp(header, expectedChar, 4) != 0) {
-            return 1;
+            std::string buffer = "Error loading bg #r" + _path + "#x: Invalid header.";
+            throw_(buffer);
         }
 
         fread(&fileSize, 4, 1, f);
 
         if (fileSize != size) {
-            return 2;
+            std::string buffer = "Error loading bg #r" + _path + "#x: File size doesn't match (expected: "
+                                 + std::to_string(fileSize) + ", actual: " + std::to_string(size) + ")";
+            throw_(buffer);
         }
 
         fread(&version, 4, 1, f);
-        if (version != 1) {
-            return 3;
+        if (version != CBGFHeader::version) {
+            std::string buffer = "Error loading spr #r" + _path + "#x: Invalid version (expected: 1, actual: "
+                                 + std::to_string(version) + ")";
+            throw_(buffer);
         }
 
         fread(&fileFormat, 1, 1, f);
         _color8bit = fileFormat & 1;
 
-        fread(&_colorCount, 1, 1, f);
-        if ((_colorCount > 249 && _color8bit) || (_colorCount > 15 && !_color8bit)) {
-            return 4;
+        u8 colorCount;
+        fread(&colorCount, 1, 1, f);
+        if ((colorCount > 249 && _color8bit) || (colorCount > 15 && !_color8bit)) {
+            std::string buffer = "Error loading bg #r" + _path + "#x: Color count does not match 8 bit flag (colors: "
+                                 + std::to_string(colorCount) + ")";
+            throw_(buffer);
         }
 
-        _colors = new u16[_colorCount];
-        fread(_colors, 2, _colorCount, f);
+        _colors.resize(colorCount);
+        fread(&_colors[0], 2, colorCount, f);
 
         fread(&_tileCount, 2, 1, f);
 
@@ -79,29 +81,24 @@ namespace Engine {
         if (_color8bit)
             tileDataSize = 64;
 
-        _tiles = new u8[_tileCount * tileDataSize];
-        fread(_tiles, tileDataSize, _tileCount, f);
+        _tiles = std::unique_ptr<u8[]>(new u8[_tileCount * tileDataSize]);
+        fread(_tiles.get(), tileDataSize, _tileCount, f);
 
         fread(&_width, 2, 1, f);
         fread(&_height, 2, 1, f);
+        _mapWidth = (_width + 7) / 8;
+        _mapHeight = (_height + 7) / 8;
 
-        _map = new u16[_width * _height];
-        fread(_map, 2, _width * _height, f);
+        _map = std::unique_ptr<u16[]>(new u16[_mapWidth * _mapHeight]);
+        fread(_map.get(), 2, _mapWidth * _mapHeight, f);
 
         _loaded = true;
-        return 0;
     }
 
     void Background::free_() {
         if (!_loaded)
             return;
         _loaded = false;
-        delete[] _colors;
-        _colors = nullptr;
-        delete[] _tiles;
-        _tiles = nullptr;
-        delete[] _map;
-        _map = nullptr;
     }
 
     int Background::loadBgTextMain() {
@@ -125,7 +122,7 @@ namespace Engine {
         *bg3Reg = (*bg3Reg & (~0x2080)) + (_color8bit << 7);
 
         // skip first color (2 bytes)
-        dmaCopy(_colors, (u8*)paletteRam + 2, 2 * _colorCount);
+        dmaCopySafe(3, &_colors[0], (u8*)paletteRam + 2, 2 * _colors.size());
 
         u32 tileDataSize;
         if (_color8bit) {
@@ -137,32 +134,32 @@ namespace Engine {
         if (_tileCount > 1024)
             return 2;
 
-        memcpy(tileRam, _tiles, tileDataSize * _tileCount);
+        dmaCopySafe(3, _tiles.get(), tileRam, tileDataSize * _tileCount);
 
         u16 sizeFlag = 0;
         u16 mapRamUsage = 0x800;
-        if (_width > 32) {
+        if (_mapWidth > 32) {
             sizeFlag += 1 << 14;  // bit 14 for 64 tile width
             mapRamUsage *= 2;
         }
-        if (_height > 32) {
+        if (_mapHeight > 32) {
             sizeFlag += 1 << 15;  // bit 15 for 64 tile height
             mapRamUsage *= 2;
         }
 
         *bg3Reg = (*bg3Reg & (~0xC000)) + sizeFlag;
-        memset(mapRam, 0, mapRamUsage);
+        dmaFillSafe(3, 0, mapRam, mapRamUsage);
 
-        for (int mapX = 0; mapX < (_width + 31) / 32; mapX++) {
+        for (int mapX = 0; mapX < (_mapWidth + 31) / 32; mapX++) {
             int copyWidth = 32;
-            if (mapX == (_width + 31) / 32)
-                copyWidth = (_width + 31) - 32 * mapX;
-            for (int mapY = 0; mapY < (_height + 31) / 32; mapY++) {
-                u8* mapStart = (u8*)mapRam + (mapY * ((_width + 31) / 32) + mapX) * 2048;
-                memset(mapStart, 0, 0x800);
-                for (int row = mapY*32; row < _height && row < (mapY + 1) * 32; row++) {
-                    dmaCopyHalfWords(3, (u8 *) _map + (row * _width + mapX * 32) * 2,
-                                     mapStart + (row - mapY * 32) * 32 * 2, copyWidth * 2);
+            if (mapX == (_mapWidth + 31) / 32)
+                copyWidth = (_mapWidth + 31) - 32 * mapX;
+            for (int mapY = 0; mapY < (_mapHeight + 31) / 32; mapY++) {
+                u8* mapStart = (u8*)mapRam + (mapY * ((_mapWidth + 31) / 32) + mapX) * 2048;
+                dmaFillSafe(3, 0, mapStart, 0x800);
+                for (int row = mapY*32; row < _mapHeight && row < (mapY + 1) * 32; row++) {
+                    dmaCopySafe(3, (u8 *)_map.get() + (row * _mapWidth + mapX * 32) * 2,
+                                      mapStart + (row - mapY * 32) * 32 * 2, copyWidth * 2);
                 }
             }
         }
@@ -199,18 +196,18 @@ namespace Engine {
         *bg3Reg = (*bg3Reg & (~0x2080)) | (1 << 13);
 
         // skip first color (2 bytes)
-        dmaCopy(_colors, (u8 *) paletteRam + 2, 2 * _colorCount);
+        dmaCopySafe(3, &_colors[0], (u8 *) paletteRam + 2, 2 * _colors.size());
 
         u16 sizeFlag = 0;
         u16 mapRamUsage = 0x200;
-        u8 mapW = _width, mapH = _height;
+        u8 mapW = _mapWidth, mapH = _mapHeight;
         if (forceSize != 0) {
             mapW = forceSize;
             mapH = forceSize;
         }
         if (mapW > 64 || mapH > 64) {
             sizeFlag = 3;
-        } else if (mapW > 32 || mapH >= 32) {
+        } else if (mapW > 32 || mapH > 32) {
             sizeFlag = 2;
         } else if (mapW > 16 || mapH > 16) {
             sizeFlag = 1;
@@ -222,7 +219,7 @@ namespace Engine {
         *reg3B = 0;
         *reg3C = 0;
         *reg3D = (1 << 8);
-        memset(mapRam, 0, mapRamUsage);
+        dmaFillSafe(3, 0, mapRam, mapRamUsage);
 
         // loadBgRectEngine(bg3Reg, tileRam, mapRam, -1, -1, 34, 26);
         // An extended engine will need a load bg rect afterwards
@@ -242,7 +239,7 @@ namespace Engine {
 
     void clearEngine(vu16* bg3Reg, u16* tileRam, u16* mapRam) {
         u16 mapRamUsage = 0x800;
-        memset(mapRam, 0, mapRamUsage);
+        dmaFillSafe(3, 0, mapRam, mapRamUsage);
         *bg3Reg = (*bg3Reg & (~0xE080)); // size 32x32
         *tileRam = 0;
     }
@@ -264,22 +261,26 @@ namespace Engine {
         int mapSize = 16 << ((*bg3Reg >> 14) & 3);
         for (int row = y; row < y + h; row++) {
             for (int col = x; col < x + w; col++) {
-                int srcRow = mod(row, _height);
-                int srcCol = mod(col, _width);
                 int dstRow = mod(row, mapSize);
                 int dstCol = mod(col, mapSize);
                 auto* mapRes = (u16*)((u8*)mapRam + (dstRow * mapSize + dstCol) * 2);
                 int tileDst = mod(row, 26) * 34 + mod(col, 34);
                 *mapRes = tileDst;
                 auto* tileRes = (u16*)((u8*)tileRam + tileDst * 64);
-                auto* mapSrc = (u16*)((u8 *) _map + (srcRow * _width + srcCol) * 2);
+                if (0 > row or row >= _mapHeight or 0 > col or col >= _mapWidth) {
+                    dmaFillSafe(3, 0, tileRes, 64);
+                    continue;
+                }
+                int srcRow = row;
+                int srcCol = col;
+                auto* mapSrc = (u16*)((u8 *)_map.get() + (srcRow * _mapWidth + srcCol) * 2);
 
                 if (_color8bit) {
-                    u8 *src = (u8 *) _tiles + (*mapSrc) * 64;
-                    dmaCopyHalfWords(3, src, tileRes, 64);
+                    u8 *src = (u8 *)_tiles.get() + (*mapSrc) * 64;
+                    dmaCopySafe(3, src, tileRes, 64);
                 }
                 else {
-                    u8 *src = (u8 *) _tiles + (*mapSrc) * 32;
+                    u8 *src = (u8 *)_tiles.get() + (*mapSrc) * 32;
                     for (int i = 0; i < 64; i++) {
                         bool highBits = i & 1;
                         tileRes[i / 2] &= ~(0xFF << (8 * highBits));

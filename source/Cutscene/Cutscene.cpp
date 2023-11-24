@@ -16,8 +16,9 @@
 #include "Room/InGameMenu.hpp"
 #include "Room/Camera.hpp"
 #include "DEBUG_FLAGS.hpp"
+#include <memory>
 
-Cutscene* globalCutscene = nullptr;
+std::unique_ptr<Cutscene> globalCutscene = nullptr;
 
 Cutscene::Cutscene(u16 cutsceneId, u16 roomId) : _cutsceneId(cutsceneId), _roomId(roomId) {
     char buffer[100];
@@ -78,14 +79,10 @@ bool Cutscene::checkHeader(FILE *f) {
 void Cutscene::update() {
     if (_cDialogue != nullptr) {
         if (_cDialogue->update()) {
-            _cDialogue->free_();
-            delete _cDialogue;
             _cDialogue = nullptr;
         }
     } else if (_cSaveMenu != nullptr) {
         if (_cSaveMenu->update()) {
-            _cSaveMenu->free_();
-            delete _cSaveMenu;
             _cSaveMenu = nullptr;
         }
     }
@@ -319,36 +316,40 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             u16 textId, framesPerLetter;
             s32 x, y;
             char speaker[50], font[50];
-            char idleAnim[50], talkAnim[50];
-            char idleAnim2[50], talkAnim2[50];
+            char speakerIdle[50], speakerTalk[50];
+            char targetIdle[50], targetTalk[50];
             char typeSnd[50];
             bool mainScreen;
-            bool centered;
+            DialogueType dialogue_type;
 
-            fread(&centered, 1, 1, _commandStream);
+            fread(&dialogue_type, 1, 1, _commandStream);
             fread(&textId, 2, 1, _commandStream);
 
-            len = str_len_file(_commandStream, 0);
-            fread(speaker, len + 1, 1, _commandStream);
+            if (dialogue_type == DIALOGUE_CENTERED) {
+                len = str_len_file(_commandStream, 0);
+                fread(speaker, len + 1, 1, _commandStream);
+            }
 
             fread(&x, 4, 1, _commandStream);
             fread(&y, 4, 1, _commandStream);
 
-            len = str_len_file(_commandStream, 0);
-            fread(idleAnim, len + 1, 1, _commandStream);
+            if (dialogue_type == DIALOGUE_CENTERED) {
+                len = str_len_file(_commandStream, 0);
+                fread(speakerIdle, len + 1, 1, _commandStream);
 
-            len = str_len_file(_commandStream, 0);
-            fread(talkAnim, len + 1, 1, _commandStream);
+                len = str_len_file(_commandStream, 0);
+                fread(speakerTalk, len + 1, 1, _commandStream);
+            }
 
             fread(&targetType, 1, 1, _commandStream);
             if (targetType == TargetType::SPRITE)
                 fread(&targetId, 1, 1, _commandStream);
 
             len = str_len_file(_commandStream, 0);
-            fread(idleAnim2, len + 1, 1, _commandStream);
+            fread(targetIdle, len + 1, 1, _commandStream);
 
             len = str_len_file(_commandStream, 0);
-            fread(talkAnim2, len + 1, 1, _commandStream);
+            fread(targetTalk, len + 1, 1, _commandStream);
 
             len = str_len_file(_commandStream, 0);
             fread(typeSnd, len + 1, 1, _commandStream);
@@ -358,13 +359,21 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
 
             fread(&framesPerLetter, 2, 1, _commandStream);
             fread(&mainScreen, 1, 1, _commandStream);
-            Engine::TextBGManager* txt = mainScreen ? &Engine::textMain : &Engine::textSub;
+            Engine::TextBGManager& txt = mainScreen ? Engine::textMain : Engine::textSub;
+            Engine::AllocationMode heartAlloc = mainScreen ? Engine::Allocated3D : Engine::AllocatedOAM;
 
             Engine::Sprite* target = Navigation::getTarget(targetType, targetId, callingLocation);
             if (_cDialogue == nullptr) {
-                _cDialogue = new Dialogue(centered, textId, speaker, x, y, idleAnim, talkAnim,
-                                          target, idleAnim2, talkAnim2, typeSnd,
-                                          font, framesPerLetter, *txt);
+                if (dialogue_type == DIALOGUE_CENTERED)
+                    _cDialogue = std::make_unique<DialogueCentered>(
+                            textId, speaker, x, y, speakerIdle,
+                            speakerTalk, target, targetIdle, targetTalk,
+                            typeSnd, font, framesPerLetter, txt, heartAlloc
+                            );
+                else if (dialogue_type == DIALOGUE_LEFT_ALIGNED)
+                    _cDialogue = std::make_unique<DialogueLeftAligned>(
+                        textId, x, y, target, targetIdle, targetTalk,
+                        typeSnd, font, framesPerLetter, txt, heartAlloc);
             }
             break;
         }
@@ -395,7 +404,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             }
             break;
         }
-        case CMD_BATTLE_ACTION:
+        case CMD_BATTLE_ACTION: {
 #ifdef DEBUG_CUTSCENES
             nocashMessage("CMD_BATTLE_ACTION");
 #endif
@@ -404,9 +413,14 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             if (globalBattle->_cBattleAction != nullptr)
                 break;
             globalBattle->hide();
-            globalBattle->_cBattleAction = new BattleAction(globalBattle->_enemyCount,
-                                                            globalBattle->_enemies);
+
+            s16 flavorTextId;
+            fread(&flavorTextId, 2, 1, _commandStream);
+
+            globalBattle->_cBattleAction = std::make_unique<BattleAction>(
+                    &globalBattle->_enemies, flavorTextId);
             break;
+        }
         case CMD_CHECK_HIT:
 #ifdef DEBUG_CUTSCENES
             nocashMessage("CMD_CHECK_HIT");
@@ -446,14 +460,14 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
 
             len = str_len_file(_commandStream, 0);
             fread(buffer, len + 1, 1, _commandStream);
-            Audio::playBGMusic(buffer, loop);
+            Audio2::playBGMusic(buffer, loop);
             break;
         }
         case CMD_STOP_BGM:
 #ifdef DEBUG_CUTSCENES
             nocashMessage("CMD_STOP_BGM");
 #endif
-            Audio::stopBGMusic();
+            Audio2::stopBGMusic();
             break;
         case CMD_PLAY_SFX: {
 #ifdef DEBUG_CUTSCENES
@@ -464,9 +478,9 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             len = str_len_file(_commandStream, 0);
             fread(buffer, len + 1, 1, _commandStream);
 
-            auto *sfxWav = new Audio::WAV;
-            sfxWav->deleteOnStop = true;
-            sfxWav->loadWAV(buffer);
+            auto sfxWav = std::make_shared<Audio2::WAV>();
+            sfxWav->freeOnStop(sfxWav);
+            sfxWav->load(buffer);
             sfxWav->setLoops(loops);
             sfxWav->play();
             break;
@@ -479,6 +493,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             fread(&flagId, 2, 1, _commandStream);
             fread(&flagValue, 2, 1, _commandStream);
             globalSave.flags[flagId] = flagValue;
+            globalSave.writePermanentFlags();
             break;
         }
         case CMD_MOD_FLAG: {
@@ -490,6 +505,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             fread(&flagId, 2, 1, _commandStream);
             fread(&flagMod, 2, 1, _commandStream);
             globalSave.flags[flagId] += flagMod;
+            globalSave.writePermanentFlags();
             break;
         }
         case CMD_CMP_FLAG: {
@@ -521,7 +537,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             fread(&colliderId, 1, 1, _commandStream);
             fread(&enabled, 1, 1, _commandStream);
             if (callingLocation == ROOM || callingLocation == LOAD_ROOM) {
-                if (colliderId < globalRoom->_roomData.roomColliders.colliderCount) {
+                if (colliderId < globalRoom->_roomData.roomColliders.roomColliders.size()) {
                     globalRoom->_roomData.roomColliders.roomColliders[colliderId].enabled = enabled;
                 }
             }
@@ -540,8 +556,8 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             if (interactAction == 1)
                 fread(&cutsceneId_, 2, 1, _commandStream);
             if (callingLocation == ROOM || callingLocation == LOAD_ROOM) {
-                if (targetType == TargetType::SPRITE && targetId < globalRoom->_spriteCount) {
-                    ManagedSprite* sprite = globalRoom->_sprites[targetId];
+                if (targetType == TargetType::SPRITE && targetId < globalRoom->_sprites.size()) {
+                    auto & sprite = globalRoom->_sprites[targetId];
                     sprite->_interactAction = interactAction;
                     if (interactAction == 1)
                         sprite->_cutsceneId = cutsceneId_;
@@ -554,7 +570,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             nocashMessage("CMD_SAVE_MENU");
 #endif
             if (_cSaveMenu == nullptr)
-                _cSaveMenu = new SaveMenu();
+                _cSaveMenu = std::make_unique<SaveMenu>();
             break;
         case CMD_MAX_HEALTH:
 #ifdef DEBUG_CUTSCENES
@@ -571,7 +587,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             fread(&enemyIdx, 1, 1, _commandStream);
             fread(&attackId, 2, 1, _commandStream);
             if (globalBattle != nullptr) {
-                if (enemyIdx < globalBattle->_enemyCount) {
+                if (enemyIdx < globalBattle->_enemies.size()) {
                     globalBattle->_enemies[enemyIdx]._attackId = attackId;
                 }
             }
@@ -588,7 +604,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
             fread(&cmpValue, 2, 1, _commandStream);
             if (globalBattle == nullptr)
                 break;
-            if (enemyIdx >= globalBattle->_enemyCount)
+            if (enemyIdx >= globalBattle->_enemies.size())
                 break;
             u16 flagValue = globalBattle->_enemies[enemyIdx]._hp;
             if ((comparator & 3) == ComparisonOperator::EQUALS)
@@ -648,14 +664,4 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
 Cutscene::~Cutscene() {
     if (_commandStream != nullptr)
         fclose(_commandStream);
-    if (_cDialogue != nullptr) {
-        _cDialogue->free_();
-        delete _cDialogue;
-        _cDialogue = nullptr;
-    }
-    if (_cSaveMenu != nullptr) {
-        _cSaveMenu->free_();
-        delete _cSaveMenu;
-        _cSaveMenu = nullptr;
-    }
 }
