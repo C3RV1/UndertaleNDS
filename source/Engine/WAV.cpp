@@ -158,6 +158,7 @@ namespace Audio2 {
             fclose(_stream);
             _stream = nullptr;
         }
+        _filename = "";
     }
 
     SoundFormat WAV::getAllocFormat() {
