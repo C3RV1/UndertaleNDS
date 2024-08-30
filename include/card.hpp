@@ -30,6 +30,8 @@ private:
 };
 
 extern CardBuffer fCard;
+#ifndef BLOCKSDS_SDK
 extern bool cardRead;
+#endif
 
 #endif //UNDERTALE_CARD_HPP
