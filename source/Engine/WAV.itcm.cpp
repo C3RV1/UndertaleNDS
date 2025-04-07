@@ -5,7 +5,7 @@
 #include "Engine/WAV.hpp"
 #include "Engine/dma.hpp"
 
-constexpr bool enableAdpcm = false;
+constexpr bool enableAdpcm = true;
 
 namespace Audio2 {
     void WAV::load(const std::string& name) {
