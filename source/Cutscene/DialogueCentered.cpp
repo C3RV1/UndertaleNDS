@@ -146,6 +146,10 @@ u16 DialogueCentered::getLineWidth(std::string::iterator pos) {
             lineWidth_ += sizeInline(++pLine);
             continue;
         }
+        if (*pLine == '\n') {
+            ++pLine;
+            continue;
+        }
         lineWidth_ += _fnt.getGlyphWidth(*pLine++);
         lineWidth_++;
     }

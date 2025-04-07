@@ -16,7 +16,7 @@ FlavorTextDialogue::FlavorTextDialogue(u16 textId)
 }
 
 FlavorTextDialogue::FlavorTextDialogue(std::string text)
-    : DialogueLeftAligned(30 << 8, 25 << 8, text, "SND_TXT2.WAV",
+    : DialogueLeftAligned(30 << 8, 25 << 8, text, "SND_TXT2.wav",
                           "fnt_maintext.font", 2, Engine::textMain,
                           Engine::Allocated3D),
       _flavorTextSpr(Engine::Allocated3D) {

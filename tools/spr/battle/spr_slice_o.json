@@ -1,0 +1,18 @@
+{
+  "size": [16, 66],
+  "frameCount": 6,
+  "exclude3d": true,
+  "animations": [
+    {
+      "name": "gfx",
+      "frames": [
+        {"frame": 0, "duration": 20, "draw_off_x": -8, "draw_off_y": -33},
+        {"frame": 1, "duration": 20, "draw_off_x": -8, "draw_off_y": -33},
+        {"frame": 2, "duration": 20, "draw_off_x": -8, "draw_off_y": -33},
+        {"frame": 3, "duration": 20, "draw_off_x": -8, "draw_off_y": -33},
+        {"frame": 4, "duration": 20, "draw_off_x": -8, "draw_off_y": -33},
+        {"frame": 5, "duration": 20, "draw_off_x": -8, "draw_off_y": -33}
+      ]
+    }
+  ]
+}

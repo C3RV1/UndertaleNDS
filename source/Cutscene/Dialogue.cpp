@@ -120,7 +120,7 @@ int Dialogue::sizeInline(std::string::iterator &posToProgress) {
         for(;*posToProgress != '/';posToProgress++);
     }
     else if (cChar == 'o') {
-        if (*(++posToProgress) == 'p')
+        if (*(posToProgress++) == 'p')
             return 11;
     }
     return 0;
