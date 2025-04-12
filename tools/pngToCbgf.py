@@ -79,7 +79,7 @@ def convert(input_file, output_file):
 
             tile_map[tile_row][tile_col] = i
 
-    palette = np.array([c[0] + (c[1] << 5) + (c[2] << 10) for c in palette],
+    palette = np.array([int(c[0]) + (int(c[1]) << 5) + (int(c[2]) << 10) for c in palette],
                        dtype=np.dtype(np.uint16).newbyteorder("<"))
     tiles = np.array(tiles)
 
@@ -109,7 +109,7 @@ def convert(input_file, output_file):
     wtr.close()
 
 
-def compile_backgrounds():
+def compile_backgrounds(force: bool = False):
     for root, _, files in os.walk("bg"):
         for file in files:
             path = os.path.join(root, file)
@@ -119,7 +119,7 @@ def compile_backgrounds():
             if os.path.isfile(path_dest):
                 src_time = os.path.getmtime(path)
                 dst_time = os.path.getmtime(path_dest)
-                if src_time > dst_time:
+                if src_time > dst_time or force:
                     convert(path, path_dest)
             else:
                 pathlib.Path(os.path.split(path_dest)[0]).mkdir(exist_ok=True, parents=True)

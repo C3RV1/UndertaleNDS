@@ -1,0 +1,51 @@
+r0 - start area
+r1 - flowey
+  c0 - meet flowey
+r2 - ruins entrance
+  c0 - ?
+  c1 - ?
+  c2 - Toriel move diagonal?
+  c3 - Toriel exit
+  c100 - Save point
+r3 - ruins first puzzle (toriel)
+  c0 - Toriel show puzzle.
+  c1 - Sign.
+r4 - ruins two bridges
+  c0 - Sign?
+  c1 - Sign?
+  c2 - Sign?
+  c3 - Toriel something?
+  c4 - Deactivate spikes
+  c10 - Sign? Changes if Toriel in room or not.
+  c11 - Sign? Changes if Toriel in room or not.
+r5 - ruins dummy
+  c0 - Toriel says to talk to the dummy.
+  c10 - Battle Dummy.
+r6 - ruins toriel hold hand
+  c0 - Toriel says something.
+  c1 - Move Toriel.
+  c2 - Battle Froggit.
+  c3 - Move Toriel.
+  c4 - Hand hold.
+  c10 - Sign.
+r7 - ruins long hall
+  c0 - Toriel runs away.
+  c1 - Toriel caught behind the pillar.
+  c2 - Toriel exits from behind the pillar.
+r8 - ruins save point
+  c0 - Sign/Froggit?.
+  c1 - Phone.
+  c100 - Save point.
+r9 - ruins candy (TODO)
+r10 - ruins fall first
+  c0 - Fall.
+  c1 - Come up.
+r11 - ruins push rock
+  c10 - Cinnamon or Butterscotch?
+
+1000 - Phone
+  c1 - Say hello.
+  c2 - About yourself.
+  c3 - Call mom.
+  c4 - Flirt.
+

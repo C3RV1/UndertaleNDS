@@ -17,7 +17,7 @@ def convert(input_path, output_path):
     c.end_cutscene()
 
 
-def compile_cutscenes():
+def compile_cutscenes(force: bool = False):
     for root, _, files in os.walk("cutscenes"):
         for file in files:
             path = os.path.join(root, file)
@@ -27,7 +27,7 @@ def compile_cutscenes():
             if os.path.isfile(path_dest):
                 src_time = os.path.getmtime(path)
                 dst_time = os.path.getmtime(path_dest)
-                if src_time > dst_time:
+                if src_time > dst_time or force:
                     convert(path, path_dest)
             else:
                 pathlib.Path(os.path.split(path_dest)[0]).mkdir(exist_ok=True, parents=True)

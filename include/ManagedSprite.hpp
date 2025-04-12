@@ -20,6 +20,9 @@ public:
   void spawn(s8 textureId, s32 x, s32 y,
              const std::vector<std::shared_ptr<Engine::Texture>> &textures);
 
+  bool check_player_collide(s32 x, s32 y, s32 w, s32 h, s32 dx, s32 dy);
+  void commit_player_move();
+
   void update(bool isRoom);
 
   void draw(bool isRoom);
@@ -36,6 +39,12 @@ public:
   int _animationId = 0;
   s32 _parallax_x = 1 << 8;
   s32 _parallax_y = 1 << 8;
+
+  u16 _valid_rect_x, _valid_rect_y, _valid_rect_w, _valid_rect_h;
+  u16 _goal_rect_x, _goal_rect_y, _goal_rect_w, _goal_rect_h;
+  u16 _goal_flag_id;
+  u16 _goal_flag_bit;
+  s32 _commit_x, _commit_y;
 
 private:
   void free_();

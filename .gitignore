@@ -19,6 +19,7 @@ _*
 # Exclude misc internal
 .idea
 .cache
+venv
 compile_commands.json
 *.sav
 build

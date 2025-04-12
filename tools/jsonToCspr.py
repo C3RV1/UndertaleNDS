@@ -178,7 +178,7 @@ def convert(input_file, output_file):
     wtr.close()
 
 
-def compile_sprites():
+def compile_sprites(force: bool = False):
     for root, _, files in os.walk("spr"):
         for file in files:
             path = os.path.join(root, file)
@@ -189,7 +189,7 @@ def compile_sprites():
                 src_time = os.path.getmtime(path)
                 src_time2 = os.path.getmtime(os.path.splitext(path)[0] + ".png")
                 dst_time = os.path.getmtime(path_dest)
-                if src_time > dst_time:
+                if src_time > dst_time or force:
                     convert(path, path_dest)
                 elif src_time2 > dst_time:
                     convert(path, path_dest)

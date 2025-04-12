@@ -125,6 +125,11 @@ class RoomSprite:
         self.parallax_x = 0
         self.parallax_y = 0
 
+        self.valid_rect = [0, 0, 0, 0]
+        self.goal_rect = [0, 0, 0, 0]
+        self.goal_flag_id = 0
+        self.goal_flag_bit = 0
+
     def write(self, wtr: binary.BinaryWriter):
         wtr.write_uint8(self.texture_id)
         wtr.write_uint16(int(self.x))
@@ -139,6 +144,14 @@ class RoomSprite:
         elif self.action == 3:
             wtr.write_int32(to_fixed_point(self.parallax_x))
             wtr.write_int32(to_fixed_point(self.parallax_y))
+        elif self.action == 4:
+            for v in self.valid_rect:
+                wtr.write_uint16(v)
+            for v in self.goal_rect:
+                wtr.write_uint16(v)
+            wtr.write_uint16(self.cutscene_id)
+            wtr.write_uint16(self.goal_flag_id)
+            wtr.write_uint16(self.goal_flag_bit)
 
     @classmethod
     def from_dict(cls, dct):
@@ -151,7 +164,8 @@ class RoomSprite:
             "none": 0,
             "cutscene": 1,
             "proximity": 2,
-            "parallax": 3
+            "parallax": 3,
+            "pushable": 4
         }[dct.get("action", "none")]
         if res.action == 1:
             res.cutscene_id = dct["cutscene_id"]
@@ -169,6 +183,17 @@ class RoomSprite:
                 res.y *= res.parallax_y
             res.x += 256//2
             res.y += 192//2
+        elif res.action == 4:
+            res.valid_rect = dct["valid_rect"]
+            if len(res.valid_rect) != 4:
+                raise ValueError("Incorrect Valid Rect")
+            res.goal_rect = dct["goal_rect"]
+            if len(res.goal_rect) != 4:
+                raise ValueError("Incorrect Goal Rect")
+            res.cutscene_id = dct["goal_cutscene_id"]
+            res.goal_flag_id = dct["goal_flag_id"]
+            res.goal_flag_bit = dct["goal_flag_bit"]
+
         return res
 
 
@@ -351,7 +376,7 @@ def convert(input_file, output_file):
     wtr.close()
 
 
-def compile_rooms():
+def compile_rooms(force: bool = False):
     for root, _, files in os.walk("rooms"):
         for file in files:
             path = os.path.join(root, file)
@@ -359,7 +384,7 @@ def compile_rooms():
             if os.path.isfile(path_dest):
                 src_time = os.path.getmtime(path)
                 dst_time = os.path.getmtime(path_dest)
-                if src_time > dst_time:
+                if src_time > dst_time or force:
                     convert(path, path_dest)
             else:
                 pathlib.Path(os.path.split(path_dest)[0]).mkdir(exist_ok=True, parents=True)

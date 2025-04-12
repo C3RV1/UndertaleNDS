@@ -59,7 +59,8 @@ struct ROOMSprite {
   // only when interactAction == PUSHABLE
   u16 valid_rect_x, valid_rect_y, valid_rect_w, valid_rect_h;
   u16 goal_rect_x, goal_rect_y, goal_rect_w, goal_rect_h;
-  u16 goal_cutscene_id;
+  u16 goal_cutscene_id, goal_flag_id;
+  u16 goal_flag_bit;
 };
 
 struct ROOMSprites {

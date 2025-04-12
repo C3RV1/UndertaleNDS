@@ -5,23 +5,25 @@
 #ifndef UNDERTALE_MATH_HPP
 #define UNDERTALE_MATH_HPP
 
-#include <nds.h>
 #include <cmath>
+#include <nds.h>
 
-inline u32 double_to_fixed(double input, u8 bits)
-{
-    return (u32)(round(input * (1 << bits)));
+inline u32 double_to_fixed(double input, u8 bits) {
+  return (u32)(round(input * (1 << bits)));
 }
 
-bool collidesRect(int x1, int y1, int w1, int h1,
-                  int x2, int y2, int w2, int h2);
+bool collidesRect(int x1, int y1, int w1, int h1, int x2, int y2, int w2,
+                  int h2);
+bool rectContainsOther(int x1, int y1, int w1, int h1, int x2, int y2, int w2,
+                       int h2);
 
 int distSquared(int x1, int y1, int x2, int y2);
-u32 distSquared_fp(s32 x1, s32 y1, s32 x2, s32 y2); // fixed point distance squared
+u32 distSquared_fp(s32 x1, s32 y1, s32 x2,
+                   s32 y2); // fixed point distance squared
 
 inline int mod(int a, int b) {
-    int r = a % b;
-    return r < 0 ? r + b : r;
+  int r = a % b;
+  return r < 0 ? r + b : r;
 }
 
-#endif //UNDERTALE_MATH_HPP
+#endif // UNDERTALE_MATH_HPP
