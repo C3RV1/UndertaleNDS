@@ -48,7 +48,7 @@ def convert(input_file, output_file):
 
     palette = palette[1:]  # remove transparent color
     # TODO: Sort palette
-    palette = np.array([c[0] + (c[1] << 5) + (c[2] << 10) for c in palette],
+    palette = np.array([int(c[0]) + (int(c[1]) << 5) + (int(c[2]) << 10) for c in palette],
                        dtype=np.dtype(np.uint16).newbyteorder("<"))
 
     width, height = data["size"]

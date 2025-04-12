@@ -10,15 +10,37 @@ import time
 
 def main():
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    force = False
+
+    # TODO: Add proper argparser
+    force_cutscenes = False
+    force_fonts = False
+    force_sprites = False
+    force_rooms = False
+    force_bgs = False
     for arg in sys.argv:
-        if arg == "--force":
-            force = True
-    compile_cutscenes(force)
-    compile_fonts(force)
-    compile_sprites(force)
-    compile_rooms(force)
-    compile_backgrounds(force)
+        if arg == "--force" or arg == "-f":
+            force_cutscenes = True
+            force_fonts = True
+            force_sprites = True
+            force_rooms = True
+            force_bgs = True
+        elif arg == "--force-cutscenes" or arg == "-fc":
+            force_cutscenes = True
+        elif arg == "--force-fonts" or arg == "-ff":
+            force_fonts = True
+        elif arg == "--force-sprites" or arg == "-fs":
+            force_sprites = True
+        elif arg == "--force-rooms" or arg == "-fr":
+            force_rooms = True
+        elif arg == "--force-backgrounds" or arg == "-fb":
+            force_bgs = True
+
+    compile_cutscenes(force_cutscenes)
+    compile_fonts(force_fonts)
+    compile_sprites(force_sprites)
+    compile_rooms(force_rooms)
+    compile_backgrounds(force_bgs)
+
     # Hack to allow make to detect the changes
     with open("../nitrofs/stamp_file.txt", "w") as f:
         f.write(str(time.time()))

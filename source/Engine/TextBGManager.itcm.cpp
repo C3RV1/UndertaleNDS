@@ -118,6 +118,8 @@ void TextBGManager::reloadColors() {
 void TextBGManager::clear() {
   dmaFillSafe(3, 0, _mapRam, 2 * 32 * 32);
   _tileReserve = 1;
+  for (u32 i = 0; i < TILE_BUFFER_SIZE; i++)
+    _tileIds[i] = 0;
 }
 
 void TextBGManager::clearRect(int x, int y, int w, int h) {
@@ -172,7 +174,7 @@ u8 *TextBGManager::getTile(int x, int y) {
   y /= 8;
   u16 tileId = *((u8 *)_mapRam + (y * 32 + x) * 2) & 0x1FF;
 
-  u16 innerTileId = (x + y) % TILE_BUFFER_SIZE;
+  u16 innerTileId = (x + 32 * (y % 2)) % TILE_BUFFER_SIZE;
 
   if (tileId == 0) {
     tileId = _tileReserve++;
@@ -205,6 +207,8 @@ void TextBGManager::updateDirty(u32 localTileId) {
 void TextBGManager::tick() {
   for (int i = 0; i < TILE_BUFFER_SIZE; i++)
     updateDirty(i);
+  while (dmaBusy(3))
+    ;
 }
 
 void TextBGManager::setPaletteColor(int colorIdx, int r, int g, int b,
