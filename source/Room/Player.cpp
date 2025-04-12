@@ -42,32 +42,27 @@ void Player::update() {
     return;
 
   s32 dx = 0, dy = 0;
-  s32 prevX = _playerSpr._wx, prevY = _playerSpr._wy;
   int moveDirection = -1;
   bool setAnim = true;
   if (keysHeld() & KEY_DOWN) {
-    _playerSpr._wy += kMoveSpeed;
     dy += kMoveSpeed;
     moveDirection = _downMoveId;
     if (_playerSpr._cAnimation == _downMoveId)
       setAnim = false;
   }
   if (keysHeld() & KEY_UP) {
-    _playerSpr._wy -= kMoveSpeed;
     dy -= kMoveSpeed;
     moveDirection = _upMoveId;
     if (_playerSpr._cAnimation == _upMoveId)
       setAnim = false;
   }
   if (keysHeld() & KEY_RIGHT) {
-    _playerSpr._wx += kMoveSpeed;
     dx += kMoveSpeed;
     moveDirection = _rightMoveId;
     if (_playerSpr._cAnimation == _rightMoveId)
       setAnim = false;
   }
   if (keysHeld() & KEY_LEFT) {
-    _playerSpr._wx -= kMoveSpeed;
     dx -= kMoveSpeed;
     moveDirection = _leftMoveId;
     if (_playerSpr._cAnimation == _leftMoveId)
@@ -102,6 +97,8 @@ void Player::attempt_move(s32 &dx, s32 &dy) {
   if (dx == 0 && dy == 0)
     return;
 
+  check_exits();
+
   if (!check_collisions(dx, dy)) {
     commit_move(dx, dy);
     return;
@@ -120,7 +117,12 @@ void Player::attempt_move(s32 &dx, s32 &dy) {
   }
 }
 
-void Player::commit_move(const s32 dx, const s32 dy) {}
+void Player::commit_move(const s32 dx, const s32 dy) {
+  _playerSpr._wx += dx;
+  _playerSpr._wy += dy;
+
+  // TODO: Push objects if necessary.
+}
 
 void Player::check_exits() {
   u16 width, height;
