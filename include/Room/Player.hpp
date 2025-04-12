@@ -16,10 +16,12 @@ public:
 
     Player();
     void update();
-    bool check_collisions() const;
+    void attempt_move(s32 &dx, s32 &dy);
+    void commit_move(s32 dx, s32 dy);
+    [[nodiscard]] bool check_collisions(s32 dx, s32 dy) const;
     void check_interact() const;
     void check_exits();
-    void setPlayerControl(bool playerControl);
+    void set_player_control(bool playerControl);
     void draw();
 
     // sprite top left position

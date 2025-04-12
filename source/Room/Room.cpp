@@ -291,7 +291,7 @@ void loadNewRoom(int roomId, s32 spawnX, s32 spawnY) {
         // Cutscenes are confined to rooms
         globalCutscene = nullptr;
         globalInGameMenu.show(false);
-        globalPlayer->setPlayerControl(true);
+        globalPlayer->set_player_control(true);
         globalCamera._manual = false;
     }
     globalCamera.updatePosition(true);

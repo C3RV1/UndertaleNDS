@@ -18,6 +18,9 @@ _*
 
 # Exclude misc internal
 .idea
+.cache
+compile_commands.json
+*.sav
 build
 .vscode
 cmake*

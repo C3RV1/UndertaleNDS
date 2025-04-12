@@ -171,7 +171,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
 #endif
             bool playerControl;
             fread(&playerControl, 1, 1, _commandStream);
-            globalPlayer->setPlayerControl(playerControl);
+            globalPlayer->set_player_control(playerControl);
             if (playerControl)
                 globalInGameMenu.show(false);
             else
