@@ -26,7 +26,13 @@
       "sprites": [
         {
           "texture_id": 0,
-          "x": 157, "y": 135
+          "x": 157, "y": 135,
+          "action": "pushable",
+          "valid_rect": [156, 134, 80, 20],
+          "goal_rect": [216, 134, 20, 20],
+          "goal_cutscene_id": 0,
+          "goal_flag_id": 210,
+          "goal_flag_bit": 1
         },
         {
           "texture_id": 1,
@@ -34,11 +40,6 @@
         }
       ],
       "colliders": [
-        {
-          "_comment": "Rock",
-          "x": 157, "y": 135, "w": 20, "h": 18
-        },
-
         {
           "_comment": "Spikes",
           "x": 276, "y": 74, "w": 20, "h": 120

@@ -38,6 +38,18 @@ void ManagedSprite::load(
     _parallax_x = sprData.parallax_x;
     _parallax_y = sprData.parallax_y;
     break;
+  case ROOMSpriteAction::PUSHABLE:
+    _valid_rect_x = sprData.valid_rect_x;
+    _valid_rect_y = sprData.valid_rect_y;
+    _valid_rect_w = sprData.valid_rect_w;
+    _valid_rect_h = sprData.valid_rect_h;
+    _goal_rect_x = sprData.goal_rect_x;
+    _goal_rect_y = sprData.goal_rect_y;
+    _goal_rect_w = sprData.goal_rect_w;
+    _goal_rect_h = sprData.goal_rect_h;
+    _cutsceneId = sprData.goal_cutscene_id;
+    _goal_flag_id = sprData.goal_flag_id;
+    _goal_flag_bit = sprData.goal_flag_bit;
   default:
     break;
   }
@@ -90,6 +102,62 @@ void ManagedSprite::update(const bool isRoom) {
     else
       _spr.setAnimation(_animationId);
   }
+}
+
+bool ManagedSprite::check_player_collide(s32 x, s32 y, s32 w, s32 h, s32 dx,
+                                         s32 dy) {
+  if (_interactAction != ROOMSpriteAction::PUSHABLE)
+    return false;
+
+  _commit_x = _spr._wx;
+  _commit_y = _spr._wy;
+  const s32 w2 = _spr._texture->getWidth() << 8;
+  const s32 h2 = _spr._texture->getHeight() << 8;
+
+  if (!collidesRect(x, y, w, h, _spr._wx, _spr._wy, w2, h2))
+    return false;
+
+  if (!collidesRect(x, y, w, h, _spr._wx + dx, _spr._wy, w2, h2)) {
+    // Attempt move x-axis
+    if (!rectContainsOther(_valid_rect_x, _valid_rect_y, _valid_rect_w,
+                           _valid_rect_h, (_spr._wx + dx) >> 8, _spr._wy >> 8,
+                           w2 >> 8, h2 >> 8))
+      return true;
+    _commit_x = _spr._wx + dx;
+    return false;
+  }
+
+  if (!collidesRect(x, y, w, h, _spr._wx, _spr._wy + dy, w2, h2)) {
+    // Attempt move y-axis
+    if (!rectContainsOther(_valid_rect_x, _valid_rect_y, _valid_rect_w,
+                           _valid_rect_h, _spr._wx >> 8, (_spr._wy + dy) >> 8,
+                           w2 >> 8, h2 >> 8))
+      return true;
+    _commit_y = _spr._wy + dy;
+    return false;
+  }
+
+  if (!collidesRect(x, y, w, h, _spr._wx + dx, _spr._wy + dy, w2, h2)) {
+    // Attempt move both axes
+    if (!rectContainsOther(_valid_rect_x, _valid_rect_y, _valid_rect_w,
+                           _valid_rect_h, (_spr._wx + dx) >> 8,
+                           (_spr._wy + dy) >> 8, w2 >> 8, h2 >> 8))
+      return true;
+    _commit_x = _spr._wx + dx;
+    _commit_y = _spr._wy + dy;
+    return false;
+  }
+
+  return false;
+}
+
+void ManagedSprite::commit_player_move() {
+  if (_interactAction != ROOMSpriteAction::PUSHABLE)
+    return;
+  _spr._wx = _commit_x;
+  _spr._wy = _commit_y;
+
+  // TODO: Goal.
 }
 
 void ManagedSprite::free_() { _spr.setShown(false); }

@@ -121,7 +121,10 @@ void Player::commit_move(const s32 dx, const s32 dy) {
   _playerSpr._wx += dx;
   _playerSpr._wy += dy;
 
-  // TODO: Push objects if necessary.
+  // Push objects if necessary.
+  for (auto &roomSprite : globalRoom->_sprites) {
+    roomSprite->commit_player_move();
+  }
 }
 
 void Player::check_exits() {
@@ -205,7 +208,7 @@ void Player::check_interact() const {
   }
 }
 
-bool Player::check_collisions(const s32 dx, const s32 dy) const {
+bool Player::check_collisions(s32 dx, s32 dy) const {
   const s32 x = _playerSpr._wx + dx;
   const s32 y = _playerSpr._wy + dy;
 
@@ -220,9 +223,17 @@ bool Player::check_collisions(const s32 dx, const s32 dy) const {
         // Cutscene
         globalCutscene = std::make_unique<Cutscene>(collider.cutsceneId,
                                                     globalRoom->_roomId);
+        return true;
       }
     }
   }
+
+  for (auto &roomSprite : globalRoom->_sprites) {
+    if (roomSprite->check_player_collide(x, y + (20 << 8), 19 << 8, 9 << 8, dx,
+                                         dy))
+      return true;
+  }
+
   return false;
 }
 
