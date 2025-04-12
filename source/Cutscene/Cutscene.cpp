@@ -9,6 +9,7 @@
 #include "Cutscene/Dialogue.hpp"
 #include "Cutscene/Navigation.hpp"
 #include "DEBUG_FLAGS.hpp"
+#include "Engine/Audio.hpp"
 #include "Formats/CSCN.hpp"
 #include "Formats/ROOM_FILE.hpp"
 #include "Formats/utils.hpp"
@@ -480,10 +481,9 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
     fread(buffer, len + 1, 1, _commandStream);
 
     auto sfxWav = std::make_shared<Audio2::WAV>();
-    sfxWav->freeOnStop(sfxWav);
     sfxWav->load(buffer);
     sfxWav->setLoops(loops);
-    sfxWav->play();
+    Audio2::audioManager.play(std::move(sfxWav));
     break;
   }
   case CMD_SET_FLAG: {

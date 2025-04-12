@@ -2,8 +2,10 @@
 // Created by cervi on 10/10/2023.
 //
 #include "Engine/WAV.hpp"
+#include "Engine/Audio.hpp"
 #include "Engine/Engine.hpp"
 #include "Engine/dma.hpp"
+#include <memory>
 
 constexpr bool enableAdpcm = false;
 
@@ -289,13 +291,13 @@ bool WAV::renew_file_buffer() {
 
 void playBGMusic(const std::string &filename, bool loop) {
   stopBGMusic();
-  cBGMusic.load(filename);
-  cBGMusic.setLoops(loop ? -1 : 0);
-  if (cBGMusic.getLoaded())
-    cBGMusic.play();
+  cBGMusic->load(filename);
+  cBGMusic->setLoops(loop ? -1 : 0);
+  if (cBGMusic->getLoaded())
+    audioManager.play(cBGMusic);
 }
 
-void stopBGMusic() { cBGMusic.stop(); }
+void stopBGMusic() { audioManager.stop(cBGMusic); }
 
-WAV cBGMusic;
+std::shared_ptr<WAV> cBGMusic = std::make_shared<WAV>();
 } // namespace Audio2

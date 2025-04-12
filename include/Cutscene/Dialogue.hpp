@@ -9,6 +9,7 @@
 #include "Engine/TextBGManager.hpp"
 #include "Engine/WAV.hpp"
 #include <cstdio>
+#include <memory>
 #include <nds.h>
 
 class Dialogue {
@@ -60,7 +61,7 @@ protected:
   std::string::iterator _lastClearPos;
   u8 _lastClearColor = 15;
 
-  Audio2::WAV _typeSnd;
+  std::shared_ptr<Audio2::WAV> _typeSnd = std::make_shared<Audio2::WAV>();
 
   Engine::Font _fnt;
 

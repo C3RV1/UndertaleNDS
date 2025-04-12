@@ -16,6 +16,8 @@
 #include <cstdio>
 
 int main() {
+  defaultExceptionHandler();
+
   /* Configure the VRAM and background control registers. */
   if (Engine::init() != 0)
     return 0;
@@ -39,8 +41,8 @@ int main() {
   u16 roomSpawn = globalSave.lastSavedRoom;
 
   // DEBUG
-  roomSpawn = 10;
-  globalSave.flags[0] = 8;
+  // roomSpawn = 10;
+  // globalSave.flags[0] = 8;
 
   globalPlayer = new Player();
   globalPlayer->_playerSpr.setShown(true);

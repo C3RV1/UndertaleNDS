@@ -53,7 +53,7 @@ void runMainMenu() {
   } else {
     buffer = "Error opening room " + std::to_string(globalSave.lastSavedRoom) +
              " name";
-    nocashMessage(buffer.c_str());
+    Engine::throw_(buffer);
   }
   fclose(f);
 
@@ -69,7 +69,7 @@ void runMainMenu() {
     fread(&resetText[0], len, 1, f);
     fseek(f, 1, SEEK_CUR);
   } else {
-    nocashMessage("Error opening main menu text");
+    Engine::throw_("Error opening main menu text");
   }
   fclose(f);
 

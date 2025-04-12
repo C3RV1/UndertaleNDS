@@ -4,6 +4,7 @@
 
 #include "Engine/TextBGManager.hpp"
 #include "Engine/dma.hpp"
+#include <cstring>
 
 namespace Engine {
 void TextBGManager::drawGlyph(Font &font, u8 glyph, int &x, int y) {
@@ -181,16 +182,17 @@ u8 *TextBGManager::getTile(int x, int y) {
     *(u16 *)((u8 *)_mapRam + (y * 32 + x) * 2) = (15 << 12) + tileId;
     // Initialize tile to blank
     dmaFillSafe(3, 0, ((u8 *)_tileRam) + (tileId * 32), 32);
-  }
 
-  if (_tileIds[innerTileId] != tileId) {
+    updateDirty(innerTileId);
+    _tileIds[innerTileId] = tileId;
+    memset(_tiles[innerTileId], 0, 32);
+  } else if (_tileIds[innerTileId] != tileId) {
     updateDirty(innerTileId);
     _tileIds[innerTileId] = tileId;
 
-    dmaCopySafe(3, (u8 *)_tileRam + (tileId * 32), _tiles[innerTileId], 32);
-    while (dmaBusy(3))
-      ;
+    memcpy(_tiles[innerTileId], (u8 *)_tileRam + (tileId * 32), 32);
   }
+
   _dirty[innerTileId] = true;
   return _tiles[innerTileId];
 }
