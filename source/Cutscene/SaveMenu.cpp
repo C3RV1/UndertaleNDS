@@ -4,7 +4,11 @@
 #include "Cutscene/SaveMenu.hpp"
 #include "Cutscene/Cutscene.hpp"
 #include "Engine/Audio.hpp"
+#include "Engine/Engine.hpp"
+#include "Engine/WAV.hpp"
 #include "Formats/utils.hpp"
+#include <memory>
+#include <string>
 
 SaveMenu::SaveMenu() : _optionsHeartSpr(Engine::AllocatedOAM) {
   _fnt.loadPath("fnt_maintext.font");
@@ -18,6 +22,7 @@ SaveMenu::SaveMenu() : _optionsHeartSpr(Engine::AllocatedOAM) {
   _optionsHeartSpr._wx = kHrtSaveX << 8;
   _optionsHeartSpr._wy = kHrtSaveY << 8;
 
+  _saveSnd = std::make_shared<Audio2::WAV>();
   _saveSnd->load("snd_save.wav");
   _saveSnd->setLoops(0);
 
@@ -41,18 +46,24 @@ void SaveMenu::drawInfo(SaveData &saveData, u8 color) {
     return;
   }
 
-  std::string buffer = "nitro:/data/room_names/" +
-                       std::to_string(saveData.lastSavedRoom) + ".txt";
-  FILE *f = fopen(buffer.c_str(), "rb");
-  if (f) {
-    int len = str_len_file(f, '\n');
-    _roomName.resize(len);
+  std::string buffer;
+  if (saveData.lastSavedRoom != 0) {
+    buffer = "nitro:/data/room_names/" +
+             std::to_string(saveData.lastSavedRoom) + ".txt";
+    FILE *f = fopen(buffer.c_str(), "rb");
+    if (f) {
+      int len = str_len_file(f, '\n');
+      _roomName.resize(len);
 
-    fread(&_roomName[0], len, 1, f);
+      fread(&_roomName[0], len, 1, f);
+    } else {
+      Engine::throw_("Error opening room" +
+                     std::to_string(saveData.lastSavedRoom) + " name file");
+    }
+    fclose(f);
   } else {
-    nocashMessage("Error opening room name file");
+    _roomName = "";
   }
-  fclose(f);
 
   buffer = std::to_string(saveData.lv);
   int x = kLvNumX;

@@ -8,6 +8,7 @@
 #include "Engine/Engine.hpp"
 #include "Engine/OAMManager.hpp"
 #include "Formats/utils.hpp"
+#include <memory>
 
 Dialogue::Dialogue(u16 textId, Engine::Sprite *target,
                    const std::string &targetIdle, const std::string &targetTalk,
@@ -15,6 +16,7 @@ Dialogue::Dialogue(u16 textId, Engine::Sprite *target,
                    u16 framesPerLetter, Engine::TextBGManager &txtManager,
                    Engine::AllocationMode heartAlloc)
     : _target(target), _textManager(&txtManager), _heartSprite(heartAlloc) {
+  _typeSnd = std::make_shared<Audio2::WAV>();
   _fnt.loadPath(fontTxt);
   _heartTexture.loadPath("spr_heartsmall");
   _heartSprite.loadTexture(_heartTexture);

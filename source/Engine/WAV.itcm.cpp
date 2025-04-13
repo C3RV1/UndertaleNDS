@@ -299,5 +299,5 @@ void playBGMusic(const std::string &filename, bool loop) {
 
 void stopBGMusic() { audioManager.stop(cBGMusic); }
 
-std::shared_ptr<WAV> cBGMusic = std::make_shared<WAV>();
+std::shared_ptr<WAV> cBGMusic = nullptr;
 } // namespace Audio2
