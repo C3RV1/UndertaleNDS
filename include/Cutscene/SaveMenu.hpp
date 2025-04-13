@@ -32,7 +32,7 @@ private:
   int _selectedOption = 0;
   std::string _roomName;
 
-  std::shared_ptr<Audio2::WAV> _saveSnd;
+  std::shared_ptr<Audio2::WAV> _saveSnd = nullptr;
   Engine::Texture _optionsHeartTex;
   Engine::Sprite _optionsHeartSpr;
   Engine::Font _fnt;

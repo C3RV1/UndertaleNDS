@@ -61,7 +61,7 @@ protected:
   std::string::iterator _lastClearPos;
   u8 _lastClearColor = 15;
 
-  std::shared_ptr<Audio2::WAV> _typeSnd;
+  std::shared_ptr<Audio2::WAV> _typeSnd = nullptr;
 
   Engine::Font _fnt;
 
