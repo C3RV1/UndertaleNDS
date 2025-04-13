@@ -3,6 +3,7 @@
 //
 
 #include "Save.hpp"
+#include "DEBUG_FLAGS.hpp"
 #include "card.hpp"
 
 SaveData globalSave;
@@ -38,6 +39,9 @@ void SaveData::loadData() {
   fCard.read(header, 4);
 
   if (memcmp(header, expectedHeader, 4) != 0) {
+#ifdef DEBUG_SAVE
+    nocashMessage("Save: BAD HEADER.");
+#endif
     fCard.close();
     clear(INTERNAL_RESET);
     return;
@@ -46,6 +50,9 @@ void SaveData::loadData() {
   u32 saveVersion_;
   fCard.read(&saveVersion_, 4);
   if (saveVersion_ != saveVersion) {
+#ifdef DEBUG_SAVE
+    nocashMessage("Save: BAD VERSION.");
+#endif
     fCard.close();
     clear(INTERNAL_RESET);
     return;

@@ -11,5 +11,6 @@
 // #define DEBUG_AUDIO
 // #define DEBUG_ZONES
 // #define DEBUG_ZONES_DUMP
+#define DEBUG_SAVE
 
-#endif //UNDERTALE_DEBUG_FLAGS_HPP
+#endif // UNDERTALE_DEBUG_FLAGS_HPP
