@@ -191,8 +191,7 @@ bool ManagedSprite::check_on_goal() {
   if (dy < 0)
     dy = -dy;
 
-  return dx <= ((s32)_spr._texture->getWidth() << 8) / 16 &&
-         dy <= ((s32)_spr._texture->getHeight() << 8) / 16;
+  return dx <= 2 << 8 && dy <= 2 << 8;
 }
 
 void ManagedSprite::free_() { _spr.setShown(false); }

@@ -21,7 +21,8 @@
       ],
       "textures": [
         "room_sprites/spr_rock",
-        "room_sprites/wall_panel_ruins"
+        "room_sprites/wall_panel_ruins",
+        "room_sprites/spike"
       ],
       "sprites": [
         {
@@ -38,6 +39,36 @@
         {
           "texture_id": 1,
           "x": 136, "y": 34
+        },
+        {
+          "texture_id": 2,
+          "animation": "up",
+          "x": 277, "y": 75
+        },
+        {
+          "texture_id": 2,
+          "animation": "up",
+          "x": 277, "y": 95
+        },
+        {
+          "texture_id": 2,
+          "animation": "up",
+          "x": 277, "y": 115
+        },
+        {
+          "texture_id": 2,
+          "animation": "up",
+          "x": 277, "y": 135
+        },
+        {
+          "texture_id": 2,
+          "animation": "up",
+          "x": 277, "y": 155
+        },
+        {
+          "texture_id": 2,
+          "animation": "up",
+          "x": 277, "y": 175
         }
       ],
       "colliders": [
