@@ -9,6 +9,7 @@
     7 - toriel ran away room done
     8 - received call from toriel
     9 - received call cinnamon/butterscotch
+    10 - spikes down on room 9
 1 - dummy behaviour
     0 - killed
     1 - talked

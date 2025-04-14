@@ -1,7 +1,10 @@
 {
   "parts": [
     {
-      "conditions": [],
+      "_comment": "Not received call cinnamon/butterscotch."
+      "conditions": [
+        { "flag_id": 0, "op": "==", "cmp_value": 8}
+      ],
       "room_bg": "rooms/room11",
       "music_path": "mus_ruins.wav",
       "spawn_x": 3, "spawn_y": 91,
@@ -27,7 +30,7 @@
       "sprites": [
         {
           "texture_id": 0,
-          "x": 157, "y": 135,
+          "x": 157, "y": 134,
           "action": "pushable",
           "valid_rect": [156, 134, 80, 20],
           "goal_pos": [216, 134],
@@ -43,32 +46,32 @@
         {
           "texture_id": 2,
           "animation": "up",
-          "x": 277, "y": 75
+          "x": 277, "y": 81
         },
         {
           "texture_id": 2,
           "animation": "up",
-          "x": 277, "y": 95
+          "x": 277, "y": 101
         },
         {
           "texture_id": 2,
           "animation": "up",
-          "x": 277, "y": 115
+          "x": 277, "y": 121
         },
         {
           "texture_id": 2,
           "animation": "up",
-          "x": 277, "y": 135
+          "x": 277, "y": 141
         },
         {
           "texture_id": 2,
           "animation": "up",
-          "x": 277, "y": 155
+          "x": 277, "y": 161
         },
         {
           "texture_id": 2,
           "animation": "up",
-          "x": 277, "y": 175
+          "x": 277, "y": 181
         }
       ],
       "colliders": [
@@ -82,6 +85,180 @@
           "x": 33, "y": 94, "w": 6, "h": 40,
           "action": "cutscene",
           "cutscene_id": 10
+        },
+
+        {
+          "_comment": "Walls start here",
+          "x": 0, "y": 0, "w": 36, "h": 94
+        },
+        {"x": 36, "y": 0, "w": 380, "h": 74},
+        {"x": 416, "y": 0, "w": 40, "h": 94},
+        {"x": 0, "y": 134, "w": 36, "h": 74},
+        {"x": 36, "y": 194, "w": 380, "h": 14},
+        {"x": 416, "y": 134, "w": 40, "h": 74}
+      ]
+    },
+    {
+      "_comment": "Received call cinnamon/butterscotch. Spikes up."
+      "conditions": [
+        { "flag_id": 0, "op": "==", "cmp_value": 9}
+      ],
+      "room_bg": "rooms/room11",
+      "music_path": "mus_ruins.wav",
+      "spawn_x": 3, "spawn_y": 91,
+      "exits": [
+        {
+          "exit_type": "side",
+          "room_id": 10,
+          "spawn_x": 351, "spawn_y": 104,
+          "side": "left"
+        },
+        {
+          "exit_type": "side",
+          "room_id": 12,
+          "spawn_x": 4, "spawn_y": 63,
+          "side": "right"
+        }
+      ],
+      "textures": [
+        "room_sprites/spr_rock",
+        "room_sprites/wall_panel_ruins",
+        "room_sprites/spike"
+      ],
+      "sprites": [
+        {
+          "texture_id": 0,
+          "x": 157, "y": 134,
+          "action": "pushable",
+          "valid_rect": [156, 134, 80, 20],
+          "goal_pos": [216, 134],
+          "goal_cutscene_id": 20,
+          "goal_flag_id": 210,
+          "goal_flag_bit": 1,
+          "stop_on_goal": true
+        },
+        {
+          "texture_id": 1,
+          "x": 136, "y": 34
+        },
+        {
+          "texture_id": 2,
+          "animation": "up",
+          "x": 277, "y": 81
+        },
+        {
+          "texture_id": 2,
+          "animation": "up",
+          "x": 277, "y": 101
+        },
+        {
+          "texture_id": 2,
+          "animation": "up",
+          "x": 277, "y": 121
+        },
+        {
+          "texture_id": 2,
+          "animation": "up",
+          "x": 277, "y": 141
+        },
+        {
+          "texture_id": 2,
+          "animation": "up",
+          "x": 277, "y": 161
+        },
+        {
+          "texture_id": 2,
+          "animation": "up",
+          "x": 277, "y": 181
+        }
+      ],
+      "colliders": [
+        {
+          "_comment": "Spikes",
+          "x": 276, "y": 74, "w": 20, "h": 120
+        },
+
+        {
+          "_comment": "Walls start here",
+          "x": 0, "y": 0, "w": 36, "h": 94
+        },
+        {"x": 36, "y": 0, "w": 380, "h": 74},
+        {"x": 416, "y": 0, "w": 40, "h": 94},
+        {"x": 0, "y": 134, "w": 36, "h": 74},
+        {"x": 36, "y": 194, "w": 380, "h": 14},
+        {"x": 416, "y": 134, "w": 40, "h": 74}
+      ]
+    },
+    {
+      "conditions": [],
+      "_comment": "Spikes down."
+      "room_bg": "rooms/room11",
+      "music_path": "mus_ruins.wav",
+      "spawn_x": 3, "spawn_y": 91,
+      "exits": [
+        {
+          "exit_type": "side",
+          "room_id": 10,
+          "spawn_x": 351, "spawn_y": 104,
+          "side": "left"
+        },
+        {
+          "exit_type": "side",
+          "room_id": 12,
+          "spawn_x": 4, "spawn_y": 63,
+          "side": "right"
+        }
+      ],
+      "textures": [
+        "room_sprites/spr_rock",
+        "room_sprites/wall_panel_ruins",
+        "room_sprites/spike"
+      ],
+      "sprites": [
+        {
+          "_comment": "Rock",
+          "texture_id": 0,
+          "x": 216, "y": 134,
+        },
+        {
+          "texture_id": 1,
+          "x": 136, "y": 34
+        },
+        {
+          "texture_id": 2,
+          "animation": "down",
+          "x": 277, "y": 81
+        },
+        {
+          "texture_id": 2,
+          "animation": "down",
+          "x": 277, "y": 101
+        },
+        {
+          "texture_id": 2,
+          "animation": "down",
+          "x": 277, "y": 121
+        },
+        {
+          "texture_id": 2,
+          "animation": "down",
+          "x": 277, "y": 141
+        },
+        {
+          "texture_id": 2,
+          "animation": "down",
+          "x": 277, "y": 161
+        },
+        {
+          "texture_id": 2,
+          "animation": "down",
+          "x": 277, "y": 181
+        }
+      ],
+      "colliders": [
+        {
+          "_comment": "Rock",
+          "x": 216, "y": 134, "w": 20, "h": 20
         },
 
         {
