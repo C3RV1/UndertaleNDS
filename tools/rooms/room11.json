@@ -29,10 +29,11 @@
           "x": 157, "y": 135,
           "action": "pushable",
           "valid_rect": [156, 134, 80, 20],
-          "goal_rect": [216, 134, 20, 20],
-          "goal_cutscene_id": 0,
+          "goal_pos": [216, 134],
+          "goal_cutscene_id": 20,
           "goal_flag_id": 210,
-          "goal_flag_bit": 1
+          "goal_flag_bit": 1,
+          "stop_on_goal": true
         },
         {
           "texture_id": 1,

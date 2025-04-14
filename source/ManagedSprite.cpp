@@ -3,10 +3,14 @@
 //
 
 #include "ManagedSprite.hpp"
+#include "Cutscene/Cutscene.hpp"
 #include "Engine/math.hpp"
 #include "Formats/ROOM_FILE.hpp"
 #include "Room/Camera.hpp"
 #include "Room/Player.hpp"
+#include "Room/Room.hpp"
+#include "Save.hpp"
+#include <memory>
 
 void ManagedSprite::load(
     ROOMSprite const &sprData,
@@ -43,13 +47,12 @@ void ManagedSprite::load(
     _valid_rect_y = sprData.valid_rect_y;
     _valid_rect_w = sprData.valid_rect_w;
     _valid_rect_h = sprData.valid_rect_h;
-    _goal_rect_x = sprData.goal_rect_x;
-    _goal_rect_y = sprData.goal_rect_y;
-    _goal_rect_w = sprData.goal_rect_w;
-    _goal_rect_h = sprData.goal_rect_h;
+    _goal_x = sprData.goal_x;
+    _goal_y = sprData.goal_y;
     _cutsceneId = sprData.goal_cutscene_id;
     _goal_flag_id = sprData.goal_flag_id;
     _goal_flag_bit = sprData.goal_flag_bit;
+    _stop_on_goal = sprData.stop_on_goal;
   default:
     break;
   }
@@ -116,6 +119,8 @@ bool ManagedSprite::check_player_collide(s32 x, s32 y, s32 w, s32 h, s32 dx,
 
   if (!collidesRect(x, y, w, h, _spr._wx, _spr._wy, w2, h2))
     return false;
+  if (check_on_goal() && _stop_on_goal)
+    return true;
 
   if (!collidesRect(x, y, w, h, _spr._wx + dx, _spr._wy, w2, h2)) {
     // Attempt move x-axis
@@ -154,10 +159,40 @@ bool ManagedSprite::check_player_collide(s32 x, s32 y, s32 w, s32 h, s32 dx,
 void ManagedSprite::commit_player_move() {
   if (_interactAction != ROOMSpriteAction::PUSHABLE)
     return;
+  bool flag_set = (globalSave.flags[_goal_flag_id] & _goal_flag_bit) != 0;
   _spr._wx = _commit_x;
   _spr._wy = _commit_y;
 
-  // TODO: Goal.
+  bool should_set_flag = check_on_goal();
+  if (should_set_flag)
+    globalSave.flags[_goal_flag_id] |= _goal_flag_bit;
+  else
+    globalSave.flags[_goal_flag_id] &= ~_goal_flag_bit;
+
+  if (should_set_flag != flag_set) {
+    if (should_set_flag && _stop_on_goal) {
+      _spr._wx = _goal_x << 8;
+      _spr._wy = _goal_y << 8;
+    }
+
+    if (globalCutscene == nullptr)
+      globalCutscene =
+          std::make_unique<Cutscene>(_cutsceneId, globalRoom->_roomId);
+    else
+      nocashMessage("Cannot create goal cutscene: Already playing another!");
+  }
+}
+
+bool ManagedSprite::check_on_goal() {
+  s32 dx = _spr._wx - ((s32)_goal_x << 8);
+  if (dx < 0)
+    dx = -dx;
+  s32 dy = _spr._wy - ((s32)_goal_y << 8);
+  if (dy < 0)
+    dy = -dy;
+
+  return dx <= ((s32)_spr._texture->getWidth() << 8) / 16 &&
+         dy <= ((s32)_spr._texture->getHeight() << 8) / 16;
 }
 
 void ManagedSprite::free_() { _spr.setShown(false); }

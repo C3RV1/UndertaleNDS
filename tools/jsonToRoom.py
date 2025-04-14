@@ -126,9 +126,10 @@ class RoomSprite:
         self.parallax_y = 0
 
         self.valid_rect = [0, 0, 0, 0]
-        self.goal_rect = [0, 0, 0, 0]
+        self.goal_pos = [0, 0]
         self.goal_flag_id = 0
         self.goal_flag_bit = 0
+        self.stop_on_goal = False
 
     def write(self, wtr: binary.BinaryWriter):
         wtr.write_uint8(self.texture_id)
@@ -147,11 +148,12 @@ class RoomSprite:
         elif self.action == 4:
             for v in self.valid_rect:
                 wtr.write_uint16(v)
-            for v in self.goal_rect:
+            for v in self.goal_pos:
                 wtr.write_uint16(v)
             wtr.write_uint16(self.cutscene_id)
             wtr.write_uint16(self.goal_flag_id)
             wtr.write_uint16(self.goal_flag_bit)
+            wtr.write_bool(self.stop_on_goal)
 
     @classmethod
     def from_dict(cls, dct):
@@ -187,12 +189,13 @@ class RoomSprite:
             res.valid_rect = dct["valid_rect"]
             if len(res.valid_rect) != 4:
                 raise ValueError("Incorrect Valid Rect")
-            res.goal_rect = dct["goal_rect"]
-            if len(res.goal_rect) != 4:
+            res.goal_pos = dct["goal_pos"]
+            if len(res.goal_pos) != 2:
                 raise ValueError("Incorrect Goal Rect")
             res.cutscene_id = dct["goal_cutscene_id"]
             res.goal_flag_id = dct["goal_flag_id"]
             res.goal_flag_bit = dct["goal_flag_bit"]
+            res.stop_on_goal = dct["stop_on_goal"]
 
         return res
 

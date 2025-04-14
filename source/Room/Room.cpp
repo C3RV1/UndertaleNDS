@@ -11,6 +11,7 @@
 #include "Room/InGameMenu.hpp"
 #include "Room/Player.hpp"
 #include "Save.hpp"
+#include <cstdio>
 
 Room::Room(int roomId) : _roomId(roomId) {
   _roomId = roomId;
@@ -220,13 +221,12 @@ void Room::loadRoom(FILE *f) {
       fread(&roomSprites[i].valid_rect_y, 2, 1, f);
       fread(&roomSprites[i].valid_rect_w, 2, 1, f);
       fread(&roomSprites[i].valid_rect_h, 2, 1, f);
-      fread(&roomSprites[i].goal_rect_x, 2, 1, f);
-      fread(&roomSprites[i].goal_rect_y, 2, 1, f);
-      fread(&roomSprites[i].goal_rect_w, 2, 1, f);
-      fread(&roomSprites[i].goal_rect_h, 2, 1, f);
+      fread(&roomSprites[i].goal_x, 2, 1, f);
+      fread(&roomSprites[i].goal_y, 2, 1, f);
       fread(&roomSprites[i].goal_cutscene_id, 2, 1, f);
       fread(&roomSprites[i].goal_flag_id, 2, 1, f);
       fread(&roomSprites[i].goal_flag_bit, 2, 1, f);
+      fread(&roomSprites[i].stop_on_goal, 1, 1, f);
       break;
     }
   }

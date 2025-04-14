@@ -41,12 +41,15 @@ public:
   s32 _parallax_y = 1 << 8;
 
   u16 _valid_rect_x, _valid_rect_y, _valid_rect_w, _valid_rect_h;
-  u16 _goal_rect_x, _goal_rect_y, _goal_rect_w, _goal_rect_h;
+  u16 _goal_x, _goal_y;
   u16 _goal_flag_id;
   u16 _goal_flag_bit;
+  bool _stop_on_goal;
   s32 _commit_x, _commit_y;
 
 private:
+  bool check_on_goal();
+
   void free_();
 
   std::shared_ptr<Engine::Texture> _texture = nullptr;
