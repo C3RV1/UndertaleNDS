@@ -291,6 +291,10 @@ bool WAV::renew_file_buffer() {
 
 void playBGMusic(const std::string &filename, bool loop) {
   stopBGMusic();
+  if (!cBGMusic) {
+    nocashMessage("BGMusic is nullptr!");
+    return;
+  }
   cBGMusic->load(filename);
   cBGMusic->setLoops(loop ? -1 : 0);
   if (cBGMusic->getLoaded())

@@ -22,6 +22,11 @@ void AudioFile::allocateBuffers() {
 }
 
 void AudioManager::play(std::shared_ptr<AudioFile> audio_file) {
+  if (!audio_file) {
+    nocashMessage("Tried to play nullptr audio_file!");
+    return;
+  }
+
   if (audio_file->play()) {
     for (const auto &current : _playing) {
       if (current.get() == audio_file.get())
@@ -78,6 +83,11 @@ void AudioFile::setVolume(u8 volume) {
 }
 
 void AudioManager::stop(const std::shared_ptr<AudioFile> &audio_file) {
+  if (!audio_file) {
+    nocashMessage("Tried to stop nullptr audio_file!");
+    return;
+  }
+
   if (!audio_file->getPlaying())
     return;
   audio_file->stop();

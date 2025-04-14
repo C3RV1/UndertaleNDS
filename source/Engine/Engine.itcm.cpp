@@ -4,7 +4,9 @@
 #include "Engine/OAMManager.hpp"
 #include "Engine/Sprite3DManager.hpp"
 #include "Engine/TextBGManager.hpp"
+#include "Engine/WAV.hpp"
 #include "Engine/dma.hpp"
+#include <memory>
 
 #ifndef BLOCKSDS_SDK
 #include "nitrofs.h"
@@ -59,6 +61,8 @@ int init() {
   glLoadIdentity();            // reset
   glOrthof32(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, -1 << 12,
              1 << 12); // downscale projection matrix
+
+  Audio2::cBGMusic = std::make_shared<Audio2::WAV>();
   return 0;
 }
 
