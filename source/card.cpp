@@ -166,9 +166,9 @@ void cardWriteBytes(u8 *src, u32 addr, u16 size) {
   leaveCriticalSection(oldIME);
 }
 
-void CardBuffer::read(void *data, size_t size) {
+bool CardBuffer::read(void *data, size_t size) {
   if (!_opened)
-    return;
+    return false;
   if (!_running_in_file) {
 #ifdef DEBUG_SAVE
     nocashMessage("Reading from card.");
@@ -180,26 +180,27 @@ void CardBuffer::read(void *data, size_t size) {
     std::string buf = "Read " + std::to_string(bytes_read) + " bytes of " +
                       std::to_string(size);
     nocashMessage(buf.c_str());
+
 #endif
-    for (; bytes_read < size; bytes_read++) {
-      static_cast<u8 *>(data)[bytes_read] = 0xff;
+    if (bytes_read < size) {
+      std::string buf2 = "ERROR READING. Errno: " + std::to_string(errno);
+      nocashMessage(buf2.c_str());
+      return false;
     }
   } else {
 #ifdef DEBUG_SAVE
     nocashMessage("Reading from unopened file.");
 #endif
     // We are running in fat but file was not opened
-    // We simulate that behaviour by writing 0xff
-    for (size_t bytes_read = 0; bytes_read < size; bytes_read++) {
-      static_cast<u8 *>(data)[bytes_read] = 0xff;
-    }
+    return false;
   }
   _pos += size;
+  return true;
 }
 
-void CardBuffer::write(void *src, size_t size) {
+bool CardBuffer::write(void *src, size_t size) {
   if (!_opened)
-    return;
+    return false;
   if (!_running_in_file) {
 #ifdef DEBUG_SAVE
     std::string buf = "Writing " + std::to_string(size) + " bytes to card.";
@@ -211,10 +212,22 @@ void CardBuffer::write(void *src, size_t size) {
     std::string buf = "Writing " + std::to_string(size) + " bytes to savefile.";
     nocashMessage(buf.c_str());
 #endif
-    fwrite(src, size, 1, _fatFile);
+    size_t bytesWritten = fwrite(src, size, 1, _fatFile);
+#ifdef DEBUG_SAVE
+    buf = "Written " + std::to_string(bytesWritten) + " bytes to savefile.";
+    nocashMessage(buf.c_str());
+#endif
+    if (bytesWritten < size) {
+      std::string buf2 = "ERROR WRITING. Errno: " + std::to_string(errno);
+      nocashMessage(buf2.c_str());
+      return false;
+    }
+  } else {
+    // The else branch runs in file but file couldn't be opened
+    return false;
   }
-  // The else branch would be running in file but file couldn't be opened
   _pos += size;
+  return true;
 }
 
 void CardBuffer::seek(s32 offset, u8 mode) {
