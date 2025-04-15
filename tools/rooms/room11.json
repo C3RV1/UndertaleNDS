@@ -1,7 +1,7 @@
 {
   "parts": [
     {
-      "_comment": "Not received call cinnamon/butterscotch."
+      "_comment": "Not received call cinnamon/butterscotch.",
       "conditions": [
         { "flag_id": 0, "op": "==", "cmp_value": 8}
       ],
@@ -99,7 +99,7 @@
       ]
     },
     {
-      "_comment": "Received call cinnamon/butterscotch. Spikes up."
+      "_comment": "Received call cinnamon/butterscotch. Spikes up.",
       "conditions": [
         { "flag_id": 0, "op": "==", "cmp_value": 9}
       ],
@@ -190,8 +190,8 @@
       ]
     },
     {
+      "_comment": "Spikes down.",
       "conditions": [],
-      "_comment": "Spikes down."
       "room_bg": "rooms/room11",
       "music_path": "mus_ruins.wav",
       "spawn_x": 3, "spawn_y": 91,
@@ -218,7 +218,7 @@
         {
           "_comment": "Rock",
           "texture_id": 0,
-          "x": 216, "y": 134,
+          "x": 216, "y": 134
         },
         {
           "texture_id": 1,
