@@ -32,7 +32,7 @@
           "texture_id": 0,
           "x": 157, "y": 134,
           "action": "pushable",
-          "valid_rect": [156, 134, 80, 20],
+          "valid_rect": [156, 134, 80, 18],
           "goal_pos": [216, 134],
           "goal_cutscene_id": 20,
           "goal_flag_id": 210,
@@ -46,32 +46,32 @@
         {
           "texture_id": 2,
           "animation": "up",
-          "x": 277, "y": 81
+          "x": 277, "y": 75
         },
         {
           "texture_id": 2,
           "animation": "up",
-          "x": 277, "y": 101
+          "x": 277, "y": 95
         },
         {
           "texture_id": 2,
           "animation": "up",
-          "x": 277, "y": 121
+          "x": 277, "y": 115
         },
         {
           "texture_id": 2,
           "animation": "up",
-          "x": 277, "y": 141
+          "x": 277, "y": 135
         },
         {
           "texture_id": 2,
           "animation": "up",
-          "x": 277, "y": 161
+          "x": 277, "y": 155
         },
         {
           "texture_id": 2,
           "animation": "up",
-          "x": 277, "y": 181
+          "x": 277, "y": 175
         }
       ],
       "colliders": [
@@ -130,7 +130,7 @@
           "texture_id": 0,
           "x": 157, "y": 134,
           "action": "pushable",
-          "valid_rect": [156, 134, 80, 20],
+          "valid_rect": [156, 134, 80, 18],
           "goal_pos": [216, 134],
           "goal_cutscene_id": 20,
           "goal_flag_id": 210,
@@ -144,32 +144,32 @@
         {
           "texture_id": 2,
           "animation": "up",
-          "x": 277, "y": 81
+          "x": 277, "y": 75
         },
         {
           "texture_id": 2,
           "animation": "up",
-          "x": 277, "y": 101
+          "x": 277, "y": 95
         },
         {
           "texture_id": 2,
           "animation": "up",
-          "x": 277, "y": 121
+          "x": 277, "y": 115
         },
         {
           "texture_id": 2,
           "animation": "up",
-          "x": 277, "y": 141
+          "x": 277, "y": 135
         },
         {
           "texture_id": 2,
           "animation": "up",
-          "x": 277, "y": 161
+          "x": 277, "y": 155
         },
         {
           "texture_id": 2,
           "animation": "up",
-          "x": 277, "y": 181
+          "x": 277, "y": 175
         }
       ],
       "colliders": [
@@ -227,32 +227,32 @@
         {
           "texture_id": 2,
           "animation": "down",
-          "x": 277, "y": 81
+          "x": 277, "y": 75
         },
         {
           "texture_id": 2,
           "animation": "down",
-          "x": 277, "y": 101
+          "x": 277, "y": 95
         },
         {
           "texture_id": 2,
           "animation": "down",
-          "x": 277, "y": 121
+          "x": 277, "y": 115
         },
         {
           "texture_id": 2,
           "animation": "down",
-          "x": 277, "y": 141
+          "x": 277, "y": 135
         },
         {
           "texture_id": 2,
           "animation": "down",
-          "x": 277, "y": 161
+          "x": 277, "y": 155
         },
         {
           "texture_id": 2,
           "animation": "down",
-          "x": 277, "y": 181
+          "x": 277, "y": 175
         }
       ],
       "colliders": [
