@@ -17,8 +17,8 @@ class CardBuffer {
 public:
   void open(const char *mode);
   void close();
-  void read(void *data, size_t size);
-  void write(void *src, size_t size);
+  [[nodiscard]] bool read(void *data, size_t size);
+  [[nodiscard]] bool write(void *src, size_t size);
   int tell() const;
   void seek(s32 offset, u8 mode);
   ~CardBuffer() { close(); }

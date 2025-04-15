@@ -18,6 +18,7 @@ public:
   SaveMenu();
   ~SaveMenu() { free_(); }
   void drawInfo(SaveData &saveData, u8 color);
+  void drawError();
   bool update();
 
 private:

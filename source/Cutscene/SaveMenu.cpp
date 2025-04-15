@@ -67,21 +67,34 @@ void SaveMenu::drawInfo(SaveData &saveData, u8 color) {
 
   buffer = std::to_string(saveData.lv);
   int x = kLvNumX;
-  for (auto const &c : buffer) {
+  for (auto const &c : buffer)
     Engine::textSub.drawGlyph(_fnt, c, x, kLvNumY);
-  }
 
   Engine::textSub.setColor(color);
 
   x = kRoomNameX;
-  for (auto const &c : _roomName) {
+  for (auto const &c : _roomName)
     Engine::textSub.drawGlyph(_fnt, c, x, kRoomNameY);
-  }
 
   x = kNameX;
-  for (char *p = saveData.name; *p != 0; p++) {
+  for (char *p = saveData.name; *p != 0; p++)
     Engine::textSub.drawGlyph(_fnt, *p, x, kNameY);
-  }
+}
+
+void SaveMenu::drawError() {
+  Engine::textSub.clear();
+
+  Engine::textSub.setColor(9);
+
+  std::string errorText = "ERROR";
+
+  int x = kNameX;
+  for (auto const &c : errorText)
+    Engine::textSub.drawGlyph(_fnt, c, x, kNameY);
+  x = kLvNumX;
+  Engine::textSub.drawGlyph(_fnt, '0', x, kLvNumY);
+  x = kRoomNameX;
+  Engine::textSub.drawGlyph(_fnt, '-', x, kRoomNameY);
 }
 
 bool SaveMenu::update() {
@@ -100,9 +113,13 @@ bool SaveMenu::update() {
   if (keysDown() & KEY_A) {
     if (_selectedOption == 1)
       return true;
-    globalSave.saveData(globalCutscene->_roomId);
+
+    if (globalSave.saveData(globalCutscene->_roomId))
+      drawInfo(globalSave, 12);
+    else
+      drawError();
+
     Audio2::audioManager.play(_saveSnd);
-    drawInfo(globalSave, 12);
     _cHoldFrames = kHoldSaveFrames;
   }
 
