@@ -16,8 +16,7 @@ void ManagedSprite::load(
     ROOMSprite const &sprData,
     const std::vector<std::shared_ptr<Engine::Texture>> &textures) {
   if (sprData.textureId < textures.size()) {
-    _texture = textures[sprData.textureId];
-    _spr.loadTexture(*_texture);
+    _spr.loadTexture(textures[sprData.textureId]);
   }
   _animationId = _spr.nameToAnimId(sprData.animation);
   _spr._wx = sprData.x << 8;
@@ -58,18 +57,9 @@ void ManagedSprite::load(
   }
 }
 
-void ManagedSprite::spawn(
-    s8 textureId, s32 x, s32 y,
-    const std::vector<std::shared_ptr<Engine::Texture>> &textures) {
-  u8 texId2;
-  if (textureId < 0)
-    texId2 = textures.size() + textureId;
-  else
-    texId2 = textureId;
-  if (texId2 < textures.size()) {
-    _texture = textures[texId2];
-    _spr.loadTexture(*_texture);
-  }
+void ManagedSprite::spawn(s32 x, s32 y,
+                          std::shared_ptr<Engine::Texture> texture) {
+  _spr.loadTexture(std::move(texture));
   _spr._wx = x;
   _spr._wy = y;
 

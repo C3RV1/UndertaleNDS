@@ -4,14 +4,15 @@
 
 #include "Room/Player.hpp"
 #include "Cutscene/Cutscene.hpp"
+#include "Engine/Texture.hpp"
 #include "Engine/math.hpp"
 #include "Formats/ROOM_FILE.hpp"
 #include "Room/Camera.hpp"
 #include "Room/Room.hpp"
+#include <memory>
 
 Player::Player() : _playerSpr(Engine::Allocated3D) {
-  _playerTex.loadPath("mainchara");
-  _playerSpr.loadTexture(_playerTex);
+  _playerSpr.loadTexture(Engine::textureManager.loadTexture("mainchara"));
 
   _upIdleId = _playerSpr.nameToAnimId("upIdle");
   _downIdleId = _playerSpr.nameToAnimId("downIdle");

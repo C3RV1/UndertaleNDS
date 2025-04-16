@@ -5,6 +5,7 @@
 #ifndef UNDERTALE_MANAGED_SPRITE_HPP
 #define UNDERTALE_MANAGED_SPRITE_HPP
 
+#include <memory>
 class ManagedSprite;
 
 #include "Engine/Sprite.hpp"
@@ -17,8 +18,7 @@ public:
   void load(ROOMSprite const &sprData,
             const std::vector<std::shared_ptr<Engine::Texture>> &textures);
 
-  void spawn(s8 textureId, s32 x, s32 y,
-             const std::vector<std::shared_ptr<Engine::Texture>> &textures);
+  void spawn(s32 x, s32 y, std::shared_ptr<Engine::Texture> texture);
 
   bool check_player_collide(s32 x, s32 y, s32 w, s32 h, s32 dx, s32 dy);
   void commit_player_move();
@@ -51,8 +51,6 @@ private:
   bool check_on_goal();
 
   void free_();
-
-  std::shared_ptr<Engine::Texture> _texture = nullptr;
 };
 
 #endif // UNDERTALE_MANAGED_SPRITE_HPP

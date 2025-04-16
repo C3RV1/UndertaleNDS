@@ -7,6 +7,7 @@
 
 #include "Engine/Sprite.hpp"
 #include "Engine/TextBGManager.hpp"
+#include "Engine/Texture.hpp"
 #include "Engine/WAV.hpp"
 #include <cstdio>
 #include <memory>
@@ -65,7 +66,6 @@ protected:
 
   Engine::Font _fnt;
 
-  Engine::Texture _heartTexture;
   Engine::Sprite _heartSprite;
 
   bool _choosingOption = false;
@@ -103,7 +103,6 @@ protected:
   void onPause() override;
   void onOptionChoose() override;
 
-  Engine::Texture _speakerTex;
   Engine::Sprite _speakerSpr{Engine::AllocatedOAM};
   int _speakerIdle = -1, _speakerTalk = -1;
   int _startingY = 0;

@@ -11,6 +11,7 @@
 #include "Formats/utils.hpp"
 #include "Save.hpp"
 #include <cstdio>
+#include <memory>
 
 void runMainMenu() {
   constexpr int nameX = 42, nameY = 24 - 4;
@@ -25,7 +26,6 @@ void runMainMenu() {
 
   Engine::Background topBg;
   Engine::Background btmBg;
-  Engine::Texture floweyTex;
   Engine::Sprite floweySpr(Engine::AllocatedOAM);
   Engine::Font font;
 
@@ -34,8 +34,8 @@ void runMainMenu() {
   font.loadPath("fnt_maintext.font");
 
   if (globalSave.flags[FlagIds::PROGRESS] < 20) {
-    floweyTex.loadPath("room_sprites/flowey");
-    floweySpr.loadTexture(floweyTex);
+    floweySpr.loadTexture(
+        Engine::textureManager.loadTexture("room_sprites/flowey"));
     floweySpr._wx = 118 << 8;
     floweySpr._wy = 116 << 8;
     floweySpr.setShown(true);

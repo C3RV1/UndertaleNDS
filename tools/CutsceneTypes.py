@@ -55,7 +55,8 @@ class CutsceneCommands(enum.IntEnum):
     CLEAR_NAV_TASKS = 36  # Done
     LOAD_SPRITE_RELATIVE = 37  # Done
     SET_CELL = 38  # Done
-    MOVE = 39
+    MOVE = 39  # Done
+    SET_OPACITY = 40  # Done
     DEBUG = 0xff  # Done
 
 
@@ -250,6 +251,12 @@ class Cutscene:
         self.write_header(CutsceneCommands.SET_ANIMATION)
         target.write(self.wtr)
         self.wtr.write_string(animation, encoding="ascii")
+        return self.instructions_address[-1]
+    
+    def set_opacity(self, target: Target, opacity: int):
+        self.write_header(CutsceneCommands.SET_OPACITY)
+        target.write(self.wtr)
+        self.wtr.write_uint8(opacity)
         return self.instructions_address[-1]
 
     # == NAVIGATION ==

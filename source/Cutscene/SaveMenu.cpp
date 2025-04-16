@@ -5,6 +5,7 @@
 #include "Cutscene/Cutscene.hpp"
 #include "Engine/Audio.hpp"
 #include "Engine/Engine.hpp"
+#include "Engine/Texture.hpp"
 #include "Engine/WAV.hpp"
 #include "Formats/utils.hpp"
 #include <memory>
@@ -16,8 +17,8 @@ SaveMenu::SaveMenu() : _optionsHeartSpr(Engine::AllocatedOAM) {
   _bg.loadPath("save_menu_bg");
   _bg.loadBgTextSub();
 
-  _optionsHeartTex.loadPath("spr_heartsmall");
-  _optionsHeartSpr.loadTexture(_optionsHeartTex);
+  _optionsHeartSpr.loadTexture(
+      Engine::textureManager.loadTexture("spr_heartsmall"));
   _optionsHeartSpr.setShown(true);
   _optionsHeartSpr._wx = kHrtSaveX << 8;
   _optionsHeartSpr._wy = kHrtSaveY << 8;

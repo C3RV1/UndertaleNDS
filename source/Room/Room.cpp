@@ -5,6 +5,7 @@
 #include "Room/Room.hpp"
 #include "Cutscene/Cutscene.hpp"
 #include "Engine/Engine.hpp"
+#include "Engine/Texture.hpp"
 #include "Engine/WAV.hpp"
 #include "Formats/utils.hpp"
 #include "Room/Camera.hpp"
@@ -177,14 +178,12 @@ void Room::loadRoom(FILE *f) {
   std::string path;
   path.reserve(50);
   for (int i = 0; i < textureCount; i++) {
-    _textures[i] = std::make_shared<Engine::Texture>();
-
     int sprPathLen = str_len_file(f, 0);
     path.resize(sprPathLen);
     fread(&path[0], sprPathLen, 1, f);
     fseek(f, 1, SEEK_CUR);
 
-    _textures[i]->loadPath(path);
+    _textures[i] = Engine::textureManager.loadTexture(path);
   }
 
   u8 spriteCount;

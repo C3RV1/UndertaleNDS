@@ -11,36 +11,36 @@
 
 class Player {
 public:
-    constexpr static int kMoveSpeed = (90 << 8) / 60;  // 90 pixels per second, debug speed
-    // const int MOVE_SPEED = (70 << 8) / 60;  // 70 pixels per second
+  constexpr static int kMoveSpeed =
+      (90 << 8) / 60; // 90 pixels per second, debug speed
+  // const int MOVE_SPEED = (70 << 8) / 60;  // 70 pixels per second
 
-    Player();
-    void update();
-    void attempt_move(s32 &dx, s32 &dy);
-    void commit_move(s32 dx, s32 dy);
-    [[nodiscard]] bool check_collisions(s32 dx, s32 dy) const;
-    void check_interact() const;
-    void check_exits();
-    void set_player_control(bool playerControl);
-    void draw();
+  Player();
+  void update();
+  void attempt_move(s32 &dx, s32 &dy);
+  void commit_move(s32 dx, s32 dy);
+  [[nodiscard]] bool check_collisions(s32 dx, s32 dy) const;
+  void check_interact() const;
+  void check_exits();
+  void set_player_control(bool playerControl);
+  void draw();
 
-    // sprite top left position
-    Engine::Sprite _playerSpr;
+  // sprite top left position
+  Engine::Sprite _playerSpr;
+
 private:
-    Engine::Texture _playerTex;
-
-    // animation ids
-    bool _playerControl = true;
-    int _upIdleId;
-    int _downIdleId;
-    int _leftIdleId;
-    int _rightIdleId;
-    int _upMoveId;
-    int _downMoveId;
-    int _leftMoveId;
-    int _rightMoveId;
+  // animation ids
+  bool _playerControl = true;
+  int _upIdleId;
+  int _downIdleId;
+  int _leftIdleId;
+  int _rightIdleId;
+  int _upMoveId;
+  int _downMoveId;
+  int _leftMoveId;
+  int _rightMoveId;
 };
 
-extern Player* globalPlayer;
+extern Player *globalPlayer;
 
-#endif //UNDERTALE_PLAYER_HPP
+#endif // UNDERTALE_PLAYER_HPP

@@ -61,15 +61,12 @@ private:
 
   std::vector<Enemy> *_enemies;
 
-  std::array<Engine::Texture, 4> _textures;
   std::array<Engine::Sprite, 4> _btn;
-  Engine::Texture _smallHeartTex, _bigHeartTex;
   Engine::Sprite _bigHeartSpr, _smallHeartSpr;
 
   std::string _flavorText;
 
   Engine::Background _fightBoard;
-  Engine::Texture _attackTex, _damageNumbers, _missText;
   Engine::Sprite _attackSpr;
 
   Audio2::WAV _selectSnd;

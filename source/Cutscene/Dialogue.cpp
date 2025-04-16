@@ -7,6 +7,7 @@
 #include "Engine/Audio.hpp"
 #include "Engine/Engine.hpp"
 #include "Engine/OAMManager.hpp"
+#include "Engine/Texture.hpp"
 #include "Formats/utils.hpp"
 #include <memory>
 
@@ -18,8 +19,8 @@ Dialogue::Dialogue(u16 textId, Engine::Sprite *target,
     : _target(target), _textManager(&txtManager), _heartSprite(heartAlloc) {
   _typeSnd = std::make_shared<Audio2::WAV>();
   _fnt.loadPath(fontTxt);
-  _heartTexture.loadPath("spr_heartsmall");
-  _heartSprite.loadTexture(_heartTexture);
+  _heartSprite.loadTexture(
+      Engine::textureManager.loadTexture("spr_heartsmall"));
 
   std::string buffer = "nitro:/data/dialogue/r" +
                        std::to_string(globalCutscene->_roomId) + "/c" +
@@ -59,8 +60,8 @@ Dialogue::Dialogue(const std::string &text_, const std::string &typeSndPath,
                    Engine::AllocationMode heartAlloc)
     : _textManager(&txtManager), _heartSprite(heartAlloc) {
   _fnt.loadPath(fontTxt);
-  _heartTexture.loadPath("spr_heartsmall");
-  _heartSprite.loadTexture(_heartTexture);
+  _heartSprite.loadTexture(
+      Engine::textureManager.loadTexture("spr_heartsmall"));
 
   _text = text_;
 

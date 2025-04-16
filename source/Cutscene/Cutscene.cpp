@@ -110,8 +110,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
   u8 cmd;
   fread(&cmd, 1, 1, _commandStream);
   int len;
-  u8 targetType;
-  s8 targetId = 0;
+  TargetInfo targetInfo;
   u32 address;
   Navigation *nav;
   if (callingLocation == ROOM || callingLocation == LOAD_ROOM) {
@@ -137,13 +136,15 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
     fread(buffer, len + 1, 1, _commandStream);
     Navigation::load_texture(buffer, callingLocation);
     break;
-  case CMD_UNLOAD_TEXTURE:
+  case CMD_UNLOAD_TEXTURE: {
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_LOAD_TEXTURE");
 #endif
+    s8 targetId;
     fread(&targetId, 1, 1, _commandStream);
     Navigation::unload_texture(targetId, callingLocation);
     break;
+  }
   case CMD_LOAD_SPRITE: {
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_LOAD_SPRITE");
@@ -207,107 +208,101 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_SET_SHOWN");
 #endif
-    fread(&targetType, 1, 1, _commandStream);
-    if (targetType == TargetType::SPRITE)
-      fread(&targetId, 1, 1, _commandStream);
+    targetInfo = readTarget();
     bool shown;
     fread(&shown, 1, 1, _commandStream);
-    Navigation::set_shown(targetType, targetId, shown, callingLocation);
+    Navigation::set_shown(targetInfo, shown, callingLocation);
     break;
   }
   case CMD_SET_ANIMATION:
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_SET_ANIMATION");
 #endif
-    fread(&targetType, 1, 1, _commandStream);
-    if (targetType == TargetType::SPRITE)
-      fread(&targetId, 1, 1, _commandStream);
+    targetInfo = readTarget();
     len = str_len_file(_commandStream, 0);
     fread(buffer, len + 1, 1, _commandStream);
-    Navigation::set_animation(targetType, targetId, buffer, callingLocation);
+    Navigation::set_animation(targetInfo, buffer, callingLocation);
     break;
+  case CMD_SET_OPACITY: {
+#ifdef DEBUG_CUTSCENES
+    nocashMessage("CMD_SET_OPACITY");
+#endif
+    targetInfo = readTarget();
+    u8 opacity;
+    fread(&opacity, 1, 1, _commandStream);
+    Navigation::set_opacity(targetInfo, opacity, callingLocation);
+    break;
+  }
   case CMD_SET_POS: {
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_SET_POS");
 #endif
-    fread(&targetType, 1, 1, _commandStream);
-    if (targetType == TargetType::SPRITE)
-      fread(&targetId, 1, 1, _commandStream);
+    targetInfo = readTarget();
     s32 x, y;
     fread(&x, 4, 1, _commandStream);
     fread(&y, 4, 1, _commandStream);
-    Navigation::set_position(targetType, targetId, x, y, callingLocation);
+    Navigation::set_position(targetInfo, x, y, callingLocation);
     break;
   }
   case CMD_MOVE: {
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_MOVE");
 #endif
-    fread(&targetType, 1, 1, _commandStream);
-    if (targetType == TargetType::SPRITE)
-      fread(&targetId, 1, 1, _commandStream);
+    targetInfo = readTarget();
     s32 dx, dy;
     fread(&dx, 4, 1, _commandStream);
     fread(&dy, 4, 1, _commandStream);
-    Navigation::move(targetType, targetId, dx, dy, callingLocation);
+    Navigation::move(targetInfo, dx, dy, callingLocation);
     break;
   }
   case CMD_SET_SCALE: {
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_SET_SCALE");
 #endif
-    fread(&targetType, 1, 1, _commandStream);
-    if (targetType == TargetType::SPRITE)
-      fread(&targetId, 1, 1, _commandStream);
+    targetInfo = readTarget();
     s32 x, y;
     fread(&x, 4, 1, _commandStream);
     fread(&y, 4, 1, _commandStream);
-    Navigation::set_scale(targetType, targetId, x, y, callingLocation);
+    Navigation::set_scale(targetInfo, x, y, callingLocation);
     break;
   }
   case CMD_SET_POS_IN_FRAMES: {
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_SET_POS_IN_FRAMES");
 #endif
-    fread(&targetType, 1, 1, _commandStream);
-    if (targetType == TargetType::SPRITE)
-      fread(&targetId, 1, 1, _commandStream);
+    targetInfo = readTarget();
     s32 x, y;
     fread(&x, 4, 1, _commandStream);
     fread(&y, 4, 1, _commandStream);
     u16 frames;
     fread(&frames, 2, 1, _commandStream);
-    nav->set_pos_in_frames(targetType, targetId, x, y, frames, callingLocation);
+    nav->set_pos_in_frames(targetInfo, x, y, frames, callingLocation);
     break;
   }
   case CMD_MOVE_IN_FRAMES: {
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_MOVE_IN_FRAMES");
 #endif
-    fread(&targetType, 1, 1, _commandStream);
-    if (targetType == TargetType::SPRITE)
-      fread(&targetId, 1, 1, _commandStream);
+    targetInfo = readTarget();
     s32 x, y;
     fread(&x, 4, 1, _commandStream);
     fread(&y, 4, 1, _commandStream);
     u16 frames;
     fread(&frames, 2, 1, _commandStream);
-    nav->move_in_frames(targetType, targetId, x, y, frames, callingLocation);
+    nav->move_in_frames(targetInfo, x, y, frames, callingLocation);
     break;
   }
   case CMD_SCALE_IN_FRAMES: {
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_SCALE_IN_FRAMES");
 #endif
-    fread(&targetType, 1, 1, _commandStream);
-    if (targetType == TargetType::SPRITE)
-      fread(&targetId, 1, 1, _commandStream);
+    targetInfo = readTarget();
     s32 x, y;
     fread(&x, 4, 1, _commandStream);
     fread(&y, 4, 1, _commandStream);
     u16 frames;
     fread(&frames, 2, 1, _commandStream);
-    nav->scale_in_frames(targetType, targetId, x, y, frames, callingLocation);
+    nav->scale_in_frames(targetInfo, x, y, frames, callingLocation);
     break;
   }
   case CMD_START_DIALOGUE: {
@@ -342,9 +337,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
       fread(speakerTalk, len + 1, 1, _commandStream);
     }
 
-    fread(&targetType, 1, 1, _commandStream);
-    if (targetType == TargetType::SPRITE)
-      fread(&targetId, 1, 1, _commandStream);
+    targetInfo = readTarget();
 
     len = str_len_file(_commandStream, 0);
     fread(targetIdle, len + 1, 1, _commandStream);
@@ -365,8 +358,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
     Engine::AllocationMode heartAlloc =
         mainScreen ? Engine::Allocated3D : Engine::AllocatedOAM;
 
-    Engine::Sprite *target =
-        Navigation::getTarget(targetType, targetId, callingLocation);
+    Engine::Sprite *target = Navigation::getTarget(targetInfo, callingLocation);
     if (_cDialogue == nullptr) {
       if (dialogue_type == DIALOGUE_CENTERED)
         _cDialogue = std::make_unique<DialogueCentered>(
@@ -550,18 +542,24 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_SET_ACTION");
 #endif
+    // TODO: IMPROVE
     u8 interactAction;
     u16 cutsceneId_;
-    fread(&targetType, 1, 1, _commandStream);
-    if (targetType == TargetType::SPRITE)
-      fread(&targetId, 1, 1, _commandStream);
+    targetInfo = readTarget();
     fread(&interactAction, 1, 1, _commandStream);
     if (interactAction == 1)
       fread(&cutsceneId_, 2, 1, _commandStream);
     if (callingLocation == ROOM || callingLocation == LOAD_ROOM) {
-      if (targetType == TargetType::SPRITE &&
-          targetId < globalRoom->_sprites.size()) {
-        auto &sprite = globalRoom->_sprites[targetId];
+      u8 targetId2 = 0;
+
+      if (targetInfo.targetId < 0)
+        targetId2 = globalRoom->_sprites.size() + targetInfo.targetId;
+      else
+        targetId2 = targetInfo.targetId;
+
+      if (targetInfo.targetType == TargetType::SPRITE &&
+          targetId2 < globalRoom->_sprites.size()) {
+        auto &sprite = globalRoom->_sprites[targetInfo.targetId];
         sprite->_interactAction = static_cast<ROOMSpriteAction>(interactAction);
         if (interactAction == 1)
           sprite->_cutsceneId = cutsceneId_;
@@ -637,11 +635,9 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
     fread(&dy, 4, 1, _commandStream);
     fread(&layer, 4, 1, _commandStream);
     fread(&texId, 1, 1, _commandStream);
-    fread(&targetType, 1, 1, _commandStream);
-    if (targetType == TargetType::SPRITE)
-      fread(&targetId, 1, 1, _commandStream);
+    targetInfo = readTarget();
 
-    Navigation::spawn_relative(texId, targetType, targetId, dx, dy, layer,
+    Navigation::spawn_relative(texId, targetInfo, dx, dy, layer,
                                callingLocation);
     break;
   }
@@ -664,6 +660,14 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
     return true;
   }
   return false;
+}
+
+TargetInfo Cutscene::readTarget() {
+  TargetInfo targetInfo;
+  fread(&targetInfo.targetType, 1, 1, _commandStream);
+  if (targetInfo.targetType == TargetType::SPRITE)
+    fread(&targetInfo.targetId, 1, 1, _commandStream);
+  return targetInfo;
 }
 
 Cutscene::~Cutscene() {

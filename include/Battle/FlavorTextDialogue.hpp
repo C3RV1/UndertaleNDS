@@ -9,14 +9,13 @@
 
 class FlavorTextDialogue : public DialogueLeftAligned {
 public:
-    explicit FlavorTextDialogue(u16 textId);
-    explicit FlavorTextDialogue(std::string text);
+  explicit FlavorTextDialogue(u16 textId);
+  explicit FlavorTextDialogue(std::string text);
 
-    void setShown(bool shown);
+  void setShown(bool shown);
 
 protected:
-    Engine::Texture _flavorTextTex;
-    Engine::Sprite _flavorTextSpr;
+  Engine::Sprite _flavorTextSpr;
 };
 
-#endif //UNDERTALE_FLAVORTEXTDIALOGUE_HPP
+#endif // UNDERTALE_FLAVORTEXTDIALOGUE_HPP

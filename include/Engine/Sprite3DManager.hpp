@@ -5,36 +5,39 @@
 #ifndef UNDERTALE_SPRITE_3D_MANAGER_HPP
 #define UNDERTALE_SPRITE_3D_MANAGER_HPP
 
-#include "Sprite.hpp"
 #include "Engine/FreeZoneManager.hpp"
+#include "Sprite.hpp"
 #include <nds.h>
 #include <vector>
 
 namespace Engine {
-    class Sprite3DManager {
-    public:
-        Sprite3DManager() :
-            tileFreeZones(0, 65536 - 8, "3D_TILES"),
-            paletteFreeZones(0, 1024, "3D_PALETTE") {}
+class Sprite3DManager {
+public:
+  Sprite3DManager()
+      : tileFreeZones(0, 65536 - 8, "3D_TILES"),
+        paletteFreeZones(0, 1024, "3D_PALETTE") {}
 
-        void draw();
-        void updateTextures();
-    private:
-        friend class Sprite;
+  void draw();
+  void updateTextures();
 
-        int loadSprite(Sprite& res);
-        void freeSprite(Sprite& spr);
+private:
+  friend class Sprite;
 
-        void loadSpriteTexture(Sprite& spr);
-        void freeSpriteTexture(Sprite& spr);
+  int loadSprite(Sprite &res);
+  void freeSprite(Sprite &spr);
 
-        FreeZoneManager tileFreeZones;
-        FreeZoneManager paletteFreeZones;
+  void ensureAlphaBlend();
 
-        std::vector<Sprite*> _activeSpr;
-    };
+  void loadSpriteTexture(Sprite &spr);
+  void freeSpriteTexture(Sprite &spr);
 
-    extern Sprite3DManager main3dSpr;
-}
+  FreeZoneManager tileFreeZones;
+  FreeZoneManager paletteFreeZones;
 
-#endif //UNDERTALE_SPRITE_3D_MANAGER_HPP
+  std::vector<Sprite *> _activeSpr;
+};
+
+extern Sprite3DManager main3dSpr;
+} // namespace Engine
+
+#endif // UNDERTALE_SPRITE_3D_MANAGER_HPP

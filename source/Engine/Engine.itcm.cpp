@@ -17,6 +17,12 @@
 namespace Engine {
 int init() {
   powerOn(POWER_ALL);
+
+  if (!fatInitDefault()) {
+    nocashMessage("Error initing fat. Continuing... might be playing on "
+                  "emulator w/out DLDI?");
+  }
+
   if (!nitroFSInit(nullptr)) {
     nocashMessage("nitroFSInit failure!\n");
     return -1;
