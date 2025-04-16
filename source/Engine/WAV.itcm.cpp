@@ -187,7 +187,6 @@ void WAV::progress(u16 samples) {
 
     if (_fileBufferSamplePos >= _fileBufferSampleEnd) {
       if (renew_file_buffer()) {
-        nocashMessage("Completed");
         // We should stop the audio if we have completed.
         if (_expectedSampleBufferPos > _sampleBufferPos)
           stop();

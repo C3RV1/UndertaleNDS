@@ -13,7 +13,6 @@
           "side": "down"
         }
       ],
-      "textures": [],
       "sprites": [],
       "colliders": [
         {"x": 0, "y": 0, "w": 88, "h": 188},

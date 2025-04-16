@@ -18,7 +18,7 @@ void Sprite::setAllocationMode(Engine::AllocationMode allocMode) {
 void Sprite::setAnimation(int animId) {
   if (!_loaded)
     return;
-  if (animId >= _texture->_animationCount)
+  if (animId >= _texture->_animationCount || animId < 0)
     return;
   if (_cAnimation == animId)
     return;

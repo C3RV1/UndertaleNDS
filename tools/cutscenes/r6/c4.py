@@ -18,8 +18,7 @@ def cutscene(c: Cutscene):
                         type_sound="snd_txttor.wav")
     c.wait(WaitTypes.DIALOGUE)
 
-    c.load_texture("room_sprites/toriel_handhold")
-    c.load_sprite(743, 103, -1)
+    c.load_sprite(743, 103, "room_sprites/toriel_handhold")
     c.set_shown(Target(TargetType.PLAYER), False)
     c.set_shown(Target(TargetType.SPRITE, 0), False)
     c.set_pos(Target(TargetType.PLAYER), 742, 128)
@@ -78,7 +77,6 @@ def cutscene(c: Cutscene):
     c.set_shown(Target(TargetType.PLAYER), True)
     c.set_shown(Target(TargetType.SPRITE, 0), True)
     c.unload_sprite(-1)
-    c.unload_texture(-1)
     c.set_pos(Target(TargetType.SPRITE, 0), 1095, 68)
     c.set_pos(Target(TargetType.PLAYER), 1074, 91)
     c.set_animation(Target(TargetType.SPRITE, 0), "leftIdle")
@@ -96,5 +94,4 @@ def cutscene(c: Cutscene):
                      frames_from_dst(50, 90))
     c.wait(WaitTypes.FRAMES, frames_from_dst(50, 90))
     c.unload_sprite(0)
-    c.unload_texture(1)
     c.set_flag(FlagOffsets.PROGRESS, 6)

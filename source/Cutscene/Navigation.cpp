@@ -12,82 +12,35 @@
 #include <memory>
 #include <vector>
 
-void Navigation::load_texture(const std::string &path,
+void Navigation::spawn_sprite(const std::string &path, s32 x, s32 y, s32 layer,
                               CutsceneLocation callingLocation) {
-  auto newTexture = Engine::textureManager.loadTexture(path);
-
+  auto texture = Engine::textureManager.loadTexture(path);
   if (callingLocation == LOAD_ROOM || callingLocation == ROOM) {
-    globalRoom->_textures.push_back(newTexture);
-  } else {
-    globalBattle->_textures.push_back(newTexture);
-  }
-}
-
-void Navigation::unload_texture(s8 textureId,
-                                CutsceneLocation callingLocation) {
-  if (callingLocation == LOAD_ROOM || callingLocation == ROOM) {
-    u8 texId2;
-    if (textureId < 0)
-      texId2 = globalRoom->_textures.size() + textureId;
-    else
-      texId2 = textureId;
-    if (texId2 >= globalRoom->_textures.size())
-      return;
-    globalRoom->_textures.erase(globalRoom->_textures.begin() + texId2);
-  } else {
-    u8 texId2;
-    if (textureId < 0)
-      texId2 = globalBattle->_textures.size() + textureId;
-    else
-      texId2 = textureId;
-    if (texId2 >= globalBattle->_textures.size())
-      return;
-    globalBattle->_textures.erase(globalBattle->_textures.begin() + texId2);
-  }
-}
-
-void Navigation::spawn_sprite(s8 textureId, s32 x, s32 y, s32 layer,
-                              CutsceneLocation callingLocation) {
-  if (callingLocation == LOAD_ROOM || callingLocation == ROOM) {
-    auto texture = getTexture(textureId, globalRoom->_textures);
-
     auto newSprite = std::make_unique<ManagedSprite>(Engine::Allocated3D);
     newSprite->spawn(x, y, std::move(texture));
 
     globalRoom->_sprites.push_back(std::move(newSprite));
   } else {
-    auto texture = getTexture(textureId, globalBattle->_textures);
-
     auto newSprite = std::make_unique<Engine::Sprite>(Engine::AllocatedOAM);
     newSprite->_wx = x;
     newSprite->_wy = y;
     newSprite->_layer = layer;
-    newSprite->_texture = std::move(texture);
+    newSprite->loadTexture(std::move(texture));
+    newSprite->setShown(true);
 
     globalBattle->_sprites.push_back(std::move(newSprite));
   }
 }
 
-std::shared_ptr<Engine::Texture> Navigation::getTexture(
-    s8 textureId,
-    const std::vector<std::shared_ptr<Engine::Texture>> &textures) {
-  u8 texId;
-  if (textureId < 0)
-    texId = textures.size() + textureId;
-  else
-    texId = textureId;
-  return textures[texId];
-}
-
-void Navigation::spawn_relative(s8 textureId, const TargetInfo &targetInfo,
-                                s32 dx, s32 dy, s32 layer,
-                                CutsceneLocation callingLocation) {
+void Navigation::spawn_relative(const std::string &path,
+                                const TargetInfo &targetInfo, s32 dx, s32 dy,
+                                s32 layer, CutsceneLocation callingLocation) {
   Engine::Sprite *target = getTarget(targetInfo, callingLocation);
   if (target == nullptr)
     return;
   s32 x = target->_wx + dx;
   s32 y = target->_wy + dy;
-  spawn_sprite(textureId, x, y, layer, callingLocation);
+  spawn_sprite(path, x, y, layer, callingLocation);
 }
 
 void Navigation::unload_sprite(s8 sprId, CutsceneLocation callingLocation) {

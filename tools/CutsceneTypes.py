@@ -26,7 +26,7 @@ class CutsceneCommands(enum.IntEnum):
     START_DIALOGUE = 7  # Done
     START_BATTLE = 8  # Little done
     EXIT_BATTLE = 9  # Done
-    LOAD_TEXTURE = 10  # Done
+    # LOAD_TEXTURE = 10  # Done
     BATTLE_ATTACK = 11  # Done (requires implementing attacks)
     BATTLE_ACTION = 12
     CHECK_HIT = 13  # Done
@@ -43,7 +43,7 @@ class CutsceneCommands(enum.IntEnum):
     SET_FLAG = 24  # Done
     CMP_FLAG = 25  # Done
     SET_COLLIDER_ENABLED = 26  # Done
-    UNLOAD_TEXTURE = 27  # Done
+    # UNLOAD_TEXTURE = 27  # Done
     SET_ACTION = 28  # Done
     PLAY_SFX = 29  # Done
     SAVE_MENU = 30  # Done
@@ -154,7 +154,7 @@ class Target:
 class Cutscene:
     def __init__(self, wtr: binary.BinaryWriter):
         self.wtr: binary.BinaryWriter = wtr
-        self.version = 11
+        self.version = 12
         self.file_size_pos = 0
         self.instructions_address = []
         self.pending_address = {}
@@ -185,31 +185,21 @@ class Cutscene:
         self.wtr.write_string(string, encoding="ascii")
         return self.instructions_address[-1]
 
-    def load_texture(self, path: str):
-        self.write_header(CutsceneCommands.LOAD_TEXTURE)
-        self.wtr.write_string(path, encoding="ascii")
-        return self.instructions_address[-1]
-
-    def unload_texture(self, texture_id: int):
-        self.write_header(CutsceneCommands.UNLOAD_TEXTURE)
-        self.wtr.write_int8(texture_id)
-        return self.instructions_address[-1]
-
-    def load_sprite(self, x: float, y: float, tex_id: int, layer=1):
+    def load_sprite(self, x: float, y: float, texture: str, layer=1):
         self.write_header(CutsceneCommands.LOAD_SPRITE)
         self.wtr.write_int32(to_fixed_point(x))
         self.wtr.write_int32(to_fixed_point(y))
         self.wtr.write_int32(layer)
-        self.wtr.write_int8(tex_id)
+        self.wtr.write_string(texture, encoding="ascii")
         return self.instructions_address[-1]
 
-    def load_sprite_relative(self, dx: float, dy: float, tex_id: int,
+    def load_sprite_relative(self, dx: float, dy: float, texture: str,
                              target: Target, layer=1):
         self.write_header(CutsceneCommands.LOAD_SPRITE_RELATIVE)
         self.wtr.write_int32(to_fixed_point(dx))
         self.wtr.write_int32(to_fixed_point(dy))
         self.wtr.write_int32(layer)
-        self.wtr.write_int8(tex_id)
+        self.wtr.write_string(texture, encoding="ascii")
         target.write(self.wtr)
         return self.instructions_address[-1]
 

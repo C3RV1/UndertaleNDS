@@ -33,14 +33,11 @@ struct NavigationTask {
 
 class Navigation {
 public:
-  static void load_texture(const std::string &path,
+  static void spawn_sprite(const std::string &path, s32 x, s32 y, s32 layer,
                            CutsceneLocation callingLocation);
-  static void unload_texture(s8 textureId, CutsceneLocation callingLocation);
-  static void spawn_sprite(s8 textureId, s32 x, s32 y, s32 layer,
-                           CutsceneLocation callingLocation);
-  static void spawn_relative(s8 textureId, const TargetInfo &targetInfo, s32 dx,
-                             s32 dy, s32 layer,
-                             CutsceneLocation callingLocation);
+  static void spawn_relative(const std::string &path,
+                             const TargetInfo &targetInfo, s32 dx, s32 dy,
+                             s32 layer, CutsceneLocation callingLocation);
   static void unload_sprite(s8 sprId, CutsceneLocation callingLocation);
   static void set_position(const TargetInfo &targetInfo, s32 x, s32 y,
                            CutsceneLocation callingLocation);
@@ -69,10 +66,6 @@ private:
   void startTask(std::unique_ptr<NavigationTask> task);
   bool updateTask(std::vector<std::unique_ptr<NavigationTask>>::iterator &task);
   void endTask(std::vector<std::unique_ptr<NavigationTask>>::iterator &task);
-
-  static std::shared_ptr<Engine::Texture>
-  getTexture(s8 textureId,
-             const std::vector<std::shared_ptr<Engine::Texture>> &texture);
 
   std::vector<std::unique_ptr<NavigationTask>> _tasks;
 };

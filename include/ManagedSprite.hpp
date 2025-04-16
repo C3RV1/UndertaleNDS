@@ -15,8 +15,7 @@ class ManagedSprite {
 public:
   explicit ManagedSprite(Engine::AllocationMode alloc) : _spr(alloc) {}
 
-  void load(ROOMSprite const &sprData,
-            const std::vector<std::shared_ptr<Engine::Texture>> &textures);
+  void load(ROOMSprite const &sprData);
 
   void spawn(s32 x, s32 y, std::shared_ptr<Engine::Texture> texture);
 

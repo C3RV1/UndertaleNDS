@@ -1,4 +1,5 @@
 #include "Engine/Texture.hpp"
+#include "DEBUG_FLAGS.hpp"
 #include "Engine/Engine.hpp"
 #include "Formats/utils.hpp"
 #include <memory>
@@ -122,6 +123,10 @@ void Texture::free_() {
   if (!_loaded)
     return;
   _loaded = false;
+#ifdef DEBUG_TEXTURES
+  std::string msg = "Freeing texture: " + _path;
+  nocashMessage(msg.c_str());
+#endif
 }
 
 void Texture::loadOam(FILE *f) {
@@ -162,10 +167,29 @@ std::shared_ptr<Engine::Texture>
 TextureManager::loadTexture(const std::string &path) {
   auto textureKV = textures.find(path);
   if (textureKV != textures.end()) {
-    if (!textureKV->second.expired())
+    if (!textureKV->second.expired()) {
+#ifdef DEBUG_TEXTURES
+      std::string msg = "Found texture " + path + " in bank: reusing.";
+      nocashMessage(msg.c_str());
+#endif
       return textureKV->second.lock();
+    }
+#ifdef DEBUG_TEXTURES
+    else {
+      std::string msg = "Found texture " + path + " in bank: expired.";
+      nocashMessage(msg.c_str());
+      textures.erase(textureKV);
+    }
+#endif
   }
+#ifdef DEBUG_TEXTURES
+  else {
+    std::string msg = "Not found texture " + path + " in bank.";
+    nocashMessage(msg.c_str());
+  }
+#endif
 
+  nocashMessage("Making...");
   auto texture = std::make_shared<Texture>(path);
   textures.insert(std::make_pair(path, texture));
   return texture;

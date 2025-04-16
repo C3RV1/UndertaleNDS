@@ -24,54 +24,47 @@
           "side": "right"
         }
       ],
-      "textures": [
-        "room_sprites/wall_panel_ruins",
-        "room_sprites/lever_ruins",
-        "room_sprites/sign_ruins",
-        "room_sprites/spike",
-        "room_sprites/toriel"
-      ],
       "sprites": [
         {
-          "texture_id": 0,
+          "texture": "room_sprites/wall_panel_ruins",
           "x": 69, "y": 40,
           "action": "cutscene", "cutscene_id": 0
         },
         {
-          "texture_id": 1,
+          "texture": "room_sprites/lever_ruins",
           "x": 357, "y": 55,
           "animation": "up",
           "action": "cutscene", "cutscene_id": 3
         },
         {
-          "texture_id": 1,
+          "texture": "room_sprites/lever_ruins",
           "x": 557, "y": 55,
           "animation": "up",
           "action": "cutscene", "cutscene_id": 4
         },
         {
-          "texture_id": 1,
+          "texture": "room_sprites/lever_ruins",
           "x": 595, "y": 55,
           "animation": "up",
           "action": "cutscene", "cutscene_id": 5
         },
         {
-          "texture_id": 2,
+          "texture": "room_sprites/sign_ruins",
           "x": 99, "y": 120,
           "action": "cutscene", "cutscene_id": 1
         },
         {
-          "texture_id": 3,
+          "texture": "room_sprites/spike",
           "x": 670, "y": 140,
           "animation": "up"
         },
         {
-          "texture_id": 3,
+          "texture": "room_sprites/spike",
           "x": 670, "y": 160,
           "animation": "up"
         },
         {
-          "texture_id": 4,
+          "texture": "room_sprites/toriel",
           "x": 98, "y": 110,
           "animation": "downIdle"
         }
@@ -122,46 +115,40 @@
           "side": "right"
         }
       ],
-      "textures": [
-        "room_sprites/wall_panel_ruins",
-        "room_sprites/lever_ruins",
-        "room_sprites/sign_ruins",
-        "room_sprites/spike"
-      ],
       "sprites": [
         {
-          "texture_id": 0,
+          "texture": "room_sprites/wall_panel_ruins",
           "x": 69, "y": 40,
           "action": "cutscene", "cutscene_id": 0
         },
         {
-          "texture_id": 1,
+          "texture": "room_sprites/lever_ruins",
           "x": 357, "y": 55,
           "animation": "down"
         },
         {
-          "texture_id": 1,
+          "texture": "room_sprites/lever_ruins",
           "x": 557, "y": 55,
           "animation": "down"
         },
         {
-          "texture_id": 1,
+          "texture": "room_sprites/lever_ruins",
           "x": 595, "y": 55,
           "animation": "up",
           "action": "cutscene", "cutscene_id": 5
         },
         {
-          "texture_id": 2,
+          "texture": "room_sprites/sign_ruins",
           "x": 99, "y": 120,
           "action": "cutscene", "cutscene_id": 1
         },
         {
-          "texture_id": 3,
+          "texture": "room_sprites/spike",
           "x": 670, "y": 140,
           "animation": "down"
         },
         {
-          "texture_id": 3,
+          "texture": "room_sprites/spike",
           "x": 670, "y": 160,
           "animation": "down"
         }

@@ -11,5 +11,4 @@ def cutscene(c: Cutscene):
     c.set_collider_enabled(3, False)
     c.wait(WaitTypes.FRAMES, 20)
     c.unload_sprite(0)
-    c.unload_texture(0)
     c.set_flag(FlagOffsets.PROGRESS, 2)

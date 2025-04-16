@@ -27,12 +27,9 @@
           "h": 51
         }
       ],
-      "textures": [
-        "room_sprites/flowey"
-      ],
       "sprites": [
         {
-          "texture_id": 0,
+          "texture": "room_sprites/flowey",
           "x": 151,
           "y": 227
         }
@@ -73,7 +70,6 @@
           "h": 51
         }
       ],
-      "textures": [],
       "sprites": [],
       "colliders": []
     }

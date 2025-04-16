@@ -14,7 +14,7 @@ class RoomHeader:
     def __init__(self):
         self.header = b"ROOM"
         self.file_size_pos = 0
-        self.version = 9
+        self.version = 10
 
     def write(self, wtr: binary.BinaryWriter):
         wtr.write(self.header)
@@ -96,25 +96,9 @@ class RoomExits:
         return res
 
 
-class RoomTextures:
-    def __init__(self):
-        self.textures = []
-
-    def write(self, wtr: binary.BinaryWriter):
-        wtr.write_uint8(len(self.textures))
-        for texture in self.textures:
-            wtr.write_string(texture, encoding="ascii")
-
-    @classmethod
-    def from_list(cls, lst):
-        res = cls()
-        res.textures = lst
-        return res
-
-
 class RoomSprite:
     def __init__(self):
-        self.texture_id = 0
+        self.texture = ""
         self.x = 0
         self.y = 0
         self.animation = ""
@@ -132,7 +116,7 @@ class RoomSprite:
         self.stop_on_goal = False
 
     def write(self, wtr: binary.BinaryWriter):
-        wtr.write_uint8(self.texture_id)
+        wtr.write_string(self.texture, encoding="ascii")
         wtr.write_uint16(int(self.x))
         wtr.write_uint16(int(self.y))
         wtr.write_string(self.animation, encoding="ascii")
@@ -158,7 +142,7 @@ class RoomSprite:
     @classmethod
     def from_dict(cls, dct):
         res = cls()
-        res.texture_id = dct["texture_id"]
+        res.texture = dct["texture"]
         res.x = dct["x"]
         res.y = dct["y"]
         res.animation = dct.get("animation", "gfx")
@@ -308,7 +292,6 @@ class RoomPart:
         self.spawn_x = 0
         self.spawn_y = 0
         self.room_exits = RoomExits()
-        self.room_textures = RoomTextures()
         self.room_sprites = RoomSprites()
         self.room_colliders = RoomColliders()
 
@@ -324,7 +307,6 @@ class RoomPart:
         wtr.write_uint16(self.spawn_x)
         wtr.write_uint16(self.spawn_y)
         self.room_exits.write(wtr)
-        self.room_textures.write(wtr)
         self.room_sprites.write(wtr)
         self.room_colliders.write(wtr)
         end_pos = wtr.tell()
@@ -343,7 +325,6 @@ class RoomPart:
         res.spawn_x = dct.get("spawn_x")
         res.spawn_y = dct.get("spawn_y")
         res.room_exits = RoomExits.from_list(dct["exits"])
-        res.room_textures = RoomTextures.from_list(dct["textures"])
         res.room_sprites = RoomSprites.from_list(dct["sprites"])
         res.room_colliders = RoomColliders.from_list(dct["colliders"])
         return res

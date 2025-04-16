@@ -128,23 +128,6 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
     fread(buffer, len + 1, 1, _commandStream);
     nocashMessage(buffer);
     break;
-  case CMD_LOAD_TEXTURE:
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_LOAD_TEXTURE");
-#endif
-    len = str_len_file(_commandStream, 0);
-    fread(buffer, len + 1, 1, _commandStream);
-    Navigation::load_texture(buffer, callingLocation);
-    break;
-  case CMD_UNLOAD_TEXTURE: {
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_LOAD_TEXTURE");
-#endif
-    s8 targetId;
-    fread(&targetId, 1, 1, _commandStream);
-    Navigation::unload_texture(targetId, callingLocation);
-    break;
-  }
   case CMD_LOAD_SPRITE: {
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_LOAD_SPRITE");
@@ -154,8 +137,9 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
     fread(&x, 4, 1, _commandStream);
     fread(&y, 4, 1, _commandStream);
     fread(&layer, 4, 1, _commandStream);
-    fread(&texId, 1, 1, _commandStream);
-    Navigation::spawn_sprite(texId, x, y, layer, callingLocation);
+    len = str_len_file(_commandStream, 0);
+    fread(buffer, len + 1, 1, _commandStream);
+    Navigation::spawn_sprite(buffer, x, y, layer, callingLocation);
     break;
   }
   case CMD_UNLOAD_SPRITE: {
@@ -634,10 +618,11 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
     fread(&dx, 4, 1, _commandStream);
     fread(&dy, 4, 1, _commandStream);
     fread(&layer, 4, 1, _commandStream);
-    fread(&texId, 1, 1, _commandStream);
+    len = str_len_file(_commandStream, 0);
+    fread(buffer, len + 1, 1, _commandStream);
     targetInfo = readTarget();
 
-    Navigation::spawn_relative(texId, targetInfo, dx, dy, layer,
+    Navigation::spawn_relative(buffer, targetInfo, dx, dy, layer,
                                callingLocation);
     break;
   }

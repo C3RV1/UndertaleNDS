@@ -35,7 +35,6 @@ public:
 
   std::vector<Enemy> _enemies;
 
-  std::vector<std::shared_ptr<Engine::Texture>> _textures;
   std::vector<std::unique_ptr<Engine::Sprite>> _sprites;
 
   Engine::Background _bulletBoard;

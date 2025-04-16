@@ -22,16 +22,13 @@
           "side": "right"
         }
       ],
-      "textures": [
-        "room_sprites/wall_panel_ruins"
-      ],
       "sprites": [
         {
-          "texture_id": 0,
+          "texture": "room_sprites/wall_panel_ruins",
           "x": 460, "y": 110
         },
         {
-          "texture_id": 0,
+          "texture": "room_sprites/wall_panel_ruins",
           "x": 475, "y": 495
         }
       ],

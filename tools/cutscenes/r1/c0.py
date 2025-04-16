@@ -20,10 +20,7 @@ def cutscene(c: Cutscene):
     c.start_battle([Enemy(0, 100, 0, 0, 0, BattleAttackIds.MOVEMENT_TUTORIAL)], 0, 61, 63, 134, 75)
     c.wait(WaitTypes.EXIT)
     c.debug("Loading battle...")
-    c.load_texture("speaker/flowey")
-    c.load_texture("cutscene/0/spr_torielflame")
-    c.load_texture("battle/attack_pellets")
-    c.load_sprite(30, (192 - 44) // 2, 0)  # Load flowey (spr 0)
+    c.load_sprite(30, (192 - 44) // 2, "speaker/flowey")  # Load flowey (spr 0)
 
     c.wait(WaitTypes.ENTER)
     c.debug("In battle!")
@@ -44,11 +41,11 @@ def cutscene(c: Cutscene):
     c.wait(WaitTypes.FRAMES, 120)
 
     # Load pellets (sprites 1, 2, 3, 4, 5)
-    c.load_sprite(40, 192 // 2, 2)
-    c.load_sprite(40, 192 // 2, 2)
-    c.load_sprite(40, 192 // 2, 2)
-    c.load_sprite(40, 192 // 2, 2)
-    c.load_sprite(40, 192 // 2, 2)
+    c.load_sprite(40, 192 // 2, "battle/attack_pellets")
+    c.load_sprite(40, 192 // 2, "battle/attack_pellets")
+    c.load_sprite(40, 192 // 2, "battle/attack_pellets")
+    c.load_sprite(40, 192 // 2, "battle/attack_pellets")
+    c.load_sprite(40, 192 // 2, "battle/attack_pellets")
 
     def set_pellet_pos():
         c.set_pos_in_frames(Target(TargetType.SPRITE, 1), 30, 140, 120)
@@ -141,7 +138,6 @@ def cutscene(c: Cutscene):
     c.unload_sprite(-1)
     c.unload_sprite(-1)
     c.unload_sprite(-1)
-    c.unload_texture(2)
 
     c.set_animation(Target(TargetType.SPRITE, 0), "skull_laugh")
     c.play_sfx("snd_floweylaugh.wav")
@@ -157,8 +153,8 @@ def cutscene(c: Cutscene):
     c.set_animation(Target(TargetType.SPRITE, 0), "annoyed_open_mouth")
     c.wait(WaitTypes.FRAMES, 80)
 
-    c.load_sprite(256 - 60, (192 - 30) // 2, 1)
-    # Little trick to load the flame on top of flowey
+    c.load_sprite(256 - 60, (192 - 30) // 2, "cutscene/0/spr_torielflame")
+    # FIXME: Little trick to load the flame on top of flowey
     c.set_shown(Target(TargetType.SPRITE, 1), False)
     c.set_shown(Target(TargetType.SPRITE, 0), False)
     c.set_shown(Target(TargetType.SPRITE, 1), True)
@@ -169,20 +165,17 @@ def cutscene(c: Cutscene):
     c.set_pos_in_frames(Target(TargetType.SPRITE, 1), 30, (192 - 30) // 2, 60)
     c.wait(WaitTypes.FRAMES, 60)
     c.unload_sprite(-1)
-    c.unload_texture(1)
+
     c.set_animation(Target(TargetType.SPRITE, 0), "hurt")
     c.play_sfx("snd_ehurt1.wav")
     c.move_in_frames(Target(TargetType.SPRITE, 0), -100, 0, 60)
     c.wait(WaitTypes.FRAMES, 60)
     c.unload_sprite(0)
-    c.unload_texture(0)
 
     c.wait(WaitTypes.FRAMES, 120)
     c.start_bgm("mus_fallendown2.wav", True)
-    c.load_texture("speaker/toriel_face")
-    c.load_texture("speaker/toriel_bodyonly")
-    c.load_sprite(256, 192 // 4, 0)
-    c.load_sprite(256, 192 // 4, 1)
+    c.load_sprite(256, 192 // 4, "speaker/toriel_face")
+    c.load_sprite(256, 192 // 4, "speaker/toriel_bodyonly")
     c.set_animation(Target(TargetType.SPRITE, 0), "worried_side")
     c.move_in_frames(Target(TargetType.SPRITE, 0), -220, 0, 180)
     c.move_in_frames(Target(TargetType.SPRITE, 1), -220, 0, 180)
@@ -199,9 +192,7 @@ def cutscene(c: Cutscene):
 
     # Unload flowey and load toriel world
     c.unload_sprite(0)
-    c.unload_texture(0)
-    c.load_texture("room_sprites/toriel")
-    c.load_sprite(149, 198, 0)  # Toriel world
+    c.load_sprite(149, 198, "room_sprites/toriel")  # Toriel world
     c.set_animation(Target(TargetType.SPRITE, 0), "downIdle")
 
     c.wait(WaitTypes.ENTER)
@@ -216,7 +207,6 @@ def cutscene(c: Cutscene):
     c.move_in_frames(Target(TargetType.CAMERA, 0), 0, 67-198, 180)
     c.wait(WaitTypes.FRAMES, 180)
     c.unload_sprite(0)
-    c.unload_texture(0)
     c.wait(WaitTypes.FRAMES, 60 * 2)
     c.manual_camera(False)
     c.player_control(True)

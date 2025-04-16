@@ -13,8 +13,8 @@ struct ROOMHeader {
   char header[4] = {'R', 'O', 'O', 'M'};
   u32 fileSize = 0;
 
-  u32 version = 9;
-  static constexpr u32 version_expected = 9;
+  u32 version = 10;
+  static constexpr u32 version_expected = 10;
 };
 
 struct ROOMExit {
@@ -29,10 +29,6 @@ struct ROOMExits {
   std::vector<ROOMExit> roomExits;
 };
 
-struct ROOMTextures {
-  std::vector<std::string> texturePaths;
-};
-
 enum class ROOMSpriteAction {
   NONE = 0,
   CUTSCENE = 1,
@@ -42,7 +38,7 @@ enum class ROOMSpriteAction {
 };
 
 struct ROOMSprite {
-  s8 textureId = 0;
+  std::string path;
   u16 x = 0, y = 0;
   std::string animation;
   u8 interactAction = 0; // ROOMSpriteAction
@@ -94,7 +90,6 @@ struct ROOMPart {
   u8 musicVolume;
   u16 spawnX = 0, spawnY = 0;
   ROOMExits roomExits;
-  ROOMTextures roomTextures;
   ROOMSprites roomSprites;
   ROOMColliders roomColliders;
 };

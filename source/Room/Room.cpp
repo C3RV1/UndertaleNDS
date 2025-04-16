@@ -77,7 +77,7 @@ void Room::loadRoom(FILE *f) {
   fread(&roomFile.header.version, 4, 1, f);
   if (roomFile.header.version != ROOMHeader::version_expected) {
     std::string buffer = "Error loading room #r" + std::to_string(_roomId) +
-                         "#x: Invalid version (expected: 8, actual: " +
+                         "#x: Invalid version (expected: 10, actual: " +
                          std::to_string(roomFile.header.version) + ")";
     Engine::throw_(buffer);
   }
@@ -172,27 +172,16 @@ void Room::loadRoom(FILE *f) {
     _rectExits[j++] = &roomExits[i];
   }
 
-  u8 textureCount;
-  fread(&textureCount, 1, 1, f);
-  _textures.resize(textureCount);
-  std::string path;
-  path.reserve(50);
-  for (int i = 0; i < textureCount; i++) {
-    int sprPathLen = str_len_file(f, 0);
-    path.resize(sprPathLen);
-    fread(&path[0], sprPathLen, 1, f);
-    fseek(f, 1, SEEK_CUR);
-
-    _textures[i] = Engine::textureManager.loadTexture(path);
-  }
-
   u8 spriteCount;
   fread(&spriteCount, 1, 1, f);
   _roomData.roomSprites.roomSprites.resize(spriteCount);
   auto &roomSprites = _roomData.roomSprites.roomSprites;
 
   for (int i = 0; i < spriteCount; i++) {
-    fread(&roomSprites[i].textureId, 1, 1, f);
+    int sprPathLen = str_len_file(f, 0);
+    roomSprites[i].path.resize(sprPathLen);
+    fread(&roomSprites[i].path[0], sprPathLen, 1, f);
+    fseek(f, 1, SEEK_CUR);
     fread(&roomSprites[i].x, 2, 1, f);
     fread(&roomSprites[i].y, 2, 1, f);
     int animLen = str_len_file(f, 0);
@@ -254,7 +243,7 @@ void Room::loadSprites() {
   _sprites.reserve(_roomData.roomSprites.roomSprites.size());
   for (auto const &roomSprite : _roomData.roomSprites.roomSprites) {
     auto sprite = std::make_unique<ManagedSprite>(Engine::Allocated3D);
-    sprite->load(roomSprite, _textures);
+    sprite->load(roomSprite);
     _sprites.push_back(std::move(sprite));
   }
 }

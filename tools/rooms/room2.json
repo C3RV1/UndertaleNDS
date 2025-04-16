@@ -27,19 +27,15 @@
           "h": 46
         }
       ],
-      "textures": [
-        "room_sprites/toriel",
-        "room_sprites/savepoint"
-      ],
       "sprites": [
         {
-          "texture_id": 0,
+          "texture": "room_sprites/toriel",
           "x": 127,
           "y": 326,
           "animation": "downIdle"
         },
         {
-          "texture_id": 1,
+          "texture": "room_sprites/savepoint",
           "x": 130,
           "y": 175,
           "action": "cutscene",
@@ -99,12 +95,9 @@
           "h": 46
         }
       ],
-      "textures": [
-        "room_sprites/savepoint"
-      ],
       "sprites": [
         {
-          "texture_id": 0,
+          "texture": "room_sprites/savepoint",
           "x": 130,
           "y": 175,
           "action": "cutscene",

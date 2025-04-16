@@ -21,17 +21,13 @@
           "side": "right"
         }
       ],
-      "textures": [
-        "room_sprites/spr_pillar",
-        "room_sprites/toriel"
-      ],
       "sprites": [
         {
-          "texture_id": 0,
+          "texture": "room_sprites/spr_pillar",
           "x": 1174, "y": 37
         },
         {
-          "texture_id": 1,
+          "texture": "room_sprites/toriel",
           "x": 90, "y": 72,
           "animation": "leftIdle"
         }
@@ -78,12 +74,9 @@
           "side": "right"
         }
       ],
-      "textures": [
-        "room_sprites/spr_pillar"
-      ],
       "sprites": [
         {
-          "texture_id": 0,
+          "texture": "room_sprites/spr_pillar",
           "x": 1174, "y": 37
         }
       ],

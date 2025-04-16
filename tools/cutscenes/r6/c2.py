@@ -8,24 +8,19 @@ else:
 def cutscene(c: Cutscene):
     c.player_control(False)
     c.set_collider_enabled(2, False)
-    c.load_texture("room_sprites/spr_exc")
-    c.load_sprite_relative(5, -13, -1, Target(TargetType.PLAYER))
+    c.load_sprite_relative(5, -13, "room_sprites/spr_exc", Target(TargetType.PLAYER))
     c.play_sfx("snd_b.wav")
     c.wait(WaitTypes.FRAMES, 60)
 
     c.unload_sprite(-1)
-    c.unload_texture(-1)
 
     c.start_battle([Enemy(2, 20, 1, 1, 3, 0)], 0, 61, 63, 134, 75)
     c.wait(WaitTypes.EXIT)
 
     c.start_bgm("mus_battle1.wav", True)
 
-    c.load_texture("battle/spr_froghead")
-    c.load_texture("battle/spr_froglegs")
-
-    c.load_sprite(27, 93, -2)
-    c.load_sprite(27, 93, -1)
+    c.load_sprite(27, 93, "battle/spr_froghead")
+    c.load_sprite(27, 93, "battle/spr_froglegs")
 
     c.wait(WaitTypes.ENTER)
 
@@ -74,8 +69,7 @@ def cutscene(c: Cutscene):
     c.bind(toriel_scare_jump_2)
 
     c.debug("Toriel scare")
-    c.load_texture("battle/spr_torieldisapprove")
-    c.load_sprite(256, 192 // 4, -1)
+    c.load_sprite(256, 192 // 4, "battle/spr_torieldisapprove")
 
     c.wait(WaitTypes.FRAMES, 40)
 
@@ -89,8 +83,6 @@ def cutscene(c: Cutscene):
     c.wait(WaitTypes.FRAMES, 180)
     c.unload_sprite(-3)
     c.unload_sprite(-2)
-    c.unload_texture(-3)
-    c.unload_texture(-2)
     c.set_animation(Target(TargetType.SPRITE, 0), "up")
     c.stop_bgm()
     c.exit_battle(won=True)

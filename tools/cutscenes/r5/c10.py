@@ -16,8 +16,7 @@ def cutscene(c: Cutscene):
     # == LOAD BATTLE ==
 
     c.debug("Loading battle...")
-    c.load_texture("battle/dummy_ruins")
-    c.load_sprite(30, (192 - 52) // 2, 0)
+    c.load_sprite(30, (192 - 52) // 2, "battle/dummy_ruins")
     # c.set_scale(Target(TargetType.SPRITE, 0), 1.5, 1.5)
     c.start_bgm("mus_prebattle1.wav", True)
 
@@ -92,7 +91,6 @@ def cutscene(c: Cutscene):
 
     # We have killed it, so unload it
     c.unload_sprite(-1)
-    c.unload_texture(-1)
 
     c.wait(WaitTypes.ENTER)
 
@@ -209,4 +207,3 @@ def cutscene(c: Cutscene):
     c.move_in_frames(Target(TargetType.SPRITE, 0), 0, -30, 20)
     c.wait(WaitTypes.FRAMES, 20)
     c.unload_sprite(0)
-    c.unload_texture(0)

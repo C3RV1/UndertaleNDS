@@ -22,18 +22,14 @@
           "x": 128, "y": 0, "w": 40, "h": 65
         }
       ],
-      "textures": [
-        "room_sprites/toriel",
-        "room_sprites/dummy"
-      ],
       "sprites": [
         {
-          "texture_id": 0,
+          "texture": "room_sprites/toriel",
           "x": 49, "y": 102,
           "animation": "downIdle"
         },
         {
-          "texture_id": 1,
+          "texture": "room_sprites/dummy",
           "x": 192, "y": 96,
           "animation": "idle",
           "action": "cutscene", "cutscene_id": 10
@@ -86,7 +82,6 @@
           "x": 128, "y": 0, "w": 40, "h": 65
         }
       ],
-      "textures": [],
       "sprites": [],
       "colliders": [
         {"x": 0, "y": 0, "w": 28, "h": 140},
@@ -124,12 +119,9 @@
           "x": 128, "y": 0, "w": 40, "h": 65
         }
       ],
-      "textures": [
-        "room_sprites/dummy"
-      ],
       "sprites": [
         {
-          "texture_id": 0,
+          "texture": "room_sprites/dummy",
           "x": 192, "y": 96,
           "animation": "idle"
         }

@@ -19,9 +19,6 @@
           "side": "right"
         }
       ],
-      "textures": [
-        "room_sprites/hole"
-      ],
       "sprites": [],
       "colliders": [
         {

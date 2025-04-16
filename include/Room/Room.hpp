@@ -29,7 +29,6 @@ public:
   u16 _roomId;
   Engine::Background _bg;
 
-  std::vector<std::shared_ptr<Engine::Texture>> _textures;
   std::vector<std::unique_ptr<ManagedSprite>> _sprites;
 
   ROOMPart _roomData;

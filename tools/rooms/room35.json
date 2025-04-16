@@ -6,7 +6,6 @@
       "music_path": "mus_ruins.wav",
       "spawn_x": 30, "spawn_y": 1140,
       "exits": [],
-      "textures": [],
       "sprites": [],
       "colliders": []
     }

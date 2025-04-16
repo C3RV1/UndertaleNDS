@@ -4,6 +4,7 @@
 
 #include "ManagedSprite.hpp"
 #include "Cutscene/Cutscene.hpp"
+#include "Engine/Texture.hpp"
 #include "Engine/math.hpp"
 #include "Formats/ROOM_FILE.hpp"
 #include "Room/Camera.hpp"
@@ -12,12 +13,8 @@
 #include "Save.hpp"
 #include <memory>
 
-void ManagedSprite::load(
-    ROOMSprite const &sprData,
-    const std::vector<std::shared_ptr<Engine::Texture>> &textures) {
-  if (sprData.textureId < textures.size()) {
-    _spr.loadTexture(textures[sprData.textureId]);
-  }
+void ManagedSprite::load(ROOMSprite const &sprData) {
+  _spr.loadTexture(Engine::textureManager.loadTexture(sprData.path));
   _animationId = _spr.nameToAnimId(sprData.animation);
   _spr._wx = sprData.x << 8;
   _spr._wy = sprData.y << 8;

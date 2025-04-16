@@ -22,14 +22,9 @@
           "side": "right"
         }
       ],
-      "textures": [
-        "room_sprites/spr_rock",
-        "room_sprites/wall_panel_ruins",
-        "room_sprites/spike"
-      ],
       "sprites": [
         {
-          "texture_id": 0,
+          "texture": "room_sprites/spr_rock",
           "x": 157, "y": 134,
           "action": "pushable",
           "valid_rect": [156, 134, 80, 18],
@@ -40,36 +35,36 @@
           "stop_on_goal": true
         },
         {
-          "texture_id": 1,
+          "texture": "room_sprites/wall_panel_ruins",
           "x": 136, "y": 34
         },
         {
-          "texture_id": 2,
+          "texture": "room_sprites/spike",
           "animation": "up",
           "x": 277, "y": 75
         },
         {
-          "texture_id": 2,
+          "texture": "room_sprites/spike",
           "animation": "up",
           "x": 277, "y": 95
         },
         {
-          "texture_id": 2,
+          "texture": "room_sprites/spike",
           "animation": "up",
           "x": 277, "y": 115
         },
         {
-          "texture_id": 2,
+          "texture": "room_sprites/spike",
           "animation": "up",
           "x": 277, "y": 135
         },
         {
-          "texture_id": 2,
+          "texture": "room_sprites/spike",
           "animation": "up",
           "x": 277, "y": 155
         },
         {
-          "texture_id": 2,
+          "texture": "room_sprites/spike",
           "animation": "up",
           "x": 277, "y": 175
         }
@@ -120,14 +115,9 @@
           "side": "right"
         }
       ],
-      "textures": [
-        "room_sprites/spr_rock",
-        "room_sprites/wall_panel_ruins",
-        "room_sprites/spike"
-      ],
       "sprites": [
         {
-          "texture_id": 0,
+          "texture": "room_sprites/spr_rock",
           "x": 157, "y": 134,
           "action": "pushable",
           "valid_rect": [156, 134, 80, 18],
@@ -138,36 +128,36 @@
           "stop_on_goal": true
         },
         {
-          "texture_id": 1,
+          "texture": "room_sprites/wall_panel_ruins",
           "x": 136, "y": 34
         },
         {
-          "texture_id": 2,
+          "texture": "room_sprites/spike",
           "animation": "up",
           "x": 277, "y": 75
         },
         {
-          "texture_id": 2,
+          "texture": "room_sprites/spike",
           "animation": "up",
           "x": 277, "y": 95
         },
         {
-          "texture_id": 2,
+          "texture": "room_sprites/spike",
           "animation": "up",
           "x": 277, "y": 115
         },
         {
-          "texture_id": 2,
+          "texture": "room_sprites/spike",
           "animation": "up",
           "x": 277, "y": 135
         },
         {
-          "texture_id": 2,
+          "texture": "room_sprites/spike",
           "animation": "up",
           "x": 277, "y": 155
         },
         {
-          "texture_id": 2,
+          "texture": "room_sprites/spike",
           "animation": "up",
           "x": 277, "y": 175
         }
@@ -209,48 +199,43 @@
           "side": "right"
         }
       ],
-      "textures": [
-        "room_sprites/spr_rock",
-        "room_sprites/wall_panel_ruins",
-        "room_sprites/spike"
-      ],
       "sprites": [
         {
           "_comment": "Rock",
-          "texture_id": 0,
+          "texture": "room_sprites/spr_rock",
           "x": 216, "y": 134
         },
         {
-          "texture_id": 1,
+          "texture": "room_sprites/wall_panel_ruins",
           "x": 136, "y": 34
         },
         {
-          "texture_id": 2,
+          "texture": "room_sprites/spike",
           "animation": "down",
           "x": 277, "y": 75
         },
         {
-          "texture_id": 2,
+          "texture": "room_sprites/spike",
           "animation": "down",
           "x": 277, "y": 95
         },
         {
-          "texture_id": 2,
+          "texture": "room_sprites/spike",
           "animation": "down",
           "x": 277, "y": 115
         },
         {
-          "texture_id": 2,
+          "texture": "room_sprites/spike",
           "animation": "down",
           "x": 277, "y": 135
         },
         {
-          "texture_id": 2,
+          "texture": "room_sprites/spike",
           "animation": "down",
           "x": 277, "y": 155
         },
         {
-          "texture_id": 2,
+          "texture": "room_sprites/spike",
           "animation": "down",
           "x": 277, "y": 175
         }

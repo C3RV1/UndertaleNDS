@@ -15,7 +15,7 @@ DialogueCentered::DialogueCentered(
     : Dialogue(textId, target, targetIdle, targetTalk, typeSndPath, fontTxt,
                framesPerLetter, txtManager, heartAlloc) {
 
-  if (speaker.empty())
+  if (!speaker.empty())
     _startingY = 192 / 2;
   else
     _startingY = 192 / 4;
