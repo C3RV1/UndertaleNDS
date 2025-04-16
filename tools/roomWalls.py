@@ -19,8 +19,19 @@ def draw_image_with_cam(screen: pygame.Surface, image: pygame.Surface, pos: list
     screen.blit(image, tuple(new_pos))
 
 
+def rect_to_positive_rect(rect: list):
+    if rect[2] < 0:
+        rect[0] += rect[2]
+        rect[2] = -rect[2]
+    if rect[3] < 0:
+        rect[1] += rect[3]
+        rect[3] = -rect[3]
+    return rect
+
+
 def draw_rect_with_cam(screen: pygame.Surface, rect: list, color: str | list, cam_pos: list, cam_scale: float):
     rect = rect.copy()
+    rect = rect_to_positive_rect(rect)
     rect[0] -= cam_pos[0]
     rect[1] -= cam_pos[1]
     rect[0] *= cam_scale
@@ -37,13 +48,13 @@ def draw_collider_with_cam(screen: pygame.Surface, collider: dict, color: str | 
     draw_rect_with_cam(screen, collider_pos, color, cam_pos, cam_scale)
 
 
-def screen_crd_to_world(pos: list, cam_pos: list, cam_scale: float, max_pos: list | tuple):
+def screen_crd_to_world(pos: list, cam_pos: list, cam_scale: float, max_size: list | tuple):
     pos[0] /= cam_scale
     pos[1] /= cam_scale
     pos[0] += cam_pos[0]
     pos[1] += cam_pos[1]
-    pos[0] = min(max(int(pos[0]), 0), max_pos[0])
-    pos[1] = min(max(int(pos[1]), 0), max_pos[1])
+    pos[0] = min(max(int(pos[0]), 0), max_size[0] - 1)
+    pos[1] = min(max(int(pos[1]), 0), max_size[1] - 1)
     return pos
     
 
@@ -95,11 +106,12 @@ def main():
                         drawing_collider = True
                         pos_start = pos
                     else:
+                        rect = rect_to_positive_rect([pos_start[0], pos_start[1], pos[0] - pos_start[0], pos[1] - pos_start[1]])
                         collider = {
-                                "x": pos_start[0],
-                                "y": pos_start[1],
-                                "w": pos[0] - pos_start[0],
-                                "h": pos[1] - pos_start[1]
+                                "x": rect[0],
+                                "y": rect[1],
+                                "w": rect[2] + 1,
+                                "h": rect[3] + 1
                                 }
                         colliders.append(collider)
                         drawing_collider = False
@@ -162,6 +174,9 @@ def main():
                     pos_mouse[0] - pos_start[0],
                     pos_mouse[1] - pos_start[1]
                     ]
+            coll_rect = rect_to_positive_rect(coll_rect)
+            coll_rect[2] += 1
+            coll_rect[3] += 1
             draw_rect_with_cam(screen, coll_rect, "blue", camera_position, camera_zoom)
         else:
             coll_rect = [pos_mouse[0], pos_mouse[1], 1, 1]
