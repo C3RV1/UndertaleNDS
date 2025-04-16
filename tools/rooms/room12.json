@@ -22,8 +22,19 @@
           "side": "right"
         }
       ],
-      "textures": [],
-      "sprites": [],
+      "textures": [
+        "room_sprites/wall_panel_ruins"
+      ],
+      "sprites": [
+        {
+          "texture_id": 0,
+          "x": 460, "y": 110
+        },
+        {
+          "texture_id": 0,
+          "x": 475, "y": 495
+        }
+      ],
       "colliders": [
         {
           "x": 0,
@@ -86,12 +97,6 @@
           "h": 80
         },
         {
-          "x": 385,
-          "y": 336,
-          "w": 193,
-          "h": 119
-        },
-        {
           "x": 555,
           "y": 535,
           "w": 23,
@@ -116,36 +121,42 @@
           "h": 13
         },
         {
+          "_comment": "Fall 1",
           "x": 240,
           "y": 110,
           "w": 80,
           "h": 160
         },
         {
+          "_comment": "Fall 2",
           "x": 360,
           "y": 150,
           "w": 20,
           "h": 100
         },
         {
+          "_comment": "Fall 3",
           "x": 420,
           "y": 211,
           "w": 21,
           "h": 59
         },
         {
+          "_comment": "Fall 4",
           "x": 482,
           "y": 150,
           "w": 38,
           "h": 81
         },
         {
+          "_comment": "Fall 5",
           "x": 520,
           "y": 150,
           "w": 20,
           "h": 40
         },
         {
+          "_comment": "Room up",
           "x": 160,
           "y": 404,
           "w": 31,

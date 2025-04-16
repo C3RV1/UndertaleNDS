@@ -373,10 +373,14 @@ def convert(input_file, output_file):
     print(f"Converting {input_file} to {output_file}")
     with open(input_file, "r") as f:
         json_data = json.loads(f.read())
-    room_file = RoomFile.from_dict(json_data)
-    wtr = binary.BinaryWriter(open(output_file, "wb"))
-    room_file.write(wtr)
-    wtr.close()
+    try:
+        room_file = RoomFile.from_dict(json_data)
+    except Exception as e:
+        print(f"Error converting {input_file}: {repr(e)}")
+        return
+    with open(output_file, "wb") as f:
+        wtr = binary.BinaryWriter(f)
+        room_file.write(wtr)
 
 
 def compile_rooms(force: bool = False):

@@ -86,6 +86,8 @@ def main():
     running = True
 
     selected_collider = 0
+    changed_selected = True
+    moved_mouse = False
 
     drawing_collider = False
     pos_start = [0, 0]
@@ -130,10 +132,15 @@ def main():
                     if selected_collider < len(colliders):
                         colliders.pop(selected_collider)
                         selected_collider -= 1
+                        changed_selected = True
                 elif event.key == pygame.K_n:
                     selected_collider += 1
+                    if len(colliders) > 0:
+                        selected_collider %= len(colliders)
+                    changed_selected = True
                 elif event.key == pygame.K_m:
                     selected_collider -= 1
+                    changed_selected = True
                     if len(colliders) > 0:
                         selected_collider %= len(colliders)
                 elif event.key == pygame.K_g:
@@ -144,12 +151,16 @@ def main():
                 running = False
 
         pos = screen_crd_to_world(list(pygame.mouse.get_pos()), camera_position, camera_zoom, bg_img_size)
+        if pos != pos_mouse:
+            moved_mouse = True
         pos_mouse = pos
 
         if selected_collider >= len(colliders):
             selected_collider = len(colliders) - 1
         if selected_collider < 0:
             selected_collider = 0
+        if changed_selected:
+            print(f"Selected collider: {selected_collider}")
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_d]:
@@ -177,13 +188,20 @@ def main():
             coll_rect = rect_to_positive_rect(coll_rect)
             coll_rect[2] += 1
             coll_rect[3] += 1
+            if moved_mouse:
+                print(f"Creating collider: {coll_rect}")
             draw_rect_with_cam(screen, coll_rect, "blue", camera_position, camera_zoom)
         else:
+            if moved_mouse:
+                print(f"Mouse position: {pos_mouse}")
             coll_rect = [pos_mouse[0], pos_mouse[1], 1, 1]
             draw_rect_with_cam(screen, coll_rect, "blue", camera_position, camera_zoom)
 
         pygame.display.flip()
         dt = clock.tick(60) / 1000
+
+        moved_mouse = False
+        changed_selected = False
 
 if __name__ == "__main__":
     main()
