@@ -45,7 +45,7 @@ protected:
   virtual void draw(bool draw_, bool clear_) = 0;
   bool _paused = false;
 
-  constexpr static u16 _lineSpacing = 20;
+  constexpr static u16 _lineSpacing = 17;
   int _x = 0, _y = 0;
 
   u16 _cTimer;

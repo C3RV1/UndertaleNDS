@@ -5,21 +5,34 @@ from PIL import Image
 import os
 import binary
 from xml.etree import ElementTree as EleTree
+import json
 
 
 def convert(input_path, output_path):
-    print(f"Converted {input_path} to {output_path}")
+    print(f"Converting {input_path} to {output_path}")
     glyph_map = np.array([0] * 256, dtype=np.uint8)
 
     et = EleTree.parse(input_path)
     root = et.getroot()
-    image_fp = None
-    glyphs = None
+    image_fp = ""
+    glyphs = []
     for child in root:
         if child.tag == "glyphs":
             glyphs = child
         if child.tag == "image":
             image_fp = os.path.join(os.path.dirname(input_path), child.text)
+
+    extra_config = {}
+    config_path = os.path.splitext(input_path)[0] + ".json"
+    if os.path.isfile(config_path):
+        print(f"Using extra config {config_path}")
+        with open(config_path, "r") as f:
+            extra_config = json.load(f)
+
+    scale = extra_config.get("scale", 1)
+    if isinstance(scale, str):
+        scale = eval(scale)
+    scale: float
 
     img = Image.open(image_fp)
 
@@ -38,7 +51,7 @@ def convert(input_path, output_path):
             continue
         glyph_map[character_id] = glyph_count + 1
         glyph_count += 1
-        line_height = max(line_height + 1, int(glyph.attrib["h"]))
+        line_height = max(line_height, int(int(glyph.attrib["h"]) * scale))
 
     wtr.write_uint8(line_height)
     wtr.write_uint8(glyph_count)
@@ -48,17 +61,17 @@ def convert(input_path, output_path):
             continue
         x = int(glyph.attrib["x"])
         y = int(glyph.attrib["y"])
-        w = int(glyph.attrib["w"])
-        h = int(glyph.attrib["h"])
+        w = int(int(glyph.attrib["w"]) * scale)
+        h = int(int(glyph.attrib["h"]) * scale)
         wtr.write_uint8(w)
         wtr.write_uint8(h)
-        wtr.write_uint8(int(glyph.attrib["shift"]))
-        wtr.write_uint8(int(glyph.attrib["offset"]))
+        wtr.write_uint8(int(int(glyph.attrib["shift"]) * scale))
+        wtr.write_uint8(int(int(glyph.attrib["offset"]) * scale))
         byte = 0
         bit_pos = 0
         for glyph_y in range(h):
             for glyph_x in range(w):
-                pixel = img.getpixel((x + glyph_x, y + glyph_y))
+                pixel = img.getpixel((int(x + glyph_x / scale), int(y + glyph_y / scale)))
                 if pixel[3] > 0:
                     byte += 1 << (7 - bit_pos)
                 bit_pos += 1

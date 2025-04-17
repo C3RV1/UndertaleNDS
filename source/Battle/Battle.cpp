@@ -5,17 +5,21 @@
 #include "Battle/Battle.hpp"
 #include "Cutscene/Cutscene.hpp"
 #include "Engine/Engine.hpp"
+#include "Engine/TextBGManager.hpp"
 #include "Engine/Texture.hpp"
 #include "Formats/utils.hpp"
 #include "Room/Camera.hpp"
 #include "Room/InGameMenu.hpp"
 #include "Room/Player.hpp"
 #include "Room/Room.hpp"
+#include "Save.hpp"
+#include <cstdio>
 #include <memory>
 
 std::unique_ptr<Battle> globalBattle = nullptr;
 
 Battle::Battle() : _playerSpr(Engine::Allocated3D) {
+  _fnt.loadPath("fnt_curs.font");
   _playerSpr.loadTexture(Engine::textureManager.loadTexture("spr_heartsmall"));
   _playerSpr._wx = ((256 - 16) / 2) << 8;
   _playerSpr._wy = ((192 - 32) / 2) << 8;
@@ -100,9 +104,23 @@ void Battle::loadFromStream(FILE *stream) {
 
 void Battle::show() {
   Engine::textMain.clear();
+  showHp();
   _bulletBoard.loadBgTextMain();
   _playerSpr.setShown(true);
   _shown = true;
+}
+
+void Battle::showHp() {
+  constexpr int kHPx = 108, kHPy = 154, kHPw = 18, kHPh = 14;
+  constexpr int kPadding = 6, kTxtYOff = 0;
+  Engine::textMain.drawHpBar(globalSave.hp, globalSave.maxHp, kHPx, kHPy, kHPw,
+                             kHPh);
+
+  char buffer[16];
+  sprintf(buffer, "%2d/%2d", globalSave.hp, globalSave.maxHp);
+  int x = kHPx + kHPw + kPadding;
+  for (char *p = buffer; *p != 0; p++)
+    Engine::textMain.drawGlyph(_fnt, *p, x, kHPy + kTxtYOff);
 }
 
 void Battle::hide() {

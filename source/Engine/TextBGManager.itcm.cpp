@@ -40,7 +40,7 @@ void TextBGManager::drawGlyph(Font &font, u8 glyph, int &x, int y) {
       int glyphY_ = glyphY;
 
       // Until we haven't completed the glyph in the current tile vertically
-      for (; tileY < 8 && y / 8 + tileY < 192 && glyphY_ < glyphObj->height;
+      for (; tileY < 8 && y + tileY < 192 && glyphY_ < glyphObj->height;
            tileY++) {
 
         // Copy tile x and glyph x
@@ -49,7 +49,7 @@ void TextBGManager::drawGlyph(Font &font, u8 glyph, int &x, int y) {
         int glyphX_ = glyphX;
 
         // Until we haven't completed the glyph in the current tile horizontally
-        for (; tileX_ < 8 && x_ / 8 + tileX_ < 256 && glyphX_ < glyphObj->width;
+        for (; tileX_ < 8 && x_ + tileX_ < 256 && glyphX_ < glyphObj->width;
              tileX_++) {
           // Get pointer to the current pixel (can only write in words, so we
           // round to the word (& (~1)). Then we'll shift the bits accordingly).
@@ -73,10 +73,11 @@ void TextBGManager::drawGlyph(Font &font, u8 glyph, int &x, int y) {
           // (0b0000000x)
           u8 bit = glyphObj->glyphData[byte] >> bitPos;
 
+          // Clear tile position.
+          *tile &= ~(0xF << (4 * highBits) << (8 * prevByte));
           if (bit & 1) {
-            // Clear tile position and write palette color
-            *tile &= ~(0xF << (4 * highBits) << (8 * prevByte));
-            *tile += _paletteColor << (4 * highBits) << (8 * prevByte);
+            // Write palette color
+            *tile |= _paletteColor << (4 * highBits) << (8 * prevByte);
           }
           glyphX_++;
         }
@@ -95,16 +96,9 @@ void TextBGManager::drawGlyph(Font &font, u8 glyph, int &x, int y) {
   x = endX;
 }
 
-u8 Font::getGlyphWidth(u8 glyph) {
-  u8 glyphIdx = getGlyphMap()[glyph];
-  if (glyphIdx == 0)
-    return 0;
-  const CFNTGlyph *glyphObj = getGlyph(glyphIdx);
-  return glyphObj->shift;
-}
-
 void TextBGManager::reloadColors() {
   _paletteRam[16 * 15 + 0] = 31 << 5;          // full green color (transparent)
+  _paletteRam[16 * 15 + 7] = 31 + (31 << 5);   // yellow - spare color
   _paletteRam[16 * 15 + 8] = 0;                // black color
   _paletteRam[16 * 15 + 9] = 31;               // full red color
   _paletteRam[16 * 15 + 10] = 31 << 5;         // full green color
@@ -124,50 +118,7 @@ void TextBGManager::clear() {
 }
 
 void TextBGManager::clearRect(int x, int y, int w, int h) {
-  // Look at drawGlyph for an explanation on this code
-  // as it follows the same idea.
-  if (x < 0) {
-    w -= -x;
-    x = 0;
-  }
-  if (y < 0) {
-    h -= -y;
-    y = 0;
-  }
-  if (x + w > 256) {
-    w = 256 - x;
-  }
-  if (y + h > 192) {
-    h = 192 - y;
-  }
-  int dstY = y + h;
-  for (; y < dstY;) {
-    int x_ = x;
-    for (; x_ < x + w;) {
-      u8 *tilePointer = getTile(x_, y);
-      u8 tileY = y % 8;
-      u8 tileX = x_ % 8;
-      u8 *tileByte = tilePointer + (((tileY * 8 + tileX) / 2) & (~1));
-      auto *tile = (u16 *)tileByte;
-
-      if (tileX == 0 && tileY == 0 && x_ + 8 < x + w && y + 8 < dstY) {
-        x_ += 8;
-        dmaFillSafe(3, 0, tilePointer, 32);
-        continue;
-      }
-      for (; tileY < 8 && y / 8 + tileY < dstY; tileY++) {
-        int tileX_ = tileX;
-        for (; tileX_ < 8 && x_ / 8 + tileX_ < x + w; tileX_++) {
-          bool highBits = (tileX_ & 1) == 1;
-          bool prevByte = (((tileY * 8 + tileX_) / 2) & 1) == 1;
-
-          *tile &= ~(0xF << (4 * highBits) << (8 * prevByte));
-        }
-      }
-      x_ += 8 - (x_ % 8);
-    }
-    y += 8 - (y % 8);
-  }
+  drawRect(x, y, w, h, 0);
 }
 
 u8 *TextBGManager::getTile(int x, int y) {
@@ -225,6 +176,93 @@ void TextBGManager::setPaletteColor(int colorIdx, int r, int g, int b,
 
 void TextBGManager::setPaletteColor(int colorIdx, u16 color5bit) {
   _paletteRam[16 * 15 + colorIdx] = color5bit;
+}
+
+void TextBGManager::drawRect(int x, int y, int w, int h, int colorIdx) {
+  // Look at drawGlyph for an explanation on this code
+  // as it follows the same idea.
+  if (x < 0) {
+    w -= -x;
+    x = 0;
+  }
+  if (y < 0) {
+    h -= -y;
+    y = 0;
+  }
+  if (x + w > 256)
+    w = 256 - x;
+  if (y + h > 192)
+    h = 192 - y;
+
+  int dstX = x + w;
+  int dstY = y + h;
+  for (; y < dstY;) {
+    int x_ = x;
+    for (; x_ < dstX;) {
+      u8 *tilePointer = getTile(x_, y);
+      u8 tileY = y % 8;
+      u8 tileX = x_ % 8;
+
+      if (tileX == 0 && tileY == 0 && x_ + 8 < x + w && y + 8 < dstY) {
+        x_ += 8;
+        // Each tile is 4 bits.
+        dmaFillSafe(3, colorIdx * 0x11111111, tilePointer, 32);
+        continue;
+      }
+      for (; tileY < 8 && y + tileY < dstY; tileY++) {
+        int tileX_ = tileX;
+        for (; tileX_ < 8 && x_ + tileX_ < dstX; tileX_++) {
+          u8 *tileByte = tilePointer + (((tileY * 8 + tileX_) / 2) & (~1));
+          auto *tile = (u16 *)tileByte;
+
+          bool highBits = (tileX_ & 1) == 1;
+          bool prevByte = (((tileY * 8 + tileX_) / 2) & 1) == 1;
+
+          *tile &= ~(0xF << (4 * highBits + 8 * prevByte));
+          *tile |= colorIdx << (4 * highBits + 8 * prevByte);
+        }
+      }
+      x_ += 8 - (x_ % 8);
+    }
+    y += 8 - (y % 8);
+  }
+}
+
+void TextBGManager::drawHollowRect(int x, int y, int w, int h, int width,
+                                   int colorIdx) {
+  // Look at drawGlyph for an explanation on this code
+  // as it follows the same idea.
+  if (x < 0) {
+    w -= -x;
+    x = 0;
+  }
+  if (y < 0) {
+    h -= -y;
+    y = 0;
+  }
+  if (x + w > 256)
+    w = 256 - x;
+  if (y + h > 192)
+    h = 192 - y;
+
+  int width_w = width;
+  int width_h = width;
+  if (width > w)
+    width_w = w;
+  if (width > h)
+    width_h = h;
+
+  drawRect(x, y, w, width_h, colorIdx);
+  drawRect(x, y, width_w, h, colorIdx);
+  drawRect(x, y + h - width_h, w, width_h, colorIdx);
+  drawRect(x + w - width_w, y, width_w, h, colorIdx);
+}
+
+void TextBGManager::drawHpBar(int hp, int maxHp, int x, int y, int w, int h) {
+  int green_w = (hp * w) / maxHp; // Floor(w * (hp/maxHp))
+  int red_w = w - green_w;
+  drawRect(x, y, green_w, h, 12);        // Draw yellow.
+  drawRect(x + green_w, y, red_w, h, 9); // Draw red.
 }
 
 TextBGManager textMain(BG_PALETTE, BG_TILE_RAM(5), BG_MAP_RAM(4));

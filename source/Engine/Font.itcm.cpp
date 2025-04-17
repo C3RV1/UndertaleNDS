@@ -80,6 +80,14 @@ void Font::loadCFNT(FILE *f) {
   _loaded = true;
 }
 
+u8 Font::getGlyphWidth(u8 glyph) {
+  u8 glyphIdx = getGlyphMap()[glyph];
+  if (glyphIdx == 0)
+    return 0;
+  const CFNTGlyph *glyphObj = getGlyph(glyphIdx);
+  return glyphObj->shift;
+}
+
 void Font::free_() {
   if (!_loaded)
     return;

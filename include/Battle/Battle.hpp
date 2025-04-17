@@ -22,6 +22,7 @@ public:
   ~Battle() { free_(); }
   void exit(bool won);
   void loadFromStream(FILE *stream);
+  void showHp();
   void show();
   void hide();
   void update();
@@ -43,6 +44,7 @@ public:
   constexpr static s32 _playerSpeed = (60 << 8) / 60;
   Engine::Sprite _playerSpr;
   Engine::Background _battleBackground;
+  Engine::Font _fnt;
 
   std::vector<std::unique_ptr<BattleAttack>> _cBattleAttacks;
   std::unique_ptr<BattleAction> _cBattleAction = nullptr;
