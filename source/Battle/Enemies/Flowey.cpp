@@ -12,6 +12,7 @@ Flowey::Flowey() {
   floweySpr.loadTexture(Engine::textureManager.loadTexture("speaker/flowey"));
   floweySpr._wx = 30 << 8;
   floweySpr._wy = ((192 - 44) / 2) << 8;
+  floweySpr._layer = 1;
   floweySpr.setShown(true);
 }
 

@@ -13,6 +13,7 @@ Dummy::Dummy() : Enemy() {
       Engine::textureManager.loadTexture("battle/dummy_ruins"));
   dummySpr._wx = 30 << 8;
   dummySpr._wy = ((192 - 52) / 2) << 8;
+  dummySpr._layer = 1;
 
   loadActText(0);
 }
