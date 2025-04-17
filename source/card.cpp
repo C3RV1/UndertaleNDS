@@ -212,7 +212,7 @@ bool CardBuffer::write(void *src, size_t size) {
     std::string buf = "Writing " + std::to_string(size) + " bytes to savefile.";
     nocashMessage(buf.c_str());
 #endif
-    size_t bytesWritten = fwrite(src, size, 1, _fatFile);
+    size_t bytesWritten = fwrite(src, 1, size, _fatFile);
 #ifdef DEBUG_SAVE
     buf = "Written " + std::to_string(bytesWritten) + " bytes to savefile.";
     nocashMessage(buf.c_str());
