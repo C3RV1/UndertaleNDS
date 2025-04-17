@@ -72,7 +72,6 @@ public:
   void setVolume(u8 volume);
 
   virtual ~AudioFile() {
-    nocashMessage("Destroying AudioFile!");
     if (_active)
       stop();
   }

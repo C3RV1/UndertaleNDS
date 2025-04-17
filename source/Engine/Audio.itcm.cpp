@@ -142,7 +142,6 @@ void AudioManager::update() {
   for (auto current = _playing.begin(); current != _playing.end();) {
     if (!(*current)->getPlaying()) {
       current = _playing.erase(current);
-      nocashMessage("Erased!");
     } else
       ++current;
   }
