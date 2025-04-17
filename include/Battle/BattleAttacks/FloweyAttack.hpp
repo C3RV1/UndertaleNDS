@@ -18,6 +18,7 @@ public:
   bool update() override;
 
 private:
+  static constexpr int kFlagAttack = 220;
   static constexpr int kFirstStageFrames = 120;
   static constexpr int kPelletX = 30, kPelletY = -30, kPelletSpacing = 40,
                        kPelletMoveY = 60;

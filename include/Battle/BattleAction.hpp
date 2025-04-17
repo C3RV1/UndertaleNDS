@@ -10,6 +10,7 @@
 #include "Engine/Background.hpp"
 #include "Engine/Font.hpp"
 #include <array>
+#include <memory>
 
 enum BattleActionState {
   PRINTING_FLAVOR_TEXT,
@@ -18,7 +19,8 @@ enum BattleActionState {
   CHOOSING_ACT,
   CHOOSING_ITEM,
   CHOOSING_MERCY,
-  FIGHTING
+  FIGHTING,
+  SHOWING_DAMAGE
 };
 
 enum BattleActions {
@@ -36,7 +38,8 @@ class BattleAction {
                                    {134 << 8, 142 << 8}};
 
 public:
-  explicit BattleAction(std::vector<Enemy> *enemies, int flavorTextId);
+  explicit BattleAction(std::vector<std::unique_ptr<Enemy>> *enemies,
+                        int flavorTextId);
   bool update();
   int getActionNum() const;
   ~BattleAction();
@@ -56,10 +59,11 @@ private:
   bool updateChoosingItem();
   bool updatePrintingFlavor();
   bool updateFighting();
+  bool updateShowingDamage();
 
   Engine::Font _fnt;
 
-  std::vector<Enemy> *_enemies;
+  std::vector<std::unique_ptr<Enemy>> *_enemies;
 
   std::array<Engine::Sprite, 4> _btn;
   Engine::Sprite _bigHeartSpr, _smallHeartSpr;

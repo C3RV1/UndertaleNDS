@@ -29,7 +29,7 @@ class CutsceneCommands(enum.IntEnum):
     # LOAD_TEXTURE = 10  # Done
     BATTLE_ATTACK = 11  # Done (requires implementing attacks)
     BATTLE_ACTION = 12
-    CHECK_HIT = 13  # Done
+    # CHECK_HIT = 13  # Done
     JUMP_IF = 14  # Done
     JUMP_IF_NOT = 15  # Done
     JUMP = 16  # Done
@@ -50,14 +50,15 @@ class CutsceneCommands(enum.IntEnum):
     MAX_HEALTH = 31  # Done
     MOD_FLAG = 32  # Done
     CMP_ENEMY_HP = 33  # Done
-    SET_ENEMY_ATTACK = 34  # Done
-    SET_ENEMY_ACT = 35
+    # SET_ENEMY_ATTACK = 34  # Done
+    # SET_ENEMY_ACT = 35
     CLEAR_NAV_TASKS = 36  # Done
     LOAD_SPRITE_RELATIVE = 37  # Done
     SET_CELL = 38  # Done
     MOVE = 39  # Done
     SET_OPACITY = 40  # Done
     CLEAR = 41  # Done
+    ENEMY_COMMAND = 42  # Done
     DEBUG = 0xff  # Done
 
 
@@ -83,7 +84,6 @@ class FlagOffsets(enum.IntEnum):
     BATTLE_FLAGS = 220
     BATTLE_ACTION = 230
     DIALOGUE_OPTION = 231
-    # BATTLE_HIT = 232 ? (replacing check_hit?)
     PERSISTENT = 240
     CINNAMON_BUTTERSCOTCH = 241
 
@@ -95,36 +95,12 @@ class BattleAttackIds(enum.IntEnum):
     FLOWEY_ATTACK2 = 3
 
 
-class Enemy:
-    def __init__(self, id_, hp, defense, act_text_id, act_option_count, attack_id,
-                 spare_value=0, gold_on_win=0, exp_on_kill=0):
-        self.id_ = id_
-        self.hp = hp
-        self.act_text_id = act_text_id
-        self.act_option_count = act_option_count
-        self.attack_id = attack_id
-        self.spare_value = spare_value
-        self.gold_on_win = gold_on_win
-        self.exp_on_kill = exp_on_kill
-        self.defense = defense
-
-    def write(self, wtr: binary.BinaryWriter):
-        wtr.write_uint16(self.id_)
-        wtr.write_uint16(self.hp)
-        wtr.write_uint16(self.attack_id)
-        wtr.write_uint16(self.act_text_id)
-        wtr.write_uint8(self.act_option_count)
-        wtr.write_uint8(self.spare_value)
-        wtr.write_uint8(self.gold_on_win)
-        wtr.write_uint8(self.exp_on_kill)
-        wtr.write_int16(self.defense)
-
-
 class TargetType(enum.IntEnum):
     NULL = 0
     PLAYER = 1
     SPRITE = 2
     CAMERA = 3
+    ENEMY = 4
 
 
 class ComparisonOperator(enum.IntEnum):
@@ -141,21 +117,37 @@ class BtlActionOff(enum.IntEnum):
     ITEMS = 60
 
 
+class EnemyID(enum.IntEnum):
+    FLOWEY = 0
+    DUMMY = 1
+
+
+class FloweyCommands(enum.IntEnum):
+    MOVEMENT = 0
+    PROGRESS_TO_ATTACK = 1
+    PROGRESS_TO_KILL = 2
+
+
 class Target:
-    def __init__(self, target_type: int, target_id: int = 0):
+    def __init__(self, target_type: int, target_id: int = 0,
+                 enemy_sprite_id: int = 0):
         self.target_type: int = target_type
         self.target_id: int = target_id
+        self.enemy_sprite_id: int = enemy_sprite_id
 
     def write(self, wtr):
         wtr.write_uint8(self.target_type)
         if self.target_type == TargetType.SPRITE:
             wtr.write_int8(self.target_id)
+        elif self.target_type == TargetType.ENEMY:
+            wtr.write_int8(self.target_id)
+            wtr.write_uint8(self.enemy_sprite_id)
 
 
 class Cutscene:
     def __init__(self, wtr: binary.BinaryWriter):
         self.wtr: binary.BinaryWriter = wtr
-        self.version = 12
+        self.version = 13
         self.file_size_pos = 0
         self.instructions_address = []
         self.pending_address = {}
@@ -307,13 +299,14 @@ class Cutscene:
     def set_action(self, target: Target, action: str, cutscene_id=0):
         self.write_header(CutsceneCommands.SET_ACTION)
         target.write(self.wtr)
-        action = {
+        action_int = {
             "none": 0,
             "cutscene": 1
         }[action]
-        self.wtr.write_uint8(action)
-        if action == 1:
+        self.wtr.write_uint8(action_int)
+        if action_int == 1:
             self.wtr.write_uint16(cutscene_id)
+        return self.instructions_address[-1]
 
     # == DIALOGUE ==
     def dialogue_centered(self, dialogue_text_id: int,
@@ -371,13 +364,13 @@ class Cutscene:
         return self.instructions_address[-1]
 
     # == BATTLE ==
-    def start_battle(self, enemies: List[Enemy], board_id: int,
+    def start_battle(self, enemy_ids: List[int], board_id: int,
                      board_x: int, board_y: int, board_w: int, board_h: int,
                      battle_background: str = "battle/battle_bg_simple"):
         self.write_header(CutsceneCommands.START_BATTLE)
-        self.wtr.write_uint8(len(enemies))
-        for enemy in enemies:
-            enemy.write(self.wtr)
+        self.wtr.write_uint8(len(enemy_ids))
+        for enemy in enemy_ids:
+            self.wtr.write_uint8(enemy)
         self.wtr.write_uint8(board_id)
         self.wtr.write_uint8(board_x)
         self.wtr.write_uint8(board_y)
@@ -400,15 +393,12 @@ class Cutscene:
         self.wtr.write_int16(flavor_text_id)
         return self.instructions_address[-1]
 
-    def check_hit(self):
-        self.write_header(CutsceneCommands.CHECK_HIT)
+    def enemy_command(self, enemy_idx, enemy_cmd):
+        self.write_header(CutsceneCommands.ENEMY_COMMAND)
+        self.wtr.write_uint8(enemy_idx)
+        self.wtr.write_uint8(enemy_cmd)
         return self.instructions_address[-1]
 
-    def set_enemy_attack(self, enemy_idx, attack_id):
-        self.write_header(CutsceneCommands.SET_ENEMY_ATTACK)
-        self.wtr.write_uint8(enemy_idx)
-        self.wtr.write_uint16(attack_id)
-        return self.instructions_address[-1]
 
     # == SAVE ==
     def set_flag(self, flag_id: int, flag_value: int):

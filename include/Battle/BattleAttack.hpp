@@ -5,15 +5,13 @@
 #ifndef UNDERTALE_BATTLE_ATTACK_HPP
 #define UNDERTALE_BATTLE_ATTACK_HPP
 
-#include <nds.h>
 #include <memory>
+#include <nds.h>
 
 class BattleAttack {
 public:
-    virtual bool update() {return true;};
-    virtual ~BattleAttack() = default;
+  virtual bool update() { return true; };
+  virtual ~BattleAttack() = default;
 };
 
-std::unique_ptr<BattleAttack> getBattleAttack(u16 attackId);
-
-#endif //UNDERTALE_BATTLE_ATTACK_HPP
+#endif // UNDERTALE_BATTLE_ATTACK_HPP

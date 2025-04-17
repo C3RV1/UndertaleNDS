@@ -8,13 +8,17 @@ import os
 
 def convert(input_path, output_path):
     print(f"Converting {input_path} to {output_path}")
-    c = CutsceneTypes.Cutscene(binary.BinaryWriter(open(output_path, "wb")))
-    spec = importlib.util.spec_from_file_location("cutscene_imp", input_path)
-    cutscene_imp = importlib.util.module_from_spec(spec)
-    sys.modules["cutscene_imp"] = cutscene_imp
-    spec.loader.exec_module(cutscene_imp)
-    cutscene_imp.cutscene(c)
-    c.end_cutscene()
+    try:
+        c = CutsceneTypes.Cutscene(binary.BinaryWriter(open(output_path, "wb")))
+        spec = importlib.util.spec_from_file_location("cutscene_imp", input_path)
+        cutscene_imp = importlib.util.module_from_spec(spec)
+        sys.modules["cutscene_imp"] = cutscene_imp
+        spec.loader.exec_module(cutscene_imp)
+        cutscene_imp.cutscene(c)
+        c.end_cutscene()
+    except Exception as e:
+        print(f"Error converting {input_path}: {repr(e)}")
+        return
 
 
 def compile_cutscenes(force: bool = False):

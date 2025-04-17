@@ -7,19 +7,27 @@
 
 #include "Cutscene/CutsceneEnums.hpp"
 #include "Engine/Sprite.hpp"
-#include "Engine/Texture.hpp"
 #include <memory>
 #include <vector>
 
-enum NavigationTaskType { POSITION = 0, SCALE = 1 };
+enum class NavigationTaskType { POSITION = 0, SCALE = 1 };
 
-enum TargetType { NULL_ = 0, PLAYER = 1, SPRITE = 2, CAMERA = 3 };
+enum class TargetType {
+  NULL_ = 0,
+  PLAYER = 1,
+  SPRITE = 2,
+  CAMERA = 3,
+  ENEMY = 4
+};
 
 struct TargetInfo {
   u8 targetType;
 
   // If targetType == SPRITE
   s8 targetId;
+
+  // If targetType == ENEMY
+  s8 enemySpriteId;
 };
 
 struct NavigationTask {
@@ -27,7 +35,7 @@ struct NavigationTask {
   s32 destX = 0, destY = 0;
   u16 frames = 0;
   u16 cFrames = 0;
-  NavigationTaskType taskType = POSITION;
+  NavigationTaskType taskType = NavigationTaskType::POSITION;
   Engine::Sprite *target = nullptr;
 };
 

@@ -8,7 +8,6 @@
 #include "Room/Camera.hpp"
 #include "Room/Player.hpp"
 #include "Room/Room.hpp"
-#include <algorithm>
 #include <memory>
 #include <vector>
 
@@ -135,7 +134,7 @@ void Navigation::set_pos_in_frames(const TargetInfo &targetInfo, s32 x, s32 y,
   navTask->destX = x;
   navTask->destY = y;
   navTask->frames = frames;
-  navTask->taskType = POSITION;
+  navTask->taskType = NavigationTaskType::POSITION;
   startTask(std::move(navTask));
 }
 
@@ -148,7 +147,7 @@ void Navigation::move_in_frames(const TargetInfo &targetInfo, s32 dx, s32 dy,
   navTask->destX = navTask->target->_wx + dx;
   navTask->destY = navTask->target->_wy + dy;
   navTask->frames = frames;
-  navTask->taskType = POSITION;
+  navTask->taskType = NavigationTaskType::POSITION;
   startTask(std::move(navTask));
 }
 
@@ -161,7 +160,7 @@ void Navigation::scale_in_frames(const TargetInfo &targetInfo, s32 x, s32 y,
   navTask->destX = x;
   navTask->destY = y;
   navTask->frames = frames;
-  navTask->taskType = SCALE;
+  navTask->taskType = NavigationTaskType::SCALE;
   startTask(std::move(navTask));
   // nav task not freed as it's managed by navigation
 }
@@ -185,10 +184,10 @@ bool Navigation::updateTask(
   }
   s32 xRun = task->destX - task->startingX;
   s32 yRun = task->destY - task->startingY;
-  if (task->taskType == POSITION) {
+  if (task->taskType == NavigationTaskType::POSITION) {
     target->_wx = task->startingX + (xRun * task->cFrames) / task->frames;
     target->_wy = task->startingY + (yRun * task->cFrames) / task->frames;
-  } else if (task->taskType == SCALE) {
+  } else if (task->taskType == NavigationTaskType::SCALE) {
     target->_w_scale_x =
         task->startingX + (xRun * task->cFrames) / task->frames;
     target->_w_scale_y =
@@ -216,35 +215,48 @@ void Navigation::clearAllTasks() { _tasks.clear(); }
 
 Engine::Sprite *Navigation::getTarget(const TargetInfo &targetInfo,
                                       CutsceneLocation callingLocation) {
+  TargetType targetType = static_cast<TargetType>(targetInfo.targetType);
   if (callingLocation == ROOM || callingLocation == LOAD_ROOM) {
-    if (targetInfo.targetType == PLAYER) {
+    if (targetType == TargetType::PLAYER) {
       return &globalPlayer->_playerSpr;
-    } else if (targetInfo.targetType == CAMERA) {
+    } else if (targetType == TargetType::CAMERA) {
       return &globalCamera._pos;
-    } else if (targetInfo.targetType == SPRITE) {
+    } else if (targetType == TargetType::SPRITE) {
       u8 targetId2;
       if (targetInfo.targetId < 0)
         targetId2 = globalRoom->_sprites.size() + targetInfo.targetId;
       else
         targetId2 = targetInfo.targetId;
-      if (targetId2 >= globalRoom->_sprites.size() || targetId2 < 0) {
+      if (targetId2 >= globalRoom->_sprites.size()) {
         nocashMessage("Error: target id outside of sprite count");
         return nullptr;
       }
       return &globalRoom->_sprites[targetId2]->_spr;
     }
   } else {
-    if (targetInfo.targetType == SPRITE) {
+    if (targetType == TargetType::SPRITE) {
       u8 targetId2;
       if (targetInfo.targetId < 0)
         targetId2 = globalBattle->_sprites.size() + targetInfo.targetId;
       else
         targetId2 = targetInfo.targetId;
-      if (targetId2 >= globalBattle->_sprites.size() || targetId2 < 0) {
+      if (targetId2 >= globalBattle->_sprites.size()) {
         nocashMessage("Error: target id outside of sprite count");
         return nullptr;
       }
       return globalBattle->_sprites[targetInfo.targetId].get();
+    } else if (targetType == TargetType::ENEMY) {
+      u8 enemyTargetId2;
+      if (targetInfo.targetId < 0)
+        enemyTargetId2 = globalBattle->_enemies.size() + targetInfo.targetId;
+      else
+        enemyTargetId2 = targetInfo.targetId;
+      if (enemyTargetId2 >= globalBattle->_enemies.size()) {
+        nocashMessage("Error: target id outside of enemy count");
+        return nullptr;
+      }
+      return globalBattle->_enemies[enemyTargetId2]->getSprite(
+          targetInfo.enemySpriteId);
     }
   }
   return nullptr;

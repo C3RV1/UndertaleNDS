@@ -3,6 +3,7 @@
 //
 
 #include "Battle/Battle.hpp"
+#include "Battle/Enemy.hpp"
 #include "Cutscene/Cutscene.hpp"
 #include "Engine/Engine.hpp"
 #include "Engine/TextBGManager.hpp"
@@ -47,14 +48,15 @@ void Battle::exit(bool won) {
     hide();
     int earnedExp = 0, earnedGold = 0;
     for (auto &_enemy : _enemies) {
-      if (_enemy._hp <= 0)
-        earnedExp += _enemy._expOnKill;
-      earnedGold += _enemy._goldOnWin;
+      if (_enemy->_hp <= 0)
+        earnedExp += _enemy->_expOnKill;
+      earnedGold += _enemy->_goldOnWin;
     }
     globalSave.exp += earnedExp;
     globalSave.gold += earnedGold;
 
-    int size_s = std::snprintf(nullptr, 0, _winText.c_str());
+    int size_s =
+        std::snprintf(nullptr, 0, _winText.c_str(), earnedExp, earnedGold);
     std::string buffer;
     buffer.resize(size_s);
     sprintf(&buffer[0], _winText.c_str(), earnedExp, earnedGold);
@@ -75,9 +77,10 @@ void Battle::loadFromStream(FILE *stream) {
   _enemies.resize(enemyCount);
   _cBattleAttacks.resize(enemyCount);
   std::string buffer;
+  u8 enemyId;
   for (int i = 0; i < enemyCount; i++) {
-    _cBattleAttacks[i] = nullptr;
-    _enemies[i].readFromStream(stream);
+    fread(&enemyId, 1, 1, stream);
+    _enemies[i] = getEnemy(enemyId);
   }
 
   u8 boardId;
@@ -136,11 +139,10 @@ void Battle::hide() {
 }
 
 void Battle::startBattleAttacks() {
-  _hitFlag = false;
   for (int i = 0; i < _enemies.size(); i++) {
-    Enemy *enemy = &_enemies[i];
-    if (!enemy->_spared && enemy->_hp > 0) {
-      _cBattleAttacks[i] = getBattleAttack(enemy->_attackId);
+    Enemy *enemy = _enemies[i].get();
+    if (!enemy->getSpared() && enemy->_hp > 0) {
+      _cBattleAttacks[i] = enemy->getBattleAttack();
     }
   }
 }
@@ -159,6 +161,7 @@ void Battle::updateBattleAttacks() {
 void Battle::update() {
   _nav.update();
   updateBattleAttacks();
+  updateEnemies();
   if (_cBattleAction != nullptr) {
     if (_cBattleAction->update()) {
       _cBattleAction = nullptr;
@@ -187,6 +190,7 @@ void Battle::update() {
     _playerSpr._wx = (touchInfo.px << 8) - (9 << 8) / 2;
     _playerSpr._wy = (touchInfo.py << 8) - (9 << 8) / 2;
   }
+
   if (_playerSpr._wx < _boardX << 8) {
     _playerSpr._wx = _boardX << 8;
   } else if (_playerSpr._wx > (_boardX + _boardW - 9) << 8) {
@@ -199,7 +203,10 @@ void Battle::update() {
   }
 }
 
-void Battle::free_() { _playerSpr.setShown(false); }
+void Battle::updateEnemies() {
+  for (auto &c : _enemies)
+    c->update();
+}
 
 void runBattle(FILE *stream) {
   int timer = kRoomChangeFadeFrames;

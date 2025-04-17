@@ -59,7 +59,7 @@ bool FloweyAttack::update() {
                          globalBattle->_playerSpr._wx + (9 << 8) / 2,
                          globalBattle->_playerSpr._wy + (9 << 8) / 2) <=
           (kPelletRadius * kPelletRadius) << 8) {
-        globalBattle->_hitFlag = true;
+        globalSave.flags[kFlagAttack] = 1;
         globalSave.hp = 1;
         globalBattle->showHp();
         Audio2::audioManager.play(std::move(_hurtSnd));
@@ -67,7 +67,7 @@ bool FloweyAttack::update() {
       }
     }
     if (_pelletSpr[0]._wy > 180 << 8) {
-      globalBattle->_hitFlag = false;
+      globalSave.flags[kFlagAttack] = 0;
       return true;
     }
   }

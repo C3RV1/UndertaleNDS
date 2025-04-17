@@ -399,13 +399,6 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
         std::make_unique<BattleAction>(&globalBattle->_enemies, flavorTextId);
     break;
   }
-  case CMD_CHECK_HIT:
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_CHECK_HIT");
-#endif
-    if (callingLocation == BATTLE || callingLocation == LOAD_BATTLE)
-      _flag = globalBattle->_hitFlag;
-    break;
   case CMD_JUMP_IF:
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_JUMP_IF");
@@ -541,7 +534,8 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
       else
         targetId2 = targetInfo.targetId;
 
-      if (targetInfo.targetType == TargetType::SPRITE &&
+      TargetType targetType = static_cast<TargetType>(targetInfo.targetType);
+      if (targetType == TargetType::SPRITE &&
           targetId2 < globalRoom->_sprites.size()) {
         auto &sprite = globalRoom->_sprites[targetInfo.targetId];
         sprite->_interactAction = static_cast<ROOMSpriteAction>(interactAction);
@@ -567,21 +561,6 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
     if (globalBattle != nullptr)
       globalBattle->showHp();
     break;
-  case CMD_SET_ENEMY_ATTACK: {
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_SET_ENEMY_ATTACK");
-#endif
-    u8 enemyIdx;
-    u16 attackId;
-    fread(&enemyIdx, 1, 1, _commandStream);
-    fread(&attackId, 2, 1, _commandStream);
-    if (globalBattle != nullptr) {
-      if (enemyIdx < globalBattle->_enemies.size()) {
-        globalBattle->_enemies[enemyIdx]._attackId = attackId;
-      }
-    }
-    break;
-  }
   case CMD_CMP_ENEMY_HP: {
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_CMP_ENEMY_HP");
@@ -595,7 +574,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
       break;
     if (enemyIdx >= globalBattle->_enemies.size())
       break;
-    u16 flagValue = globalBattle->_enemies[enemyIdx]._hp;
+    u16 flagValue = globalBattle->_enemies[enemyIdx]->_hp;
     if ((comparator & 3) == ComparisonOperator::EQUALS)
       _flag = (flagValue == cmpValue);
     else if ((comparator & 3) == ComparisonOperator::GREATER_THAN)
@@ -650,6 +629,28 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
     txt.clear();
     break;
   }
+  case CMD_ENEMY_COMMAND: {
+#ifdef DEBUG_CUTSCENES
+    nocashMessage("CMD_ENEMY_COMMAND");
+#endif
+    s8 enemyNum;
+    u8 enemyCmd;
+    fread(&enemyNum, 1, 1, _commandStream);
+    fread(&enemyCmd, 1, 1, _commandStream);
+
+    if (globalBattle == nullptr) {
+      nocashMessage("Attempted enemy command while not in battle!");
+      break;
+    }
+    if (enemyNum < 0)
+      enemyNum = globalBattle->_enemies.size() + enemyNum;
+    if (enemyNum >= globalBattle->_enemies.size()) {
+      nocashMessage("Enemy command num outside of range!");
+      break;
+    }
+    globalBattle->_enemies[enemyNum]->enemyCommand(enemyCmd);
+    break;
+  }
   default:
     sprintf(buffer, "Error cmd %d unknown, pos: %ld", cmd,
             ftell(_commandStream));
@@ -664,8 +665,13 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
 TargetInfo Cutscene::readTarget() {
   TargetInfo targetInfo;
   fread(&targetInfo.targetType, 1, 1, _commandStream);
-  if (targetInfo.targetType == TargetType::SPRITE)
+  TargetType targetType = static_cast<TargetType>(targetInfo.targetType);
+  if (targetType == TargetType::SPRITE)
     fread(&targetInfo.targetId, 1, 1, _commandStream);
+  else if (targetType == TargetType::ENEMY) {
+    fread(&targetInfo.targetId, 1, 1, _commandStream);
+    fread(&targetInfo.enemySpriteId, 1, 1, _commandStream);
+  }
   return targetInfo;
 }
 

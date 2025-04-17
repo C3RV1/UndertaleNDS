@@ -5,6 +5,9 @@ else:
     from CutsceneTypes import *
 
 
+FLOWEY_ATTACK1_FLAG = 220
+
+
 def cutscene(c: Cutscene):
     c.manual_camera(True)
     c.player_control(False)
@@ -17,27 +20,26 @@ def cutscene(c: Cutscene):
                         type_sound="snd_floweytalk1.wav")
     c.wait(WaitTypes.DIALOGUE)
 
-    c.start_battle([Enemy(0, 100, 0, 0, 0, BattleAttackIds.MOVEMENT_TUTORIAL)], 0, 61, 63, 134, 75)
+    c.start_battle([EnemyID.FLOWEY], 0, 61, 63, 134, 75)
     c.wait(WaitTypes.EXIT)
     c.debug("Loading battle...")
-    c.load_sprite(30, (192 - 44) // 2, "speaker/flowey")  # Load flowey (spr 0)
 
     c.wait(WaitTypes.ENTER)
     c.debug("In battle!")
     c.wait(WaitTypes.FRAMES, 60)
-    c.dialogue_left_align(20, 90, 192 // 4, Target(TargetType.SPRITE, 0), "nice1", "nice1_talk",
+    c.dialogue_left_align(20, 90, 192 // 4, Target(TargetType.ENEMY, 0), "nice1", "nice1_talk",
                           type_sound="snd_floweytalk1.wav")
     c.wait(WaitTypes.DIALOGUE)
     c.start_battle_attacks()
     c.wait(WaitTypes.FRAMES, 120)
     c.wait(WaitTypes.BATTLE_ATTACK)
 
-    c.set_enemy_attack(0, BattleAttackIds.FLOWEY_ATTACK)
+    c.enemy_command(0, FloweyCommands.PROGRESS_TO_ATTACK)
 
-    c.dialogue_left_align(25, 90, 192 // 4, Target(TargetType.SPRITE, 0), "nice1", "nice1_talk",
+    c.dialogue_left_align(25, 90, 192 // 4, Target(TargetType.ENEMY, 0), "nice1", "nice1_talk",
                           type_sound="snd_floweytalk1.wav")
     c.wait(WaitTypes.DIALOGUE)
-    c.set_animation(Target(TargetType.SPRITE, 0), "wink")
+    c.set_animation(Target(TargetType.ENEMY, 0), "wink")
     c.wait(WaitTypes.FRAMES, 120)
 
     # Load pellets (sprites 1, 2, 3, 4, 5)
@@ -48,59 +50,59 @@ def cutscene(c: Cutscene):
     c.load_sprite(40, 192 // 2, "battle/attack_pellets")
 
     def set_pellet_pos():
-        c.set_pos_in_frames(Target(TargetType.SPRITE, 1), 30, 140, 120)
-        c.set_pos_in_frames(Target(TargetType.SPRITE, 2), 70, 140, 120)
-        c.set_pos_in_frames(Target(TargetType.SPRITE, 3), 110, 140, 120)
-        c.set_pos_in_frames(Target(TargetType.SPRITE, 4), 150, 140, 120)
-        c.set_pos_in_frames(Target(TargetType.SPRITE, 5), 190, 140, 120)
+        c.set_pos_in_frames(Target(TargetType.SPRITE, 0), 30, 140, 120)
+        c.set_pos_in_frames(Target(TargetType.SPRITE, 1), 70, 140, 120)
+        c.set_pos_in_frames(Target(TargetType.SPRITE, 2), 110, 140, 120)
+        c.set_pos_in_frames(Target(TargetType.SPRITE, 3), 150, 140, 120)
+        c.set_pos_in_frames(Target(TargetType.SPRITE, 4), 190, 140, 120)
         c.wait(WaitTypes.FRAMES, 160)
     set_pellet_pos()
 
-    c.dialogue_left_align(30, 90, 192 // 4, Target(TargetType.SPRITE, 0), "nice2", "nice2_talk",
+    c.dialogue_left_align(30, 90, 192 // 4, Target(TargetType.ENEMY, 0), "nice2", "nice2_talk",
                           type_sound="snd_floweytalk1.wav")
     c.wait(WaitTypes.DIALOGUE)
     c.wait(WaitTypes.FRAMES, 60)
 
     def pellet_attack():
+        c.move_in_frames(Target(TargetType.SPRITE, 0), 0, 70, 60)
         c.move_in_frames(Target(TargetType.SPRITE, 1), 0, 70, 60)
         c.move_in_frames(Target(TargetType.SPRITE, 2), 0, 70, 60)
         c.move_in_frames(Target(TargetType.SPRITE, 3), 0, 70, 60)
         c.move_in_frames(Target(TargetType.SPRITE, 4), 0, 70, 60)
-        c.move_in_frames(Target(TargetType.SPRITE, 5), 0, 70, 60)
         c.wait(WaitTypes.FRAMES, 60)
         c.start_battle_attacks()
         c.wait(WaitTypes.BATTLE_ATTACK)
 
     pellet_attack()
-    c.check_hit()
+    c.cmp_flag(FLOWEY_ATTACK1_FLAG, "==", 1)
     hit_1 = c.jump_if()
 
-    c.dialogue_left_align(40, 90, 192 // 4, Target(TargetType.SPRITE, 0), "sassy", "sassy_talk",
+    c.dialogue_left_align(40, 90, 192 // 4, Target(TargetType.ENEMY, 0), "sassy", "sassy_talk",
                           type_sound="snd_floweytalk1.wav")
     c.wait(WaitTypes.DIALOGUE)
     c.wait(WaitTypes.FRAMES, 60)
-    c.set_animation(Target(TargetType.SPRITE, 0), "nice1")
+    c.set_animation(Target(TargetType.ENEMY, 0), "nice1")
 
     set_pellet_pos()
     c.wait(WaitTypes.FRAMES, 60)
     pellet_attack()
-    c.check_hit()
+    c.cmp_flag(FLOWEY_ATTACK1_FLAG, "==", 1)
     hit_2 = c.jump_if()
 
-    c.set_animation(Target(TargetType.SPRITE, 0), "annoyed")
+    c.set_animation(Target(TargetType.ENEMY, 0), "annoyed")
     c.wait(WaitTypes.FRAMES, 60)
-    c.dialogue_left_align(50, 90, 192 // 4, Target(TargetType.SPRITE, 0), "annoyed", "annoyed_talk",
+    c.dialogue_left_align(50, 90, 192 // 4, Target(TargetType.ENEMY, 0), "annoyed", "annoyed_talk",
                           type_sound="snd_floweytalk1.wav")
     c.wait(WaitTypes.DIALOGUE)
     c.wait(WaitTypes.FRAMES, 40)
-    c.dialogue_left_align(60, 90, 192 // 4, Target(TargetType.SPRITE, 0), "nice1", "nice1_talk",
+    c.dialogue_left_align(60, 90, 192 // 4, Target(TargetType.ENEMY, 0), "nice1", "nice1_talk",
                           frames_per_letter=0)
     c.wait(WaitTypes.DIALOGUE)
 
     set_pellet_pos()
     c.wait(WaitTypes.FRAMES, 60)
     pellet_attack()
-    c.check_hit()
+    c.cmp_flag(FLOWEY_ATTACK1_FLAG, "==", 1)
     not_hit = c.jump_if_not()
 
     c.bind(hit_1)
@@ -109,10 +111,10 @@ def cutscene(c: Cutscene):
 
     c.stop_bgm()
     c.clear()
-    c.set_animation(target=Target(TargetType.SPRITE, 0), animation="skull_idle")
+    c.set_animation(target=Target(TargetType.ENEMY, 0), animation="skull_idle")
     c.wait(WaitTypes.FRAMES, 2*60 + 30)
 
-    c.dialogue_left_align(71, 90, 192 // 4, Target(TargetType.SPRITE, 0), "skull_idle", "skull_talk",
+    c.dialogue_left_align(71, 90, 192 // 4, Target(TargetType.ENEMY, 0), "skull_idle", "skull_talk",
                           type_sound="snd_floweytalk2.wav")
     c.wait(WaitTypes.DIALOGUE)
 
@@ -122,16 +124,16 @@ def cutscene(c: Cutscene):
     c.stop_bgm()
 
     c.debug("Player avoided getting hit!")
-    c.set_animation(Target(TargetType.SPRITE, 0), "evil")
+    c.set_animation(Target(TargetType.ENEMY, 0), "evil")
     c.wait(WaitTypes.FRAMES, 40)
-    c.dialogue_left_align(70, 90, 192 // 4, Target(TargetType.SPRITE, 0), "evil", "evil_talk",
+    c.dialogue_left_align(70, 90, 192 // 4, Target(TargetType.ENEMY, 0), "evil", "evil_talk",
                           type_sound="snd_floweytalk2.wav")
     c.wait(WaitTypes.DIALOGUE)
 
     c.bind(post_no_hit)
     c.debug("Branch merge reached!")
 
-    c.dialogue_left_align(80, 80, 192 // 4, Target(TargetType.SPRITE, 0), "evil", "evil_talk",
+    c.dialogue_left_align(80, 80, 192 // 4, Target(TargetType.ENEMY, 0), "evil", "evil_talk",
                           font="fnt_plainbig.font")
     c.wait(WaitTypes.DIALOGUE)
 
@@ -142,40 +144,39 @@ def cutscene(c: Cutscene):
     c.unload_sprite(-1)
     c.unload_sprite(-1)
 
-    c.set_animation(Target(TargetType.SPRITE, 0), "skull_laugh")
+    c.set_animation(Target(TargetType.ENEMY, 0), "skull_laugh")
     c.play_sfx("snd_floweylaugh.wav")
-    c.set_enemy_attack(0, BattleAttackIds.FLOWEY_ATTACK2)
+    c.enemy_command(0, FloweyCommands.PROGRESS_TO_KILL)
     c.start_battle_attacks()
     c.wait(WaitTypes.BATTLE_ATTACK)
 
-    c.set_animation(Target(TargetType.SPRITE, 0), "skull_idle")
+    c.set_animation(Target(TargetType.ENEMY, 0), "skull_idle")
     c.wait(WaitTypes.FRAMES, 40)
     c.play_sfx("snd_heal_c.wav")
     c.max_health()
     c.wait(WaitTypes.FRAMES, 90)
 
-    c.set_animation(Target(TargetType.SPRITE, 0), "annoyed_open_mouth")
+    c.set_animation(Target(TargetType.ENEMY, 0), "annoyed_open_mouth")
     c.wait(WaitTypes.FRAMES, 80)
 
     c.load_sprite(256 - 60, (192 - 30) // 2, "cutscene/0/spr_torielflame")
     # FIXME: Little trick to load the flame on top of flowey
-    c.set_shown(Target(TargetType.SPRITE, 1), False)
     c.set_shown(Target(TargetType.SPRITE, 0), False)
-    c.set_shown(Target(TargetType.SPRITE, 1), True)
+    c.set_shown(Target(TargetType.ENEMY, 0), False)
     c.set_shown(Target(TargetType.SPRITE, 0), True)
+    c.set_shown(Target(TargetType.ENEMY, 0), True)
 
-    c.set_animation(Target(TargetType.SPRITE, 1), "flashing")
+    c.set_animation(Target(TargetType.SPRITE, 0), "flashing")
     c.wait(WaitTypes.FRAMES, 60)
-    c.set_animation(Target(TargetType.SPRITE, 1), "flying")
-    c.set_pos_in_frames(Target(TargetType.SPRITE, 1), 30, (192 - 30) // 2, 60)
+    c.set_animation(Target(TargetType.SPRITE, 0), "flying")
+    c.set_pos_in_frames(Target(TargetType.SPRITE, 0), 30, (192 - 30) // 2, 60)
     c.wait(WaitTypes.FRAMES, 60)
     c.unload_sprite(-1)
 
-    c.set_animation(Target(TargetType.SPRITE, 0), "hurt")
+    c.set_animation(Target(TargetType.ENEMY, 0), "hurt")
     c.play_sfx("snd_ehurt1.wav")
-    c.move_in_frames(Target(TargetType.SPRITE, 0), -100, 0, 60)
+    c.move_in_frames(Target(TargetType.ENEMY, 0), -100, 0, 60)
     c.wait(WaitTypes.FRAMES, 60)
-    c.unload_sprite(0)
 
     c.wait(WaitTypes.FRAMES, 120)
     c.start_bgm("mus_fallendown2.wav", True)

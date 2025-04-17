@@ -19,7 +19,7 @@ enum CutsceneCommands {
   // CMD_LOAD_TEXTURE = 10,
   CMD_BATTLE_ATTACK = 11,
   CMD_BATTLE_ACTION = 12,
-  CMD_CHECK_HIT = 13,
+  // CMD_CHECK_HIT = 13,
   CMD_JUMP_IF = 14,
   CMD_JUMP_IF_NOT = 15,
   CMD_JUMP = 16,
@@ -40,7 +40,7 @@ enum CutsceneCommands {
   CMD_MAX_HEALTH = 31,
   CMD_MOD_FLAG = 32,
   CMD_CMP_ENEMY_HP = 33,
-  CMD_SET_ENEMY_ATTACK = 34,
+  // CMD_SET_ENEMY_ATTACK = 34,
   CMD_SET_ENEMY_ACT = 35, // TODO
   CMD_CLEAR_NAV_TASKS = 36,
   CMD_LOAD_SPRITE_RELATIVE = 37,
@@ -48,6 +48,7 @@ enum CutsceneCommands {
   CMD_MOVE = 39,
   CMD_SET_OPACITY = 40,
   CMD_CLEAR = 41,
+  CMD_ENEMY_COMMAND = 42,
   CMD_DEBUG = 0xff
 };
 

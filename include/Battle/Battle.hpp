@@ -12,6 +12,7 @@
 #include "Engine/Engine.hpp"
 #include "ManagedSprite.hpp"
 #include <cstdio>
+#include <memory>
 #include <nds.h>
 
 // TODO: Display health
@@ -19,7 +20,6 @@
 class Battle {
 public:
   Battle();
-  ~Battle() { free_(); }
   void exit(bool won);
   void loadFromStream(FILE *stream);
   void showHp();
@@ -27,6 +27,7 @@ public:
   void hide();
   void update();
   void updateBattleAttacks();
+  void updateEnemies();
   void startBattleAttacks();
   bool _shown = false;
   bool _running = true;
@@ -34,7 +35,7 @@ public:
   std::string _winText;
   Navigation _nav;
 
-  std::vector<Enemy> _enemies;
+  std::vector<std::unique_ptr<Enemy>> _enemies;
 
   std::vector<std::unique_ptr<Engine::Sprite>> _sprites;
 
@@ -48,10 +49,6 @@ public:
 
   std::vector<std::unique_ptr<BattleAttack>> _cBattleAttacks;
   std::unique_ptr<BattleAction> _cBattleAction = nullptr;
-  bool _hitFlag = false;
-
-private:
-  void free_();
 };
 
 void runBattle(FILE *stream);
