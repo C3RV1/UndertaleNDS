@@ -8,6 +8,7 @@
 #include "Battle/BattleAttack.hpp"
 #include "Engine/Sprite.hpp"
 #include "Engine/Texture.hpp"
+#include "Engine/WAV.hpp"
 
 namespace BtlAttacks {
 class FloweyAttack : public BattleAttack {
@@ -24,6 +25,7 @@ private:
   static constexpr int kPelletRadius = 12;
   int _counter = 0, _stage = 0;
   Engine::Sprite _pelletSpr[5]; // 5 pellets
+  std::shared_ptr<Audio2::WAV> _hurtSnd;
   int _pelletVecX[5] = {0};
 };
 } // namespace BtlAttacks
