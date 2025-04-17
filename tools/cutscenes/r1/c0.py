@@ -108,6 +108,9 @@ def cutscene(c: Cutscene):
     c.debug("Player got hit!")
 
     c.stop_bgm()
+    c.clear()
+    c.set_animation(target=Target(TargetType.SPRITE, 0), animation="skull_idle")
+    c.wait(WaitTypes.FRAMES, 2*60 + 30)
 
     c.dialogue_left_align(71, 90, 192 // 4, Target(TargetType.SPRITE, 0), "skull_idle", "skull_talk",
                           type_sound="snd_floweytalk2.wav")
@@ -146,9 +149,10 @@ def cutscene(c: Cutscene):
     c.wait(WaitTypes.BATTLE_ATTACK)
 
     c.set_animation(Target(TargetType.SPRITE, 0), "skull_idle")
-    c.wait(WaitTypes.FRAMES, 20)
+    c.wait(WaitTypes.FRAMES, 40)
     c.play_sfx("snd_heal_c.wav")
-    c.wait(WaitTypes.FRAMES, 60)
+    c.max_health()
+    c.wait(WaitTypes.FRAMES, 90)
 
     c.set_animation(Target(TargetType.SPRITE, 0), "annoyed_open_mouth")
     c.wait(WaitTypes.FRAMES, 80)
@@ -159,6 +163,7 @@ def cutscene(c: Cutscene):
     c.set_shown(Target(TargetType.SPRITE, 0), False)
     c.set_shown(Target(TargetType.SPRITE, 1), True)
     c.set_shown(Target(TargetType.SPRITE, 0), True)
+
     c.set_animation(Target(TargetType.SPRITE, 1), "flashing")
     c.wait(WaitTypes.FRAMES, 60)
     c.set_animation(Target(TargetType.SPRITE, 1), "flying")

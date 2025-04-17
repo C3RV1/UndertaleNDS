@@ -47,6 +47,7 @@ enum CutsceneCommands {
   CMD_SET_CELL = 38,
   CMD_MOVE = 39,
   CMD_SET_OPACITY = 40,
+  CMD_CLEAR = 41,
   CMD_DEBUG = 0xff
 };
 

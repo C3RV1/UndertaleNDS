@@ -639,6 +639,17 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
         break;
     }
     break;
+  case CMD_CLEAR: {
+#ifdef DEBUG_CUTSCENES
+    nocashMessage("CMD_CLEAR");
+#endif
+    bool mainScreen;
+    fread(&mainScreen, 1, 1, _commandStream);
+    Engine::TextBGManager &txt =
+        mainScreen ? Engine::textMain : Engine::textSub;
+    txt.clear();
+    break;
+  }
   default:
     sprintf(buffer, "Error cmd %d unknown, pos: %ld", cmd,
             ftell(_commandStream));

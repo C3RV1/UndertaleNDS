@@ -57,6 +57,7 @@ class CutsceneCommands(enum.IntEnum):
     SET_CELL = 38  # Done
     MOVE = 39  # Done
     SET_OPACITY = 40  # Done
+    CLEAR = 41  # Done
     DEBUG = 0xff  # Done
 
 
@@ -363,6 +364,11 @@ class Cutscene:
         self.wtr.write_uint16(frames_per_letter)
         self.wtr.write_bool(main_screen)
         return self.instructions_address[-1]
+    
+    def clear(self, main_screen: bool = False):
+        self.write_header(CutsceneCommands.CLEAR)
+        self.wtr.write_bool(main_screen)
+        return self.instructions_address[-1]
 
     # == BATTLE ==
     def start_battle(self, enemies: List[Enemy], board_id: int,
@@ -520,3 +526,4 @@ class Cutscene:
     def max_health(self):
         self.write_header(CutsceneCommands.MAX_HEALTH)
         return self.instructions_address[-1]
+

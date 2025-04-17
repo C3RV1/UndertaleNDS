@@ -13,9 +13,9 @@
       "name": "flying",
       "frames": [
         {"frame": 0, "duration": 10},
-        {"frame": 1, "duration": 10},
+        {"frame": 1, "duration": 10, "draw_off_x": 2, "draw_off_y": 6},
         {"frame": 2, "duration": 10},
-        {"frame": 3, "duration": 10}
+        {"frame": 3, "duration": 10, "draw_off_x": 2, "draw_off_y": 6}
       ]
     }
   ]
