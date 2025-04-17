@@ -21,6 +21,7 @@ public:
         _itemExplainBoxSpr(Engine::AllocatedOAM) {}
   void load();
   void unload();
+  void updateHp();
   void show(bool update);
   void processTouchItems(touchPosition &touch);
   void processTouchCell(touchPosition &touch);

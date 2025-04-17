@@ -67,11 +67,7 @@ void InGameMenu::show(bool update) {
     Engine::textSub.drawGlyph(_fnt, *pName, x, y);
   }
 
-  sprintf(buffer, "%d/%d", globalSave.hp, globalSave.maxHp);
-  x = kHpX, y = kHpY;
-  for (char *pName = buffer; *pName != 0; pName++) {
-    Engine::textSub.drawGlyph(_fnt, *pName, x, y);
-  }
+  updateHp();
 
   sprintf(buffer, "%d", globalSave.lv);
   x = kLvX, y = kLvY;
@@ -179,6 +175,18 @@ void InGameMenu::show(bool update) {
       y += kItemSpacingY;
     }
   }
+}
+
+void InGameMenu::updateHp() {
+  if (!_shown)
+    return;
+
+  char buffer[16];
+
+  sprintf(buffer, "%d/%d", globalSave.hp, globalSave.maxHp);
+  int x = kHpX, y = kHpY;
+  for (char *p = buffer; *p != 0; p++)
+    Engine::textSub.drawGlyph(_fnt, *p, x, y);
 }
 
 void InGameMenu::update() {

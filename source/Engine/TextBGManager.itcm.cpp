@@ -40,7 +40,8 @@ void TextBGManager::drawGlyph(Font &font, u8 glyph, int &x, int y) {
       int glyphY_ = glyphY;
 
       // Until we haven't completed the glyph in the current tile vertically
-      for (; tileY < 8 && y + tileY < 192 && glyphY_ < glyphObj->height;
+      for (;
+           tileY < 8 && (y / 8) * 8 + tileY < 192 && glyphY_ < glyphObj->height;
            tileY++) {
 
         // Copy tile x and glyph x
@@ -49,7 +50,8 @@ void TextBGManager::drawGlyph(Font &font, u8 glyph, int &x, int y) {
         int glyphX_ = glyphX;
 
         // Until we haven't completed the glyph in the current tile horizontally
-        for (; tileX_ < 8 && x_ + tileX_ < 256 && glyphX_ < glyphObj->width;
+        for (; tileX_ < 8 && (x_ / 8) * 8 + tileX_ < 256 &&
+               glyphX_ < glyphObj->width;
              tileX_++) {
           // Get pointer to the current pixel (can only write in words, so we
           // round to the word (& (~1)). Then we'll shift the bits accordingly).
@@ -74,10 +76,10 @@ void TextBGManager::drawGlyph(Font &font, u8 glyph, int &x, int y) {
           u8 bit = glyphObj->glyphData[byte] >> bitPos;
 
           // Clear tile position.
-          *tile &= ~(0xF << (4 * highBits) << (8 * prevByte));
+          *tile &= ~(0xF << (4 * highBits + 8 * prevByte));
           if (bit & 1) {
             // Write palette color
-            *tile |= _paletteColor << (4 * highBits) << (8 * prevByte);
+            *tile |= _paletteColor << (4 * highBits + 8 * prevByte);
           }
           glyphX_++;
         }
@@ -209,9 +211,9 @@ void TextBGManager::drawRect(int x, int y, int w, int h, int colorIdx) {
         dmaFillSafe(3, colorIdx * 0x11111111, tilePointer, 32);
         continue;
       }
-      for (; tileY < 8 && y + tileY < dstY; tileY++) {
+      for (; tileY < 8 && (y / 8) * 8 + tileY < dstY; tileY++) {
         int tileX_ = tileX;
-        for (; tileX_ < 8 && x_ + tileX_ < dstX; tileX_++) {
+        for (; tileX_ < 8 && (x_ / 8) * 8 + tileX_ < dstX; tileX_++) {
           u8 *tileByte = tilePointer + (((tileY * 8 + tileX_) / 2) & (~1));
           auto *tile = (u16 *)tileByte;
 
@@ -260,6 +262,9 @@ void TextBGManager::drawHollowRect(int x, int y, int w, int h, int width,
 
 void TextBGManager::drawHpBar(int hp, int maxHp, int x, int y, int w, int h) {
   int green_w = (hp * w) / maxHp; // Floor(w * (hp/maxHp))
+  if (hp > 0 && green_w <= 0)
+    green_w = 1;
+
   int red_w = w - green_w;
   drawRect(x, y, green_w, h, 12);        // Draw yellow.
   drawRect(x + green_w, y, red_w, h, 9); // Draw red.

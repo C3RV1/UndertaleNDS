@@ -104,15 +104,20 @@ void Battle::loadFromStream(FILE *stream) {
 
 void Battle::show() {
   Engine::textMain.clear();
+  _shown = true;
   showHp();
   _bulletBoard.loadBgTextMain();
   _playerSpr.setShown(true);
-  _shown = true;
 }
 
 void Battle::showHp() {
+  if (!_shown)
+    return;
+
   constexpr int kHPx = 108, kHPy = 154, kHPw = 18, kHPh = 14;
-  constexpr int kPadding = 6, kTxtYOff = 0;
+  constexpr int kPadding = 6, kTxtYOff = 0, kTotalWidth = 100;
+
+  Engine::textMain.clearRect(kHPx, kHPy, kTotalWidth, kHPh);
   Engine::textMain.drawHpBar(globalSave.hp, globalSave.maxHp, kHPx, kHPy, kHPw,
                              kHPh);
 

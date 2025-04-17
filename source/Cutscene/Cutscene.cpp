@@ -563,6 +563,9 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
     nocashMessage("CMD_MAX_HEALTH");
 #endif
     globalSave.hp = globalSave.maxHp;
+    globalInGameMenu.updateHp();
+    if (globalBattle != nullptr)
+      globalBattle->showHp();
     break;
   case CMD_SET_ENEMY_ATTACK: {
 #ifdef DEBUG_CUTSCENES
