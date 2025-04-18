@@ -10,8 +10,8 @@ void BattleAction::drawTarget() {
   int enemyPageCount = (*_enemies).size() - (_cTarget / 4) * 4;
   const int enemyNameX = 100, enemySpacing = 20;
   int enemyNameY = 120 - (enemySpacing * (enemyPageCount + 1) / 2);
-  _smallHeartSpr._wx = (enemyNameX - 15) << 8;
-  _smallHeartSpr._wy = (enemyNameY + enemySpacing * (_cTarget % 4) + 4) << 8;
+  _smallHeartSpr->_wx = (enemyNameX - 15) << 8;
+  _smallHeartSpr->_wy = (enemyNameY + enemySpacing * (_cTarget % 4) + 4) << 8;
 
   if (_cTarget / 4 == _cPage)
     return;

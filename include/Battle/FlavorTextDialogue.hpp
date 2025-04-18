@@ -6,6 +6,8 @@
 #define UNDERTALE_FLAVORTEXTDIALOGUE_HPP
 
 #include "Cutscene/Dialogue.hpp"
+#include "Engine/Sprite.hpp"
+#include <memory>
 
 class FlavorTextDialogue : public DialogueLeftAligned {
 public:
@@ -15,7 +17,7 @@ public:
   void setShown(bool shown);
 
 protected:
-  Engine::Sprite _flavorTextSpr;
+  std::shared_ptr<Engine::Sprite> _flavorTextSpr;
 };
 
 #endif // UNDERTALE_FLAVORTEXTDIALOGUE_HPP

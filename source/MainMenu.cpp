@@ -26,7 +26,7 @@ void runMainMenu() {
 
   Engine::Background topBg;
   Engine::Background btmBg;
-  Engine::Sprite floweySpr(Engine::AllocatedOAM);
+  auto floweySpr = std::make_shared<Engine::Sprite>(Engine::AllocatedOAM);
   Engine::Font font;
 
   topBg.loadPath("main_menu_top");
@@ -34,11 +34,10 @@ void runMainMenu() {
   font.loadPath("fnt_maintext.font");
 
   if (globalSave.flags[FlagIds::PROGRESS] < 20) {
-    floweySpr.loadTexture(
-        Engine::textureManager.loadTexture("room_sprites/flowey"));
-    floweySpr._wx = 118 << 8;
-    floweySpr._wy = 116 << 8;
-    floweySpr.setShown(true);
+    Engine::spriteLoadTexture(floweySpr, "room_sprites/flowey");
+    floweySpr->_wx = 118 << 8;
+    floweySpr->_wy = 116 << 8;
+    Engine::spriteSetShown(floweySpr, true);
     Audio2::playBGMusic("mus_menu1.wav", true);
   }
 
@@ -147,5 +146,4 @@ void runMainMenu() {
   }
 
   Audio2::stopBGMusic();
-  floweySpr.setShown(false);
 }

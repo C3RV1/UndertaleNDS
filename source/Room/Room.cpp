@@ -5,6 +5,7 @@
 #include "Room/Room.hpp"
 #include "Cutscene/Cutscene.hpp"
 #include "Engine/Engine.hpp"
+#include "Engine/Sprite.hpp"
 #include "Engine/Texture.hpp"
 #include "Engine/WAV.hpp"
 #include "Formats/utils.hpp"
@@ -289,8 +290,8 @@ void loadNewRoom(int roomId, s32 spawnX, s32 spawnY) {
   }
 
   globalRoom = std::make_unique<Room>(roomId);
-  globalPlayer->_playerSpr._wx = spawnX << 8;
-  globalPlayer->_playerSpr._wy = spawnY << 8;
+  globalPlayer->_playerSpr->_wx = spawnX << 8;
+  globalPlayer->_playerSpr->_wy = spawnY << 8;
 
   if (globalCutscene != nullptr) {
     // Cutscenes are confined to rooms
@@ -319,16 +320,16 @@ void Room::update() {
 }
 
 void Room::push() {
-  globalPlayer->_playerSpr.push();
+  Engine::spritePush(globalPlayer->_playerSpr);
   for (const auto &_sprite : _sprites) {
-    _sprite->_spr.push();
+    Engine::spritePush(_sprite->_spr);
   }
 }
 
 void Room::pop() {
   char buffer[100];
   _bg.loadPath(_roomData.roomBg);
-  globalPlayer->_playerSpr.pop();
+  Engine::spritePop(globalPlayer->_playerSpr);
 
   int bgLoad = _bg.loadBgExtendedMain(512 / 8);
   if (bgLoad != 0) {
@@ -336,7 +337,7 @@ void Room::pop() {
     nocashMessage(buffer);
   }
   for (const auto &_sprite : _sprites) {
-    _sprite->_spr.pop();
+    Engine::spritePop(_sprite->_spr);
   }
 }
 

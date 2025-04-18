@@ -2,13 +2,14 @@
 // Created by cervi on 28/08/2023.
 //
 #include "Cutscene/Dialogue.hpp"
+#include "Engine/Sprite.hpp"
 #include "Engine/Texture.hpp"
 #include <memory>
 
 DialogueCentered::DialogueCentered(
     u16 textId, const std::string &speaker, s32 speakerX, s32 speakerY,
     const std::string &speakerIdle, const std::string &speakerTalk,
-    Engine::Sprite *target, const std::string &targetIdle,
+    std::shared_ptr<Engine::Sprite> target, const std::string &targetIdle,
     const std::string &targetTalk, const std::string &typeSndPath,
     const std::string &fontTxt, u16 framesPerLetter,
     Engine::TextBGManager &txtManager, Engine::AllocationMode heartAlloc)
@@ -21,13 +22,14 @@ DialogueCentered::DialogueCentered(
     _startingY = 192 / 4;
   _y = _startingY;
 
+  _speakerSpr = std::make_shared<Engine::Sprite>(Engine::AllocatedOAM);
   if (!speaker.empty())
-    _speakerSpr.loadTexture(Engine::textureManager.loadTexture(speaker));
-  _speakerSpr._wx = speakerX;
-  _speakerSpr._wy = speakerY;
-  _speakerSpr.setShown(true);
-  _speakerIdle = _speakerSpr.nameToAnimId(speakerIdle);
-  _speakerTalk = _speakerSpr.nameToAnimId(speakerTalk);
+    Engine::spriteLoadTexture(_speakerSpr, speaker);
+  _speakerSpr->_wx = speakerX;
+  _speakerSpr->_wy = speakerY;
+  Engine::spriteSetShown(_speakerSpr, true);
+  _speakerIdle = _speakerSpr->nameToAnimId(speakerIdle);
+  _speakerTalk = _speakerSpr->nameToAnimId(speakerTalk);
 
   _lineStart = _text.begin();
 }
@@ -50,12 +52,14 @@ DialogueCentered::DialogueCentered(const std::string &text_,
 
 void DialogueCentered::setTalk() {
   Dialogue::setTalk();
-  _speakerSpr.setAnimation(_speakerTalk);
+  if (_speakerSpr)
+    _speakerSpr->setAnimation(_speakerTalk);
 }
 
 void DialogueCentered::setNoTalk() {
   Dialogue::setNoTalk();
-  _speakerSpr.setAnimation(_speakerIdle);
+  if (_speakerSpr)
+    _speakerSpr->setAnimation(_speakerIdle);
 }
 
 void DialogueCentered::handleInline(std::string::iterator &pos, bool doEffect) {
@@ -66,19 +70,17 @@ void DialogueCentered::handleInline(std::string::iterator &pos, bool doEffect) {
     for (; *pos != '/'; buffer += *pos++)
       ;
     pos++;
-    if (doEffect)
-      _speakerIdle = _speakerSpr.nameToAnimId(buffer);
+    if (doEffect && _speakerSpr)
+      _speakerIdle = _speakerSpr->nameToAnimId(buffer);
     buffer = "";
     for (; *pos != '/'; buffer += *pos++)
       ;
     pos++;
-    if (doEffect)
-      _speakerTalk = _speakerSpr.nameToAnimId(buffer);
+    if (doEffect && _speakerSpr)
+      _speakerTalk = _speakerSpr->nameToAnimId(buffer);
   } else
     Dialogue::handleInline(--pos, doEffect);
 }
-
-DialogueCentered::~DialogueCentered() { _speakerSpr.setShown(false); }
 
 void DialogueCentered::onLineBreak() {
   draw(true, true);

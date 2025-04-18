@@ -189,7 +189,6 @@ TextureManager::loadTexture(const std::string &path) {
   }
 #endif
 
-  nocashMessage("Making...");
   auto texture = std::make_shared<Texture>(path);
   textures.insert(std::make_pair(path, texture));
   return texture;

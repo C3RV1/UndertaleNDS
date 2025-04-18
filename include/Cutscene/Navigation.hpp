@@ -36,7 +36,7 @@ struct NavigationTask {
   u16 frames = 0;
   u16 cFrames = 0;
   NavigationTaskType taskType = NavigationTaskType::POSITION;
-  Engine::Sprite *target = nullptr;
+  std::shared_ptr<Engine::Sprite> target = nullptr;
 };
 
 class Navigation {
@@ -67,8 +67,8 @@ public:
                        CutsceneLocation callingLocation);
   void update();
   void clearAllTasks();
-  static Engine::Sprite *getTarget(const TargetInfo &targetInfo,
-                                   CutsceneLocation callingLocation);
+  static std::shared_ptr<Engine::Sprite>
+  getTarget(const TargetInfo &targetInfo, CutsceneLocation callingLocation);
 
 private:
   void startTask(std::unique_ptr<NavigationTask> task);

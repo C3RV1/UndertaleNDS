@@ -4,7 +4,6 @@
 
 #include "Cutscene/Cutscene.hpp"
 #include "Battle/Battle.hpp"
-#include "Battle/BattleAttack.hpp"
 #include "Cutscene/CutsceneEnums.hpp"
 #include "Cutscene/Dialogue.hpp"
 #include "Cutscene/Navigation.hpp"
@@ -341,7 +340,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
     Engine::AllocationMode heartAlloc =
         mainScreen ? Engine::Allocated3D : Engine::AllocatedOAM;
 
-    Engine::Sprite *target = Navigation::getTarget(targetInfo, callingLocation);
+    auto target = Navigation::getTarget(targetInfo, callingLocation);
     if (_cDialogue == nullptr) {
       if (dialogue_type == DIALOGUE_CENTERED)
         _cDialogue = std::make_unique<DialogueCentered>(

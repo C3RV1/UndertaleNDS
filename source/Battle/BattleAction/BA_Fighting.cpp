@@ -5,7 +5,7 @@ bool BattleAction::updateFighting() {
 
   Enemy *enemy = (*_enemies)[_cTarget].get();
   if (keysDown() & (KEY_A | KEY_TOUCH)) {
-    s32 distanceFromCenter = _attackSpr._wx - (128 << 8);
+    s32 distanceFromCenter = _attackSpr->_wx - (128 << 8);
     if (distanceFromCenter < 0)
       distanceFromCenter = -distanceFromCenter;
     s16 damage;
@@ -37,11 +37,11 @@ bool BattleAction::updateFighting() {
     enter(SHOWING_DAMAGE);
     return false;
   }
-  if (_attackSpr._wx > 256 << 8) {
+  if (_attackSpr->_wx > 256 << 8) {
     enemy->doDamage(0);
     enter(SHOWING_DAMAGE);
     return false;
   }
-  _attackSpr._wx += kAttackSpeed;
+  _attackSpr->_wx += kAttackSpeed;
   return false;
 }

@@ -7,19 +7,22 @@
 
 #include "Battle/Enemy.hpp"
 #include "Engine/Sprite.hpp"
+#include <memory>
 
 class Dummy : public Enemy {
 public:
   Dummy();
-  void doDamage(int damage) final;
   void doAct(int actId) final;
   bool damageAnimation() final;
   bool canBeSpared() final;
-  Engine::Sprite *getSprite(u8 spriteId) final;
+  std::shared_ptr<Engine::Sprite> getSprite(u8 spriteId) final;
+
+protected:
+  void slashFinished() final;
 
 private:
   static constexpr int kX = 30, kY = (192 - 52) / 2;
-  Engine::Sprite _dummySpr{Engine::AllocationMode::AllocatedOAM};
+  std::shared_ptr<Engine::Sprite> _dummySpr;
 };
 
 #endif

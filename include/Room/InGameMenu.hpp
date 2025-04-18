@@ -15,10 +15,12 @@ enum SelectedMenu { MENU_ITEMS, MENU_CELL };
 
 class InGameMenu {
 public:
-  InGameMenu()
-      : _selectedMenuHeartSpr(Engine::AllocatedOAM),
-        _listHeartSpr(Engine::AllocatedOAM),
-        _itemExplainBoxSpr(Engine::AllocatedOAM) {}
+  InGameMenu() {
+    _selectedMenuHeartSpr =
+        std::make_shared<Engine::Sprite>(Engine::AllocatedOAM);
+    _listHeartSpr = std::make_shared<Engine::Sprite>(Engine::AllocatedOAM);
+    _itemExplainBoxSpr = std::make_shared<Engine::Sprite>(Engine::AllocatedOAM);
+  }
   void load();
   void unload();
   void updateHp();
@@ -42,9 +44,8 @@ private:
   bool _shown = false;
   Engine::Font _fnt;
   Engine::Background _bg;
-  Engine::Sprite _selectedMenuHeartSpr;
-  Engine::Sprite _listHeartSpr;
-  Engine::Sprite _itemExplainBoxSpr;
+  std::shared_ptr<Engine::Sprite> _selectedMenuHeartSpr, _listHeartSpr,
+      _itemExplainBoxSpr;
   SelectedMenu _selectedMenu = MENU_ITEMS;
   u8 _optionCount = 0;
   u8 _pageCount = 0;

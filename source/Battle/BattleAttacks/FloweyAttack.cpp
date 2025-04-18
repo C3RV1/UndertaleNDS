@@ -5,6 +5,7 @@
 #include "Battle/BattleAttacks/FloweyAttack.hpp"
 #include "Battle/Battle.hpp"
 #include "Engine/Audio.hpp"
+#include "Engine/Sprite.hpp"
 #include "Engine/Texture.hpp"
 #include "Engine/WAV.hpp"
 #include "Engine/math.hpp"
@@ -18,13 +19,12 @@ FloweyAttack::FloweyAttack() {
 
   int x = kPelletX;
   for (auto &pellet : _pelletSpr) {
-    pellet.setAllocationMode(Engine::Allocated3D);
-    pellet.loadTexture(
-        Engine::textureManager.loadTexture("battle/attack_pellets"));
-    pellet._wx = x << 8;
-    pellet._wy = kPelletY << 8;
+    pellet = std::make_shared<Engine::Sprite>(Engine::Allocated3D);
+    Engine::spriteLoadTexture(pellet, "battle/attack_pellets");
+    pellet->_wx = x << 8;
+    pellet->_wy = kPelletY << 8;
     x += kPelletSpacing;
-    pellet.setShown(true);
+    Engine::spriteSetShown(pellet, true);
   }
 }
 
@@ -34,30 +34,30 @@ bool FloweyAttack::update() {
     if (_counter > kFirstStageFrames) {
       _stage++;
       // TODO: Improve move precision (maybe offset error?)
-      int diffY = globalBattle->_playerSpr._wy + (9 << 8) / 2 -
+      int diffY = globalBattle->_playerSpr->_wy + (9 << 8) / 2 -
                   ((kPelletY + kPelletMoveY) << 8) + (4 << 8);
       int ySteps = (diffY << 8) / kPelletSpeedY;
       for (int i = 0; i < 5; i++) {
         auto &pellet = _pelletSpr[i];
-        int diffX = ((globalBattle->_playerSpr._wx + (9 << 8) / 2 - pellet._wx +
-                      (4 << 8))
+        int diffX = ((globalBattle->_playerSpr->_wx + (9 << 8) / 2 -
+                      pellet->_wx + (4 << 8))
                      << 8);
         _pelletVecX[i] = diffX / ySteps;
       }
     } else {
       for (auto &pellet : _pelletSpr) {
-        pellet._wy = (kPelletY << 8) +
-                     ((kPelletMoveY * _counter) << 8 / kFirstStageFrames);
+        pellet->_wy = (kPelletY << 8) +
+                      ((kPelletMoveY * _counter) << 8 / kFirstStageFrames);
       }
     }
   } else {
     for (int i = 0; i < 5; i++) {
       auto &pellet = _pelletSpr[i];
-      pellet._wx += _pelletVecX[i];
-      pellet._wy += kPelletSpeedY;
-      if (distSquared_fp(pellet._wx + (4 << 8), pellet._wy + (4 << 8),
-                         globalBattle->_playerSpr._wx + (9 << 8) / 2,
-                         globalBattle->_playerSpr._wy + (9 << 8) / 2) <=
+      pellet->_wx += _pelletVecX[i];
+      pellet->_wy += kPelletSpeedY;
+      if (distSquared_fp(pellet->_wx + (4 << 8), pellet->_wy + (4 << 8),
+                         globalBattle->_playerSpr->_wx + (9 << 8) / 2,
+                         globalBattle->_playerSpr->_wy + (9 << 8) / 2) <=
           (kPelletRadius * kPelletRadius) << 8) {
         globalSave.flags[kFlagAttack] = 1;
         globalSave.hp = 1;
@@ -66,7 +66,7 @@ bool FloweyAttack::update() {
         return true;
       }
     }
-    if (_pelletSpr[0]._wy > 180 << 8) {
+    if (_pelletSpr[0]->_wy > 180 << 8) {
       globalSave.flags[kFlagAttack] = 0;
       return true;
     }

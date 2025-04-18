@@ -1,4 +1,5 @@
 #include "Battle/BattleAction.hpp"
+#include "Engine/OAMManager.hpp"
 
 void BattleAction::drawMercy(bool draw) {
   const int optionX = 100, optionY = 110, optionSpacingY = 20;
@@ -6,9 +7,9 @@ void BattleAction::drawMercy(bool draw) {
   if (draw) {
     Engine::textMain.setColor(15);
   }
-  _smallHeartSpr.setShown(true);
-  _smallHeartSpr._wx = (optionX + offsetX) << 8;
-  _smallHeartSpr._wy = (optionY + optionSpacingY * _mercyFlee + offsetY) << 8;
+  Engine::spriteSetShown(_smallHeartSpr, true);
+  _smallHeartSpr->_wx = (optionX + offsetX) << 8;
+  _smallHeartSpr->_wy = (optionY + optionSpacingY * _mercyFlee + offsetY) << 8;
   if (!draw)
     return;
   int x = optionX, y = optionY;

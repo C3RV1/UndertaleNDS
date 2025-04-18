@@ -1,9 +1,13 @@
 #include "Engine/OAMManager.hpp"
 #include "DEBUG_FLAGS.hpp"
 #include "Engine/Engine.hpp"
+#include "Engine/Sprite.hpp"
 #include "Engine/Texture.hpp"
 #include "Engine/dma.hpp"
-#include <algorithm>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 
 namespace Engine {
 OAMManager::OAMManager(u16 *paletteRam, u16 *tileRam, u16 *oamRam)
@@ -18,23 +22,25 @@ OAMManager::OAMManager(u16 *paletteRam, u16 *tileRam, u16 *oamRam)
   }
 }
 
-int OAMManager::loadSprite(Sprite &res) {
-  if (!res._loaded)
+int OAMManager::loadSprite(std::shared_ptr<Sprite> res) {
+  if (!res->_loaded)
     return -1;
-  if (res._memory.allocated != NoAlloc)
+  if (res->_allocated != NoAlloc)
     return -2;
-  if (!res._texture->_hasOam) {
-    std::string buffer = "Error loading spr #r" + res._texture->_path +
+  nocashMessage(("Loading: " + res->_texture->_path).c_str());
+  if (!res->_texture->_hasOam) {
+    std::string buffer = "Error loading spr #r" + res->_texture->_path +
                          "#x to OAM: Sprite doesn't have OAM chunk.";
     throw_(buffer);
   }
 
-  auto &colors = res._texture->_colors;
+  auto &colors = res->_texture->_colors;
 
-  res._memory.palette = -1;
+  SpriteOAMMemory mem;
+
+  mem.palette = -1;
   int freePalette = -1;
-  for (int paletteIdx = 0; paletteIdx < 16 && res._memory.palette == -1;
-       paletteIdx++) {
+  for (int paletteIdx = 0; paletteIdx < 16 && mem.palette == -1; paletteIdx++) {
     // If we have found a free palette, store it
     if (_paletteRefCounts[paletteIdx] == 0 && freePalette == -1) {
       freePalette = paletteIdx;
@@ -43,58 +49,58 @@ int OAMManager::loadSprite(Sprite &res) {
 
     // If not, check if the color match
     // If they do, we can reuse the palette
-    res._memory.palette = paletteIdx;
-    for (size_t i = 0; i < res._texture->_colors.size(); i++) {
+    mem.palette = paletteIdx;
+    for (size_t i = 0; i < res->_texture->_colors.size(); i++) {
       if (_paletteRam[1 + paletteIdx * 16 + i] != colors[i]) {
-        res._memory.palette = -1;
+        mem.palette = -1;
         break;
       }
     }
   }
 
-  if (res._memory.palette == -1) {
+  if (mem.palette == -1) {
     // If we haven't found a palette we can reuse
     // then we use the free palette
     if (freePalette == -1) {
       // If we couldn't find a free palette, return.
-      std::string buffer = "Error loading spr #r" + res._texture->_path +
+      std::string buffer = "Error loading spr #r" + res->_texture->_path +
                            "#x to OAM: No available palettes.";
       throw_(buffer);
     }
-    res._memory.palette = freePalette;
-    dmaCopySafe(3, &res._texture->_colors[0],
+    mem.palette = freePalette;
+    dmaCopySafe(3, &res->_texture->_colors[0],
                 &_paletteRam[1 + freePalette * 16],
-                res._texture->_colors.size() * 2);
+                res->_texture->_colors.size() * 2);
   }
-  _paletteRefCounts[res._memory.palette]++;
+  _paletteRefCounts[mem.palette]++;
 
   // Reserve oam tiles
-  u8 oamW = res._texture->_oamChunk.oamW;
-  u8 oamH = res._texture->_oamChunk.oamH;
-  res._memory.oamEntries.resize(oamW * oamH);
+  u8 oamW = res->_texture->_oamChunk.oamW;
+  u8 oamH = res->_texture->_oamChunk.oamH;
+  mem.oamEntries.resize(oamW * oamH);
 
   for (int oamY = 0; oamY < oamH; oamY++) {
     for (int oamX = 0; oamX < oamW; oamX++) {
-      auto &oamEntry = res._texture->_oamChunk.oamEntries[oamY * oamW + oamX];
+      auto &oamEntry = res->_texture->_oamChunk.oamEntries[oamY * oamW + oamX];
       int oamId = reserveOAMEntry(oamEntry.tilesW, oamEntry.tilesH);
-      res._memory.oamEntries[oamY * oamW + oamX] = oamId;
+      mem.oamEntries[oamY * oamW + oamX] = oamId;
     }
   }
 
-  _activeSpr.push_back(&res);
-
-  res._memory.allocated = AllocatedOAM;
-  res._memory.loadedFrame = -1;
-  res._memory.loadedIntoMemory = false;
+  mem.loadedFrame = -1;
+  mem.loadedIntoMemory = false;
+  _activeSpr.push_back(std::make_pair(res, mem));
+  res->_allocated = AllocatedOAM;
   return 0;
 }
 
-int OAMManager::loadSpriteFrame(Engine::Sprite &spr, int frame) {
-  if (spr._memory.loadedFrame == frame)
+int OAMManager::loadSpriteFrame(Sprite &spr, SpriteOAMMemory &mem, int frame) {
+  if (mem.loadedFrame == frame)
     return -1;
   if (frame >= spr._texture->_frameCount || frame < 0)
     return -2;
-  spr._memory.loadedFrame = frame;
+
+  mem.loadedFrame = frame;
   u8 oamW = spr._texture->_oamChunk.oamW;
   u8 oamH = spr._texture->_oamChunk.oamH;
 
@@ -104,7 +110,7 @@ int OAMManager::loadSpriteFrame(Engine::Sprite &spr, int frame) {
       auto &textureOamEntry =
           spr._texture->_oamChunk.oamEntries[oamY * oamW + oamX];
 
-      int oamId = spr._memory.oamEntries[oamY * oamW + oamX];
+      int oamId = mem.oamEntries[oamY * oamW + oamX];
       auto &oamEntry = _oamEntries[oamId];
       u16 *tileRamStart = (u16 *)((u8 *)_tileRam + oamEntry.tileStart * 32);
       u32 tileBytes = textureOamEntry.tilesW * textureOamEntry.tilesH * 32;
@@ -178,56 +184,75 @@ void OAMManager::dumpOamState() {
 }
 #endif
 
-void OAMManager::freeSprite(Sprite &spr) {
-  if (spr._memory.allocated != AllocatedOAM)
+void OAMManager::freeSprite(std::shared_ptr<Sprite> spr) {
+  if (spr->_allocated != AllocatedOAM)
     return;
-  auto sprIdx = std::find(_activeSpr.begin(), _activeSpr.end(), &spr);
+  nocashMessage(("Freeing: " + spr->_texture->_path).c_str());
+  auto sprIdx = _activeSpr.begin();
+  for (; sprIdx != _activeSpr.end(); sprIdx++) {
+    if (sprIdx->first.lock() == spr)
+      break;
+  }
   if (sprIdx == _activeSpr.end())
     return;
+  SpriteOAMMemory &mem = sprIdx->second;
+  freeSpriteData(mem);
+
   _activeSpr.erase(sprIdx);
+  spr->_allocated = NoAlloc;
+}
 
-  _paletteRefCounts[spr._memory.palette]--;
+void OAMManager::freeSpriteData(SpriteOAMMemory &mem) {
+  nocashMessage("Freeing spr data.");
+  _paletteRefCounts[mem.palette]--;
 
-  if (spr._memory.oamScaleIdx != 0xff) {
-    freeOamScaleEntry(spr);
-    spr._memory.oamScaleIdx = 0xff;
+  if (mem.oamScaleIdx != 0xff) {
+    freeOamScaleEntry(mem);
+    mem.oamScaleIdx = 0xff;
   }
-  for (auto const &oamId : spr._memory.oamEntries) {
+  for (auto const &oamId : mem.oamEntries) {
     freeOAMEntry(oamId);
   }
-  spr._memory.oamEntries.clear();
-
-  spr._memory.allocated = NoAlloc;
+  mem.oamEntries.clear();
 }
 
 void OAMManager::draw() {
   if (_activeSpr.empty())
     return;
-  for (auto const &spr : _activeSpr) {
+  for (auto i = _activeSpr.begin(); i != _activeSpr.end();) {
+    if (i->first.expired()) {
+      freeSpriteData(i->second);
+      i = _activeSpr.erase(i);
+      continue;
+    }
+
+    std::shared_ptr<Sprite> spr = i->first.lock();
+    SpriteOAMMemory &mem = i->second;
+    i++;
+
     spr->tick();
 
-    if (spr->_cFrame != spr->_memory.loadedFrame)
-      loadSpriteFrame(*spr, spr->_cFrame);
+    if (spr->_cFrame != mem.loadedFrame)
+      loadSpriteFrame(*spr, mem, spr->_cFrame);
 
-    if (spr->_memory.loadedFrame == -1)
+    if (mem.loadedFrame == -1)
       continue;
 
-    if (!spr->_memory.loadedIntoMemory)
-      setOAMState(*spr);
+    if (!mem.loadedIntoMemory)
+      setOAMState(mem);
 
-    setSpritePosAndScale(*spr);
+    setSpritePosAndScale(*spr, mem);
   }
 }
 
-void OAMManager::setOAMState(Engine::Sprite &spr) {
-  for (unsigned char oamId : spr._memory.oamEntries) {
+void OAMManager::setOAMState(SpriteOAMMemory &mem) {
+  for (u8 oamId : mem.oamEntries) {
     OAMEntry *oamEntry = &_oamEntries[oamId];
     auto *oamStart = (u16 *)((u8 *)_oamRam + oamId * 8);
     oamStart[0] = 0 << 13; // set 16 color mode
     oamStart[1] = 0;
     // set start tile and priority 0 and palette
-    oamStart[2] =
-        oamEntry->tileStart / 2 + (0 << 10) + (spr._memory.palette << 12);
+    oamStart[2] = oamEntry->tileStart / 2 + (0 << 10) + (mem.palette << 12);
     // set size mode
     if (oamEntry->tileWidth == oamEntry->tileHeight) {
       switch (oamEntry->tileWidth) {
@@ -275,42 +300,41 @@ void OAMManager::setOAMState(Engine::Sprite &spr) {
       }
     }
   }
-  spr._memory.loadedIntoMemory = true;
+  mem.loadedIntoMemory = true;
 }
 
-void OAMManager::setSpritePosAndScale(Engine::Sprite &spr) {
+void OAMManager::setSpritePosAndScale(Engine::Sprite &spr,
+                                      SpriteOAMMemory &mem) {
   u8 tileWidth, tileHeight;
   spr._texture->getSizeTiles(tileWidth, tileHeight);
   u8 oamW = (tileWidth + 7) / 8;
   u8 oamH = (tileHeight + 7) / 8;
   for (int oamY = 0; oamY < oamH; oamY++) {
     for (int oamX = 0; oamX < oamW; oamX++) {
-      int oamId = spr._memory.oamEntries[oamY * oamW + oamX];
+      int oamId = mem.oamEntries[oamY * oamW + oamX];
       auto *oamStart = (u16 *)((u8 *)_oamRam + oamId * 8);
       bool useScale = (spr._scale_x != (1 << 8)) || (spr._scale_y != (1 << 8));
       if (useScale) {
-        if (spr._memory.oamScaleIdx == 0xff) {
-          allocateOamScaleEntry(spr);
+        if (mem.oamScaleIdx == 0xff) {
+          allocateOamScaleEntry(mem);
         }
       } else {
-        if (spr._memory.oamScaleIdx != 0xff) {
-          freeOamScaleEntry(spr);
+        if (mem.oamScaleIdx != 0xff) {
+          freeOamScaleEntry(mem);
         }
       }
 
       oamStart[1] &= ~(0b1111 << 9);
-      if (spr._memory.oamScaleIdx != 0xff) {
+      if (mem.oamScaleIdx != 0xff) {
         oamStart[0] |= 1 << 8; // set scale and rotation flag
         oamStart[0] |= 1 << 9; // set scale and rotation flag
-        oamStart[1] |= spr._memory.oamScaleIdx << 9;
-        auto *oamScaleA =
-            (u16 *)((u8 *)_oamRam + spr._memory.oamScaleIdx * 0x20 + 0x6);
-        auto *oamScaleB =
-            (u16 *)((u8 *)_oamRam + spr._memory.oamScaleIdx * 0x20 + 0xE);
+        oamStart[1] |= mem.oamScaleIdx << 9;
+        auto *oamScaleA = (u16 *)((u8 *)_oamRam + mem.oamScaleIdx * 0x20 + 0x6);
+        auto *oamScaleB = (u16 *)((u8 *)_oamRam + mem.oamScaleIdx * 0x20 + 0xE);
         auto *oamScaleC =
-            (u16 *)((u8 *)_oamRam + spr._memory.oamScaleIdx * 0x20 + 0x16);
+            (u16 *)((u8 *)_oamRam + mem.oamScaleIdx * 0x20 + 0x16);
         auto *oamScaleD =
-            (u16 *)((u8 *)_oamRam + spr._memory.oamScaleIdx * 0x20 + 0x1E);
+            (u16 *)((u8 *)_oamRam + mem.oamScaleIdx * 0x20 + 0x1E);
         *oamScaleA = (1 << 16) / spr._scale_x;
         *oamScaleB = 0;
         *oamScaleC = 0;
@@ -338,19 +362,19 @@ void OAMManager::setSpritePosAndScale(Engine::Sprite &spr) {
   }
 }
 
-void OAMManager::allocateOamScaleEntry(Engine::Sprite &spr) {
+void OAMManager::allocateOamScaleEntry(SpriteOAMMemory &mem) {
   for (int i = 0; i < 32; i++) {
     if (!_oamScaleEntryUsed[i]) {
-      spr._memory.oamScaleIdx = i;
+      mem.oamScaleIdx = i;
       _oamScaleEntryUsed[i] = true;
       return;
     }
   }
 }
 
-void OAMManager::freeOamScaleEntry(Engine::Sprite &spr) {
-  _oamScaleEntryUsed[spr._memory.oamScaleIdx] = false;
-  spr._memory.oamScaleIdx = 0xff;
+void OAMManager::freeOamScaleEntry(SpriteOAMMemory &mem) {
+  _oamScaleEntryUsed[mem.oamScaleIdx] = false;
+  mem.oamScaleIdx = 0xff;
 }
 
 OAMManager OAMManagerSub(SPRITE_PALETTE_SUB, SPRITE_GFX_SUB, OAM_SUB);

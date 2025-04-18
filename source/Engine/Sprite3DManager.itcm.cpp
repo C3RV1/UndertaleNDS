@@ -5,51 +5,59 @@
 #include "Engine/Sprite3DManager.hpp"
 #include "DEBUG_FLAGS.hpp"
 #include "Engine/Engine.hpp"
+#include "Engine/Sprite.hpp"
 #include "Engine/Texture.hpp"
 #include "Engine/dma.hpp"
 #include <algorithm>
+#include <memory>
+#include <utility>
 
 namespace Engine {
-int Sprite3DManager::loadSprite(Engine::Sprite &res) {
-  if (!res._loaded)
+int Sprite3DManager::loadSprite(std::shared_ptr<Sprite> res) {
+  if (!res->_loaded)
     return -1;
-  if (res._memory.allocated != NoAlloc)
+  if (res->_allocated != NoAlloc)
     return -2;
-  if (!res._texture->_has3D) {
-    std::string buffer = "Error loading spr #r" + res._texture->_path +
+  if (!res->_texture->_has3D) {
+    std::string buffer = "Error loading spr #r" + res->_texture->_path +
                          "#x to 3D: Sprite doesn't have 3D chunk.";
     throw_(buffer);
   }
 
-  _activeSpr.push_back(&res);
+  Sprite3DMemory mem;
+  mem.texture = res->_texture;
+  mem.loadedFrame = -1;
+  mem.loadedIntoMemory = false;
 
-  res._memory.allocated = Allocated3D;
-  res._memory.loadedFrame = -1;
-  res._memory.loadedIntoMemory = false;
+  _activeSpr.push_back(std::make_pair(res, mem));
+  res->_allocated = Allocated3D;
   return 0;
 }
 
-void Sprite3DManager::freeSprite(Engine::Sprite &spr) {
-  if (spr._memory.allocated != Allocated3D)
+void Sprite3DManager::freeSprite(std::shared_ptr<Sprite> spr) {
+  if (spr->_allocated != Allocated3D)
     return;
-  auto sprIdx = std::find(_activeSpr.begin(), _activeSpr.end(), &spr);
+  auto sprIdx = _activeSpr.begin();
+  for (; sprIdx != _activeSpr.end(); sprIdx++) {
+    if (sprIdx->first.lock() == spr)
+      break;
+  }
   if (sprIdx == _activeSpr.end())
     return;
+
+  freeSpriteTexture(sprIdx->second);
   _activeSpr.erase(sprIdx);
-
-  freeSpriteTexture(spr);
-
-  spr._memory.allocated = NoAlloc;
+  spr->_allocated = NoAlloc;
 }
 
-void Sprite3DManager::loadSpriteTexture(Engine::Sprite &spr) {
-  spr._texture->_loaded3DCount += 1;
-  if (spr._texture->_loaded3DCount > 1) { // Already loaded to texture
-    spr._memory.loadedIntoMemory = true;
+void Sprite3DManager::loadSpriteTexture(Sprite3DMemory &mem) {
+  mem.texture->_loaded3DCount += 1;
+  if (mem.texture->_loaded3DCount > 1) { // Already loaded to texture
+    mem.loadedIntoMemory = true;
     return;
   }
 
-  bool color8bit = spr._texture->_colors.size() > 15;
+  bool color8bit = mem.texture->_colors.size() > 15;
   u16 length, alignment, tileBytes;
   if (color8bit) {
     length = 16;
@@ -62,89 +70,100 @@ void Sprite3DManager::loadSpriteTexture(Engine::Sprite &spr) {
   }
 
   int res =
-      paletteFreeZones.reserve(length, spr._texture->_paletteIdx, alignment);
+      paletteFreeZones.reserve(length, mem.texture->_paletteIdx, alignment);
   if (res != 0) {
     // no palette found
-    std::string buffer = "Error loading spr #r" + spr._texture->_path +
+    std::string buffer = "Error loading spr #r" + mem.texture->_path +
                          "#x to 3D: No available palettes.";
     throw_(buffer);
   }
 
-  u16 *paletteBase = &VRAM_E[16 * spr._texture->_paletteIdx + 1];
-  dmaCopySafe(3, &spr._texture->_colors[0], paletteBase,
-              spr._texture->_colors.size() * 2);
+  u16 *paletteBase = &VRAM_E[16 * mem.texture->_paletteIdx + 1];
+  dmaCopySafe(3, &mem.texture->_colors[0], paletteBase,
+              mem.texture->_colors.size() * 2);
 
-  int allocX = spr._texture->_3dChunk.tilesAllocX;
-  int allocY = spr._texture->_3dChunk.tilesAllocY;
-  spr._texture->_tileStart.resize(allocX * allocY);
+  int allocX = mem.texture->_3dChunk.tilesAllocX;
+  int allocY = mem.texture->_3dChunk.tilesAllocY;
+  mem.texture->_tileStart.resize(allocX * allocY);
 
   for (int tileY = 0; tileY < allocY; tileY++) {
     for (int tileX = 0; tileX < allocX; tileX++) {
       int tileIdx = tileY * allocX + tileX;
-      auto &textureTile = spr._texture->_3dChunk.tiles[tileIdx];
+      auto &textureTile = mem.texture->_3dChunk.tiles[tileIdx];
       u8 tileWidth = textureTile.tileWidth;
       u8 tileHeight = textureTile.tileHeight;
       u16 neededBytes =
-          tileWidth * tileHeight * spr._texture->_frameCount * tileBytes;
-      if (tileFreeZones.reserve(neededBytes, spr._texture->_tileStart[tileIdx],
+          tileWidth * tileHeight * mem.texture->_frameCount * tileBytes;
+      if (tileFreeZones.reserve(neededBytes, mem.texture->_tileStart[tileIdx],
                                 1) == 1) {
-        std::string buffer = "Error loading spr #r" + spr._texture->_path +
+        std::string buffer = "Error loading spr #r" + mem.texture->_path +
                              "#x to 3D: Couldn't reserve tiles.";
         throw_(buffer);
       }
 
-      u8 *tileRamStart = (u8 *)VRAM_B + spr._texture->_tileStart[tileIdx];
+      u8 *tileRamStart = (u8 *)VRAM_B + mem.texture->_tileStart[tileIdx];
       dmaCopySafe(3, &textureTile.tileFrameData[0], tileRamStart, neededBytes);
     }
   }
 
-  spr._memory.loadedIntoMemory = true;
+  mem.loadedIntoMemory = true;
 }
 
-void Sprite3DManager::freeSpriteTexture(Engine::Sprite &spr) {
-  spr._texture->_loaded3DCount -= 1;
-  if (spr._texture->_loaded3DCount > 0) // Texture used by another sprite
+void Sprite3DManager::freeSpriteTexture(Sprite3DMemory &mem) {
+  mem.texture->_loaded3DCount -= 1;
+  if (mem.texture->_loaded3DCount > 0) // Texture used by another sprite
     return;
 
-  u8 tileBytes = spr._texture->_colors.size() > 15 ? 64 : 32;
+  u8 tileBytes = mem.texture->_colors.size() > 15 ? 64 : 32;
 
-  int allocX = spr._texture->_3dChunk.tilesAllocX;
-  int allocY = spr._texture->_3dChunk.tilesAllocY;
+  int allocX = mem.texture->_3dChunk.tilesAllocX;
+  int allocY = mem.texture->_3dChunk.tilesAllocY;
 
   for (int tileY = 0; tileY < allocY; tileY++) {
     for (int tileX = 0; tileX < allocX; tileX++) {
       int tileIdx = tileY * allocX + tileX;
-      auto &textureTile = spr._texture->_3dChunk.tiles[tileIdx];
+      auto &textureTile = mem.texture->_3dChunk.tiles[tileIdx];
       u8 tileWidth = textureTile.tileWidth;
       u8 tileHeight = textureTile.tileHeight;
       u16 neededBytes =
-          tileWidth * tileHeight * spr._texture->_frameCount * tileBytes;
-      tileFreeZones.free(neededBytes, spr._texture->_tileStart[tileIdx]);
+          tileWidth * tileHeight * mem.texture->_frameCount * tileBytes;
+      tileFreeZones.free(neededBytes, mem.texture->_tileStart[tileIdx]);
     }
   }
 
-  spr._texture->_tileStart.clear();
+  mem.texture->_tileStart.clear();
 }
 
 void Sprite3DManager::draw() {
   if (_activeSpr.empty())
     return;
-  for (auto const &spr : _activeSpr) {
+  for (auto i = _activeSpr.begin(); i != _activeSpr.end();) {
+    if (i->first.expired()) {
+      freeSpriteTexture(i->second);
+      i = _activeSpr.erase(i);
+      continue;
+    }
+
+    std::shared_ptr<Sprite> spr = i->first.lock();
+    Sprite3DMemory &mem = i->second;
+    i++;
+
     spr->tick();
 
-    if (!spr->_memory.loadedIntoMemory)
+    if (!mem.loadedIntoMemory) {
       continue;
+    }
 
     glColor(RGB15(31, 31, 31));
     if (spr->_opacity != 31)
       ensureAlphaBlend();
     glPolyFmt(POLY_ALPHA(spr->_opacity) | POLY_CULL_NONE);
 
-    u8 tileFormat = spr->_texture->_colors.size() > 15 ? 4 : 3;
-    u8 tileBytes = spr->_texture->_colors.size() > 15 ? 64 : 32;
+    u8 tileFormat = mem.texture->_colors.size() > 15 ? 4 : 3;
+    u8 tileBytes = mem.texture->_colors.size() > 15 ? 64 : 32;
 
-    int allocX = spr->_texture->_3dChunk.tilesAllocX;
-    int allocY = spr->_texture->_3dChunk.tilesAllocY;
+    int allocX = mem.texture->_3dChunk.tilesAllocX;
+    int allocY = mem.texture->_3dChunk.tilesAllocY;
 
     int tilePosY = 0;
     for (int tileY = 0; tileY < allocY; tileY++) {
@@ -152,7 +171,7 @@ void Sprite3DManager::draw() {
       int tileH = 0;
       for (int tileX = 0; tileX < allocX; tileX++) {
         int tileIdx = tileY * allocX + tileX;
-        auto &textureTile = spr->_texture->_3dChunk.tiles[tileIdx];
+        auto &textureTile = mem.texture->_3dChunk.tiles[tileIdx];
         tileH = textureTile.tileHeight;
 
         s32 x = ((spr->_x - (1 << 4)) >> 8) + 1;
@@ -180,18 +199,18 @@ void Sprite3DManager::draw() {
         MATRIX_IDENTITY = 0;
         GFX_TEX_FORMAT = (allocXFmt << 20) + (allocYFmt << 23) +
                          (tileFormat << 26) + (1 << 29) +
-                         (spr->_texture->_tileStart[tileIdx] +
+                         (mem.texture->_tileStart[tileIdx] +
                           spr->_cFrame * textureTile.tileWidth *
                               textureTile.tileHeight * tileBytes) /
                              8;
         if (tileFormat == 4)
-          GFX_PAL_FORMAT = spr->_texture->_paletteIdx;
+          GFX_PAL_FORMAT = mem.texture->_paletteIdx;
         else
-          GFX_PAL_FORMAT = spr->_texture->_paletteIdx * 2;
+          GFX_PAL_FORMAT = mem.texture->_paletteIdx * 2;
         GFX_BEGIN = GL_QUADS;
         GFX_TEX_COORD = 0;
         GFX_VERTEX16 = x + (y << 16);
-        GFX_VERTEX16 = spr->_layer + spr->_texture->_topDownOffset;
+        GFX_VERTEX16 = spr->_layer + mem.texture->_topDownOffset;
         GFX_TEX_COORD = h << (4 + 16);
         GFX_VERTEX_XY = x + (y2 << 16);
         GFX_TEX_COORD = (h << (4 + 16)) + (w << 4);
@@ -215,8 +234,12 @@ void Sprite3DManager::updateTextures() {
   bool setBank = false;
   if (_activeSpr.empty())
     return;
-  for (auto const &spr : _activeSpr) {
-    if (!spr->_memory.loadedIntoMemory) {
+  for (auto &i : _activeSpr) {
+    if (i.first.expired())
+      continue; // Will get freed on draw.
+
+    Sprite3DMemory &mem = i.second;
+    if (!mem.loadedIntoMemory) {
 #ifdef DEBUG_3D
       nocashMessage("Loading sprite");
 #endif
@@ -225,7 +248,7 @@ void Sprite3DManager::updateTextures() {
         vramSetBankE(VRAM_E_LCD);
         setBank = true;
       }
-      loadSpriteTexture(*spr);
+      loadSpriteTexture(mem);
     }
   }
   if (setBank) {

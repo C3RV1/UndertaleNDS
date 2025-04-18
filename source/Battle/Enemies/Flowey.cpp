@@ -9,14 +9,17 @@
 
 Flowey::Flowey() {
   _hp = 100;
-  floweySpr.loadTexture(Engine::textureManager.loadTexture("speaker/flowey"));
-  floweySpr._wx = 30 << 8;
-  floweySpr._wy = ((192 - 44) / 2) << 8;
-  floweySpr._layer = 1;
-  floweySpr.setShown(true);
+  floweySpr = std::make_shared<Engine::Sprite>(Engine::AllocatedOAM);
+  Engine::spriteLoadTexture(floweySpr, "speaker/flowey");
+  floweySpr->_wx = 30 << 8;
+  floweySpr->_wy = ((192 - 44) / 2) << 8;
+  floweySpr->_layer = 1;
+  Engine::spriteSetShown(floweySpr, true);
 }
 
-Engine::Sprite *Flowey::getSprite(u8 spriteId) { return &floweySpr; }
+std::shared_ptr<Engine::Sprite> Flowey::getSprite(u8 spriteId) {
+  return floweySpr;
+}
 
 std::unique_ptr<BattleAttack> Flowey::getBattleAttack() {
   switch (floweyAttack) {

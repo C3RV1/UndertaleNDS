@@ -4,8 +4,10 @@
 
 #include "Battle/Battle.hpp"
 #include "Battle/Enemy.hpp"
+#include "Battle/FlavorTextDialogue.hpp"
 #include "Cutscene/Cutscene.hpp"
 #include "Engine/Engine.hpp"
+#include "Engine/Sprite.hpp"
 #include "Engine/TextBGManager.hpp"
 #include "Engine/Texture.hpp"
 #include "Formats/utils.hpp"
@@ -16,15 +18,17 @@
 #include "Save.hpp"
 #include <cstdio>
 #include <memory>
+#include <string>
 
 std::unique_ptr<Battle> globalBattle = nullptr;
 
-Battle::Battle() : _playerSpr(Engine::Allocated3D) {
+Battle::Battle() {
   _fnt.loadPath("fnt_curs.font");
-  _playerSpr.loadTexture(Engine::textureManager.loadTexture("spr_heartsmall"));
-  _playerSpr._wx = ((256 - 16) / 2) << 8;
-  _playerSpr._wy = ((192 - 32) / 2) << 8;
-  _playerSpr._layer = 100;
+  _playerSpr = std::make_shared<Engine::Sprite>(Engine::Allocated3D);
+  Engine::spriteLoadTexture(_playerSpr, "spr_heartsmall");
+  _playerSpr->_wx = ((256 - 16) / 2) << 8;
+  _playerSpr->_wy = ((192 - 32) / 2) << 8;
+  _playerSpr->_layer = 100;
 
   for (int i = 220; i <= 229; i++) {
     globalSave.flags[i] = 0;
@@ -61,9 +65,9 @@ void Battle::exit(bool won) {
     buffer.resize(size_s);
     sprintf(&buffer[0], _winText.c_str(), earnedExp, earnedGold);
     if (globalCutscene->_cDialogue == nullptr) {
-      globalCutscene->_cDialogue = std::make_unique<DialogueCentered>(
-          buffer, "SND_TXT1.wav", "fnt_maintext.font", 2, Engine::textMain,
-          Engine::Allocated3D);
+      auto dialogue = std::make_unique<FlavorTextDialogue>(buffer);
+      dialogue->setShown(true);
+      globalCutscene->_cDialogue = std::move(dialogue);
     }
     _stopPostDialogue = true;
   } else {
@@ -101,8 +105,8 @@ void Battle::loadFromStream(FILE *stream) {
   _battleBackground.loadPath(bgPath);
   _battleBackground.loadBgTextSub();
 
-  _playerSpr._wx = ((_boardX + _boardW / 2) << 8) - (9 << 8) / 2;
-  _playerSpr._wy = ((_boardY + _boardH / 2) << 8) - (9 << 8) / 2;
+  _playerSpr->_wx = ((_boardX + _boardW / 2) << 8) - (9 << 8) / 2;
+  _playerSpr->_wy = ((_boardY + _boardH / 2) << 8) - (9 << 8) / 2;
 }
 
 void Battle::show() {
@@ -110,7 +114,7 @@ void Battle::show() {
   _shown = true;
   showHp();
   _bulletBoard.loadBgTextMain();
-  _playerSpr.setShown(true);
+  Engine::spriteSetShown(_playerSpr, true);
 }
 
 void Battle::showHp() {
@@ -127,6 +131,7 @@ void Battle::showHp() {
   char buffer[16];
   sprintf(buffer, "%2d/%2d", globalSave.hp, globalSave.maxHp);
   int x = kHPx + kHPw + kPadding;
+  Engine::textMain.setColor(15);
   for (char *p = buffer; *p != 0; p++)
     Engine::textMain.drawGlyph(_fnt, *p, x, kHPy + kTxtYOff);
 }
@@ -134,7 +139,7 @@ void Battle::showHp() {
 void Battle::hide() {
   Engine::textMain.clear();
   Engine::clearMain();
-  _playerSpr.setShown(false);
+  Engine::spriteSetShown(_playerSpr, false);
   _shown = false;
 }
 
@@ -173,33 +178,33 @@ void Battle::update() {
   if (!_shown)
     return;
   if (keysHeld() & KEY_RIGHT) {
-    _playerSpr._wx += _playerSpeed;
+    _playerSpr->_wx += _playerSpeed;
   }
   if (keysHeld() & KEY_LEFT) {
-    _playerSpr._wx -= _playerSpeed;
+    _playerSpr->_wx -= _playerSpeed;
   }
   if (keysHeld() & KEY_DOWN) {
-    _playerSpr._wy += _playerSpeed;
+    _playerSpr->_wy += _playerSpeed;
   }
   if (keysHeld() & KEY_UP) {
-    _playerSpr._wy -= _playerSpeed;
+    _playerSpr->_wy -= _playerSpeed;
   }
   if (keysHeld() & KEY_TOUCH) {
     touchPosition touchInfo;
     touchRead(&touchInfo);
-    _playerSpr._wx = (touchInfo.px << 8) - (9 << 8) / 2;
-    _playerSpr._wy = (touchInfo.py << 8) - (9 << 8) / 2;
+    _playerSpr->_wx = (touchInfo.px << 8) - (9 << 8) / 2;
+    _playerSpr->_wy = (touchInfo.py << 8) - (9 << 8) / 2;
   }
 
-  if (_playerSpr._wx < _boardX << 8) {
-    _playerSpr._wx = _boardX << 8;
-  } else if (_playerSpr._wx > (_boardX + _boardW - 9) << 8) {
-    _playerSpr._wx = (_boardX + _boardW - 9) << 8;
+  if (_playerSpr->_wx < _boardX << 8) {
+    _playerSpr->_wx = _boardX << 8;
+  } else if (_playerSpr->_wx > (_boardX + _boardW - 9) << 8) {
+    _playerSpr->_wx = (_boardX + _boardW - 9) << 8;
   }
-  if (_playerSpr._wy < _boardY << 8) {
-    _playerSpr._wy = _boardY << 8;
-  } else if (_playerSpr._wy > (_boardY + _boardH - 9) << 8) {
-    _playerSpr._wy = (_boardY + _boardH - 9) << 8;
+  if (_playerSpr->_wy < _boardY << 8) {
+    _playerSpr->_wy = _boardY << 8;
+  } else if (_playerSpr->_wy > (_boardY + _boardH - 9) << 8) {
+    _playerSpr->_wy = (_boardY + _boardH - 9) << 8;
   }
 }
 

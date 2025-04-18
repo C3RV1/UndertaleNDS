@@ -20,7 +20,7 @@ public:
   bool update() override;
 
 private:
-  Engine::Sprite _tutorialSpr;
+  std::shared_ptr<Engine::Sprite> _tutorialSpr;
 };
 } // namespace BtlAttacks
 

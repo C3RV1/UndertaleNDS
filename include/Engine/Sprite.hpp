@@ -17,41 +17,17 @@ class Sprite;
 namespace Engine {
 enum AllocationMode { NoAlloc = 0, AllocatedOAM = 1, Allocated3D = 2 };
 
-struct SpriteInternalMemory {
-  AllocationMode allocated = NoAlloc;
-
-  // OAM
-  u8 oamScaleIdx = 0xff; // all oam entries can share scale
-  std::vector<u8> oamEntries;
-  int palette = -1;
-
-  int loadedFrame = -1;
-  bool loadedIntoMemory = false;
-};
-
 class Sprite {
 public:
   explicit Sprite(AllocationMode allocMode = NoAlloc);
-
-  void setAllocationMode(AllocationMode allocMode);
 
   void setAnimation(int animId);
 
   void setFrame(int frameId);
 
-  void loadTexture(std::shared_ptr<Texture> texture);
-
   int nameToAnimId(const std::string &animName) const;
 
   void tick();
-
-  void setShown(bool shown);
-
-  void push();
-
-  void pop();
-
-  ~Sprite() { setShown(false); }
 
   bool _loaded = false;
   std::shared_ptr<Texture> _texture = nullptr;
@@ -67,19 +43,34 @@ public:
 
   friend class OAMManager;
   friend class Sprite3DManager;
+  friend void spriteSetShown(std::shared_ptr<Sprite> spr, bool shown);
+  friend void spriteSetAllocationMode(std::shared_ptr<Sprite> spr,
+                                      AllocationMode allocMode);
+  friend void spritePush(std::shared_ptr<Sprite> spr);
+  friend void spritePop(std::shared_ptr<Sprite> spr);
+  friend void spriteLoadTexture(std::shared_ptr<Sprite> spr,
+                                std::shared_ptr<Texture> texture);
+
+  int _cFrame = 0;
 
 private:
   s32 _x = 0, _y = 0; // 1 bit sign, 23 bit integer, 8 bit fraction, screen
   s32 _scale_x = 0, _scale_y = 0;
   u16 _cAnimTimer = 0;
   u16 _cAnimFrame = 0;
-  int _cFrame = 0;
 
-  SpriteInternalMemory _memory;
   AllocationMode _allocMode;
+  AllocationMode _allocated = AllocationMode::NoAlloc;
   bool _shown = false;
   bool _pushed = false;
 };
+
+void spriteSetAllocationMode(std::shared_ptr<Sprite> spr,
+                             AllocationMode allocMode);
+void spriteSetShown(std::shared_ptr<Sprite> spr, bool shown);
+void spritePush(std::shared_ptr<Sprite> spr);
+void spritePop(std::shared_ptr<Sprite> spr);
+void spriteLoadTexture(std::shared_ptr<Sprite> spr, std::string path);
 } // namespace Engine
 
 #endif // UNDERTALE_SPRITE_HPP

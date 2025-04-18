@@ -7,20 +7,21 @@
 #include "Engine/Audio.hpp"
 #include "Engine/Engine.hpp"
 #include "Engine/OAMManager.hpp"
+#include "Engine/Sprite.hpp"
 #include "Engine/Texture.hpp"
 #include "Formats/utils.hpp"
 #include <memory>
 
-Dialogue::Dialogue(u16 textId, Engine::Sprite *target,
+Dialogue::Dialogue(u16 textId, std::shared_ptr<Engine::Sprite> target,
                    const std::string &targetIdle, const std::string &targetTalk,
                    const std::string &typeSndPath, const std::string &fontTxt,
                    u16 framesPerLetter, Engine::TextBGManager &txtManager,
                    Engine::AllocationMode heartAlloc)
-    : _target(target), _textManager(&txtManager), _heartSprite(heartAlloc) {
+    : _target(target), _textManager(&txtManager) {
   _typeSnd = std::make_shared<Audio2::WAV>();
   _fnt.loadPath(fontTxt);
-  _heartSprite.loadTexture(
-      Engine::textureManager.loadTexture("spr_heartsmall"));
+  _heartSprite = std::make_shared<Engine::Sprite>(heartAlloc);
+  Engine::spriteLoadTexture(_heartSprite, "spr_heartsmall");
 
   std::string buffer = "nitro:/data/dialogue/r" +
                        std::to_string(globalCutscene->_roomId) + "/c" +
@@ -58,11 +59,11 @@ Dialogue::Dialogue(const std::string &text_, const std::string &typeSndPath,
                    const std::string &fontTxt, u16 framesPerLetter,
                    Engine::TextBGManager &txtManager,
                    Engine::AllocationMode heartAlloc)
-    : _textManager(&txtManager), _heartSprite(heartAlloc) {
+    : _textManager(&txtManager) {
   _typeSnd = std::make_shared<Audio2::WAV>();
   _fnt.loadPath(fontTxt);
-  _heartSprite.loadTexture(
-      Engine::textureManager.loadTexture("spr_heartsmall"));
+  _heartSprite = std::make_shared<Engine::Sprite>(heartAlloc);
+  Engine::spriteLoadTexture(_heartSprite, "spr_heartsmall");
 
   _text = text_;
 
@@ -157,7 +158,7 @@ void Dialogue::progressText(bool clear_, bool draw_) {
 }
 
 void Dialogue::updateChoosingOption() {
-  _heartSprite.setShown(true);
+  Engine::spriteSetShown(_heartSprite, true);
   if (keysDown() & KEY_RIGHT) {
     _currentOption++;
     _currentOption %= _optionCount;
@@ -177,11 +178,11 @@ void Dialogue::updateChoosingOption() {
     _choosingOption = false;
     _optionCount = 0;
     globalSave.flags[FlagIds::DIALOGUE_OPTION] = _currentOption;
-    _heartSprite.setShown(false);
+    Engine::spriteSetShown(_heartSprite, false);
     return;
   }
-  _heartSprite._wx = (_optionPositions[_currentOption][0] - 2) << 8;
-  _heartSprite._wy = (_optionPositions[_currentOption][1] + 4) << 8;
+  _heartSprite->_wx = (_optionPositions[_currentOption][0] - 2) << 8;
+  _heartSprite->_wy = (_optionPositions[_currentOption][1] + 4) << 8;
 }
 
 void Dialogue::onClear() {

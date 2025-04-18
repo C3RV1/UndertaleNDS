@@ -7,7 +7,6 @@
 
 #include "Battle/BattleAttack.hpp"
 #include "Engine/Sprite.hpp"
-#include "Engine/Texture.hpp"
 #include <memory>
 
 namespace BtlAttacks {
@@ -27,7 +26,7 @@ private:
                        kPelletSpacingY = 90;
   static constexpr int kPelletSpeed = (10 << 8) / 60;
   static constexpr int kPelletRadius = 15;
-  Engine::Sprite _pelletSpr[kPelletW * 2];
+  std::shared_ptr<Engine::Sprite> _pelletSpr[kPelletW * 2];
 };
 } // namespace BtlAttacks
 

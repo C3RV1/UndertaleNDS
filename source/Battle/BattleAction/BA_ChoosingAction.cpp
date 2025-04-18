@@ -1,4 +1,5 @@
 #include "Battle/BattleAction.hpp"
+#include "Engine/OAMManager.hpp"
 
 bool BattleAction::updateChoosingAction() {
   int prevAction = _cAction;
@@ -16,7 +17,7 @@ bool BattleAction::updateChoosingAction() {
 
   if (keysDown() & KEY_A) {
     for (int i = 0; i < 4; i++) {
-      _btn[i].setShown(false);
+      Engine::spriteSetShown(_btn[i], false);
     }
     switch (_cAction) {
     case ACTION_FIGHT:

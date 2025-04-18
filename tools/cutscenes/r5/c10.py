@@ -16,7 +16,6 @@ def cutscene(c: Cutscene):
     # == LOAD BATTLE ==
 
     c.debug("Loading battle...")
-    c.load_sprite(30, (192 - 52) // 2, "battle/dummy_ruins")
     # c.set_scale(Target(TargetType.SPRITE, 0), 1.5, 1.5)
     c.start_bgm("mus_prebattle1.wav", True)
 

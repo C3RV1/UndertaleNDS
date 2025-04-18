@@ -5,23 +5,23 @@
 #include "Cutscene/Cutscene.hpp"
 #include "Engine/Audio.hpp"
 #include "Engine/Engine.hpp"
-#include "Engine/Texture.hpp"
+#include "Engine/Sprite.hpp"
 #include "Engine/WAV.hpp"
 #include "Formats/utils.hpp"
 #include <memory>
 #include <string>
 
-SaveMenu::SaveMenu() : _optionsHeartSpr(Engine::AllocatedOAM) {
+SaveMenu::SaveMenu() {
   _fnt.loadPath("fnt_maintext.font");
 
   _bg.loadPath("save_menu_bg");
   _bg.loadBgTextSub();
 
-  _optionsHeartSpr.loadTexture(
-      Engine::textureManager.loadTexture("spr_heartsmall"));
-  _optionsHeartSpr.setShown(true);
-  _optionsHeartSpr._wx = kHrtSaveX << 8;
-  _optionsHeartSpr._wy = kHrtSaveY << 8;
+  _optionsHeartSpr = std::make_shared<Engine::Sprite>(Engine::AllocatedOAM);
+  Engine::spriteLoadTexture(_optionsHeartSpr, "spr_heartsmall");
+  Engine::spriteSetShown(_optionsHeartSpr, true);
+  _optionsHeartSpr->_wx = kHrtSaveX << 8;
+  _optionsHeartSpr->_wy = kHrtSaveY << 8;
 
   _saveSnd = std::make_shared<Audio2::WAV>();
   _saveSnd->load("snd_save.wav");
@@ -125,11 +125,11 @@ bool SaveMenu::update() {
   }
 
   if (_selectedOption == 0) {
-    _optionsHeartSpr._wx = kHrtSaveX << 8;
-    _optionsHeartSpr._wy = kHrtSaveY << 8;
+    _optionsHeartSpr->_wx = kHrtSaveX << 8;
+    _optionsHeartSpr->_wy = kHrtSaveY << 8;
   } else {
-    _optionsHeartSpr._wx = kHrtRetX << 8;
-    _optionsHeartSpr._wy = kHrtRetY << 8;
+    _optionsHeartSpr->_wx = kHrtRetX << 8;
+    _optionsHeartSpr->_wy = kHrtRetY << 8;
   }
   return false;
 }

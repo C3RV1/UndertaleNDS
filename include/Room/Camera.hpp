@@ -6,17 +6,20 @@
 #define UNDERTALE_CAMERA_HPP
 
 #include "Engine/Sprite.hpp"
+#include <memory>
 
 class Camera {
 public:
-    Camera() : _pos(Engine::NoAlloc) {}
-    void updatePosition(bool roomChange);
-    bool _manual = false;
-    int _prevX = 0, _prevY = 0;
-    // top left camera position
-    Engine::Sprite _pos;
+  Camera() { _pos = std::make_shared<Engine::Sprite>(Engine::NoAlloc); }
+  void updatePosition(bool roomChange);
+  bool _manual = false;
+  int _prevX = 0, _prevY = 0;
+
+  // top left camera position
+  // We need it to be a shared_ptr for Navigation.
+  std::shared_ptr<Engine::Sprite> _pos;
 };
 
 extern Camera globalCamera;
 
-#endif //UNDERTALE_CAMERA_HPP
+#endif // UNDERTALE_CAMERA_HPP

@@ -5,6 +5,7 @@
 #include "Cutscene/Cutscene.hpp"
 #include "Engine/Engine.hpp"
 #include "Engine/Font.hpp"
+#include "Engine/OAMManager.hpp"
 #include "MainMenu.hpp"
 #include "Room/Camera.hpp"
 #include "Room/InGameMenu.hpp"
@@ -41,17 +42,17 @@ int main() {
   u16 roomSpawn = globalSave.lastSavedRoom;
 
   // DEBUG
-  // roomSpawn = 10;
-  // globalSave.flags[0] = 1;
+  roomSpawn = 2;
+  globalSave.flags[0] = 4;
 
   globalPlayer = new Player();
-  globalPlayer->_playerSpr.setShown(true);
+  Engine::spriteSetShown(globalPlayer->_playerSpr, true);
   globalInGameMenu.load();
   globalInGameMenu.show(false);
   globalRoom = std::make_unique<Room>(roomSpawn);
   globalCamera.updatePosition(true);
-  globalPlayer->_playerSpr._wx = globalRoom->_spawnX << 8;
-  globalPlayer->_playerSpr._wy = globalRoom->_spawnY << 8;
+  globalPlayer->_playerSpr->_wx = globalRoom->_spawnX << 8;
+  globalPlayer->_playerSpr->_wy = globalRoom->_spawnY << 8;
 
   for (;;) {
     Engine::tick();

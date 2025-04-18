@@ -9,6 +9,7 @@
 #include "Battle/FlavorTextDialogue.hpp"
 #include "Engine/Background.hpp"
 #include "Engine/Font.hpp"
+#include "Engine/Sprite.hpp"
 #include <array>
 #include <memory>
 
@@ -65,13 +66,13 @@ private:
 
   std::vector<std::unique_ptr<Enemy>> *_enemies;
 
-  std::array<Engine::Sprite, 4> _btn;
-  Engine::Sprite _bigHeartSpr, _smallHeartSpr;
+  std::array<std::shared_ptr<Engine::Sprite>, 4> _btn;
+  std::shared_ptr<Engine::Sprite> _bigHeartSpr, _smallHeartSpr;
 
   std::string _flavorText;
 
   Engine::Background _fightBoard;
-  Engine::Sprite _attackSpr;
+  std::shared_ptr<Engine::Sprite> _attackSpr;
 
   Audio2::WAV _selectSnd;
 

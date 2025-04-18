@@ -13,11 +13,13 @@ class RoomSprite;
 
 class RoomSprite {
 public:
-  explicit RoomSprite(Engine::AllocationMode alloc) : _spr(alloc) {}
+  explicit RoomSprite(Engine::AllocationMode alloc) {
+    _spr = std::make_shared<Engine::Sprite>(alloc);
+  }
 
   void load(ROOMSpriteData const &sprData);
 
-  void spawn(s32 x, s32 y, std::shared_ptr<Engine::Texture> texture);
+  void spawn(s32 x, s32 y, std::string path);
 
   bool check_player_collide(s32 x, s32 y, s32 w, s32 h, s32 dx, s32 dy);
   void commit_player_move();
@@ -26,7 +28,7 @@ public:
 
   void draw();
 
-  Engine::Sprite _spr;
+  std::shared_ptr<Engine::Sprite> _spr;
 
   ROOMSpriteAction _interactAction = ROOMSpriteAction::NONE;
 
@@ -48,8 +50,6 @@ public:
 
 private:
   bool check_on_goal();
-
-  void free_();
 };
 
 #endif // UNDERTALE_MANAGED_SPRITE_HPP

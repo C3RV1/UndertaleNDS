@@ -7,6 +7,7 @@
 
 #include "Engine/Sprite.hpp"
 #include <cstdio>
+#include <memory>
 #include <nds.h>
 
 class Player {
@@ -26,7 +27,7 @@ public:
   void draw();
 
   // sprite top left position
-  Engine::Sprite _playerSpr;
+  std::shared_ptr<Engine::Sprite> _playerSpr;
 
 private:
   // animation ids

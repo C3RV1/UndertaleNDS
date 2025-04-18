@@ -7,10 +7,19 @@
 
 #include "Engine/FreeZoneManager.hpp"
 #include "Sprite.hpp"
+#include "Texture.hpp"
+#include <memory>
 #include <nds.h>
 #include <vector>
 
 namespace Engine {
+struct Sprite3DMemory {
+  std::shared_ptr<Texture> texture;
+
+  int loadedFrame = -1;
+  bool loadedIntoMemory = false;
+};
+
 class Sprite3DManager {
 public:
   Sprite3DManager()
@@ -21,20 +30,20 @@ public:
   void updateTextures();
 
 private:
-  friend class Sprite;
+  friend void spriteSetShown(std::shared_ptr<Sprite> spr, bool shown);
 
-  int loadSprite(Sprite &res);
-  void freeSprite(Sprite &spr);
+  int loadSprite(std::shared_ptr<Sprite> spr);
+  void freeSprite(std::shared_ptr<Sprite> spr);
 
   void ensureAlphaBlend();
 
-  void loadSpriteTexture(Sprite &spr);
-  void freeSpriteTexture(Sprite &spr);
+  void loadSpriteTexture(Sprite3DMemory &mem);
+  void freeSpriteTexture(Sprite3DMemory &mem);
 
   FreeZoneManager tileFreeZones;
   FreeZoneManager paletteFreeZones;
 
-  std::vector<Sprite *> _activeSpr;
+  std::vector<std::pair<std::weak_ptr<Sprite>, Sprite3DMemory>> _activeSpr;
 };
 
 extern Sprite3DManager main3dSpr;

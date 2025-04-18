@@ -4,6 +4,7 @@
 
 #include "Cutscene/Navigation.hpp"
 #include "Battle/Battle.hpp"
+#include "Engine/Sprite.hpp"
 #include "Engine/Texture.hpp"
 #include "Room/Camera.hpp"
 #include "Room/Player.hpp"
@@ -13,19 +14,18 @@
 
 void Navigation::spawn_sprite(const std::string &path, s32 x, s32 y, s32 layer,
                               CutsceneLocation callingLocation) {
-  auto texture = Engine::textureManager.loadTexture(path);
   if (callingLocation == LOAD_ROOM || callingLocation == ROOM) {
     auto newSprite = std::make_unique<RoomSprite>(Engine::Allocated3D);
-    newSprite->spawn(x, y, std::move(texture));
+    newSprite->spawn(x, y, path);
 
     globalRoom->_sprites.push_back(std::move(newSprite));
   } else {
-    auto newSprite = std::make_unique<Engine::Sprite>(Engine::AllocatedOAM);
+    auto newSprite = std::make_shared<Engine::Sprite>(Engine::AllocatedOAM);
     newSprite->_wx = x;
     newSprite->_wy = y;
     newSprite->_layer = layer;
-    newSprite->loadTexture(std::move(texture));
-    newSprite->setShown(true);
+    Engine::spriteLoadTexture(newSprite, path);
+    Engine::spriteSetShown(newSprite, true);
 
     globalBattle->_sprites.push_back(std::move(newSprite));
   }
@@ -34,7 +34,7 @@ void Navigation::spawn_sprite(const std::string &path, s32 x, s32 y, s32 layer,
 void Navigation::spawn_relative(const std::string &path,
                                 const TargetInfo &targetInfo, s32 dx, s32 dy,
                                 s32 layer, CutsceneLocation callingLocation) {
-  Engine::Sprite *target = getTarget(targetInfo, callingLocation);
+  auto target = getTarget(targetInfo, callingLocation);
   if (target == nullptr)
     return;
   s32 x = target->_wx + dx;
@@ -66,7 +66,7 @@ void Navigation::unload_sprite(s8 sprId, CutsceneLocation callingLocation) {
 
 void Navigation::set_position(const TargetInfo &targetInfo, s32 x, s32 y,
                               CutsceneLocation callingLocation) {
-  Engine::Sprite *spriteManager = getTarget(targetInfo, callingLocation);
+  auto spriteManager = getTarget(targetInfo, callingLocation);
   if (spriteManager == nullptr)
     return;
   spriteManager->_wx = x;
@@ -75,7 +75,7 @@ void Navigation::set_position(const TargetInfo &targetInfo, s32 x, s32 y,
 
 void Navigation::move(const TargetInfo &targetInfo, s32 dx, s32 dy,
                       CutsceneLocation callingLocation) {
-  Engine::Sprite *spriteManager = getTarget(targetInfo, callingLocation);
+  auto spriteManager = getTarget(targetInfo, callingLocation);
   if (spriteManager == nullptr)
     return;
   spriteManager->_wx += dx;
@@ -84,7 +84,7 @@ void Navigation::move(const TargetInfo &targetInfo, s32 dx, s32 dy,
 
 void Navigation::set_scale(const TargetInfo &targetInfo, s32 x, s32 y,
                            CutsceneLocation callingLocation) {
-  Engine::Sprite *spriteManager = getTarget(targetInfo, callingLocation);
+  auto spriteManager = getTarget(targetInfo, callingLocation);
   if (spriteManager == nullptr)
     return;
   spriteManager->_w_scale_x = x;
@@ -93,21 +93,14 @@ void Navigation::set_scale(const TargetInfo &targetInfo, s32 x, s32 y,
 
 void Navigation::set_shown(const TargetInfo &targetInfo, bool shown,
                            CutsceneLocation callingLocation) {
-  Engine::Sprite *spriteManager = getTarget(targetInfo, callingLocation);
-  if (spriteManager == nullptr)
-    return;
-  spriteManager->setShown(shown);
+  auto spriteManager = getTarget(targetInfo, callingLocation);
+  Engine::spriteSetShown(spriteManager, shown);
 }
 
 void Navigation::set_animation(const TargetInfo &targetInfo, char *animName,
                                CutsceneLocation callingLocation) {
-  Engine::Sprite *spriteManager = getTarget(targetInfo, callingLocation);
+  auto spriteManager = getTarget(targetInfo, callingLocation);
   if (spriteManager == nullptr) {
-    nocashMessage("no target");
-    return;
-  }
-  if (spriteManager->_texture == nullptr) {
-    nocashMessage("no texture");
     return;
   }
   int animId = spriteManager->nameToAnimId(animName);
@@ -116,7 +109,7 @@ void Navigation::set_animation(const TargetInfo &targetInfo, char *animName,
 
 void Navigation::set_opacity(const TargetInfo &targetInfo, u8 opacity,
                              CutsceneLocation callingLocation) {
-  Engine::Sprite *spriteManager = getTarget(targetInfo, callingLocation);
+  auto spriteManager = getTarget(targetInfo, callingLocation);
   if (spriteManager == nullptr) {
     nocashMessage("no target");
     return;
@@ -172,7 +165,7 @@ void Navigation::startTask(std::unique_ptr<NavigationTask> task) {
 bool Navigation::updateTask(
     std::vector<std::unique_ptr<NavigationTask>>::iterator &taskIter) {
   auto &task = *taskIter;
-  Engine::Sprite *target = task->target;
+  auto target = task->target;
   if (task->target == nullptr) {
     endTask(taskIter);
     return true;
@@ -213,14 +206,15 @@ void Navigation::update() {
 
 void Navigation::clearAllTasks() { _tasks.clear(); }
 
-Engine::Sprite *Navigation::getTarget(const TargetInfo &targetInfo,
-                                      CutsceneLocation callingLocation) {
+std::shared_ptr<Engine::Sprite>
+Navigation::getTarget(const TargetInfo &targetInfo,
+                      CutsceneLocation callingLocation) {
   TargetType targetType = static_cast<TargetType>(targetInfo.targetType);
   if (callingLocation == ROOM || callingLocation == LOAD_ROOM) {
     if (targetType == TargetType::PLAYER) {
-      return &globalPlayer->_playerSpr;
+      return globalPlayer->_playerSpr;
     } else if (targetType == TargetType::CAMERA) {
-      return &globalCamera._pos;
+      return globalCamera._pos;
     } else if (targetType == TargetType::SPRITE) {
       u8 targetId2;
       if (targetInfo.targetId < 0)
@@ -231,7 +225,7 @@ Engine::Sprite *Navigation::getTarget(const TargetInfo &targetInfo,
         nocashMessage("Error: target id outside of sprite count");
         return nullptr;
       }
-      return &globalRoom->_sprites[targetId2]->_spr;
+      return globalRoom->_sprites[targetId2]->_spr;
     }
   } else {
     if (targetType == TargetType::SPRITE) {
@@ -244,7 +238,7 @@ Engine::Sprite *Navigation::getTarget(const TargetInfo &targetInfo,
         nocashMessage("Error: target id outside of sprite count");
         return nullptr;
       }
-      return globalBattle->_sprites[targetInfo.targetId].get();
+      return globalBattle->_sprites[targetInfo.targetId];
     } else if (targetType == TargetType::ENEMY) {
       u8 enemyTargetId2;
       if (targetInfo.targetId < 0)

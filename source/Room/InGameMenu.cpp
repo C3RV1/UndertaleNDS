@@ -4,6 +4,7 @@
 #include "Room/InGameMenu.hpp"
 #include "Cutscene/Cutscene.hpp"
 #include "Engine/Engine.hpp"
+#include "Engine/Sprite.hpp"
 #include "Engine/Texture.hpp"
 #include "Formats/utils.hpp"
 #include "Save.hpp"
@@ -17,12 +18,12 @@ void InGameMenu::load() {
   else
     _bg.loadPath("ingame_menu/bg_no_cell");
 
-  _selectedMenuHeartSpr.loadTexture(
-      Engine::textureManager.loadTexture("spr_heartsmall"));
-  _itemExplainBoxSpr.loadTexture(
-      Engine::textureManager.loadTexture("ingame_menu/item_explain"));
-  _itemExplainBoxSpr._wx = 17 << 8;
-  _itemExplainBoxSpr._wy = 102 << 8;
+  Engine::spriteLoadTexture(_selectedMenuHeartSpr, "spr_heartsmall");
+
+  // TODO: Change item explain for textbgmanager rect.
+  Engine::spriteLoadTexture(_itemExplainBoxSpr, "ingame_menu/item_explain");
+  _itemExplainBoxSpr->_wx = 17 << 8;
+  _itemExplainBoxSpr->_wy = 102 << 8;
 }
 
 void InGameMenu::unload() { hide(); }
@@ -33,9 +34,9 @@ void InGameMenu::hide() {
   _shown = false;
   Engine::textSub.clear();
   Engine::clearSub();
-  _selectedMenuHeartSpr.setShown(false);
-  _listHeartSpr.setShown(false);
-  _itemExplainBoxSpr.setShown(false);
+  Engine::spriteSetShown(_selectedMenuHeartSpr, false);
+  Engine::spriteSetShown(_listHeartSpr, false);
+  Engine::spriteSetShown(_itemExplainBoxSpr, false);
 }
 
 void InGameMenu::show(bool update) {
@@ -56,10 +57,10 @@ void InGameMenu::show(bool update) {
     _bg.loadBgTextSub();
   Engine::textSub.clear();
   Engine::textSub.setColor(15);
-  _selectedMenuHeartSpr.setShown(true);
-  _selectedMenuHeartSpr._wx =
+  Engine::spriteSetShown(_selectedMenuHeartSpr, true);
+  _selectedMenuHeartSpr->_wx =
       kSelectedMenuX + kSelectedMenuSeparation * _selectedMenu;
-  _selectedMenuHeartSpr._wy = kSelectedMenuY;
+  _selectedMenuHeartSpr->_wy = kSelectedMenuY;
 
   char buffer[200];
   int x = kNameX, y = kNameY;
@@ -83,8 +84,8 @@ void InGameMenu::show(bool update) {
 
   if (_selectedMenu == MENU_ITEMS) {
     if (globalSave.items[0] == 0) {
-      _listHeartSpr.setShown(false);
-      _itemExplainBoxSpr.setShown(false);
+      Engine::spriteSetShown(_listHeartSpr, false);
+      Engine::spriteSetShown(_itemExplainBoxSpr, false);
     } else {
       y = kItemsY;
       for (_optionCount = 0; globalSave.items[_optionCount] != 0;
@@ -116,8 +117,8 @@ void InGameMenu::show(bool update) {
         fclose(f);
         x = kItemsX;
         if (i == _optionSelected) {
-          _listHeartSpr._wx = (x - 12) << 8;
-          _listHeartSpr._wy = (y + 4) << 8;
+          _listHeartSpr->_wx = (x - 12) << 8;
+          _listHeartSpr->_wy = (y + 4) << 8;
         }
         for (char *pName = buffer; *pName != '\n'; pName++) {
           Engine::textSub.drawGlyph(_fnt, *pName, x, y);
@@ -125,8 +126,8 @@ void InGameMenu::show(bool update) {
         y += kItemSpacingY;
       }
 
-      _listHeartSpr.setShown(true);
-      _itemExplainBoxSpr.setShown(true);
+      Engine::spriteSetShown(_listHeartSpr, true);
+      Engine::spriteSetShown(_itemExplainBoxSpr, true);
 
       // TODO: Make descriptions have multiple pages (ex. temmie armor)
       int itemIdx = _itemPage * 2 + _optionSelected;
@@ -149,8 +150,8 @@ void InGameMenu::show(bool update) {
     }
   } else {
     // CELL menu
-    _listHeartSpr.setShown(true);
-    _itemExplainBoxSpr.setShown(false);
+    Engine::spriteSetShown(_listHeartSpr, true);
+    Engine::spriteSetShown(_itemExplainBoxSpr, false);
     for (_optionCount = 0; globalSave.cell[_optionCount] != 0; _optionCount++)
       ;
     if (_optionSelected > _optionCount - 1)
@@ -166,8 +167,8 @@ void InGameMenu::show(bool update) {
       fclose(f);
       x = kItemsX;
       if (i == _optionSelected) {
-        _listHeartSpr._wx = (x - 12) << 8;
-        _listHeartSpr._wy = (y + 4) << 8;
+        _listHeartSpr->_wx = (x - 12) << 8;
+        _listHeartSpr->_wy = (y + 4) << 8;
       }
       for (char *pName = buffer; *pName != '\n'; pName++) {
         Engine::textSub.drawGlyph(_fnt, *pName, x, y);
@@ -253,8 +254,8 @@ void InGameMenu::processTouchCell(touchPosition &touch) {
         ;
       if (_optionSelected > _optionCount - 1)
         _optionSelected = _optionCount - 1;
-      _listHeartSpr._wx = (kItemsX - 12) << 8;
-      _listHeartSpr._wy = (kItemsY + kItemSpacingY * _optionSelected + 4) << 8;
+      _listHeartSpr->_wx = (kItemsX - 12) << 8;
+      _listHeartSpr->_wy = (kItemsY + kItemSpacingY * _optionSelected + 4) << 8;
     } else {
       // Room 1000 for phone cutscenes
       if (globalCutscene == nullptr)

@@ -6,7 +6,7 @@
 #include "Engine/Engine.hpp"
 
 #include "Engine/Background.hpp"
-#include "Engine/Texture.hpp"
+#include "Engine/Sprite.hpp"
 #include "Formats/utils.hpp"
 #include "Save.hpp"
 #include <memory>
@@ -15,41 +15,38 @@
 
 BattleAction::BattleAction(std::vector<std::unique_ptr<Enemy>> *enemies,
                            int flavorTextId)
-    : _enemies(enemies), _bigHeartSpr(Engine::Allocated3D),
-      _smallHeartSpr(Engine::Allocated3D), _attackSpr(Engine::Allocated3D) {
+    : _enemies(enemies) {
+  _bigHeartSpr = std::make_shared<Engine::Sprite>(Engine::Allocated3D);
+  _smallHeartSpr = std::make_shared<Engine::Sprite>(Engine::Allocated3D);
+  _attackSpr = std::make_shared<Engine::Sprite>(Engine::Allocated3D);
   _fnt.loadPath("fnt_maintext.font");
   _selectSnd.load("snd_select.wav");
 
   _fightBoard.loadPath("fight_board");
 
-  _attackSpr.loadTexture(
-      Engine::textureManager.loadTexture("battle/spr_targetchoice"));
+  Engine::spriteLoadTexture(_attackSpr, "battle/spr_targetchoice");
 
-  _btn[ACTION_FIGHT].loadTexture(
-      Engine::textureManager.loadTexture("btn/spr_fightbt"));
-  _btn[ACTION_ACT].loadTexture(
-      Engine::textureManager.loadTexture("btn/spr_talkbt"));
-  _btn[ACTION_ITEM].loadTexture(
-      Engine::textureManager.loadTexture("btn/spr_itembt"));
-  _btn[ACTION_MERCY].loadTexture(
-      Engine::textureManager.loadTexture("btn/spr_sparebt"));
   for (int i = 0; i < 4; i++) {
-    _btn[i].setAllocationMode(Engine::Allocated3D);
-    _btn[i]._wx = _buttonPositions[i][0];
-    _btn[i]._wy = _buttonPositions[i][1];
-    _btn[i].setShown(true);
+    _btn[i] = std::make_shared<Engine::Sprite>(Engine::Allocated3D);
+    _btn[i]->_wx = _buttonPositions[i][0];
+    _btn[i]->_wy = _buttonPositions[i][1];
+    Engine::spriteSetShown(_btn[i], true);
   }
 
-  _gfxAnimId = _btn[0].nameToAnimId("gfx");
-  _activeAnimId = _btn[0].nameToAnimId("active");
+  Engine::spriteLoadTexture(_btn[ACTION_FIGHT], "btn/spr_fightbt");
+  Engine::spriteLoadTexture(_btn[ACTION_ACT], "btn/spr_talkbt");
+  Engine::spriteLoadTexture(_btn[ACTION_ITEM], "btn/spr_itembt");
+  Engine::spriteLoadTexture(_btn[ACTION_ITEM], "btn/spr_sparebt");
 
-  _bigHeartSpr.loadTexture(Engine::textureManager.loadTexture("spr_heart"));
-  _bigHeartSpr.setShown(false);
-  _bigHeartSpr._layer = 3;
+  _gfxAnimId = _btn[0]->nameToAnimId("gfx");
+  _activeAnimId = _btn[0]->nameToAnimId("active");
 
-  _smallHeartSpr.loadTexture(
-      Engine::textureManager.loadTexture("spr_heartsmall"));
-  _smallHeartSpr._layer = 3;
+  Engine::spriteLoadTexture(_bigHeartSpr, "spr_heart");
+  Engine::spriteSetShown(_bigHeartSpr, false);
+  _bigHeartSpr->_layer = 3;
+
+  Engine::spriteLoadTexture(_smallHeartSpr, "spr_heartsmall");
+  _smallHeartSpr->_layer = 3;
 
   FILE *f = fopen("nitro:/data/mercy.txt", "rb");
   if (!f)
@@ -81,10 +78,11 @@ BattleAction::BattleAction(std::vector<std::unique_ptr<Enemy>> *enemies,
 
 void BattleAction::enter(BattleActionState state) {
   _cState = state;
-  _bigHeartSpr.setShown(state == CHOOSING_ACTION);
-  _smallHeartSpr.setShown(state != PRINTING_FLAVOR_TEXT &&
-                          state != CHOOSING_ACTION && state != FIGHTING &&
-                          state != SHOWING_DAMAGE);
+  Engine::spriteSetShown(_bigHeartSpr, state == CHOOSING_ACTION);
+  Engine::spriteSetShown(_smallHeartSpr, state != PRINTING_FLAVOR_TEXT &&
+                                             state != CHOOSING_ACTION &&
+                                             state != FIGHTING &&
+                                             state != SHOWING_DAMAGE);
   if (_flavorTextDialogue)
     _flavorTextDialogue->setShown(state != FIGHTING && state != SHOWING_DAMAGE);
   Engine::textMain.clear();
@@ -116,28 +114,28 @@ void BattleAction::enter(BattleActionState state) {
     break;
   case FIGHTING:
     _fightBoard.loadBgTextMain();
-    _attackSpr.setShown(true);
-    _attackSpr._wx = 0;
-    _attackSpr._wy = ((192 - _attackSpr._texture->getHeight()) / 2) << 8;
+    Engine::spriteSetShown(_attackSpr, true);
+    _attackSpr->_wx = 0;
+    _attackSpr->_wy = ((192 - _attackSpr->_texture->getHeight()) / 2) << 8;
     break;
   case CHOOSING_ITEM:
-    _smallHeartSpr.setShown(false);
+    Engine::spriteSetShown(_smallHeartSpr, false);
     break;
   case SHOWING_DAMAGE:
-    _attackSpr.setAnimation(_attackSpr.nameToAnimId("flashing"));
+    _attackSpr->setAnimation(_attackSpr->nameToAnimId("flashing"));
     break;
   }
 }
 
 void BattleAction::setBtn() {
   for (auto &btn : _btn) {
-    btn.setShown(true);
-    btn.setAnimation(_gfxAnimId);
+    Engine::spriteSetShown(btn, true);
+    btn->setAnimation(_gfxAnimId);
   }
 
-  _btn[_cAction].setAnimation(_activeAnimId);
-  _bigHeartSpr._wx = _btn[_cAction]._wx + (8 << 8);
-  _bigHeartSpr._wy = _btn[_cAction]._wy + (13 << 8);
+  _btn[_cAction]->setAnimation(_activeAnimId);
+  _bigHeartSpr->_wx = _btn[_cAction]->_wx + (8 << 8);
+  _bigHeartSpr->_wy = _btn[_cAction]->_wy + (13 << 8);
 }
 
 bool BattleAction::update() {

@@ -2,17 +2,21 @@
 // Created by cervi on 30/08/2022.
 //
 #include "Engine/Sprite.hpp"
+#include "Engine/Texture.hpp"
+#include <memory>
+#include <string>
 
 namespace Engine {
 Sprite::Sprite(Engine::AllocationMode allocMode) { _allocMode = allocMode; }
 
-void Sprite::setAllocationMode(Engine::AllocationMode allocMode) {
-  if (allocMode == _allocMode)
+void spriteSetAllocationMode(std::shared_ptr<Sprite> spr,
+                             Engine::AllocationMode allocMode) {
+  if (allocMode == spr->_allocMode)
     return;
-  bool lastShown = _shown;
-  setShown(false);
-  _allocMode = allocMode;
-  setShown(lastShown);
+  bool lastShown = spr->_shown;
+  spriteSetShown(spr, false);
+  spr->_allocMode = allocMode;
+  spriteSetShown(spr, lastShown);
 }
 
 void Sprite::setAnimation(int animId) {
@@ -28,22 +32,25 @@ void Sprite::setAnimation(int animId) {
   _cFrame = _texture->_animations[animId].frames[0].frame;
 }
 
-void Sprite::loadTexture(std::shared_ptr<Engine::Texture> texture) {
+void spriteLoadTexture(std::shared_ptr<Sprite> spr, std::string path) {
+  if (!spr)
+    return;
+  std::shared_ptr<Texture> texture = textureManager.loadTexture(path);
   if (!texture->getLoaded())
     return;
-  if (texture == _texture)
+  if (texture == spr->_texture)
     return;
-  push();
+  spritePush(spr);
 
-  _texture = std::move(texture);
-  _loaded = true;
-  _cFrame = 0;
-  _cAnimation = -1;
+  spr->_texture = std::move(texture);
+  spr->_loaded = true;
+  spr->_cFrame = 0;
+  spr->_cAnimation = -1;
 
-  int animId = nameToAnimId("gfx"); // default animation
+  int animId = spr->nameToAnimId("gfx"); // default animation
   if (animId != -1)
-    setAnimation(animId);
-  pop();
+    spr->setAnimation(animId);
+  spritePop(spr);
 }
 
 void Sprite::tick() {
@@ -85,25 +92,25 @@ void Sprite::setFrame(int frameId) {
   _cFrame = frameId;
 }
 
-void Sprite::setShown(bool shown) {
-  if (!_loaded)
+void spriteSetShown(std::shared_ptr<Sprite> spr, bool shown) {
+  if (!spr)
     return;
-  if (shown == _shown)
+  if (!spr->_loaded)
     return;
-  _shown = shown;
-  if (_shown) {
-    if (_memory.allocated != NoAlloc)
-      return;
-    if (_allocMode == Allocated3D)
-      main3dSpr.loadSprite(*this);
-    else if (_allocMode == AllocatedOAM) {
-      OAMManagerSub.loadSprite(*this);
+  if (shown == spr->_shown)
+    return;
+  spr->_shown = shown;
+  if (spr->_shown) {
+    if (spr->_allocMode == Allocated3D)
+      main3dSpr.loadSprite(spr);
+    else if (spr->_allocMode == AllocatedOAM) {
+      OAMManagerSub.loadSprite(spr);
     }
   } else {
-    if (_memory.allocated == Allocated3D)
-      main3dSpr.freeSprite(*this);
-    else if (_memory.allocated == AllocatedOAM)
-      OAMManagerSub.freeSprite(*this);
+    if (spr->_allocMode == Allocated3D)
+      main3dSpr.freeSprite(spr);
+    else if (spr->_allocMode == AllocatedOAM)
+      OAMManagerSub.freeSprite(spr);
   }
 }
 
@@ -115,13 +122,21 @@ int Sprite::nameToAnimId(const std::string &animName) const {
       return i;
     }
   }
+  std::string buffer = "Not found animation: " + animName;
+  nocashMessage(buffer.c_str());
   return -1;
 }
 
-void Sprite::push() {
-  _pushed = _shown;
-  setShown(false);
+void spritePush(std::shared_ptr<Sprite> spr) {
+  if (!spr)
+    return;
+  spr->_pushed = spr->_shown;
+  spriteSetShown(spr, false);
 }
 
-void Sprite::pop() { setShown(_pushed); }
+void spritePop(std::shared_ptr<Sprite> spr) {
+  if (!spr)
+    return;
+  spriteSetShown(spr, spr->_pushed);
+}
 } // namespace Engine

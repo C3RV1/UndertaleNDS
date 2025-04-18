@@ -1,7 +1,10 @@
 #include "Battle/Enemies/Dummy.hpp"
 #include "Battle/Enemy.hpp"
+#include "Engine/Sprite.hpp"
 #include "Engine/Texture.hpp"
 #include "Save.hpp"
+#include <memory>
+#include <string>
 
 Dummy::Dummy() : Enemy() {
   loadName(1);
@@ -9,30 +12,33 @@ Dummy::Dummy() : Enemy() {
   _maxHp = 15;
   _hp = _maxHp;
   _actOptionCount = 2;
-  _dummySpr.loadTexture(
-      Engine::textureManager.loadTexture("battle/dummy_ruins"));
-  _dummySpr._wx = kX << 8;
-  _dummySpr._wy = kY << 8;
-  _dummySpr._layer = 1;
+  _dummySpr = std::make_shared<Engine::Sprite>(Engine::AllocatedOAM);
+  Engine::spriteLoadTexture(_dummySpr, "battle/dummy_ruins");
+  _dummySpr->_wx = kX << 8;
+  _dummySpr->_wy = kY << 8;
+  _dummySpr->_layer = 1;
+  Engine::spriteSetShown(_dummySpr, true);
 
   loadActText(0);
 }
 
 void Dummy::doAct(int actId) { globalSave.flags[220] = actId; }
 
-Engine::Sprite *Dummy::getSprite(u8 spriteId) { return &_dummySpr; }
+std::shared_ptr<Engine::Sprite> Dummy::getSprite(u8 spriteId) {
+  return _dummySpr;
+}
 
 bool Dummy::canBeSpared() { return true; }
 
 bool Dummy::damageAnimation() {
-  if (_dummySpr._texture == nullptr)
+  if (_dummySpr->_texture == nullptr)
     return true;
   return defaultDamageAnimation(kX << 8, kY << 8,
-                                _dummySpr._texture->getWidth(),
-                                _dummySpr._texture->getHeight());
+                                _dummySpr->_texture->getWidth(),
+                                _dummySpr->_texture->getHeight());
 }
 
-void Dummy::doDamage(int damage) {
-  Enemy::doDamage(damage);
-  _dummySpr.setAnimation(_dummySpr.nameToAnimId("hurt"));
+void Dummy::slashFinished() {
+  Enemy::slashFinished();
+  _dummySpr->setAnimation(_dummySpr->nameToAnimId("hurt"));
 }

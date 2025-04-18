@@ -1,4 +1,5 @@
 #include "Battle/BattleAction.hpp"
+#include "Engine/OAMManager.hpp"
 
 void BattleAction::drawAct(bool draw) {
   constexpr int optionX = 50, optionY = 110, optionSpacingX = 90,
@@ -12,12 +13,12 @@ void BattleAction::drawAct(bool draw) {
   if (_cAct >= (*_enemies)[_cTarget]->getActOptionCount())
     _cAct = (*_enemies)[_cTarget]->getActOptionCount() - 1;
   if (_cAct < 0) {
-    _smallHeartSpr.setShown(false);
+    Engine::spriteSetShown(_smallHeartSpr, false);
     return;
   }
-  _smallHeartSpr.setShown(true);
-  _smallHeartSpr._wx = (optionX + optionSpacingX * (_cAct % 2) + offsetX) << 8;
-  _smallHeartSpr._wy = (optionY + optionSpacingY * (_cAct / 2) + offsetY) << 8;
+  Engine::spriteSetShown(_smallHeartSpr, true);
+  _smallHeartSpr->_wx = (optionX + optionSpacingX * (_cAct % 2) + offsetX) << 8;
+  _smallHeartSpr->_wy = (optionY + optionSpacingY * (_cAct / 2) + offsetY) << 8;
   if (!draw)
     return;
   int x = optionX, y = optionY;

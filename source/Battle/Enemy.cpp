@@ -7,12 +7,17 @@
 #include "Engine/Audio.hpp"
 #include "Engine/Engine.hpp"
 #include "Engine/Sprite.hpp"
+#include "Engine/TextBGManager.hpp"
 #include "Engine/Texture.hpp"
 #include "Engine/WAV.hpp"
 #include "Formats/utils.hpp"
 #include <algorithm>
 #include <memory>
 #include <string>
+
+Enemy::Enemy() {
+  _slashSpr = std::make_shared<Engine::Sprite>(Engine::AllocatedOAM);
+}
 
 std::unique_ptr<Enemy> getEnemy(u16 enemyId) {
   switch (enemyId) {
@@ -62,13 +67,12 @@ void Enemy::loadActText(int textId) {
 
 void Enemy::loadDamageSprites(int damage) {
   _damageSpriteCounter = 0;
-  _slashSpr.loadTexture(
-      Engine::textureManager.loadTexture("battle/spr_slice_o"));
+  Engine::spriteLoadTexture(_slashSpr, "battle/spr_slice_o");
   _damageNumbersSpr.clear();
 
   if (damage == 0) {
-    Engine::Sprite missSpr{Engine::AllocatedOAM};
-    missSpr.loadTexture(Engine::textureManager.loadTexture("battle/miss_text"));
+    auto missSpr = std::make_shared<Engine::Sprite>(Engine::AllocatedOAM);
+    Engine::spriteLoadTexture(missSpr, "battle/miss_text");
     _damageNumbersSpr.push_back(std::move(missSpr));
     _damageAnimStep = EnemyDamageAnimationStep::DAMAGE_NUMBERS;
     _missed = true;
@@ -78,39 +82,44 @@ void Enemy::loadDamageSprites(int damage) {
   _damageAnimStep = EnemyDamageAnimationStep::SLASH;
   _missed = false;
   while (damage > 0) {
-    Engine::Sprite numSpr{Engine::AllocatedOAM};
-    numSpr.loadTexture(
-        Engine::textureManager.loadTexture("battle/damage_numbers"));
-    numSpr.setFrame(damage % 10);
+    auto numSpr = std::make_shared<Engine::Sprite>(Engine::AllocatedOAM);
+    Engine::spriteLoadTexture(numSpr, "battle/damage_numbers");
+    numSpr->setFrame(damage % 10);
     _damageNumbersSpr.push_back(numSpr);
     damage /= 10;
   }
 }
 
 void Enemy::doSlash(s32 x, s32 y, int counter, int maxCounter) {
-  if (_slashSpr._texture == nullptr)
+  if (_slashSpr->_texture == nullptr)
     return;
   if (counter == 0) {
     auto lazSnd = std::make_shared<Audio2::WAV>();
     lazSnd->load("snd_laz.wav");
     Audio2::audioManager.play(std::move(lazSnd));
   }
-  _slashSpr.setShown(counter < maxCounter);
-  _slashSpr._wx = x;
-  _slashSpr._wy = y;
+  Engine::spriteSetShown(_slashSpr, counter < maxCounter);
+  _slashSpr->_wx = x;
+  _slashSpr->_wy = y;
+}
+
+void Enemy::slashFinished() {
+  auto damageSnd = std::make_shared<Audio2::WAV>();
+  damageSnd->load("snd_damage.wav");
+  Audio2::audioManager.play(std::move(damageSnd));
 }
 
 void Enemy::doDamageNumbers(s32 x, s32 y, int counter, int maxCounter) {
   if (_damageNumbersSpr.empty())
     return;
-  if (_damageNumbersSpr[0]._texture == nullptr)
+  if (_damageNumbersSpr[0]->_texture == nullptr)
     return;
-  int w = _damageNumbersSpr[0]._texture->getWidth();
-  int h = _damageNumbersSpr[0]._texture->getHeight();
+  int w = _damageNumbersSpr[0]->_texture->getWidth();
+  int h = _damageNumbersSpr[0]->_texture->getHeight();
   int totalW = _damageNumbersSpr.size() * w;
 
   x += (totalW << 8) / 2 - (w << 8);
-  y -= (h + 2) << 8;
+  y -= (kHpBarHeigth + 2 + h + 2) << 8;
   if (counter < maxCounter / 3 && !_missed) {
     // Acceleration from 0 to 1 second.
     // y = y0 + v0*t + 1/2a*t^2
@@ -122,29 +131,54 @@ void Enemy::doDamageNumbers(s32 x, s32 y, int counter, int maxCounter) {
 
   for (auto &s : _damageNumbersSpr) {
     if (counter < maxCounter)
-      s.setShown(true);
+      Engine::spriteSetShown(s, true);
     else
-      s.setShown(false);
-    s._wx = x;
-    s._wy = y;
+      Engine::spriteSetShown(s, false);
+    s->_wx = x;
+    s->_wy = y;
     x -= w << 8;
   }
 }
 
-void Enemy::doRenderHealth(int x, int y, int counter, int maxCounter) {}
+void Enemy::doRenderHealth(int x, int y, int counter, int maxCounter) {
+  // Ease-out cubic: 1-(1-x)^3
+  //                 1-(1-c/m)^3
+  //                 1-((m-c)^3/m^3)
+  //                 (m^3-(m-c)^3)/m^3
+  int maxUsed = maxCounter / 2;
+  int counterUsed = counter > maxUsed ? maxUsed : counter;
+  int maxCubed = maxUsed * maxUsed * maxUsed;
+  int diff = (maxUsed - counterUsed);
+  int diffCubed = diff * diff * diff;
+  int easeOutNominator = maxCubed - diffCubed;
+
+  int hpDraw = _prevHp + ((_hp - _prevHp) * easeOutNominator) / maxCubed;
+
+  x -= kHpBarWidth / 2;
+  y -= kHpBarHeigth + 2;
+  if (counter == maxCounter)
+    Engine::textSub.clearRect(x, y, kHpBarWidth, kHpBarHeigth);
+  else
+    Engine::textSub.drawHpBar(hpDraw, _maxHp, x, y, kHpBarWidth, kHpBarHeigth);
+}
 
 bool Enemy::defaultDamageAnimation(s32 x, s32 y, int width, int height) {
   if (_damageAnimStep == EnemyDamageAnimationStep::SLASH) {
     doSlash(x + (width << 8) / 2, y + (height << 8) / 2, _damageSpriteCounter,
-            10 * 6);
-    if (_damageSpriteCounter == 10 * 6) {
+            kSlashFrames);
+    if (_damageSpriteCounter == kSlashFrames) {
+      slashFinished();
       _damageSpriteCounter = 0;
       _damageAnimStep = EnemyDamageAnimationStep::DAMAGE_NUMBERS;
     }
   } else if (_damageAnimStep == EnemyDamageAnimationStep::DAMAGE_NUMBERS) {
-    doDamageNumbers(x + (width << 8) / 2, y, _damageSpriteCounter, 90);
-    doRenderHealth(x + (width << 8) / 2, y, _damageSpriteCounter, 90);
-    if (_damageSpriteCounter == 90)
+    doDamageNumbers(x + (width << 8) / 2, y, _damageSpriteCounter,
+                    kDamageNumFrames);
+    if (!_missed)
+      doRenderHealth((x >> 8) + (width) / 2, y >> 8, _damageSpriteCounter,
+                     kDamageNumFrames);
+    doShake(_damageSpriteCounter, kDamageNumFrames);
+    if (_damageSpriteCounter == kDamageNumFrames)
       return true;
   }
   _damageSpriteCounter++;

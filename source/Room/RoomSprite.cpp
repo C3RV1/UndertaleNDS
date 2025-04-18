@@ -4,7 +4,7 @@
 
 #include "Room/RoomSprite.hpp"
 #include "Cutscene/Cutscene.hpp"
-#include "Engine/Texture.hpp"
+#include "Engine/Sprite.hpp"
 #include "Engine/math.hpp"
 #include "Formats/ROOM_FILE.hpp"
 #include "Room/Camera.hpp"
@@ -14,13 +14,13 @@
 #include <memory>
 
 void RoomSprite::load(ROOMSpriteData const &sprData) {
-  _spr.loadTexture(Engine::textureManager.loadTexture(sprData.path));
-  _animationId = _spr.nameToAnimId(sprData.animation);
-  _spr._wx = sprData.x << 8;
-  _spr._wy = sprData.y << 8;
-  _spr.setAnimation(_animationId);
+  Engine::spriteLoadTexture(_spr, sprData.path);
+  _animationId = _spr->nameToAnimId(sprData.animation);
+  _spr->_wx = sprData.x << 8;
+  _spr->_wy = sprData.y << 8;
+  _spr->setAnimation(_animationId);
 
-  _spr.setShown(true);
+  Engine::spriteSetShown(_spr, true);
 
   _interactAction = static_cast<ROOMSpriteAction>(sprData.interactAction);
   _parallax_x = 1 << 8;
@@ -32,7 +32,7 @@ void RoomSprite::load(ROOMSpriteData const &sprData) {
     break;
   case ROOMSpriteAction::PROXIMITY:
     _distanceSquared = sprData.distance * sprData.distance;
-    _closeAnim = _spr.nameToAnimId(sprData.closeAnim);
+    _closeAnim = _spr->nameToAnimId(sprData.closeAnim);
     break;
   case ROOMSpriteAction::PARALLAX:
     _parallax_x = sprData.parallax_x;
@@ -54,42 +54,42 @@ void RoomSprite::load(ROOMSpriteData const &sprData) {
   }
 }
 
-void RoomSprite::spawn(s32 x, s32 y, std::shared_ptr<Engine::Texture> texture) {
-  _spr.loadTexture(std::move(texture));
-  _spr._wx = x;
-  _spr._wy = y;
+void RoomSprite::spawn(s32 x, s32 y, std::string path) {
+  Engine::spriteLoadTexture(_spr, path);
+  _spr->_wx = x;
+  _spr->_wy = y;
 
-  _spr.setShown(true);
+  Engine::spriteSetShown(_spr, true);
 }
 
 void RoomSprite::draw() {
-  _spr._cam_x = (globalCamera._pos._wx * _parallax_x) >> 8;
-  _spr._cam_y = (globalCamera._pos._wy * _parallax_y) >> 8;
-  _spr._cam_scale_x = globalCamera._pos._w_scale_x;
-  _spr._cam_scale_y = globalCamera._pos._w_scale_y;
-  _spr._layer = _spr._wy >> 8;
+  _spr->_cam_x = (globalCamera._pos->_wx * _parallax_x) >> 8;
+  _spr->_cam_y = (globalCamera._pos->_wy * _parallax_y) >> 8;
+  _spr->_cam_scale_x = globalCamera._pos->_w_scale_x;
+  _spr->_cam_scale_y = globalCamera._pos->_w_scale_y;
+  _spr->_layer = _spr->_wy >> 8;
 }
 
 void RoomSprite::update() {
   if (_interactAction != ROOMSpriteAction::PROXIMITY)
     return;
 
-  if (_spr._texture == nullptr)
+  if (_spr->_texture == nullptr)
     return;
-  if (globalPlayer->_playerSpr._texture == nullptr)
+  if (globalPlayer->_playerSpr->_texture == nullptr)
     return;
-  const u16 width = _spr._texture->getWidth();
-  const u16 height = _spr._texture->getHeight();
-  const u16 pw = globalPlayer->_playerSpr._texture->getWidth();
-  const u16 ph = globalPlayer->_playerSpr._texture->getHeight();
+  const u16 width = _spr->_texture->getWidth();
+  const u16 height = _spr->_texture->getHeight();
+  const u16 pw = globalPlayer->_playerSpr->_texture->getWidth();
+  const u16 ph = globalPlayer->_playerSpr->_texture->getHeight();
   const u32 distance =
-      distSquared_fp(_spr._wx + width / 2, _spr._wy + height / 2,
-                     globalPlayer->_playerSpr._wx + pw / 2,
-                     globalPlayer->_playerSpr._wy + ph / 2);
+      distSquared_fp(_spr->_wx + width / 2, _spr->_wy + height / 2,
+                     globalPlayer->_playerSpr->_wx + pw / 2,
+                     globalPlayer->_playerSpr->_wy + ph / 2);
   if (distance >> 8 < _distanceSquared)
-    _spr.setAnimation(_closeAnim);
+    _spr->setAnimation(_closeAnim);
   else
-    _spr.setAnimation(_animationId);
+    _spr->setAnimation(_animationId);
 }
 
 bool RoomSprite::check_player_collide(s32 x, s32 y, s32 w, s32 h, s32 dx,
@@ -97,44 +97,44 @@ bool RoomSprite::check_player_collide(s32 x, s32 y, s32 w, s32 h, s32 dx,
   if (_interactAction != ROOMSpriteAction::PUSHABLE)
     return false;
 
-  _commit_x = _spr._wx;
-  _commit_y = _spr._wy;
-  const s32 w2 = _spr._texture->getWidth() << 8;
-  const s32 h2 = _spr._texture->getHeight() << 8;
+  _commit_x = _spr->_wx;
+  _commit_y = _spr->_wy;
+  const s32 w2 = _spr->_texture->getWidth() << 8;
+  const s32 h2 = _spr->_texture->getHeight() << 8;
 
-  if (!collidesRect(x, y, w, h, _spr._wx, _spr._wy, w2, h2))
+  if (!collidesRect(x, y, w, h, _spr->_wx, _spr->_wy, w2, h2))
     return false;
   if (check_on_goal() && _stop_on_goal)
     return true;
 
-  if (!collidesRect(x, y, w, h, _spr._wx + dx, _spr._wy, w2, h2)) {
+  if (!collidesRect(x, y, w, h, _spr->_wx + dx, _spr->_wy, w2, h2)) {
     // Attempt move x-axis
     if (!rectContainsOther(_valid_rect_x, _valid_rect_y, _valid_rect_w,
-                           _valid_rect_h, (_spr._wx + dx) >> 8, _spr._wy >> 8,
+                           _valid_rect_h, (_spr->_wx + dx) >> 8, _spr->_wy >> 8,
                            w2 >> 8, h2 >> 8))
       return true;
-    _commit_x = _spr._wx + dx;
+    _commit_x = _spr->_wx + dx;
     return false;
   }
 
-  if (!collidesRect(x, y, w, h, _spr._wx, _spr._wy + dy, w2, h2)) {
+  if (!collidesRect(x, y, w, h, _spr->_wx, _spr->_wy + dy, w2, h2)) {
     // Attempt move y-axis
     if (!rectContainsOther(_valid_rect_x, _valid_rect_y, _valid_rect_w,
-                           _valid_rect_h, _spr._wx >> 8, (_spr._wy + dy) >> 8,
+                           _valid_rect_h, _spr->_wx >> 8, (_spr->_wy + dy) >> 8,
                            w2 >> 8, h2 >> 8))
       return true;
-    _commit_y = _spr._wy + dy;
+    _commit_y = _spr->_wy + dy;
     return false;
   }
 
-  if (!collidesRect(x, y, w, h, _spr._wx + dx, _spr._wy + dy, w2, h2)) {
+  if (!collidesRect(x, y, w, h, _spr->_wx + dx, _spr->_wy + dy, w2, h2)) {
     // Attempt move both axes
     if (!rectContainsOther(_valid_rect_x, _valid_rect_y, _valid_rect_w,
-                           _valid_rect_h, (_spr._wx + dx) >> 8,
-                           (_spr._wy + dy) >> 8, w2 >> 8, h2 >> 8))
+                           _valid_rect_h, (_spr->_wx + dx) >> 8,
+                           (_spr->_wy + dy) >> 8, w2 >> 8, h2 >> 8))
       return true;
-    _commit_x = _spr._wx + dx;
-    _commit_y = _spr._wy + dy;
+    _commit_x = _spr->_wx + dx;
+    _commit_y = _spr->_wy + dy;
     return false;
   }
 
@@ -145,8 +145,8 @@ void RoomSprite::commit_player_move() {
   if (_interactAction != ROOMSpriteAction::PUSHABLE)
     return;
   bool flag_set = (globalSave.flags[_goal_flag_id] & _goal_flag_bit) != 0;
-  _spr._wx = _commit_x;
-  _spr._wy = _commit_y;
+  _spr->_wx = _commit_x;
+  _spr->_wy = _commit_y;
 
   bool should_set_flag = check_on_goal();
   if (should_set_flag)
@@ -156,8 +156,8 @@ void RoomSprite::commit_player_move() {
 
   if (should_set_flag != flag_set) {
     if (should_set_flag && _stop_on_goal) {
-      _spr._wx = _goal_x << 8;
-      _spr._wy = _goal_y << 8;
+      _spr->_wx = _goal_x << 8;
+      _spr->_wy = _goal_y << 8;
     }
 
     if (globalCutscene == nullptr)
@@ -169,14 +169,12 @@ void RoomSprite::commit_player_move() {
 }
 
 bool RoomSprite::check_on_goal() {
-  s32 dx = _spr._wx - ((s32)_goal_x << 8);
+  s32 dx = _spr->_wx - ((s32)_goal_x << 8);
   if (dx < 0)
     dx = -dx;
-  s32 dy = _spr._wy - ((s32)_goal_y << 8);
+  s32 dy = _spr->_wy - ((s32)_goal_y << 8);
   if (dy < 0)
     dy = -dy;
 
   return dx <= 2 << 8 && dy <= 2 << 8;
 }
-
-void RoomSprite::free_() { _spr.setShown(false); }

@@ -15,10 +15,10 @@
 
 class Dialogue {
 public:
-  Dialogue(u16 textId, Engine::Sprite *target, const std::string &targetIdle,
-           const std::string &targetTalk, const std::string &typeSndPath,
-           const std::string &fontTxt, u16 framesPerLetter,
-           Engine::TextBGManager &txtManager,
+  Dialogue(u16 textId, std::shared_ptr<Engine::Sprite> target,
+           const std::string &targetIdle, const std::string &targetTalk,
+           const std::string &typeSndPath, const std::string &fontTxt,
+           u16 framesPerLetter, Engine::TextBGManager &txtManager,
            Engine::AllocationMode heartAlloc);
 
   Dialogue(const std::string &text_, const std::string &typeSndPath,
@@ -51,7 +51,7 @@ protected:
   u16 _cTimer;
   u16 _letterFrames = 20;
 
-  Engine::Sprite *_target = nullptr;
+  std::shared_ptr<Engine::Sprite> _target = nullptr;
   Engine::TextBGManager *_textManager;
   int _targetIdle = -1, _targetTalk = -1;
   std::string _text;
@@ -66,7 +66,7 @@ protected:
 
   Engine::Font _fnt;
 
-  Engine::Sprite _heartSprite;
+  std::shared_ptr<Engine::Sprite> _heartSprite;
 
   bool _choosingOption = false;
   int _optionCount = 0;
@@ -79,7 +79,8 @@ class DialogueCentered : public Dialogue {
 public:
   DialogueCentered(u16 textId, const std::string &speaker, s32 speakerX,
                    s32 speakerY, const std::string &speakerIdle,
-                   const std::string &speakerTalk, Engine::Sprite *target,
+                   const std::string &speakerTalk,
+                   std::shared_ptr<Engine::Sprite> target,
                    const std::string &targetIdle, const std::string &targetTalk,
                    const std::string &typeSndPath, const std::string &fontTxt,
                    u16 framesPerLetter, Engine::TextBGManager &txtManager,
@@ -88,7 +89,6 @@ public:
                    const std::string &fontTxt, u16 framesPerLetter,
                    Engine::TextBGManager &txtManager,
                    Engine::AllocationMode heartAlloc);
-  ~DialogueCentered() override;
 
 protected:
   void clearCentered();
@@ -103,7 +103,7 @@ protected:
   void onPause() override;
   void onOptionChoose() override;
 
-  Engine::Sprite _speakerSpr{Engine::AllocatedOAM};
+  std::shared_ptr<Engine::Sprite> _speakerSpr = nullptr;
   int _speakerIdle = -1, _speakerTalk = -1;
   int _startingY = 0;
   std::string::iterator _lineStart, _lastPrintedPos;
@@ -114,7 +114,8 @@ protected:
 class DialogueLeftAligned : public Dialogue {
 public:
   DialogueLeftAligned(u16 textId, s32 startingX, s32 startingY,
-                      Engine::Sprite *target, const std::string &targetIdle,
+                      std::shared_ptr<Engine::Sprite> target,
+                      const std::string &targetIdle,
                       const std::string &targetTalk,
                       const std::string &typeSndPath,
                       const std::string &fontTxt, u16 framesPerLetter,

@@ -35,7 +35,7 @@ private:
   std::string _roomName;
 
   std::shared_ptr<Audio2::WAV> _saveSnd = nullptr;
-  Engine::Sprite _optionsHeartSpr;
+  std::shared_ptr<Engine::Sprite> _optionsHeartSpr;
   Engine::Font _fnt;
   Engine::Background _bg;
 };

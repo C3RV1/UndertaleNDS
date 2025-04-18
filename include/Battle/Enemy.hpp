@@ -17,6 +17,7 @@ enum class EnemyDamageAnimationStep { SLASH = 0, DAMAGE_NUMBERS = 1 };
 
 class Enemy {
 public:
+  Enemy();
   std::string getName() { return _name; }
   std::string getActText() { return _actText; }
   bool getSpared() { return _spared; }
@@ -33,7 +34,9 @@ public:
   virtual void doAct(int actId) {}
   virtual bool damageAnimation() { return true; }
   virtual bool canBeSpared() { return true; }
-  virtual Engine::Sprite *getSprite(u8 spriteId) { return nullptr; }
+  virtual std::shared_ptr<Engine::Sprite> getSprite(u8 spriteId) {
+    return nullptr;
+  }
   virtual std::unique_ptr<BattleAttack> getBattleAttack() { return nullptr; }
   virtual void enemyCommand(u8 command) {}
   virtual ~Enemy(){};
@@ -44,11 +47,14 @@ public:
   u8 _expOnKill = 0;
 
 protected:
+  virtual void slashFinished();
   bool defaultDamageAnimation(s32 x, s32 y, int width, int height);
   void loadDamageSprites(int damage);
   void doSlash(s32 x, s32 y, int counter, int maxCounter);
   void doDamageNumbers(s32 x, s32 y, int counter, int maxCounter);
   void doRenderHealth(int x, int y, int counter, int maxCounter);
+  void doShake(int counter, int maxCounter) {}
+  virtual void shakeSprites(s32 dx, s32 dy) {}
   void loadName(int enemyId);
   void loadActText(int textId);
 
@@ -65,13 +71,19 @@ private:
   // Then the max deltaY = -a/8
   u8 _damageSpriteCounter;
   EnemyDamageAnimationStep _damageAnimStep;
-  Engine::Sprite _slashSpr{Engine::AllocationMode::AllocatedOAM};
-  std::vector<Engine::Sprite> _damageNumbersSpr;
+  std::shared_ptr<Engine::Sprite> _slashSpr;
+  std::vector<std::shared_ptr<Engine::Sprite>> _damageNumbersSpr;
   bool _missed;
 
   static constexpr s32 despY = -(10 << 8); // Maximum displacement in y axis.
   static constexpr s32 kDamageNumAccY = -despY * 8;
   static constexpr s32 kDamageNumSpeedY = -kDamageNumAccY / 2;
+
+  static constexpr int kHpBarWidth = 30;
+  static constexpr int kHpBarHeigth = 6;
+
+  static constexpr int kSlashFrames = 10 * 6;
+  static constexpr int kDamageNumFrames = 90;
 };
 
 std::unique_ptr<Enemy> getEnemy(u16 enemyId);
