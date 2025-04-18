@@ -44,7 +44,7 @@ int OAMManager::loadSprite(Sprite &res) {
     // If not, check if the color match
     // If they do, we can reuse the palette
     res._memory.palette = paletteIdx;
-    for (int i = 0; i < res._texture->_colors.size(); i++) {
+    for (size_t i = 0; i < res._texture->_colors.size(); i++) {
       if (_paletteRam[1 + paletteIdx * 16 + i] != colors[i]) {
         res._memory.palette = -1;
         break;

@@ -17,7 +17,7 @@ void BattleAction::drawTarget() {
     return;
   _cPage = _cTarget / 4;
 
-  for (int i = 0, enemyId = _cPage * 4; i < 4 && enemyId < (*_enemies).size();
+  for (u32 i = 0, enemyId = _cPage * 4; i < 4 && enemyId < (*_enemies).size();
        i++, enemyId++) {
     // if (enemies[enemyId].spared || enemies[enemyId].hp <= 0)
     //     continue;

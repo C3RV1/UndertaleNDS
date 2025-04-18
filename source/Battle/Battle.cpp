@@ -139,7 +139,7 @@ void Battle::hide() {
 }
 
 void Battle::startBattleAttacks() {
-  for (int i = 0; i < _enemies.size(); i++) {
+  for (u32 i = 0; i < _enemies.size(); i++) {
     Enemy *enemy = _enemies[i].get();
     if (!enemy->getSpared() && enemy->_hp > 0) {
       _cBattleAttacks[i] = enemy->getBattleAttack();
@@ -148,7 +148,7 @@ void Battle::startBattleAttacks() {
 }
 
 void Battle::updateBattleAttacks() {
-  for (int i = 0; i < _enemies.size(); i++) {
+  for (u32 i = 0; i < _enemies.size(); i++) {
     BattleAttack *btlAttack = _cBattleAttacks[i].get();
     if (btlAttack != nullptr) {
       if (btlAttack->update()) {

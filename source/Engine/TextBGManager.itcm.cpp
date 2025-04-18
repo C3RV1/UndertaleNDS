@@ -160,7 +160,7 @@ void TextBGManager::updateDirty(u32 localTileId) {
 }
 
 void TextBGManager::tick() {
-  for (int i = 0; i < TILE_BUFFER_SIZE; i++)
+  for (u32 i = 0; i < TILE_BUFFER_SIZE; i++)
     updateDirty(i);
   while (dmaBusy(3))
     ;

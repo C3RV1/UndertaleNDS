@@ -27,8 +27,6 @@ void SaveData::clear(ClearType clearType) {
   }
 }
 
-#include "Engine/Engine.hpp"
-
 void SaveData::loadData() {
   // Initializing it like this for some reason fixes the issues
   unsigned char header[4] = {0xDE, 0xAD, 0xBE, 0xEF};
@@ -114,7 +112,9 @@ bool SaveData::saveData(u16 roomId) {
 void SaveData::writePermanentFlags() {
   fCard.open("wb");
   fCard.seek(4 + 4 + MAX_NAME_LEN + 1 + 2 * FlagIds::PERSISTENT, SEEK_SET);
-  fCard.write(&flags[FlagIds::PERSISTENT],
-              (FLAG_COUNT - FlagIds::PERSISTENT) * 2);
+  bool writeCorrectly = fCard.write(&flags[FlagIds::PERSISTENT],
+                                    (FLAG_COUNT - FlagIds::PERSISTENT) * 2);
+  if (!writeCorrectly)
+    nocashMessage("Error saving permanent flags!");
   fCard.close();
 }

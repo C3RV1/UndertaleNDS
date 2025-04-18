@@ -133,7 +133,6 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
     nocashMessage("CMD_LOAD_SPRITE");
 #endif
     s32 x, y, layer;
-    s8 texId;
     fread(&x, 4, 1, _commandStream);
     fread(&y, 4, 1, _commandStream);
     fread(&layer, 4, 1, _commandStream);
@@ -596,7 +595,6 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
     nocashMessage("CMD_LOAD_SPRITE_RELATIVE");
 #endif
     s32 dx, dy, layer;
-    s8 texId;
     fread(&dx, 4, 1, _commandStream);
     fread(&dy, 4, 1, _commandStream);
     fread(&layer, 4, 1, _commandStream);
@@ -634,6 +632,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
     nocashMessage("CMD_ENEMY_COMMAND");
 #endif
     s8 enemyNum;
+    u8 enemyNum2;
     u8 enemyCmd;
     fread(&enemyNum, 1, 1, _commandStream);
     fread(&enemyCmd, 1, 1, _commandStream);
@@ -643,8 +642,10 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
       break;
     }
     if (enemyNum < 0)
-      enemyNum = globalBattle->_enemies.size() + enemyNum;
-    if (enemyNum >= globalBattle->_enemies.size()) {
+      enemyNum2 = globalBattle->_enemies.size() + enemyNum;
+    else
+      enemyNum2 = enemyNum;
+    if (enemyNum2 >= globalBattle->_enemies.size()) {
       nocashMessage("Enemy command num outside of range!");
       break;
     }

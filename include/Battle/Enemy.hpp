@@ -14,10 +14,10 @@
 
 class Enemy {
 public:
-  const std::string getName() { return _name; }
-  const std::string getActText() { return _actText; }
-  const bool getSpared() { return _spared; }
-  const u8 getDefense() { return _defense; }
+  std::string getName() { return _name; }
+  std::string getActText() { return _actText; }
+  bool getSpared() { return _spared; }
+  u8 getDefense() { return _defense; }
   u8 getActOptionCount() { return _actOptionCount; }
   virtual void update() {}
   virtual void doDamage(int damage) {
