@@ -27,7 +27,6 @@ int OAMManager::loadSprite(std::shared_ptr<Sprite> res) {
     return -1;
   if (res->_allocated != NoAlloc)
     return -2;
-  nocashMessage(("Loading: " + res->_texture->_path).c_str());
   if (!res->_texture->_hasOam) {
     std::string buffer = "Error loading spr #r" + res->_texture->_path +
                          "#x to OAM: Sprite doesn't have OAM chunk.";
@@ -187,7 +186,6 @@ void OAMManager::dumpOamState() {
 void OAMManager::freeSprite(std::shared_ptr<Sprite> spr) {
   if (spr->_allocated != AllocatedOAM)
     return;
-  nocashMessage(("Freeing: " + spr->_texture->_path).c_str());
   auto sprIdx = _activeSpr.begin();
   for (; sprIdx != _activeSpr.end(); sprIdx++) {
     if (sprIdx->first.lock() == spr)
@@ -203,7 +201,6 @@ void OAMManager::freeSprite(std::shared_ptr<Sprite> spr) {
 }
 
 void OAMManager::freeSpriteData(SpriteOAMMemory &mem) {
-  nocashMessage("Freeing spr data.");
   _paletteRefCounts[mem.palette]--;
 
   if (mem.oamScaleIdx != 0xff) {

@@ -76,9 +76,9 @@ void TextBGManager::drawGlyph(Font &font, u8 glyph, int &x, int y) {
           u8 bit = glyphObj->glyphData[byte] >> bitPos;
 
           // Clear tile position.
-          *tile &= ~(0xF << (4 * highBits + 8 * prevByte));
           if (bit & 1) {
             // Write palette color
+            *tile &= ~(0xF << (4 * highBits + 8 * prevByte));
             *tile |= _paletteColor << (4 * highBits + 8 * prevByte);
           }
           glyphX_++;

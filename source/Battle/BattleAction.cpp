@@ -36,7 +36,7 @@ BattleAction::BattleAction(std::vector<std::unique_ptr<Enemy>> *enemies,
   Engine::spriteLoadTexture(_btn[ACTION_FIGHT], "btn/spr_fightbt");
   Engine::spriteLoadTexture(_btn[ACTION_ACT], "btn/spr_talkbt");
   Engine::spriteLoadTexture(_btn[ACTION_ITEM], "btn/spr_itembt");
-  Engine::spriteLoadTexture(_btn[ACTION_ITEM], "btn/spr_sparebt");
+  Engine::spriteLoadTexture(_btn[ACTION_MERCY], "btn/spr_sparebt");
 
   _gfxAnimId = _btn[0]->nameToAnimId("gfx");
   _activeAnimId = _btn[0]->nameToAnimId("active");
