@@ -84,7 +84,8 @@ void BattleAction::enter(BattleActionState state) {
   _bigHeartSpr.setShown(state == CHOOSING_ACTION);
   _smallHeartSpr.setShown(state != PRINTING_FLAVOR_TEXT &&
                           state != CHOOSING_ACTION && state != FIGHTING);
-  _flavorTextDialogue->setShown(state != FIGHTING);
+  if (_flavorTextDialogue)
+    _flavorTextDialogue->setShown(state != FIGHTING);
   Engine::textMain.clear();
   if (state != PRINTING_FLAVOR_TEXT and state != FIGHTING) {
     if (_flavorTextDialogue)

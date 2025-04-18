@@ -11,6 +11,7 @@
 #include <memory>
 #include <nds.h>
 #include <string>
+#include <vector>
 
 class Enemy {
 public:
@@ -25,6 +26,7 @@ public:
     _hp -= damage;
     if (_hp < 0)
       _hp = 0;
+    loadDamageSprites(damage);
   }
   virtual void doAct(int actId) {}
   virtual bool damageAnimation() { return true; }
@@ -40,16 +42,31 @@ public:
   u8 _expOnKill = 0;
 
 protected:
-  void renderHealth(int x, int y);
+  bool defaultDamageAnimation(s32 x, s32 y, int width, int height);
+  void loadDamageSprites(int damage);
+  void doSlash(s32 x, s32 y, int counter, int maxCounter);
+  void doDamageNumbers(s32 x, s32 y, int counter, int maxCounter);
+  void doRenderHealth(int x, int y, int counter, int maxCounter);
   void loadName(int enemyId);
   void loadActText(int textId);
 
+  u8 _damageSpriteCounter;
   std::string _actText;
   u8 _actOptionCount = 0;
   u8 _defense = 0;
   std::string _name;
   int _prevHp;
   bool _spared = false;
+
+  Engine::Sprite _slashSpr{Engine::AllocationMode::AllocatedOAM};
+  std::vector<Engine::Sprite> _damageNumbersSpr;
+
+  // If we want to have the peak at t=0.5,
+  // vo = -a/2
+  // Then the max deltaY = -a/8
+  static constexpr s32 despY = -(10 << 8); // Maximum displacement in y axis.
+  static constexpr s32 kDamageNumAccY = -despY * 8;
+  static constexpr s32 kDamageNumSpeedY = -kDamageNumAccY / 2;
 };
 
 std::unique_ptr<Enemy> getEnemy(u16 enemyId);

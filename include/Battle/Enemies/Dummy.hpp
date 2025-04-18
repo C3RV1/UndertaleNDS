@@ -18,7 +18,8 @@ public:
   Engine::Sprite *getSprite(u8 spriteId) final;
 
 private:
-  Engine::Sprite dummySpr{Engine::AllocationMode::AllocatedOAM};
+  static constexpr int kX = 30, kY = (192 - 52) / 2;
+  Engine::Sprite _dummySpr{Engine::AllocationMode::AllocatedOAM};
 };
 
 #endif

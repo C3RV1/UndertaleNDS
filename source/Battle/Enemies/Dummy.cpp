@@ -9,21 +9,27 @@ Dummy::Dummy() : Enemy() {
   _maxHp = 15;
   _hp = _maxHp;
   _actOptionCount = 2;
-  dummySpr.loadTexture(
+  _dummySpr.loadTexture(
       Engine::textureManager.loadTexture("battle/dummy_ruins"));
-  dummySpr._wx = 30 << 8;
-  dummySpr._wy = ((192 - 52) / 2) << 8;
-  dummySpr._layer = 1;
+  _dummySpr._wx = kX << 8;
+  _dummySpr._wy = kY << 8;
+  _dummySpr._layer = 1;
 
   loadActText(0);
 }
 
 void Dummy::doAct(int actId) { globalSave.flags[220] = actId; }
 
-Engine::Sprite *Dummy::getSprite(u8 spriteId) { return &dummySpr; }
+Engine::Sprite *Dummy::getSprite(u8 spriteId) { return &_dummySpr; }
 
 bool Dummy::canBeSpared() { return true; }
 
-bool Dummy::damageAnimation() { return true; }
+bool Dummy::damageAnimation() {
+  if (_dummySpr._texture == nullptr)
+    return true;
+  return defaultDamageAnimation(kX << 8, kY << 8,
+                                _dummySpr._texture->getWidth(),
+                                _dummySpr._texture->getHeight());
+}
 
 void Dummy::doDamage(int damage) { Enemy::doDamage(damage); }
