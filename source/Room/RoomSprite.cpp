@@ -2,7 +2,7 @@
 // Created by cervi on 28/08/2022.
 //
 
-#include "ManagedSprite.hpp"
+#include "Room/RoomSprite.hpp"
 #include "Cutscene/Cutscene.hpp"
 #include "Engine/Texture.hpp"
 #include "Engine/math.hpp"
@@ -13,7 +13,7 @@
 #include "Save.hpp"
 #include <memory>
 
-void ManagedSprite::load(ROOMSprite const &sprData) {
+void RoomSprite::load(ROOMSpriteData const &sprData) {
   _spr.loadTexture(Engine::textureManager.loadTexture(sprData.path));
   _animationId = _spr.nameToAnimId(sprData.animation);
   _spr._wx = sprData.x << 8;
@@ -54,8 +54,7 @@ void ManagedSprite::load(ROOMSprite const &sprData) {
   }
 }
 
-void ManagedSprite::spawn(s32 x, s32 y,
-                          std::shared_ptr<Engine::Texture> texture) {
+void RoomSprite::spawn(s32 x, s32 y, std::shared_ptr<Engine::Texture> texture) {
   _spr.loadTexture(std::move(texture));
   _spr._wx = x;
   _spr._wy = y;
@@ -63,7 +62,7 @@ void ManagedSprite::spawn(s32 x, s32 y,
   _spr.setShown(true);
 }
 
-void ManagedSprite::draw(const bool isRoom) {
+void RoomSprite::draw(const bool isRoom) {
   if (isRoom) {
     _spr._cam_x = (globalCamera._pos._wx * _parallax_x) >> 8;
     _spr._cam_y = (globalCamera._pos._wy * _parallax_y) >> 8;
@@ -73,7 +72,7 @@ void ManagedSprite::draw(const bool isRoom) {
   }
 }
 
-void ManagedSprite::update(const bool isRoom) {
+void RoomSprite::update(const bool isRoom) {
   if (isRoom && _interactAction == ROOMSpriteAction::PROXIMITY) {
     if (_spr._texture == nullptr)
       return;
@@ -94,8 +93,8 @@ void ManagedSprite::update(const bool isRoom) {
   }
 }
 
-bool ManagedSprite::check_player_collide(s32 x, s32 y, s32 w, s32 h, s32 dx,
-                                         s32 dy) {
+bool RoomSprite::check_player_collide(s32 x, s32 y, s32 w, s32 h, s32 dx,
+                                      s32 dy) {
   if (_interactAction != ROOMSpriteAction::PUSHABLE)
     return false;
 
@@ -143,7 +142,7 @@ bool ManagedSprite::check_player_collide(s32 x, s32 y, s32 w, s32 h, s32 dx,
   return false;
 }
 
-void ManagedSprite::commit_player_move() {
+void RoomSprite::commit_player_move() {
   if (_interactAction != ROOMSpriteAction::PUSHABLE)
     return;
   bool flag_set = (globalSave.flags[_goal_flag_id] & _goal_flag_bit) != 0;
@@ -170,7 +169,7 @@ void ManagedSprite::commit_player_move() {
   }
 }
 
-bool ManagedSprite::check_on_goal() {
+bool RoomSprite::check_on_goal() {
   s32 dx = _spr._wx - ((s32)_goal_x << 8);
   if (dx < 0)
     dx = -dx;
@@ -181,4 +180,4 @@ bool ManagedSprite::check_on_goal() {
   return dx <= 2 << 8 && dy <= 2 << 8;
 }
 
-void ManagedSprite::free_() { _spr.setShown(false); }
+void RoomSprite::free_() { _spr.setShown(false); }

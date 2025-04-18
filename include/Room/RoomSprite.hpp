@@ -6,16 +6,16 @@
 #define UNDERTALE_MANAGED_SPRITE_HPP
 
 #include <memory>
-class ManagedSprite;
+class RoomSprite;
 
 #include "Engine/Sprite.hpp"
 #include "Formats/ROOM_FILE.hpp"
 
-class ManagedSprite {
+class RoomSprite {
 public:
-  explicit ManagedSprite(Engine::AllocationMode alloc) : _spr(alloc) {}
+  explicit RoomSprite(Engine::AllocationMode alloc) : _spr(alloc) {}
 
-  void load(ROOMSprite const &sprData);
+  void load(ROOMSpriteData const &sprData);
 
   void spawn(s32 x, s32 y, std::shared_ptr<Engine::Texture> texture);
 

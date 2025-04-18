@@ -15,7 +15,7 @@ void Navigation::spawn_sprite(const std::string &path, s32 x, s32 y, s32 layer,
                               CutsceneLocation callingLocation) {
   auto texture = Engine::textureManager.loadTexture(path);
   if (callingLocation == LOAD_ROOM || callingLocation == ROOM) {
-    auto newSprite = std::make_unique<ManagedSprite>(Engine::Allocated3D);
+    auto newSprite = std::make_unique<RoomSprite>(Engine::Allocated3D);
     newSprite->spawn(x, y, std::move(texture));
 
     globalRoom->_sprites.push_back(std::move(newSprite));

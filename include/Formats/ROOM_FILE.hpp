@@ -37,7 +37,7 @@ enum class ROOMSpriteAction {
   PUSHABLE = 4
 };
 
-struct ROOMSprite {
+struct ROOMSpriteData {
   std::string path;
   u16 x = 0, y = 0;
   std::string animation;
@@ -61,7 +61,7 @@ struct ROOMSprite {
 };
 
 struct ROOMSprites {
-  std::vector<ROOMSprite> roomSprites;
+  std::vector<ROOMSpriteData> roomSprites;
 };
 
 struct ROOMCollider {

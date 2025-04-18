@@ -8,7 +8,7 @@
 #include "Cutscene/Navigation.hpp"
 #include "Engine/Engine.hpp"
 #include "Formats/ROOM_FILE.hpp"
-#include "ManagedSprite.hpp"
+#include "Room/RoomSprite.hpp"
 #include <cstdio>
 #include <cstring>
 #include <vector>
@@ -29,7 +29,7 @@ public:
   u16 _roomId;
   Engine::Background _bg;
 
-  std::vector<std::unique_ptr<ManagedSprite>> _sprites;
+  std::vector<std::unique_ptr<RoomSprite>> _sprites;
 
   ROOMPart _roomData;
   u16 _spawnX = 0, _spawnY = 0;

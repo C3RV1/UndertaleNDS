@@ -242,7 +242,7 @@ void Room::free_() {}
 void Room::loadSprites() {
   _sprites.reserve(_roomData.roomSprites.roomSprites.size());
   for (auto const &roomSprite : _roomData.roomSprites.roomSprites) {
-    auto sprite = std::make_unique<ManagedSprite>(Engine::Allocated3D);
+    auto sprite = std::make_unique<RoomSprite>(Engine::Allocated3D);
     sprite->load(roomSprite);
     _sprites.push_back(std::move(sprite));
   }

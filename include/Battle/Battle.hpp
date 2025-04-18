@@ -9,8 +9,6 @@
 #include "BattleAttack.hpp"
 #include "Cutscene/Navigation.hpp"
 #include "Enemy.hpp"
-#include "Engine/Engine.hpp"
-#include "ManagedSprite.hpp"
 #include <cstdio>
 #include <memory>
 #include <nds.h>
