@@ -59,6 +59,7 @@ Dialogue::Dialogue(const std::string &text_, const std::string &typeSndPath,
                    Engine::TextBGManager &txtManager,
                    Engine::AllocationMode heartAlloc)
     : _textManager(&txtManager), _heartSprite(heartAlloc) {
+  _typeSnd = std::make_shared<Audio2::WAV>();
   _fnt.loadPath(fontTxt);
   _heartSprite.loadTexture(
       Engine::textureManager.loadTexture("spr_heartsmall"));

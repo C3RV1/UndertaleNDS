@@ -3,7 +3,6 @@
 //
 #include "Battle/FlavorTextDialogue.hpp"
 #include "Engine/Texture.hpp"
-#include <memory>
 
 FlavorTextDialogue::FlavorTextDialogue(u16 textId)
     : DialogueLeftAligned(textId, 30 << 8, 25 << 8, nullptr, "", "",
