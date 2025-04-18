@@ -160,11 +160,6 @@ def cutscene(c: Cutscene):
     c.wait(WaitTypes.FRAMES, 80)
 
     c.load_sprite(256 - 60, (192 - 30) // 2, "cutscene/0/spr_torielflame")
-    # FIXME: Little trick to load the flame on top of flowey
-    c.set_shown(Target(TargetType.SPRITE, 0), False)
-    c.set_shown(Target(TargetType.ENEMY, 0), False)
-    c.set_shown(Target(TargetType.SPRITE, 0), True)
-    c.set_shown(Target(TargetType.ENEMY, 0), True)
 
     c.set_animation(Target(TargetType.SPRITE, 0), "flashing")
     c.wait(WaitTypes.FRAMES, 60)

@@ -120,7 +120,7 @@ int OAMManager::loadSpriteFrame(Engine::Sprite &spr, int frame) {
 int OAMManager::reserveOAMEntry(u8 tileW, u8 tileH) {
   int oamId = -1;
   OAMEntry *oamEntry = nullptr;
-  for (int i = 0; i < SPRITE_COUNT; i++) {
+  for (int i = SPRITE_COUNT - 1; i > 0; i--) {
     if (_oamEntries[i].free_) {
       oamId = i;
       oamEntry = &_oamEntries[i];
