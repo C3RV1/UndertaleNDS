@@ -22,9 +22,9 @@ public:
   bool check_player_collide(s32 x, s32 y, s32 w, s32 h, s32 dx, s32 dy);
   void commit_player_move();
 
-  void update(bool isRoom);
+  void update();
 
-  void draw(bool isRoom);
+  void draw();
 
   Engine::Sprite _spr;
 

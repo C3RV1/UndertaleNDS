@@ -271,7 +271,7 @@ bool Room::evaluateCondition(FILE *f) {
 
 void Room::draw() const {
   for (const auto &_sprite : _sprites) {
-    _sprite->draw(true);
+    _sprite->draw();
   }
 }
 
@@ -314,7 +314,7 @@ void loadNewRoom(int roomId, s32 spawnX, s32 spawnY) {
 void Room::update() {
   _nav.update();
   for (const auto &_sprite : _sprites) {
-    _sprite->update(true);
+    _sprite->update();
   }
 }
 

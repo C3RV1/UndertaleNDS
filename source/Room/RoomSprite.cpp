@@ -62,35 +62,34 @@ void RoomSprite::spawn(s32 x, s32 y, std::shared_ptr<Engine::Texture> texture) {
   _spr.setShown(true);
 }
 
-void RoomSprite::draw(const bool isRoom) {
-  if (isRoom) {
-    _spr._cam_x = (globalCamera._pos._wx * _parallax_x) >> 8;
-    _spr._cam_y = (globalCamera._pos._wy * _parallax_y) >> 8;
-    _spr._cam_scale_x = globalCamera._pos._w_scale_x;
-    _spr._cam_scale_y = globalCamera._pos._w_scale_y;
-    _spr._layer = _spr._wy >> 8;
-  }
+void RoomSprite::draw() {
+  _spr._cam_x = (globalCamera._pos._wx * _parallax_x) >> 8;
+  _spr._cam_y = (globalCamera._pos._wy * _parallax_y) >> 8;
+  _spr._cam_scale_x = globalCamera._pos._w_scale_x;
+  _spr._cam_scale_y = globalCamera._pos._w_scale_y;
+  _spr._layer = _spr._wy >> 8;
 }
 
-void RoomSprite::update(const bool isRoom) {
-  if (isRoom && _interactAction == ROOMSpriteAction::PROXIMITY) {
-    if (_spr._texture == nullptr)
-      return;
-    if (globalPlayer->_playerSpr._texture == nullptr)
-      return;
-    const u16 width = _spr._texture->getWidth();
-    const u16 height = _spr._texture->getHeight();
-    const u16 pw = globalPlayer->_playerSpr._texture->getWidth();
-    const u16 ph = globalPlayer->_playerSpr._texture->getHeight();
-    const u32 distance =
-        distSquared_fp(_spr._wx + width / 2, _spr._wy + height / 2,
-                       globalPlayer->_playerSpr._wx + pw / 2,
-                       globalPlayer->_playerSpr._wy + ph / 2);
-    if (distance >> 8 < _distanceSquared)
-      _spr.setAnimation(_closeAnim);
-    else
-      _spr.setAnimation(_animationId);
-  }
+void RoomSprite::update() {
+  if (_interactAction != ROOMSpriteAction::PROXIMITY)
+    return;
+
+  if (_spr._texture == nullptr)
+    return;
+  if (globalPlayer->_playerSpr._texture == nullptr)
+    return;
+  const u16 width = _spr._texture->getWidth();
+  const u16 height = _spr._texture->getHeight();
+  const u16 pw = globalPlayer->_playerSpr._texture->getWidth();
+  const u16 ph = globalPlayer->_playerSpr._texture->getHeight();
+  const u32 distance =
+      distSquared_fp(_spr._wx + width / 2, _spr._wy + height / 2,
+                     globalPlayer->_playerSpr._wx + pw / 2,
+                     globalPlayer->_playerSpr._wy + ph / 2);
+  if (distance >> 8 < _distanceSquared)
+    _spr.setAnimation(_closeAnim);
+  else
+    _spr.setAnimation(_animationId);
 }
 
 bool RoomSprite::check_player_collide(s32 x, s32 y, s32 w, s32 h, s32 dx,
