@@ -65,13 +65,18 @@ void Enemy::loadDamageSprites(int damage) {
   _slashSpr.loadTexture(
       Engine::textureManager.loadTexture("battle/spr_slice_o"));
   _damageNumbersSpr.clear();
+
   if (damage == 0) {
     Engine::Sprite missSpr{Engine::AllocatedOAM};
     missSpr.loadTexture(Engine::textureManager.loadTexture("battle/miss_text"));
     _damageNumbersSpr.push_back(std::move(missSpr));
+    _damageAnimStep = EnemyDamageAnimationStep::DAMAGE_NUMBERS;
+    _missed = true;
     return;
   }
 
+  _damageAnimStep = EnemyDamageAnimationStep::SLASH;
+  _missed = false;
   while (damage > 0) {
     Engine::Sprite numSpr{Engine::AllocatedOAM};
     numSpr.loadTexture(
@@ -105,8 +110,8 @@ void Enemy::doDamageNumbers(s32 x, s32 y, int counter, int maxCounter) {
   int totalW = _damageNumbersSpr.size() * w;
 
   x += (totalW << 8) / 2 - (w << 8);
-  y -= (h << 8) / 2;
-  if (counter < maxCounter / 3) {
+  y -= (h + 2) << 8;
+  if (counter < maxCounter / 3 && !_missed) {
     // Acceleration from 0 to 1 second.
     // y = y0 + v0*t + 1/2a*t^2
     // t = counter / (maxCounter / 3) t = 3*counter / maxCounter
@@ -129,14 +134,19 @@ void Enemy::doDamageNumbers(s32 x, s32 y, int counter, int maxCounter) {
 void Enemy::doRenderHealth(int x, int y, int counter, int maxCounter) {}
 
 bool Enemy::defaultDamageAnimation(s32 x, s32 y, int width, int height) {
-  if (_damageSpriteCounter <= 10 * 6)
+  if (_damageAnimStep == EnemyDamageAnimationStep::SLASH) {
     doSlash(x + (width << 8) / 2, y + (height << 8) / 2, _damageSpriteCounter,
             10 * 6);
-  else if (_damageSpriteCounter <= 10 * 6 + 90) {
-    doDamageNumbers(x + (width << 8) / 2, y, _damageSpriteCounter - 10 * 6, 90);
-    doRenderHealth(x + (width << 8) / 2, y, _damageSpriteCounter - 10 * 6, 90);
-  } else
-    return true;
+    if (_damageSpriteCounter == 10 * 6) {
+      _damageSpriteCounter = 0;
+      _damageAnimStep = EnemyDamageAnimationStep::DAMAGE_NUMBERS;
+    }
+  } else if (_damageAnimStep == EnemyDamageAnimationStep::DAMAGE_NUMBERS) {
+    doDamageNumbers(x + (width << 8) / 2, y, _damageSpriteCounter, 90);
+    doRenderHealth(x + (width << 8) / 2, y, _damageSpriteCounter, 90);
+    if (_damageSpriteCounter == 90)
+      return true;
+  }
   _damageSpriteCounter++;
   return false;
 }

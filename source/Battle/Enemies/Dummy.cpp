@@ -32,4 +32,7 @@ bool Dummy::damageAnimation() {
                                 _dummySpr._texture->getHeight());
 }
 
-void Dummy::doDamage(int damage) { Enemy::doDamage(damage); }
+void Dummy::doDamage(int damage) {
+  Enemy::doDamage(damage);
+  _dummySpr.setAnimation(_dummySpr.nameToAnimId("hurt"));
+}

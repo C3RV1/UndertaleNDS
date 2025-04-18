@@ -75,7 +75,6 @@ def cutscene(c: Cutscene):
     c.bind(fight_jump)
     c.debug("Dummy killed")
     c.set_flag(FlagOffsets.DUMMY, 0)
-    c.set_animation(Target(TargetType.ENEMY, 0), "hurt")
 
     c.stop_bgm()
 

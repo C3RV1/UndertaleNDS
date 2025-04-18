@@ -83,11 +83,13 @@ void BattleAction::enter(BattleActionState state) {
   _cState = state;
   _bigHeartSpr.setShown(state == CHOOSING_ACTION);
   _smallHeartSpr.setShown(state != PRINTING_FLAVOR_TEXT &&
-                          state != CHOOSING_ACTION && state != FIGHTING);
+                          state != CHOOSING_ACTION && state != FIGHTING &&
+                          state != SHOWING_DAMAGE);
   if (_flavorTextDialogue)
-    _flavorTextDialogue->setShown(state != FIGHTING);
+    _flavorTextDialogue->setShown(state != FIGHTING && state != SHOWING_DAMAGE);
   Engine::textMain.clear();
-  if (state != PRINTING_FLAVOR_TEXT and state != FIGHTING) {
+  if (state != PRINTING_FLAVOR_TEXT && state != FIGHTING &&
+      state != SHOWING_DAMAGE) {
     if (_flavorTextDialogue)
       _flavorTextDialogue->doRedraw();
   }
@@ -116,14 +118,13 @@ void BattleAction::enter(BattleActionState state) {
     _fightBoard.loadBgTextMain();
     _attackSpr.setShown(true);
     _attackSpr._wx = 0;
-    _attackSpr._wy = (192 - _attackSpr._texture->getHeight()) / 2;
+    _attackSpr._wy = ((192 - _attackSpr._texture->getHeight()) / 2) << 8;
     break;
   case CHOOSING_ITEM:
     _smallHeartSpr.setShown(false);
     break;
   case SHOWING_DAMAGE:
-    _attackSpr.setShown(false);
-    Engine::clearMain();
+    _attackSpr.setAnimation(_attackSpr.nameToAnimId("flashing"));
     break;
   }
 }

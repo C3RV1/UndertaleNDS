@@ -13,6 +13,8 @@
 #include <string>
 #include <vector>
 
+enum class EnemyDamageAnimationStep { SLASH = 0, DAMAGE_NUMBERS = 1 };
+
 class Enemy {
 public:
   std::string getName() { return _name; }
@@ -50,20 +52,23 @@ protected:
   void loadName(int enemyId);
   void loadActText(int textId);
 
-  u8 _damageSpriteCounter;
+  std::string _name;
   std::string _actText;
   u8 _actOptionCount = 0;
   u8 _defense = 0;
-  std::string _name;
   int _prevHp;
   bool _spared = false;
 
-  Engine::Sprite _slashSpr{Engine::AllocationMode::AllocatedOAM};
-  std::vector<Engine::Sprite> _damageNumbersSpr;
-
+private:
   // If we want to have the peak at t=0.5,
   // vo = -a/2
   // Then the max deltaY = -a/8
+  u8 _damageSpriteCounter;
+  EnemyDamageAnimationStep _damageAnimStep;
+  Engine::Sprite _slashSpr{Engine::AllocationMode::AllocatedOAM};
+  std::vector<Engine::Sprite> _damageNumbersSpr;
+  bool _missed;
+
   static constexpr s32 despY = -(10 << 8); // Maximum displacement in y axis.
   static constexpr s32 kDamageNumAccY = -despY * 8;
   static constexpr s32 kDamageNumSpeedY = -kDamageNumAccY / 2;
