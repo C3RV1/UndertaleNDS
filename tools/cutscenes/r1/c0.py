@@ -179,7 +179,7 @@ def cutscene(c: Cutscene):
     c.wait(WaitTypes.FRAMES, 60)
 
     c.wait(WaitTypes.FRAMES, 120)
-    c.start_bgm("mus_fallendown2.wav", True)
+    c.start_bgm("mus_toriel.wav", True)
     c.load_sprite(256, 192 // 4, "speaker/toriel_face")
     c.load_sprite(256, 192 // 4, "speaker/toriel_bodyonly")
     c.set_animation(Target(TargetType.SPRITE, 0), "worried_side")

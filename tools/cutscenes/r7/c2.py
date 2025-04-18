@@ -20,7 +20,7 @@ def cutscene(c: Cutscene):
     c.wait(WaitTypes.FRAMES, frames_from_dst(40, PLAYER_SPEED))
     c.set_animation(Target(TargetType.SPRITE, 1), "leftIdle")
 
-    c.start_bgm("mus_fallendown2.wav", True)
+    c.start_bgm("mus_toriel.wav", True)
     c.dialogue_centered(10, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4,
                      "talkIdle", "talkTalk",
                         Target(TargetType.SPRITE, 1),
