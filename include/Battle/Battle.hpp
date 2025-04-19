@@ -22,6 +22,7 @@ public:
   void loadFromStream(FILE *stream);
   void showHp();
   void show();
+  void drawBulletBoard();
   void hide();
   void update();
   void updateBattleAttacks();

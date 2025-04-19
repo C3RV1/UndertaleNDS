@@ -6,6 +6,7 @@
 #include "Battle/Enemy.hpp"
 #include "Battle/FlavorTextDialogue.hpp"
 #include "Cutscene/Cutscene.hpp"
+#include "Engine/Background.hpp"
 #include "Engine/Engine.hpp"
 #include "Engine/Sprite.hpp"
 #include "Engine/TextBGManager.hpp"
@@ -113,8 +114,15 @@ void Battle::show() {
   Engine::textMain.clear();
   _shown = true;
   showHp();
-  _bulletBoard.loadBgTextMain();
+  Engine::clearMain();
+  drawBulletBoard();
   Engine::spriteSetShown(_playerSpr, true);
+}
+
+void Battle::drawBulletBoard() {
+  _bulletBoard.loadBgTextMain();
+  Engine::textMain.drawHollowRect(_boardX - 2, _boardY - 2, _boardW + 4,
+                                  _boardH + 4, 2, 15);
 }
 
 void Battle::showHp() {
@@ -128,10 +136,11 @@ void Battle::showHp() {
   Engine::textMain.drawHpBar(globalSave.hp, globalSave.maxHp, kHPx, kHPy, kHPw,
                              kHPh);
 
+  Engine::textMain.setColor(15);
+
   char buffer[16];
   sprintf(buffer, "%2d/%2d", globalSave.hp, globalSave.maxHp);
   int x = kHPx + kHPw + kPadding;
-  Engine::textMain.setColor(15);
   for (char *p = buffer; *p != 0; p++)
     Engine::textMain.drawGlyph(_fnt, *p, x, kHPy + kTxtYOff);
 }
@@ -254,7 +263,7 @@ void runBattle(FILE *stream) {
       globalCutscene->update();
       if (globalCutscene->runCommands(BATTLE)) {
         globalCutscene = nullptr;
-        globalInGameMenu.show(false);
+        globalInGameMenu.show();
         globalPlayer->set_player_control(true);
         globalCamera._manual = false;
       }
