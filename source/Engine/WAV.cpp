@@ -148,9 +148,6 @@ void WAV::resetPlaying() {
 WAV::~WAV() { free_(); }
 
 void WAV::free_() {
-  if (_active)
-    stop();
-
   if (_stream != nullptr) {
     fclose(_stream);
     _stream = nullptr;
@@ -170,6 +167,7 @@ u8 WAV::getBitsPerSample() {
   return _bitsPerSample;
 }
 
+ITCM_CODE
 void WAV::progress(u16 samples) {
   while (samples > 0) {
     u32 remainingFileBuffer = _fileBufferSampleEnd - _fileBufferSamplePos;
@@ -198,6 +196,7 @@ void WAV::progress(u16 samples) {
   }
 }
 
+ITCM_CODE
 void WAV::copy_from_file_buffer(u16 copy_length_samples) {
   if (!_stereo) {
     switch (_format) {
@@ -232,6 +231,7 @@ void WAV::copy_from_file_buffer(u16 copy_length_samples) {
   }
 }
 
+ITCM_CODE
 bool WAV::renew_file_buffer() {
   if (ftell(_stream) >= _dataEnd) {
     if (_loops == 0) {

@@ -48,7 +48,7 @@ public:
   constexpr static s32 _playerSpeed = (60 << 8) / 60;
   std::shared_ptr<Engine::Sprite> _playerSpr;
   Engine::Background _battleBackground;
-  Engine::Font _fnt;
+  std::shared_ptr<Engine::Font> _fnt;
 
   std::vector<std::unique_ptr<BattleAttack>> _cBattleAttacks;
   std::unique_ptr<BattleAction> _cBattleAction = nullptr;

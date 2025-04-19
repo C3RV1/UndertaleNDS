@@ -93,6 +93,7 @@ int OAMManager::loadSprite(std::shared_ptr<Sprite> res) {
   return 0;
 }
 
+ITCM_CODE
 int OAMManager::loadSpriteFrame(Sprite &spr, SpriteOAMMemory &mem, int frame) {
   if (mem.loadedFrame == frame)
     return -1;
@@ -213,6 +214,7 @@ void OAMManager::freeSpriteData(SpriteOAMMemory &mem) {
   mem.oamEntries.clear();
 }
 
+ITCM_CODE
 void OAMManager::draw() {
   if (_activeSpr.empty())
     return;
@@ -300,6 +302,7 @@ void OAMManager::setOAMState(SpriteOAMMemory &mem) {
   mem.loadedIntoMemory = true;
 }
 
+ITCM_CODE
 void OAMManager::setSpritePosAndScale(Engine::Sprite &spr,
                                       SpriteOAMMemory &mem) {
   u8 tileWidth, tileHeight;

@@ -6,6 +6,7 @@
 
 #include "Engine/Background.hpp"
 #include "Engine/Engine.hpp"
+#include "Engine/Font.hpp"
 #include "Engine/TextBGManager.hpp"
 #include "Engine/WAV.hpp"
 #include "Formats/utils.hpp"
@@ -27,8 +28,7 @@ void runWriteNameMenu() {
 
   Engine::clearMain();
 
-  Engine::Font mainFont;
-  mainFont.loadPath("fnt_maintext.font");
+  auto mainFont = Engine::fontManager.loadFont("fnt_maintext.font");
 
   FILE *textStream = fopen("nitro:/data/write_name.txt", "rb");
   if (textStream == nullptr)

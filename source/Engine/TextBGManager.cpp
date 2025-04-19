@@ -5,23 +5,27 @@
 #include "Engine/TextBGManager.hpp"
 #include "Engine/dma.hpp"
 #include <cstring>
-#include <string>
+#include <memory>
 
 namespace Engine {
 void TextBGManager::resetTileReserve() {
-  _tileReserve.clear();
+  _tileFront = 0;
   for (int i = 0; i < 32 * 24 - 1; i++)
-    _tileReserve.push_back(i + 1);
+    _tileReserve[i] = i + 1;
 }
 
-void TextBGManager::drawGlyph(Font &font, u8 glyph, int &x, int y) {
-  if (!font._loaded)
+ITCM_CODE
+void TextBGManager::drawGlyph(std::shared_ptr<Font> font, u8 glyph, int &x,
+                              int y) {
+  if (!font)
+    return;
+  if (!font->_loaded)
     return;
 
-  u8 glyphIdx = font._glyphMap.glyphMap[glyph];
+  u8 glyphIdx = font->_glyphMap.glyphMap[glyph];
   if (glyphIdx == 0)
     return;
-  const CFNTGlyph *glyphObj = font.getGlyph(glyphIdx);
+  const CFNTGlyph *glyphObj = font->getGlyph(glyphIdx);
   int endX = x + glyphObj->shift;
   x += glyphObj->offset;
 
@@ -119,6 +123,7 @@ void TextBGManager::reloadColors() {
   _paletteRam[16 * 15 + 15] = (31 << 10) + (31 << 5) + 31; // full white color
 }
 
+ITCM_CODE
 void TextBGManager::clear() {
   dmaFillSafe(3, 0, _mapRam, 2 * 32 * 32);
   resetTileReserve();
@@ -126,10 +131,12 @@ void TextBGManager::clear() {
     _tileIds[i] = 0;
 }
 
+ITCM_CODE
 void TextBGManager::clearRect(int x, int y, int w, int h) {
   drawRect(x, y, w, h, 0);
 }
 
+ITCM_CODE
 u8 *TextBGManager::getTile(int x, int y) {
   x /= 8;
   y /= 8;
@@ -138,8 +145,7 @@ u8 *TextBGManager::getTile(int x, int y) {
   u16 innerTileId = (x + 32 * (y % 2)) % TILE_BUFFER_SIZE;
 
   if (tileId == 0) {
-    tileId = _tileReserve.front();
-    _tileReserve.pop_front();
+    tileId = _tileReserve[_tileFront++];
     *(vu16 *)((u8 *)_mapRam + (y * 32 + x) * 2) = (15 << 12) + tileId;
     // Initialize tile to blank
     dmaFillSafe(3, 0, ((u8 *)_tileRam) + (tileId * 32), 32);
@@ -158,13 +164,14 @@ u8 *TextBGManager::getTile(int x, int y) {
   return _tiles[innerTileId];
 }
 
+ITCM_CODE
 void TextBGManager::clearTile(int x, int y) {
   x /= 8;
   y /= 8;
   u16 tileId = *(vu16 *)((u8 *)_mapRam + (y * 32 + x) * 2) & 0x1FF;
   if (tileId == 0)
     return;
-  _tileReserve.push_front(tileId);
+  _tileReserve[--_tileFront] = tileId;
   *(vu16 *)((u8 *)_mapRam + (y * 32 + x) * 2) = 0;
 
   u16 innerTileId = (x + 32 * (y % 2)) % TILE_BUFFER_SIZE;
@@ -172,6 +179,7 @@ void TextBGManager::clearTile(int x, int y) {
     _tileIds[innerTileId] = 0;
 }
 
+ITCM_CODE
 void TextBGManager::updateDirty(u32 localTileId) {
   if (!_dirty[localTileId] || _tileIds[localTileId] == 0)
     return;
@@ -181,6 +189,7 @@ void TextBGManager::updateDirty(u32 localTileId) {
   _dirty[localTileId] = false;
 }
 
+ITCM_CODE
 void TextBGManager::tick() {
   for (u32 i = 0; i < TILE_BUFFER_SIZE; i++)
     updateDirty(i);
@@ -202,6 +211,7 @@ void TextBGManager::setPaletteColor(int colorIdx, u16 color5bit) {
   _paletteRam[16 * 15 + colorIdx] = color5bit;
 }
 
+ITCM_CODE
 void TextBGManager::drawRect(int x, int y, int w, int h, int colorIdx) {
   // Look at drawGlyph for an explanation on this code
   // as it follows the same idea.

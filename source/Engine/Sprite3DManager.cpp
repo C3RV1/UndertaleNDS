@@ -8,7 +8,6 @@
 #include "Engine/Sprite.hpp"
 #include "Engine/Texture.hpp"
 #include "Engine/dma.hpp"
-#include <algorithm>
 #include <memory>
 #include <utility>
 
@@ -134,6 +133,7 @@ void Sprite3DManager::freeSpriteTexture(Sprite3DMemory &mem) {
   mem.texture->_tileStart.clear();
 }
 
+ITCM_CODE
 void Sprite3DManager::draw() {
   if (_activeSpr.empty())
     return;
@@ -225,11 +225,13 @@ void Sprite3DManager::draw() {
   }
 }
 
+ITCM_CODE
 void Sprite3DManager::ensureAlphaBlend() {
   // Set 3d alpha blend
   REG_BLDCNT = 1 | (1 << 6) | 1 << 11; // 1st BG0 + alpha + 2nd BG3
 }
 
+ITCM_CODE
 void Sprite3DManager::updateTextures() {
   bool setBank = false;
   if (_activeSpr.empty())

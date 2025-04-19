@@ -94,4 +94,37 @@ void Font::free_() {
   _loaded = false;
 }
 
+std::shared_ptr<Engine::Font> FontManager::loadFont(const std::string &path) {
+  auto fontKV = fonts.find(path);
+  if (fontKV != fonts.end()) {
+    if (!fontKV->second.expired()) {
+#ifdef DEBUG_FONTS
+      std::string msg = "Found font " + path + " in bank: reusing.";
+      nocashMessage(msg.c_str());
+#endif
+      return fontKV->second.lock();
+    }
+#ifdef DEBUG_FONTS
+    else {
+      std::string msg = "Found font " + path + " in bank: expired.";
+      nocashMessage(msg.c_str());
+    }
+#endif
+    fonts.erase(fontKV);
+  }
+#ifdef DEBUG_FONTS
+  else {
+    std::string msg = "Not found font " + path + " in bank.";
+    nocashMessage(msg.c_str());
+  }
+#endif
+
+  auto font = std::make_shared<Font>();
+  font->loadPath(path);
+  fonts.insert(std::make_pair(path, font));
+  return font;
+}
+
+FontManager fontManager;
+
 } // namespace Engine

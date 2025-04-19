@@ -6,7 +6,6 @@
 #include <map>
 #include <memory>
 #include <nds.h>
-#include <utility>
 
 namespace Engine {
 

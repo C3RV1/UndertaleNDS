@@ -3,22 +3,17 @@
 //
 #include "Engine/Audio.hpp"
 #include "DEBUG_FLAGS.hpp"
-#include "Engine/dma.hpp"
-#include <algorithm>
 #include <memory>
 
 namespace Audio2 {
 void AudioFile::allocateBuffers() {
-  _leftBuffer = nullptr;
-  _rightBuffer = nullptr;
+  if (!_leftBuffer)
+    _leftBuffer =
+        std::unique_ptr<u8[]>(new u8[(getBitsPerSample() * kAudioBuffer) / 8]);
 
-  _leftBuffer =
-      std::unique_ptr<u8[]>(new u8[(getBitsPerSample() * kAudioBuffer) / 8]);
-
-  if (_stereo) {
+  if (_stereo && !_rightBuffer)
     _rightBuffer =
         std::unique_ptr<u8[]>(new u8[(getBitsPerSample() * kAudioBuffer) / 8]);
-  }
 }
 
 void AudioManager::play(std::shared_ptr<AudioFile> audio_file) {
@@ -51,6 +46,7 @@ bool AudioFile::play() {
                        std::to_string(_format);
   nocashMessage(buffer.c_str());
 #endif
+
   resetPlaying();
 
   if (_stereo) {
@@ -119,6 +115,7 @@ void AudioFile::stop() {
   _rightChannel = -1;
 }
 
+ITCM_CODE
 void AudioFile::update() {
   if (!_active)
     return;
@@ -135,6 +132,7 @@ void AudioFile::update() {
   _timerLast = timerTicks;
 }
 
+ITCM_CODE
 void AudioManager::update() {
   for (const auto &current : _playing) {
     current->update();

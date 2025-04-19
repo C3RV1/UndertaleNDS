@@ -11,12 +11,11 @@
 #include <memory>
 #include <nds.h>
 #include <string>
-#include <utility>
 
 namespace Audio2 {
 class AudioManager;
 
-constexpr int kAudioBuffer = 0x800; // in samples, better if it's a power of 2
+constexpr int kAudioBuffer = 0x400; // in samples, better if it's a power of 2
 
 class AudioFile {
 public:
@@ -71,10 +70,7 @@ public:
    */
   void setVolume(u8 volume);
 
-  virtual ~AudioFile() {
-    if (_active)
-      stop();
-  }
+  virtual ~AudioFile() = default;
 
 protected:
   /**

@@ -40,7 +40,7 @@ NITROFSDIR	:= nitrofs
 # Defines passed to all files
 # ---------------------------
 
-DEFINES		:= -DBLOCKSDS_SDK
+DEFINES		:= -DBLOCKSDS_SDK -DPICOLIBC_LONG_LONG_PRINTF_SCANF
 
 # Libraries
 # ---------

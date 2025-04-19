@@ -5,6 +5,7 @@
 #include "Cutscene/Cutscene.hpp"
 #include "Engine/Audio.hpp"
 #include "Engine/Engine.hpp"
+#include "Engine/Font.hpp"
 #include "Engine/Sprite.hpp"
 #include "Engine/WAV.hpp"
 #include "Formats/utils.hpp"
@@ -12,7 +13,7 @@
 #include <string>
 
 SaveMenu::SaveMenu() {
-  _fnt.loadPath("fnt_maintext.font");
+  _fnt = Engine::fontManager.loadFont("fnt_maintext.font");
 
   _bg.loadPath("save_menu_bg");
   _bg.loadBgTextSub();

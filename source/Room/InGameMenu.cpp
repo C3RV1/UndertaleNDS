@@ -3,6 +3,7 @@
 //
 #include "Room/InGameMenu.hpp"
 #include "Cutscene/Cutscene.hpp"
+#include "Engine/Font.hpp"
 #include "Engine/Sprite.hpp"
 #include "Engine/TextBGManager.hpp"
 #include "Formats/utils.hpp"
@@ -10,7 +11,7 @@
 #include <memory>
 
 void InGameMenu::load() {
-  _fnt.loadPath("fnt_maintext.font");
+  _fnt = Engine::fontManager.loadFont("fnt_maintext.font");
   updateBg();
 
   Engine::spriteLoadTexture(_selectedMenuHeartSpr, "spr_heartsmall");

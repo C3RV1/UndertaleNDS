@@ -6,7 +6,7 @@
 #define UNDERTALE_TEXTBGMANAGER_HPP
 
 #include "Engine/Font.hpp"
-#include <list>
+#include <memory>
 #include <nds.h>
 
 namespace Engine {
@@ -17,7 +17,7 @@ public:
     reloadColors();
     void resetTileReserve();
   }
-  void drawGlyph(Font &font, u8 glyph, int &x, int y);
+  void drawGlyph(std::shared_ptr<Font> font, u8 glyph, int &x, int y);
   void reloadColors();
   void setPaletteColor(int colorIdx, int r, int g, int b, bool color8bit);
   void setPaletteColor(int colorIdx, u16 color5bit);
@@ -41,7 +41,8 @@ private:
   u16 *_paletteRam;
   u16 *_tileRam;
   u16 *_mapRam;
-  std::list<int> _tileReserve;
+  u16 _tileReserve[32 * 24 - 1];
+  u16 _tileFront = 0;
   int _paletteColor = 15;
 
   static constexpr u32 TILE_BUFFER_SIZE = 64;

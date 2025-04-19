@@ -5,6 +5,7 @@
 #ifndef UNDERTALE_DIALOGUE_HPP
 #define UNDERTALE_DIALOGUE_HPP
 
+#include "Engine/Font.hpp"
 #include "Engine/Sprite.hpp"
 #include "Engine/TextBGManager.hpp"
 #include "Engine/WAV.hpp"
@@ -63,7 +64,7 @@ protected:
 
   std::shared_ptr<Audio2::WAV> _typeSnd = nullptr;
 
-  Engine::Font _fnt;
+  std::shared_ptr<Engine::Font> _fnt;
 
   std::shared_ptr<Engine::Sprite> _heartSprite;
 

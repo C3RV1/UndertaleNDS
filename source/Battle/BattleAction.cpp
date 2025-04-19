@@ -6,6 +6,7 @@
 #include "Engine/Engine.hpp"
 
 #include "Engine/Background.hpp"
+#include "Engine/Font.hpp"
 #include "Engine/Sprite.hpp"
 #include "Engine/TextBGManager.hpp"
 #include "Formats/utils.hpp"
@@ -20,12 +21,8 @@ BattleAction::BattleAction(std::vector<std::unique_ptr<Enemy>> *enemies,
   _bigHeartSpr = std::make_shared<Engine::Sprite>(Engine::Allocated3D);
   _smallHeartSpr = std::make_shared<Engine::Sprite>(Engine::Allocated3D);
   _attackSpr = std::make_shared<Engine::Sprite>(Engine::Allocated3D);
-  _fnt.loadPath("fnt_maintext.font");
+  _fnt = Engine::fontManager.loadFont("fnt_maintext.font");
   _selectSnd.load("snd_select.wav");
-
-  _fightBoard.loadPath("fight_board");
-
-  Engine::spriteLoadTexture(_attackSpr, "battle/spr_targetchoice");
 
   for (int i = 0; i < 4; i++) {
     _btn[i] = std::make_shared<Engine::Sprite>(Engine::Allocated3D);
@@ -107,7 +104,9 @@ void BattleAction::enter(BattleActionState state) {
     drawMercy(true);
     break;
   case FIGHTING:
+    _fightBoard.loadPath("fight_board");
     _fightBoard.loadBgTextMain();
+    Engine::spriteLoadTexture(_attackSpr, "battle/spr_targetchoice");
     Engine::spriteSetShown(_attackSpr, true);
     _attackSpr->_wx = 0;
     _attackSpr->_wy = ((192 * 3 / 2 - _attackSpr->_texture->getHeight()) / 2)

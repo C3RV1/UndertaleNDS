@@ -4,6 +4,7 @@
 #include "TitleScreen.hpp"
 #include "Engine/Background.hpp"
 #include "Engine/Engine.hpp"
+#include "Engine/Font.hpp"
 #include "Engine/TextBGManager.hpp"
 #include "Engine/WAV.hpp"
 #include "Formats/utils.hpp"
@@ -37,8 +38,7 @@ void runTitleScreen() {
   Engine::Background cBackground;
   std::string buffer;
 
-  Engine::Font mainFont;
-  mainFont.loadPath("fnt_maintext.font");
+  auto mainFont = Engine::fontManager.loadFont("fnt_maintext.font");
 
   Audio2::playBGMusic("mus_story_mod.wav", true);
 

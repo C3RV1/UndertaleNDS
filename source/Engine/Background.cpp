@@ -122,6 +122,7 @@ int Background::loadBgTextSub() {
                           BG_MAP_RAM_SUB(0));
 }
 
+ITCM_CODE
 int Background::loadBgTextEngine(vu16 *bg3Reg, u16 *paletteRam, u16 *tileRam,
                                  u16 *mapRam) {
   if (!_loaded)
@@ -263,6 +264,7 @@ int Background::loadBgRectSub(int x, int y, int w, int h) {
                           BG_MAP_RAM_SUB(0), x, y, w, h);
 }
 
+ITCM_CODE
 int Background::loadBgRectEngine(const vu16 *bg3Reg, u16 *tileRam, u16 *mapRam,
                                  int x, int y, int w, int h) {
   if (!_loaded)

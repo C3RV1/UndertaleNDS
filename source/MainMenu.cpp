@@ -4,6 +4,7 @@
 #include "MainMenu.hpp"
 #include "Engine/Background.hpp"
 #include "Engine/Engine.hpp"
+#include "Engine/Font.hpp"
 #include "Engine/Sprite.hpp"
 #include "Engine/TextBGManager.hpp"
 #include "Engine/Texture.hpp"
@@ -27,11 +28,10 @@ void runMainMenu() {
   Engine::Background topBg;
   Engine::Background btmBg;
   auto floweySpr = std::make_shared<Engine::Sprite>(Engine::AllocatedOAM);
-  Engine::Font font;
+  auto font = Engine::fontManager.loadFont("fnt_maintext.font");
 
   topBg.loadPath("main_menu_top");
   btmBg.loadPath("main_menu_btm");
-  font.loadPath("fnt_maintext.font");
 
   if (globalSave.flags[FlagIds::PROGRESS] < 20) {
     Engine::spriteLoadTexture(floweySpr, "room_sprites/flowey");

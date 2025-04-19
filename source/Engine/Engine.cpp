@@ -72,6 +72,7 @@ int init() {
   return 0;
 }
 
+ITCM_CODE
 void tick() {
   textMain.tick();
   textSub.tick();
@@ -105,8 +106,7 @@ void tick() {
   setBrightness(1, 0);
   textMain.clear();
   clearMain();
-  Font system_font;
-  system_font.loadPath("fnt_maintext.font");
+  auto system_font = fontManager.loadFont("fnt_maintext.font");
 
   message = "#rCAUGHT EXCEPTION:#x\n" + message;
 
@@ -136,7 +136,7 @@ void tick() {
       command = false;
       continue;
     }
-    if (system_font.getGlyphWidth(message_char) + x >= 256 - spacing) {
+    if (system_font->getGlyphWidth(message_char) + x >= 256 - spacing) {
       x = spacing * 4;
       y += lineSpacing;
     }

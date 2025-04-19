@@ -178,9 +178,9 @@ TextureManager::loadTexture(const std::string &path) {
     else {
       std::string msg = "Found texture " + path + " in bank: expired.";
       nocashMessage(msg.c_str());
-      textures.erase(textureKV);
     }
 #endif
+    textures.erase(textureKV);
   }
 #ifdef DEBUG_TEXTURES
   else {

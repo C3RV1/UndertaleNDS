@@ -53,6 +53,7 @@ void spriteLoadTexture(std::shared_ptr<Sprite> spr, std::string path) {
   spritePop(spr);
 }
 
+ITCM_CODE
 void Sprite::tick() {
   if (!_loaded)
     return;

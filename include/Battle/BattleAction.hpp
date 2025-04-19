@@ -62,7 +62,7 @@ private:
   bool updateFighting();
   bool updateShowingDamage();
 
-  Engine::Font _fnt;
+  std::shared_ptr<Engine::Font> _fnt;
 
   std::vector<std::unique_ptr<Enemy>> *_enemies;
 

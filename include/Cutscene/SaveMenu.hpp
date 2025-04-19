@@ -8,7 +8,6 @@
 #include "Engine/Background.hpp"
 #include "Engine/Font.hpp"
 #include "Engine/Sprite.hpp"
-#include "Engine/Texture.hpp"
 #include "Engine/WAV.hpp"
 #include "Save.hpp"
 #include <memory>
@@ -36,7 +35,7 @@ private:
 
   std::shared_ptr<Audio2::WAV> _saveSnd = nullptr;
   std::shared_ptr<Engine::Sprite> _optionsHeartSpr;
-  Engine::Font _fnt;
+  std::shared_ptr<Engine::Font> _fnt;
   Engine::Background _bg;
 };
 

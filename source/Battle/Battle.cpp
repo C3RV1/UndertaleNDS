@@ -8,6 +8,7 @@
 #include "Cutscene/Cutscene.hpp"
 #include "Engine/Background.hpp"
 #include "Engine/Engine.hpp"
+#include "Engine/Font.hpp"
 #include "Engine/Sprite.hpp"
 #include "Engine/TextBGManager.hpp"
 #include "Formats/utils.hpp"
@@ -23,7 +24,7 @@
 std::unique_ptr<Battle> globalBattle = nullptr;
 
 Battle::Battle() {
-  _fnt.loadPath("fnt_curs.font");
+  _fnt = Engine::fontManager.loadFont("fnt_curs.font");
   _playerSpr = std::make_shared<Engine::Sprite>(Engine::Allocated3D);
   Engine::spriteLoadTexture(_playerSpr, "spr_heartsmall");
   _playerSpr->_wx = ((256 - 16) / 2) << 8;

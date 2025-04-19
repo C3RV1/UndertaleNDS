@@ -176,13 +176,13 @@ def cutscene(c: Cutscene):
 
     c.wait(WaitTypes.FRAMES, 120)
     c.start_bgm("mus_toriel.wav", True)
-    c.load_sprite(256, 192 // 4, "speaker/toriel_face")
     c.load_sprite(256, 192 // 4, "speaker/toriel_bodyonly")
-    c.set_animation(Target(TargetType.SPRITE, 0), "worried_side")
-    c.move_in_frames(Target(TargetType.SPRITE, 0), -220, 0, 180)
+    c.load_sprite(256, 192 // 4, "speaker/toriel_face")
+    c.set_animation(Target(TargetType.SPRITE, 1), "worried_side")
     c.move_in_frames(Target(TargetType.SPRITE, 1), -220, 0, 180)
+    c.move_in_frames(Target(TargetType.SPRITE, 0), -220, 0, 180)
     c.wait(WaitTypes.FRAMES, 180)
-    c.dialogue_left_align(90, 100, 192 // 4, Target(TargetType.SPRITE, 0),
+    c.dialogue_left_align(90, 100, 192 // 4, Target(TargetType.SPRITE, 1),
                             "worried_side", "worried_side_talk",
                           type_sound="snd_txttor.wav")
     c.wait(WaitTypes.DIALOGUE)

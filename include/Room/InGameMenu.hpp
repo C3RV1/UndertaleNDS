@@ -56,7 +56,7 @@ private:
   const int kButtonWidth = 90;
 
   bool _shown = false;
-  Engine::Font _fnt;
+  std::shared_ptr<Engine::Font> _fnt;
   Engine::Background _bg;
   std::shared_ptr<Engine::Sprite> _selectedMenuHeartSpr, _listHeartSpr;
   SelectedMenu _selectedMenu = MENU_ITEMS;
