@@ -3,27 +3,18 @@
 //
 #include "Room/InGameMenu.hpp"
 #include "Cutscene/Cutscene.hpp"
-#include "Engine/Engine.hpp"
 #include "Engine/Sprite.hpp"
-#include "Engine/Texture.hpp"
+#include "Engine/TextBGManager.hpp"
 #include "Formats/utils.hpp"
 #include "Save.hpp"
 #include <memory>
 
 void InGameMenu::load() {
   _fnt.loadPath("fnt_maintext.font");
-  _bgLoadedCell = globalSave.flags[FlagIds::OWNS_PHONE] == 1;
-  if (_bgLoadedCell)
-    _bg.loadPath("ingame_menu/bg");
-  else
-    _bg.loadPath("ingame_menu/bg_no_cell");
+  updateBg();
 
   Engine::spriteLoadTexture(_selectedMenuHeartSpr, "spr_heartsmall");
-
-  // TODO: Change item explain for textbgmanager rect.
-  Engine::spriteLoadTexture(_itemExplainBoxSpr, "ingame_menu/item_explain");
-  _itemExplainBoxSpr->_wx = 17 << 8;
-  _itemExplainBoxSpr->_wy = 102 << 8;
+  Engine::spriteLoadTexture(_listHeartSpr, "spr_heartsmall");
 }
 
 void InGameMenu::unload() { hide(); }
@@ -36,146 +27,197 @@ void InGameMenu::hide() {
   Engine::clearSub();
   Engine::spriteSetShown(_selectedMenuHeartSpr, false);
   Engine::spriteSetShown(_listHeartSpr, false);
-  Engine::spriteSetShown(_itemExplainBoxSpr, false);
 }
 
-void InGameMenu::show(bool update) {
-  // TODO: Make Font so we don't have to render all text again
-  //       when we change the selected menu (consumes a lot)
-  //       Or maybe optimize? Or maybe don't do anything, it
-  //       only runs for a single frame so who cares?
-  if (_shown && !update)
+void InGameMenu::show() {
+  if (_shown)
     return;
 
-  if (globalSave.flags[FlagIds::OWNS_PHONE] == 1 && !_bgLoadedCell) {
-    _bg.loadPath("ingame_menu/bg");
-    _bgLoadedCell = true;
-  }
-
   _shown = true;
-  if (!update)
-    _bg.loadBgTextSub();
   Engine::textSub.clear();
   Engine::textSub.setColor(15);
+  updateBg();
+  updateSelectMenuHeart();
+  drawName();
+  drawLv();
+  drawExp();
+  updateHp();
+
+  clipOption();
+  if (_selectedMenu == MENU_ITEMS)
+    drawItems();
+  else
+    drawCell();
+}
+
+void InGameMenu::updateBg() {
+  _bgLoadedCell = globalSave.flags[FlagIds::OWNS_PHONE] == 1;
+
+  if (_bgLoadedCell)
+    _bg.loadPath("ingame_menu/bg");
+  else
+    _bg.loadPath("ingame_menu/bg_no_cell");
+
+  if (_shown)
+    _bg.loadBgTextSub();
+}
+
+void InGameMenu::updateSelectMenuHeart() {
   Engine::spriteSetShown(_selectedMenuHeartSpr, true);
   _selectedMenuHeartSpr->_wx =
       kSelectedMenuX + kSelectedMenuSeparation * _selectedMenu;
   _selectedMenuHeartSpr->_wy = kSelectedMenuY;
+}
 
-  char buffer[200];
+void InGameMenu::drawName() {
   int x = kNameX, y = kNameY;
   for (char *pName = globalSave.name; *pName != 0; pName++) {
     Engine::textSub.drawGlyph(_fnt, *pName, x, y);
   }
+}
 
-  updateHp();
-
+void InGameMenu::drawLv() {
+  char buffer[16];
   sprintf(buffer, "%d", globalSave.lv);
-  x = kLvX, y = kLvY;
+  int x = kLvX, y = kLvY;
   for (char *pName = buffer; *pName != 0; pName++) {
     Engine::textSub.drawGlyph(_fnt, *pName, x, y);
   }
+}
 
+void InGameMenu::drawExp() {
+  char buffer[16];
   sprintf(buffer, "%d", globalSave.exp);
-  x = kExpX, y = kExpY;
+  int x = kExpX, y = kExpY;
   for (char *pName = buffer; *pName != 0; pName++) {
     Engine::textSub.drawGlyph(_fnt, *pName, x, y);
   }
+}
 
-  if (_selectedMenu == MENU_ITEMS) {
-    if (globalSave.items[0] == 0) {
-      Engine::spriteSetShown(_listHeartSpr, false);
-      Engine::spriteSetShown(_itemExplainBoxSpr, false);
-    } else {
-      y = kItemsY;
-      for (_optionCount = 0; globalSave.items[_optionCount] != 0;
-           _optionCount++)
-        ;
-      _pageCount = ((_optionCount - 1) / 2) + 1;
-      if (_itemPage > _pageCount - 1)
-        _itemPage = _pageCount - 1;
-      if (_optionSelected > _optionCount - _itemPage * 2 - 1)
-        _optionSelected = _optionCount - _itemPage * 2 - 1;
-      if (_itemPage > 0) {
-        x = 5;
-        Engine::textSub.drawGlyph(_fnt, '<', x, kPageChangeY);
-      }
-      if (_itemPage < (_optionCount - 1) / 2) {
-        x = 256 - 15;
-        Engine::textSub.drawGlyph(_fnt, '>', x, kPageChangeY);
-      }
-      for (int i = 0; i < 2; i++) {
-        int itemIdx = (_itemPage * 2) + i;
-        if (itemIdx >= _optionCount)
-          break;
-        int item = globalSave.items[itemIdx];
-
-        sprintf(buffer, "nitro:/data/items/name%d.txt", item);
-        FILE *f = fopen(buffer, "rb");
-        int len = str_len_file(f, '\n');
-        fread(buffer, len + 1, 1, f);
-        fclose(f);
-        x = kItemsX;
-        if (i == _optionSelected) {
-          _listHeartSpr->_wx = (x - 12) << 8;
-          _listHeartSpr->_wy = (y + 4) << 8;
-        }
-        for (char *pName = buffer; *pName != '\n'; pName++) {
-          Engine::textSub.drawGlyph(_fnt, *pName, x, y);
-        }
-        y += kItemSpacingY;
-      }
-
-      Engine::spriteSetShown(_listHeartSpr, true);
-      Engine::spriteSetShown(_itemExplainBoxSpr, true);
-
-      // TODO: Make descriptions have multiple pages (ex. temmie armor)
-      int itemIdx = _itemPage * 2 + _optionSelected;
-      int item = globalSave.items[itemIdx];
-      sprintf(buffer, "nitro:/data/items/desc%d.txt", item);
-      FILE *f = fopen(buffer, "rb");
-      int len = str_len_file(f, '\0');
-      fread(buffer, len + 1, 1, f);
-      buffer[len] = '\0';
-      fclose(f);
-      x = 23, y = 106;
-      for (char *pName = buffer; *pName != '\0'; pName++) {
-        if (*pName == '\n') {
-          y += 15;
-          x = 23;
-          continue;
-        }
-        Engine::textSub.drawGlyph(_fnt, *pName, x, y);
-      }
-    }
+void InGameMenu::drawItems() {
+  if (globalSave.items[0] == 0) {
+    Engine::spriteSetShown(_listHeartSpr, false);
   } else {
-    // CELL menu
+    drawItemPage();
+    drawItemDesc();
     Engine::spriteSetShown(_listHeartSpr, true);
-    Engine::spriteSetShown(_itemExplainBoxSpr, false);
+    setItemHeartPos();
+  }
+}
+
+void InGameMenu::drawItemExplain() {
+  Engine::textSub.drawHollowRect(17 - 2, 102 - 2, 222 + 4, 57 + 4, 2, 15);
+  Engine::textSub.drawRect(17, 102, 222, 57, 0);
+}
+
+void InGameMenu::clipOption() {
+  if (_selectedMenu == MENU_ITEMS) {
+    for (_optionCount = 0; globalSave.items[_optionCount] != 0; _optionCount++)
+      ;
+    _pageCount = ((_optionCount - 1) / 2) + 1;
+    if (_itemPage > _pageCount - 1)
+      _itemPage = _pageCount - 1;
+    if (_optionSelected > _optionCount - _itemPage * 2 - 1)
+      _optionSelected = _optionCount - _itemPage * 2 - 1;
+  } else {
     for (_optionCount = 0; globalSave.cell[_optionCount] != 0; _optionCount++)
       ;
     if (_optionSelected > _optionCount - 1)
       _optionSelected = _optionCount - 1;
-    y = kItemsY;
-    for (int i = 0; i < _optionCount; i++) {
-      int cellOption = globalSave.cell[i];
-
-      sprintf(buffer, "nitro:/data/cell/name%d.txt", cellOption);
-      FILE *f = fopen(buffer, "rb");
-      int len = str_len_file(f, '\n');
-      fread(buffer, len + 1, 1, f);
-      fclose(f);
-      x = kItemsX;
-      if (i == _optionSelected) {
-        _listHeartSpr->_wx = (x - 12) << 8;
-        _listHeartSpr->_wy = (y + 4) << 8;
-      }
-      for (char *pName = buffer; *pName != '\n'; pName++) {
-        Engine::textSub.drawGlyph(_fnt, *pName, x, y);
-      }
-      y += kItemSpacingY;
-    }
   }
+}
+
+void InGameMenu::drawItemPage() {
+  char buffer[100];
+  int x = 5;
+  if (_itemPage > 0)
+    Engine::textSub.drawGlyph(_fnt, '<', x, kPageChangeY);
+  else
+    Engine::textSub.drawGlyph(_fnt, ' ', x, kPageChangeY);
+
+  x = 256 - 15;
+  if (_itemPage < (_optionCount - 1) / 2)
+    Engine::textSub.drawGlyph(_fnt, '>', x, kPageChangeY);
+  else
+    Engine::textSub.drawGlyph(_fnt, ' ', x, kPageChangeY);
+
+  int y = kItemsY;
+  for (int i = 0; i < 2; i++) {
+    int itemIdx = (_itemPage * 2) + i;
+    if (itemIdx >= _optionCount)
+      break;
+    int item = globalSave.items[itemIdx];
+
+    sprintf(buffer, "nitro:/data/items/name%d.txt", item);
+    FILE *f = fopen(buffer, "rb");
+    int len = str_len_file(f, '\n');
+    fread(buffer, len + 1, 1, f);
+    fclose(f);
+    x = kItemsX;
+    for (char *pName = buffer; *pName != '\n'; pName++) {
+      Engine::textSub.drawGlyph(_fnt, *pName, x, y);
+    }
+    y += kItemSpacingY;
+  }
+}
+
+void InGameMenu::setItemHeartPos() {
+  _listHeartSpr->_wx = (kItemsX - 12) << 8;
+  _listHeartSpr->_wy = (kItemsY + _optionSelected * kItemSpacingY + 4) << 8;
+}
+
+void InGameMenu::drawItemDesc() {
+  drawItemExplain();
+  char buffer[100];
+  int itemIdx = _itemPage * 2 + _optionSelected;
+  int item = globalSave.items[itemIdx];
+  sprintf(buffer, "nitro:/data/items/desc%d.txt", item);
+  FILE *f = fopen(buffer, "rb");
+  int len = str_len_file(f, '\0');
+  fread(buffer, len + 1, 1, f);
+  buffer[len] = '\0';
+  fclose(f);
+  int x = 23, y = 106;
+  for (char *pName = buffer; *pName != '\0'; pName++) {
+    if (*pName == '\n') {
+      y += 15;
+      x = 23;
+      continue;
+    }
+    Engine::textSub.drawGlyph(_fnt, *pName, x, y);
+  }
+}
+
+void InGameMenu::drawCell() {
+  clipOption();
+  drawCellPage();
+  Engine::spriteSetShown(_listHeartSpr, true);
+  setItemHeartPos();
+}
+
+void InGameMenu::drawCellPage() {
+  char buffer[100];
+  int x, y = kItemsY;
+
+  for (int i = 0; i < _optionCount; i++) {
+    int cellOption = globalSave.cell[i];
+
+    sprintf(buffer, "nitro:/data/cell/name%d.txt", cellOption);
+    FILE *f = fopen(buffer, "rb");
+    int len = str_len_file(f, '\n');
+    fread(buffer, len + 1, 1, f);
+    fclose(f);
+
+    x = kItemsX;
+    for (char *pName = buffer; *pName != '\n'; pName++) {
+      Engine::textSub.drawGlyph(_fnt, *pName, x, y);
+    }
+    y += kItemSpacingY;
+  }
+}
+
+void InGameMenu::pageClear() {
+  Engine::textSub.clearRect(0, kItemsY, 256, kItemsH);
 }
 
 void InGameMenu::updateHp() {
@@ -209,7 +251,10 @@ void InGameMenu::processTouchItems(touchPosition &touch) {
     if (_selectedMenu != MENU_CELL &&
         globalSave.flags[FlagIds::OWNS_PHONE] == 1) {
       _selectedMenu = MENU_CELL;
-      show(true);
+      updateSelectMenuHeart();
+      _optionSelected = 0;
+      pageClear();
+      drawCell();
     }
   } else if (touch.py > 35 + 19 && touch.py < kItemsY + kItemSpacingY * 2) {
     if (touch.px < kItemsX + kButtonWidth && touch.px > kItemsX) {
@@ -218,18 +263,28 @@ void InGameMenu::processTouchItems(touchPosition &touch) {
       if (itemIdx != _optionSelected &&
           _itemPage * 2 + _optionSelected < _optionCount) {
         _optionSelected = itemIdx;
-        show(true);
+        clipOption();
+        setItemHeartPos();
+        drawItemDesc();
       }
     } else if (touch.py > kPageChangeY - 5 && touch.py < kPageChangeY + 20) {
       if (touch.px < 15) {
         if (_itemPage > 0) {
           _itemPage--;
-          show(true);
+          pageClear();
+          clipOption();
+          drawItemPage();
+          setItemHeartPos();
+          drawItemDesc();
         }
       } else if (touch.px > 256 - 25) {
         if (_itemPage < _pageCount - 1) {
           _itemPage++;
-          show(true);
+          pageClear();
+          clipOption();
+          drawItemPage();
+          setItemHeartPos();
+          drawItemDesc();
         }
       }
     }
@@ -241,9 +296,11 @@ void InGameMenu::processTouchCell(touchPosition &touch) {
       touch.py < 35 + 19) {
     if (_selectedMenu != MENU_ITEMS) {
       _selectedMenu = MENU_ITEMS;
+      updateSelectMenuHeart();
       _optionSelected = 0;
       _itemPage = 0;
-      show(true);
+      pageClear();
+      drawItems();
     }
   } else if (touch.px > kItemsX && touch.py > kItemsY &&
              touch.py < kItemsY + kItemSpacingY * (_optionCount + 1)) {
@@ -254,8 +311,7 @@ void InGameMenu::processTouchCell(touchPosition &touch) {
         ;
       if (_optionSelected > _optionCount - 1)
         _optionSelected = _optionCount - 1;
-      _listHeartSpr->_wx = (kItemsX - 12) << 8;
-      _listHeartSpr->_wy = (kItemsY + kItemSpacingY * _optionSelected + 4) << 8;
+      setItemHeartPos();
     } else {
       // Room 1000 for phone cutscenes
       if (globalCutscene == nullptr)

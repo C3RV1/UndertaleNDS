@@ -5,8 +5,15 @@
 #include "Engine/TextBGManager.hpp"
 #include "Engine/dma.hpp"
 #include <cstring>
+#include <string>
 
 namespace Engine {
+void TextBGManager::resetTileReserve() {
+  _tileReserve.clear();
+  for (int i = 0; i < 32 * 24 - 1; i++)
+    _tileReserve.push_back(i + 1);
+}
+
 void TextBGManager::drawGlyph(Font &font, u8 glyph, int &x, int y) {
   if (!font._loaded)
     return;
@@ -56,7 +63,7 @@ void TextBGManager::drawGlyph(Font &font, u8 glyph, int &x, int y) {
           // Get pointer to the current pixel (can only write in words, so we
           // round to the word (& (~1)). Then we'll shift the bits accordingly).
           u8 *tileByte = tilePointer + (((tileY * 8 + tileX_) / 2) & (~1));
-          auto *tile = (u16 *)tileByte;
+          auto *tile = (vu16 *)tileByte;
 
           // Are we writing to the high bits of the byte (0xX0) or low bits
           // (0x0X)?
@@ -76,9 +83,9 @@ void TextBGManager::drawGlyph(Font &font, u8 glyph, int &x, int y) {
           u8 bit = glyphObj->glyphData[byte] >> bitPos;
 
           // Clear tile position.
+          *tile &= ~(0xF << (4 * highBits + 8 * prevByte));
           if (bit & 1) {
             // Write palette color
-            *tile &= ~(0xF << (4 * highBits + 8 * prevByte));
             *tile |= _paletteColor << (4 * highBits + 8 * prevByte);
           }
           glyphX_++;
@@ -114,7 +121,7 @@ void TextBGManager::reloadColors() {
 
 void TextBGManager::clear() {
   dmaFillSafe(3, 0, _mapRam, 2 * 32 * 32);
-  _tileReserve = 1;
+  resetTileReserve();
   for (u32 i = 0; i < TILE_BUFFER_SIZE; i++)
     _tileIds[i] = 0;
 }
@@ -126,13 +133,14 @@ void TextBGManager::clearRect(int x, int y, int w, int h) {
 u8 *TextBGManager::getTile(int x, int y) {
   x /= 8;
   y /= 8;
-  u16 tileId = *((u8 *)_mapRam + (y * 32 + x) * 2) & 0x1FF;
+  u16 tileId = *(vu16 *)((u8 *)_mapRam + (y * 32 + x) * 2) & 0x1FF;
 
   u16 innerTileId = (x + 32 * (y % 2)) % TILE_BUFFER_SIZE;
 
   if (tileId == 0) {
-    tileId = _tileReserve++;
-    *(u16 *)((u8 *)_mapRam + (y * 32 + x) * 2) = (15 << 12) + tileId;
+    tileId = _tileReserve.front();
+    _tileReserve.pop_front();
+    *(vu16 *)((u8 *)_mapRam + (y * 32 + x) * 2) = (15 << 12) + tileId;
     // Initialize tile to blank
     dmaFillSafe(3, 0, ((u8 *)_tileRam) + (tileId * 32), 32);
 
@@ -148,6 +156,20 @@ u8 *TextBGManager::getTile(int x, int y) {
 
   _dirty[innerTileId] = true;
   return _tiles[innerTileId];
+}
+
+void TextBGManager::clearTile(int x, int y) {
+  x /= 8;
+  y /= 8;
+  u16 tileId = *(vu16 *)((u8 *)_mapRam + (y * 32 + x) * 2) & 0x1FF;
+  if (tileId == 0)
+    return;
+  _tileReserve.push_front(tileId);
+  *(vu16 *)((u8 *)_mapRam + (y * 32 + x) * 2) = 0;
+
+  u16 innerTileId = (x + 32 * (y % 2)) % TILE_BUFFER_SIZE;
+  if (_tileIds[innerTileId] == tileId)
+    _tileIds[innerTileId] = 0;
 }
 
 void TextBGManager::updateDirty(u32 localTileId) {
@@ -201,21 +223,25 @@ void TextBGManager::drawRect(int x, int y, int w, int h, int colorIdx) {
   for (; y < dstY;) {
     int x_ = x;
     for (; x_ < dstX;) {
-      u8 *tilePointer = getTile(x_, y);
       u8 tileY = y % 8;
       u8 tileX = x_ % 8;
 
-      if (tileX == 0 && tileY == 0 && x_ + 8 < x + w && y + 8 < dstY) {
-        x_ += 8;
+      if (tileX == 0 && tileY == 0 && x_ + 8 < dstX && y + 8 < dstY) {
         // Each tile is 4 bits.
-        dmaFillSafe(3, colorIdx * 0x11111111, tilePointer, 32);
+        if (colorIdx != 0) {
+          u8 *tilePointer = getTile(x_, y);
+          dmaFillSafe(3, colorIdx * 0x11111111, tilePointer, 32);
+        } else
+          clearTile(x_, y);
+        x_ += 8;
         continue;
       }
+      u8 *tilePointer = getTile(x_, y);
       for (; tileY < 8 && (y / 8) * 8 + tileY < dstY; tileY++) {
         int tileX_ = tileX;
         for (; tileX_ < 8 && (x_ / 8) * 8 + tileX_ < dstX; tileX_++) {
           u8 *tileByte = tilePointer + (((tileY * 8 + tileX_) / 2) & (~1));
-          auto *tile = (u16 *)tileByte;
+          auto *tile = (vu16 *)tileByte;
 
           bool highBits = (tileX_ & 1) == 1;
           bool prevByte = (((tileY * 8 + tileX_) / 2) & 1) == 1;

@@ -32,9 +32,9 @@ int main() {
     runMainMenu();
   }
 
-  /* for (int i = 0; i < 5; i++) {
-      globalSave.items[i] = 1 + (i % 3 == 0);
-  }*/
+  for (int i = 0; i < 5; i++) {
+    globalSave.items[i] = 1 + (i % 3 == 0);
+  }
 
   Engine::textMain.clear();
   Engine::textSub.clear();
@@ -48,7 +48,7 @@ int main() {
   globalPlayer = new Player();
   Engine::spriteSetShown(globalPlayer->_playerSpr, true);
   globalInGameMenu.load();
-  globalInGameMenu.show(false);
+  globalInGameMenu.show();
   globalRoom = std::make_unique<Room>(roomSpawn);
   globalCamera.updatePosition(true);
   globalPlayer->_playerSpr->_wx = globalRoom->_spawnX << 8;
@@ -62,7 +62,7 @@ int main() {
       globalCutscene->update();
       if (globalCutscene->runCommands(ROOM)) {
         globalCutscene = nullptr;
-        globalInGameMenu.show(false);
+        globalInGameMenu.show();
         globalPlayer->set_player_control(true);
         globalCamera._manual = false;
       }
