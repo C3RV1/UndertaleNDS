@@ -177,10 +177,10 @@ void InGameMenu::drawItemDesc() {
   fread(buffer, len + 1, 1, f);
   buffer[len] = '\0';
   fclose(f);
-  int x = 23, y = 106;
+  int x = 23, y = 104;
   for (char *pName = buffer; *pName != '\0'; pName++) {
     if (*pName == '\n') {
-      y += 15;
+      y += 17;
       x = 23;
       continue;
     }

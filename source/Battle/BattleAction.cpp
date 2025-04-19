@@ -7,6 +7,7 @@
 
 #include "Engine/Background.hpp"
 #include "Engine/Sprite.hpp"
+#include "Engine/TextBGManager.hpp"
 #include "Formats/utils.hpp"
 #include "Save.hpp"
 #include <memory>
@@ -83,14 +84,7 @@ void BattleAction::enter(BattleActionState state) {
                                              state != CHOOSING_ACTION &&
                                              state != FIGHTING &&
                                              state != SHOWING_DAMAGE);
-  if (_flavorTextDialogue)
-    _flavorTextDialogue->setShown(state != FIGHTING && state != SHOWING_DAMAGE);
-  Engine::textMain.clear();
-  if (state != PRINTING_FLAVOR_TEXT && state != FIGHTING &&
-      state != SHOWING_DAMAGE) {
-    if (_flavorTextDialogue)
-      _flavorTextDialogue->doRedraw();
-  }
+  Engine::textMain.clearRect(0, 192 / 2, 256, 192 / 2);
   switch (state) {
   case PRINTING_FLAVOR_TEXT:
     _flavorTextDialogue = std::make_unique<FlavorTextDialogue>(_flavorText);
@@ -116,7 +110,8 @@ void BattleAction::enter(BattleActionState state) {
     _fightBoard.loadBgTextMain();
     Engine::spriteSetShown(_attackSpr, true);
     _attackSpr->_wx = 0;
-    _attackSpr->_wy = ((192 - _attackSpr->_texture->getHeight()) / 2) << 8;
+    _attackSpr->_wy = ((192 * 3 / 2 - _attackSpr->_texture->getHeight()) / 2)
+                      << 8;
     break;
   case CHOOSING_ITEM:
     Engine::spriteSetShown(_smallHeartSpr, false);

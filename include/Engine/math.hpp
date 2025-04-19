@@ -26,4 +26,6 @@ inline int mod(int a, int b) {
   return r < 0 ? r + b : r;
 }
 
+int lerp(int a, int b, int t, int maxT);
+
 #endif // UNDERTALE_MATH_HPP

@@ -128,6 +128,12 @@ class FloweyCommands(enum.IntEnum):
     PROGRESS_TO_KILL = 2
 
 
+class DialogueTypes(enum.IntEnum):
+    LEFT_ALIGNED = 0
+    CENTERED = 1
+    FLAVOR_TEXT = 2
+
+
 class Target:
     def __init__(self, target_type: int, target_id: int = 0,
                  enemy_sprite_id: int = 0):
@@ -147,7 +153,7 @@ class Target:
 class Cutscene:
     def __init__(self, wtr: binary.BinaryWriter):
         self.wtr: binary.BinaryWriter = wtr
-        self.version = 13
+        self.version = 14
         self.file_size_pos = 0
         self.instructions_address = []
         self.pending_address = {}
@@ -316,11 +322,9 @@ class Cutscene:
                           idle_anim2: str, talk_anim2: str,
                           type_sound: str = "",
                           font: str = "fnt_maintext.font", frames_per_letter=3,
-                          main_screen=False, centered=True):
-        if centered is False:
-            raise Exception("Centered can't be False on this function.")
+                          main_screen=False):
         self.write_header(CutsceneCommands.START_DIALOGUE)
-        self.wtr.write_bool(True)
+        self.wtr.write_uint8(DialogueTypes.CENTERED)
         self.wtr.write_uint16(dialogue_text_id)
         self.wtr.write_string(speaker_path, encoding="ascii")
         self.wtr.write_int32(to_fixed_point(x))
@@ -341,11 +345,9 @@ class Cutscene:
                             speaker_target: Target,
                             idle_anim: str, talk_anim: str, type_sound: str = "",
                             font: str = "fnt_maintext.font", frames_per_letter=2,
-                            main_screen=False, centered=False):
-        if centered is True:
-            raise Exception("Centered can't be True on this function.")
+                            main_screen=False):
         self.write_header(CutsceneCommands.START_DIALOGUE)
-        self.wtr.write_bool(False)
+        self.wtr.write_uint8(DialogueTypes.LEFT_ALIGNED)
         self.wtr.write_uint16(dialogue_text_id)
         self.wtr.write_int32(to_fixed_point(x))
         self.wtr.write_int32(to_fixed_point(y))
@@ -358,6 +360,17 @@ class Cutscene:
         self.wtr.write_bool(main_screen)
         return self.instructions_address[-1]
     
+    def dialogue_flavor(self, dialogue_text_id: int,
+                        type_sound: str = "", font: str = "fnt_maintext.font", frames_per_letter: int = 2):
+        self.write_header(CutsceneCommands.START_DIALOGUE)
+        self.wtr.write_uint8(DialogueTypes.FLAVOR_TEXT)
+        self.wtr.write_uint16(dialogue_text_id)
+        self.wtr.write_string(type_sound, encoding="ascii")
+        self.wtr.write_string(font, encoding="ascii")
+        self.wtr.write_uint16(frames_per_letter)
+        return self.instructions_address[-1]
+
+    
     def clear(self, main_screen: bool = False):
         self.write_header(CutsceneCommands.CLEAR)
         self.wtr.write_bool(main_screen)
@@ -366,7 +379,8 @@ class Cutscene:
     # == BATTLE ==
     def start_battle(self, enemy_ids: List[int], board_id: int,
                      board_x: int, board_y: int, board_w: int, board_h: int,
-                     battle_background: str = "battle/battle_bg_simple"):
+                     battle_background: str = "battle/battle_bg_simple",
+                     start_with_flavor = True):
         self.write_header(CutsceneCommands.START_BATTLE)
         self.wtr.write_uint8(len(enemy_ids))
         for enemy in enemy_ids:
@@ -376,6 +390,7 @@ class Cutscene:
         self.wtr.write_uint8(board_y)
         self.wtr.write_uint8(board_w)
         self.wtr.write_uint8(board_h)
+        self.wtr.write_bool(start_with_flavor)
         self.wtr.write_string(battle_background, encoding="ascii")
         return self.instructions_address[-1]
 

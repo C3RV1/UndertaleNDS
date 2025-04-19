@@ -7,7 +7,6 @@
 
 #include "Engine/Sprite.hpp"
 #include "Engine/TextBGManager.hpp"
-#include "Engine/Texture.hpp"
 #include "Engine/WAV.hpp"
 #include <cstdio>
 #include <memory>
@@ -25,7 +24,7 @@ public:
            const std::string &fontTxt, u16 framesPerLetter,
            Engine::TextBGManager &txtManager,
            Engine::AllocationMode heartAlloc);
-  bool update();
+  virtual bool update();
   virtual ~Dialogue() = default;
 
   virtual void doRedraw();

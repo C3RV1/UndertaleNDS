@@ -10,7 +10,6 @@
 #include "Engine/Engine.hpp"
 #include "Engine/Sprite.hpp"
 #include "Engine/TextBGManager.hpp"
-#include "Engine/Texture.hpp"
 #include "Formats/utils.hpp"
 #include "Room/Camera.hpp"
 #include "Room/InGameMenu.hpp"
@@ -98,6 +97,13 @@ void Battle::loadFromStream(FILE *stream) {
   fread(&_boardW, 1, 1, stream);
   fread(&_boardH, 1, 1, stream);
 
+  bool boardIsFlavor;
+  fread(&boardIsFlavor, 1, 1, stream);
+  if (boardIsFlavor)
+    _moveCounter = kMoveFrames;
+  else
+    _moveCounter = 0;
+
   int len = str_len_file(stream, '\0');
   std::string bgPath;
   bgPath.resize(len);
@@ -108,21 +114,14 @@ void Battle::loadFromStream(FILE *stream) {
 
   _playerSpr->_wx = ((_boardX + _boardW / 2) << 8) - (9 << 8) / 2;
   _playerSpr->_wy = ((_boardY + _boardH / 2) << 8) - (9 << 8) / 2;
+  show();
 }
 
 void Battle::show() {
-  Engine::textMain.clear();
   _shown = true;
   showHp();
   Engine::clearMain();
   drawBulletBoard();
-  Engine::spriteSetShown(_playerSpr, true);
-}
-
-void Battle::drawBulletBoard() {
-  _bulletBoard.loadBgTextMain();
-  Engine::textMain.drawHollowRect(_boardX - 2, _boardY - 2, _boardW + 4,
-                                  _boardH + 4, 2, 15);
 }
 
 void Battle::showHp() {
@@ -146,7 +145,6 @@ void Battle::showHp() {
 }
 
 void Battle::hide() {
-  Engine::textMain.clear();
   Engine::clearMain();
   Engine::spriteSetShown(_playerSpr, false);
   _shown = false;
@@ -165,6 +163,8 @@ void Battle::updateBattleAttacks() {
   for (u32 i = 0; i < _enemies.size(); i++) {
     BattleAttack *btlAttack = _cBattleAttacks[i].get();
     if (btlAttack != nullptr) {
+      if (!moveOutBattleRect())
+        return;
       if (btlAttack->update()) {
         _cBattleAttacks[i].reset();
       }

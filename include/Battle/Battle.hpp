@@ -23,11 +23,15 @@ public:
   void showHp();
   void show();
   void drawBulletBoard();
+  void drawRect();
   void hide();
   void update();
   void updateBattleAttacks();
   void updateEnemies();
   void startBattleAttacks();
+  void startRectMoveIn();
+  void startRectMoveOut();
+  void clearRectInside();
   bool _shown = false;
   bool _running = true;
   bool _stopPostDialogue = false;
@@ -48,6 +52,15 @@ public:
 
   std::vector<std::unique_ptr<BattleAttack>> _cBattleAttacks;
   std::unique_ptr<BattleAction> _cBattleAction = nullptr;
+
+  static constexpr int kFlavorRectX = 22, kFlavorRectY = 18;
+  static constexpr int kFlavorRectW = 212, kFlavorRectH = 60;
+  static constexpr int kFlavorRectWidth = 2;
+  static constexpr int kMoveFrames = 12;
+  u8 _moveCounter = 0;
+  bool moveInBattleRect();
+  bool moveOutBattleRect();
+  void getMoveRect(int &x, int &y, int &w, int &h, int counter, int maxCounter);
 };
 
 void runBattle(FILE *stream);

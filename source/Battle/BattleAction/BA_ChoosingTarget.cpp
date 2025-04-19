@@ -59,6 +59,7 @@ bool BattleAction::updateChoosingTarget() {
     switch (_cAction) {
     case ACTION_MERCY:
       return true;
+      break;
     case ACTION_FIGHT:
       enter(FIGHTING);
       break;

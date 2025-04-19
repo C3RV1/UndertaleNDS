@@ -101,9 +101,7 @@ def cutscene(c: Cutscene):
     c.bind(check_jump)
     c.debug("Check dummy")
 
-    c.dialogue_left_align(30, 90, 192 // 4,
-                          Target(TargetType.NULL), "", "",
-                          type_sound="SND_TXT1.wav", main_screen=False)
+    c.dialogue_flavor(30, type_sound="SND_TXT1.wav")
     c.wait(WaitTypes.DIALOGUE)
 
     c.jump(continue_battle)
@@ -114,9 +112,7 @@ def cutscene(c: Cutscene):
     c.debug("Talked to dummy")
     c.set_flag(FlagOffsets.DUMMY, 1)
 
-    c.dialogue_left_align(40, 90, 192 // 4,
-                          Target(TargetType.NULL), "", "",
-                          type_sound="SND_TXT1.wav")
+    c.dialogue_flavor(40, type_sound="SND_TXT1.wav")
     c.wait(WaitTypes.DIALOGUE)
     c.stop_bgm()
     c.exit_battle(won=True)
@@ -167,9 +163,7 @@ def cutscene(c: Cutscene):
 
     c.move_in_frames(Target(TargetType.ENEMY, 0), 0, -120, 90)
 
-    c.dialogue_left_align(61, 90, 192 // 4,
-                          Target(TargetType.NULL), "", "",
-                          type_sound="SND_TXT1.wav")
+    c.dialogue_flavor(61, type_sound="SND_TXT1.wav")
     c.wait(WaitTypes.FRAMES, value=90)
     c.wait(WaitTypes.DIALOGUE)
 

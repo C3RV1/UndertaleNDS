@@ -4,6 +4,7 @@
 
 #include "Cutscene/Cutscene.hpp"
 #include "Battle/Battle.hpp"
+#include "Battle/FlavorTextDialogue.hpp"
 #include "Cutscene/CutsceneEnums.hpp"
 #include "Cutscene/Dialogue.hpp"
 #include "Cutscene/Navigation.hpp"
@@ -308,8 +309,10 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
       fread(speaker, len + 1, 1, _commandStream);
     }
 
-    fread(&x, 4, 1, _commandStream);
-    fread(&y, 4, 1, _commandStream);
+    if (dialogue_type != DIALOGUE_FLAVOR_TEXT) {
+      fread(&x, 4, 1, _commandStream);
+      fread(&y, 4, 1, _commandStream);
+    }
 
     if (dialogue_type == DIALOGUE_CENTERED) {
       len = str_len_file(_commandStream, 0);
@@ -319,13 +322,15 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
       fread(speakerTalk, len + 1, 1, _commandStream);
     }
 
-    targetInfo = readTarget();
+    if (dialogue_type != DIALOGUE_FLAVOR_TEXT) {
+      targetInfo = readTarget();
 
-    len = str_len_file(_commandStream, 0);
-    fread(targetIdle, len + 1, 1, _commandStream);
+      len = str_len_file(_commandStream, 0);
+      fread(targetIdle, len + 1, 1, _commandStream);
 
-    len = str_len_file(_commandStream, 0);
-    fread(targetTalk, len + 1, 1, _commandStream);
+      len = str_len_file(_commandStream, 0);
+      fread(targetTalk, len + 1, 1, _commandStream);
+    }
 
     len = str_len_file(_commandStream, 0);
     fread(typeSnd, len + 1, 1, _commandStream);
@@ -334,7 +339,10 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
     fread(font, len + 1, 1, _commandStream);
 
     fread(&framesPerLetter, 2, 1, _commandStream);
-    fread(&mainScreen, 1, 1, _commandStream);
+
+    if (dialogue_type != DIALOGUE_FLAVOR_TEXT)
+      fread(&mainScreen, 1, 1, _commandStream);
+
     Engine::TextBGManager &txt =
         mainScreen ? Engine::textMain : Engine::textSub;
     Engine::AllocationMode heartAlloc =
@@ -350,6 +358,9 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
         _cDialogue = std::make_unique<DialogueLeftAligned>(
             textId, x, y, target, targetIdle, targetTalk, typeSnd, font,
             framesPerLetter, txt, heartAlloc);
+      else if (dialogue_type == DIALOGUE_FLAVOR_TEXT && globalBattle)
+        _cDialogue = std::make_unique<FlavorTextDialogue>(textId, typeSnd, font,
+                                                          framesPerLetter);
     }
     break;
   }

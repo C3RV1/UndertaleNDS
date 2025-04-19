@@ -22,3 +22,5 @@ u32 distSquared_fp(s32 x1, s32 y1, s32 x2, s32 y2) {
   // fixed point w/ 8 bits decimal
   return ((x1 - x2) * (x1 - x2) >> 8) + ((y1 - y2) * (y1 - y2) >> 8);
 }
+
+int lerp(int a, int b, int t, int maxT) { return a + ((b - a) * t / maxT); }
