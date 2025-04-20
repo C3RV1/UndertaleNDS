@@ -152,12 +152,12 @@ u8 *TextBGManager::getTile(int x, int y) {
 
     updateDirty(innerTileId);
     _tileIds[innerTileId] = tileId;
-    memset(_tiles[innerTileId], 0, 32);
+    dmaFillSafe(3, 0, _tiles[innerTileId], 32);
   } else if (_tileIds[innerTileId] != tileId) {
     updateDirty(innerTileId);
     _tileIds[innerTileId] = tileId;
 
-    memcpy(_tiles[innerTileId], (u8 *)_tileRam + (tileId * 32), 32);
+    dmaCopySafe(3, (u8 *)_tileRam + (tileId * 32), _tiles[innerTileId], 32);
   }
 
   _dirty[innerTileId] = true;
