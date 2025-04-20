@@ -5,7 +5,6 @@
 
 bool Battle::moveInBattleRect() {
   if (_moveCounter >= kMoveFrames) {
-    drawRect();
     return true;
   }
   Engine::spriteSetShown(_playerSpr, false);
@@ -24,7 +23,6 @@ bool Battle::moveInBattleRect() {
 
 bool Battle::moveOutBattleRect() {
   if (_moveCounter == 0) {
-    drawRect();
     return true;
   }
   int x, y, w, h;

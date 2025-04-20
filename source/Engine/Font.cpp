@@ -15,6 +15,7 @@ bool Font::loadPath(const std::string &path) {
     std::string buffer = "Error opening font #r" + _path;
     throw_(buffer);
   }
+  setvbuf(f, NULL, _IOFBF, 4 * 1024);
 
   loadCFNT(f);
 

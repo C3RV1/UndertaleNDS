@@ -21,6 +21,7 @@ bool Texture::loadPath(const std::string &path) {
     buffer = "Error opening spr #r" + path;
     throw_(buffer);
   }
+  setvbuf(f, NULL, _IOFBF, 4 * 1024);
 
   loadCSPR(f);
 

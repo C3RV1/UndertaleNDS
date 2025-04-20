@@ -14,6 +14,7 @@ FlavorTextDialogue::FlavorTextDialogue(u16 textId, std::string typeSnd,
                           font, framesPerLetter, Engine::textMain,
                           Engine::Allocated3D) {
   globalBattle->hide();
+  globalBattle->drawRect();
 }
 
 FlavorTextDialogue::FlavorTextDialogue(std::string text)
@@ -21,12 +22,18 @@ FlavorTextDialogue::FlavorTextDialogue(std::string text)
                           "fnt_maintext.font", 2, Engine::textMain,
                           Engine::Allocated3D) {
   globalBattle->hide();
+  globalBattle->drawRect();
 }
 
-void FlavorTextDialogue::setShown(bool shown) {}
+void FlavorTextDialogue::setShown(bool shown) { globalBattle->drawRect(); }
 
 void FlavorTextDialogue::doRedraw() {
   DialogueLeftAligned::doRedraw();
+  globalBattle->drawRect();
+}
+
+void FlavorTextDialogue::onClear() {
+  DialogueLeftAligned::onClear();
   globalBattle->drawRect();
 }
 

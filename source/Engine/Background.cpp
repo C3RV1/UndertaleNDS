@@ -23,6 +23,7 @@ bool Background::loadPath(std::string path) {
     std::string buffer = "Error opening bg #r" + path;
     throw_(buffer);
   }
+  setvbuf(f, NULL, _IOFBF, 4 * 1024);
 
   loadCBGF(f);
 

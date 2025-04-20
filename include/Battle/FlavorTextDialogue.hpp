@@ -15,6 +15,7 @@ public:
 
   void setShown(bool shown);
   void doRedraw() final;
+  void onClear() final;
   bool update() final;
 };
 

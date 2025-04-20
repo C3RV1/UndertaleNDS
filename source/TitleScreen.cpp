@@ -34,6 +34,8 @@ void runTitleScreen() {
   FILE *textStream = fopen("nitro:/data/intro.txt", "rb");
   if (textStream == nullptr)
     nocashMessage("Error opening intro text");
+  else
+    setvbuf(textStream, NULL, _IOFBF, 4 * 1024);
 
   Engine::Background cBackground;
   std::string buffer;

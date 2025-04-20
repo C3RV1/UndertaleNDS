@@ -19,29 +19,32 @@
 #include "Room/Room.hpp"
 #include "Save.hpp"
 #include <memory>
+#include <string>
 
 std::unique_ptr<Cutscene> globalCutscene = nullptr;
 
 Cutscene::Cutscene(u16 cutsceneId, u16 roomId)
     : _cutsceneId(cutsceneId), _roomId(roomId) {
-  char buffer[100];
-  sprintf(buffer, "nitro:/data/cutscenes/r%d/c%d.cscn", roomId, cutsceneId);
-  FILE *f = fopen(buffer, "rb");
+  std::string buffer = "nitro:/data/cutscenes/r" + std::to_string(roomId) +
+                       "/c" + std::to_string(cutsceneId) + ".cscn";
+  FILE *f = fopen(buffer.c_str(), "rb");
   if (f) {
+    setvbuf(f, NULL, _IOFBF, 4 * 1024);
+
     if (checkHeader(f)) {
       long pos = ftell(f);
       fseek(f, 0, SEEK_END);
       _commandStreamLen = ftell(f);
       fseek(f, pos, SEEK_SET);
     } else {
-      sprintf(buffer, "Error cutscene %d header", cutsceneId);
-      nocashMessage(buffer);
+      buffer = "Error cutscene " + std::to_string(cutsceneId) + ": HEADER";
+      nocashMessage(buffer.c_str());
       fclose(f);
       f = nullptr;
     }
   } else {
-    sprintf(buffer, "Error opening cutscene %d", cutsceneId);
-    nocashMessage(buffer);
+    buffer = "Error opening cutscene " + std::to_string(cutsceneId);
+    nocashMessage(buffer.c_str());
   }
   _commandStream = f;
 }

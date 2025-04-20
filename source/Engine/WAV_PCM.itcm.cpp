@@ -10,7 +10,7 @@ void WAV::progress_pcm8_mono(u16 samples) {
     return;
   u8 *leftBuffer = _leftBuffer.get();
   u8 *fileBuffer = _fileBuffer;
-  dmaCopySafe(3, fileBuffer + _fileBufferSamplePos,
+  dmaCopySafe(2, fileBuffer + _fileBufferSamplePos,
               leftBuffer + _sampleBufferPos, samples);
 }
 
@@ -40,7 +40,7 @@ void WAV::progress_pcm16_mono(u16 samples) {
     return;
   u16 *leftBuffer = reinterpret_cast<u16 *>(_leftBuffer.get());
   u16 *fileBuffer = reinterpret_cast<u16 *>(_fileBuffer);
-  dmaCopySafe(3, fileBuffer + _fileBufferSamplePos,
+  dmaCopySafe(2, fileBuffer + _fileBufferSamplePos,
               leftBuffer + _sampleBufferPos % kAudioBuffer, samples * 2);
 }
 

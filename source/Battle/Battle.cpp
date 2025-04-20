@@ -46,6 +46,7 @@ Battle::Battle() {
     Engine::throw_(buffer);
   }
   fclose(f);
+  f = nullptr;
 }
 
 void Battle::exit(bool won) {
