@@ -178,8 +178,10 @@ bool Enemy::defaultDamageAnimation(s32 x, s32 y, int width, int height) {
       doRenderHealth((x >> 8) + (width) / 2, y >> 8, _damageSpriteCounter,
                      kDamageNumFrames);
     doShake(_damageSpriteCounter, kDamageNumFrames);
-    if (_damageSpriteCounter == kDamageNumFrames)
+    if (_damageSpriteCounter == kDamageNumFrames) {
+      damageAnimationFinished();
       return true;
+    }
   }
   _damageSpriteCounter++;
   return false;

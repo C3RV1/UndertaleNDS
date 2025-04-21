@@ -1,8 +1,6 @@
 #include "Battle/Enemies/Dummy.hpp"
 #include "Battle/Enemy.hpp"
 #include "Engine/Sprite.hpp"
-#include "Engine/Texture.hpp"
-#include "Save.hpp"
 #include <memory>
 #include <string>
 
@@ -21,8 +19,6 @@ Dummy::Dummy() : Enemy() {
 
   loadActText(0);
 }
-
-void Dummy::doAct(int actId) { globalSave.flags[220] = actId; }
 
 std::shared_ptr<Engine::Sprite> Dummy::getSprite(u8 spriteId) {
   return _dummySpr;

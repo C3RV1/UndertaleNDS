@@ -12,7 +12,6 @@
 class Dummy : public Enemy {
 public:
   Dummy();
-  void doAct(int actId) final;
   bool damageAnimation() final;
   bool canBeSpared() final;
   std::shared_ptr<Engine::Sprite> getSprite(u8 spriteId) final;
