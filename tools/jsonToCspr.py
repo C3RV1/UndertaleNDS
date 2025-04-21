@@ -15,7 +15,6 @@ def get_ones_in_bin(x):
     return count
 
 
-# TODO: Rewrite for version 6
 def convert(input_file, output_file):
     print(f"Converting {input_file} to {output_file}")
     with open(input_file, "r") as f:

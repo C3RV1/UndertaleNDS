@@ -1,8 +1,6 @@
 #include "Battle/BattleAction.hpp"
 
 bool BattleAction::updateFighting() {
-  // TODO: Show damage
-
   Enemy *enemy = (*_enemies)[_cTarget].get();
   if (keysDown() & (KEY_A | KEY_TOUCH)) {
     s32 distanceFromCenter = _attackSpr->_wx - (128 << 8);

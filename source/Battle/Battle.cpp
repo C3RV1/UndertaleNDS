@@ -131,6 +131,7 @@ void Battle::show() {
 void Battle::showHp() {
   if (!_shown)
     return;
+  // TODO: Maybe render hp with font, instead of baking to background?
 
   constexpr int kHPx = 108, kHPy = 154, kHPw = 18, kHPh = 14;
   constexpr int kPadding = 6, kTxtYOff = 0, kTotalWidth = 100;

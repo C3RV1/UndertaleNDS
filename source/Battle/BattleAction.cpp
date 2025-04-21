@@ -69,7 +69,7 @@ BattleAction::BattleAction(std::vector<std::unique_ptr<Enemy>> *enemies,
   len = str_len_file(f, '\0');
   _flavorText.resize(len);
   fread(&_flavorText[0], len, 1, f);
-  // fseek(f, 1, SEEK_CUR); FIXME: not needed right?
+  // fseek(f, 1, SEEK_CUR);
   fclose(f);
 
   enter(PRINTING_FLAVOR_TEXT);

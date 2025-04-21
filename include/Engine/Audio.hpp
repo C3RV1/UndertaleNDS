@@ -144,6 +144,8 @@ private:
   friend class AudioManager;
 };
 
+// TODO: Move update to IRQ timer.
+
 class AudioManager {
 public:
   /**

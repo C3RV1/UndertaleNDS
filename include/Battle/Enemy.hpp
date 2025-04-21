@@ -15,6 +15,8 @@
 
 enum class EnemyDamageAnimationStep { SLASH = 0, DAMAGE_NUMBERS = 1 };
 
+// TODO: Shake on damage
+
 class Enemy {
 public:
   Enemy();

@@ -13,8 +13,6 @@
 #include <memory>
 #include <nds.h>
 
-// TODO: Display health
-
 class Battle {
 public:
   Battle();
