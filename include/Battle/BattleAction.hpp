@@ -45,6 +45,8 @@ public:
   int getActionNum() const;
   ~BattleAction();
 
+  static void clearReuse();
+
 private:
   void setBtn();
   void enter(BattleActionState state);

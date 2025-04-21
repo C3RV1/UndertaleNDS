@@ -112,15 +112,23 @@ void Background::free_() {
 
 int Background::loadBgTextMain() {
   videoSetMode(MODE_0_3D | DISPLAY_BG1_ACTIVE | DISPLAY_BG3_ACTIVE);
-  return loadBgTextEngine(&REG_BG3CNT, BG_PALETTE, BG_TILE_RAM(1),
-                          BG_MAP_RAM(0));
+  if (mainLoadedBg != _path) {
+    mainLoadedBg = _path;
+    return loadBgTextEngine(&REG_BG3CNT, BG_PALETTE, BG_TILE_RAM(1),
+                            BG_MAP_RAM(0));
+  }
+  return 0;
 }
 
 int Background::loadBgTextSub() {
   videoSetModeSub(MODE_0_2D | DISPLAY_BG1_ACTIVE | DISPLAY_BG3_ACTIVE |
                   DISPLAY_SPR_1D | DISPLAY_SPR_ACTIVE | (1 << 20));
-  return loadBgTextEngine(&REG_BG3CNT_SUB, BG_PALETTE_SUB, BG_TILE_RAM_SUB(1),
-                          BG_MAP_RAM_SUB(0));
+  if (subLoadedBg != _path) {
+    subLoadedBg = _path;
+    return loadBgTextEngine(&REG_BG3CNT_SUB, BG_PALETTE_SUB, BG_TILE_RAM_SUB(1),
+                            BG_MAP_RAM_SUB(0));
+  }
+  return 0;
 }
 
 ITCM_CODE
@@ -132,6 +140,7 @@ int Background::loadBgTextEngine(vu16 *bg3Reg, u16 *paletteRam, u16 *tileRam,
   // Set control for 8-bit color depth
   *bg3Reg = (*bg3Reg & (~0x2080)) + (_color8bit << 7);
 
+  paletteRam[0] = 0; // Background color: black
   // skip first color (2 bytes)
   dmaCopySafe(3, &_colors[0], (u8 *)paletteRam + 2, 2 * _colors.size());
 
@@ -180,6 +189,7 @@ int Background::loadBgTextEngine(vu16 *bg3Reg, u16 *paletteRam, u16 *tileRam,
 }
 
 int Background::loadBgExtendedMain(int forceSize) {
+  mainLoadedBg = "";
   videoSetMode(MODE_3_3D | DISPLAY_BG1_ACTIVE | DISPLAY_BG3_ACTIVE);
   return loadBgExtendedEngine(&REG_BG3CNT, BG_PALETTE, BG_TILE_RAM(1),
                               BG_MAP_RAM(0), &REG_BG3PA, &REG_BG3PB, &REG_BG3PC,
@@ -187,6 +197,7 @@ int Background::loadBgExtendedMain(int forceSize) {
 }
 
 int Background::loadBgExtendedSub(int forceSize) {
+  subLoadedBg = "";
   videoSetModeSub(MODE_3_2D | DISPLAY_BG1_ACTIVE | DISPLAY_BG3_ACTIVE |
                   DISPLAY_SPR_1D | DISPLAY_SPR_ACTIVE | (1 << 20));
   return loadBgExtendedEngine(&REG_BG3CNT_SUB, BG_PALETTE_SUB,
@@ -238,14 +249,14 @@ int Background::loadBgExtendedEngine(vu16 *bg3Reg, u16 *paletteRam,
 }
 
 void clearMain() {
-  videoSetMode(MODE_0_3D | DISPLAY_BG1_ACTIVE | DISPLAY_BG3_ACTIVE);
-  clearEngine(&REG_BG3CNT, BG_TILE_RAM(1), BG_MAP_RAM(0));
+  videoSetMode(MODE_0_3D | DISPLAY_BG1_ACTIVE);
+  // clearEngine(&REG_BG3CNT, BG_TILE_RAM(1), BG_MAP_RAM(0));
 }
 
 void clearSub() {
-  videoSetModeSub(MODE_0_2D | DISPLAY_BG1_ACTIVE | DISPLAY_BG3_ACTIVE |
-                  DISPLAY_SPR_1D | DISPLAY_SPR_ACTIVE | (1 << 20));
-  clearEngine(&REG_BG3CNT_SUB, BG_TILE_RAM_SUB(1), BG_MAP_RAM_SUB(0));
+  videoSetModeSub(MODE_0_2D | DISPLAY_BG1_ACTIVE | DISPLAY_SPR_1D |
+                  DISPLAY_SPR_ACTIVE | (1 << 20));
+  // clearEngine(&REG_BG3CNT_SUB, BG_TILE_RAM_SUB(1), BG_MAP_RAM_SUB(0));
 }
 
 void clearEngine(vu16 *bg3Reg, u16 *tileRam, u16 *mapRam) {
@@ -305,4 +316,7 @@ int Background::loadBgRectEngine(const vu16 *bg3Reg, u16 *tileRam, u16 *mapRam,
   }
   return 0;
 }
+
+std::string mainLoadedBg = "";
+std::string subLoadedBg = "";
 } // namespace Engine

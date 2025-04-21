@@ -70,7 +70,8 @@ void spriteSetAllocationMode(std::shared_ptr<Sprite> spr,
 void spriteSetShown(std::shared_ptr<Sprite> spr, bool shown);
 void spritePush(std::shared_ptr<Sprite> spr);
 void spritePop(std::shared_ptr<Sprite> spr);
-void spriteLoadTexture(std::shared_ptr<Sprite> spr, std::string path);
+void spriteLoadTexture(std::shared_ptr<Sprite> spr, std::string path,
+                       bool ensureReuse = false);
 } // namespace Engine
 
 #endif // UNDERTALE_SPRITE_HPP

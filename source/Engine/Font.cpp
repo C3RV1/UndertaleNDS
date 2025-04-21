@@ -3,6 +3,7 @@
 //
 
 #include "Engine/Font.hpp"
+#include "DEBUG_FLAGS.hpp"
 #include "Engine/Engine.hpp"
 
 namespace Engine {

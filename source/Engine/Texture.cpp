@@ -165,7 +165,7 @@ void Texture::load3D(FILE *f) {
 }
 
 std::shared_ptr<Engine::Texture>
-TextureManager::loadTexture(const std::string &path) {
+TextureManager::loadTexture(const std::string &path, bool ensureReuse) {
   auto textureKV = textures.find(path);
   if (textureKV != textures.end()) {
     if (!textureKV->second.expired()) {
@@ -173,7 +173,13 @@ TextureManager::loadTexture(const std::string &path) {
       std::string msg = "Found texture " + path + " in bank: reusing.";
       nocashMessage(msg.c_str());
 #endif
-      return textureKV->second.lock();
+      auto texture = textureKV->second.lock();
+      if (ensureReuse) {
+        auto reuseTextureKV = ensureReuseTextures.find(path);
+        if (reuseTextureKV == ensureReuseTextures.end())
+          ensureReuseTextures.insert(std::make_pair(path, texture));
+      }
+      return texture;
     }
 #ifdef DEBUG_TEXTURES
     else {
@@ -192,7 +198,20 @@ TextureManager::loadTexture(const std::string &path) {
 
   auto texture = std::make_shared<Texture>(path);
   textures.insert(std::make_pair(path, texture));
+  if (ensureReuse)
+    ensureReuseTextures.insert(std::make_pair(path, texture));
   return texture;
+}
+
+void TextureManager::clearEnsureReuse(std::string path) {
+#ifdef DEBUG_TEXTURES
+  std::string buffer = "Clearing permanently loaded texture: " + path;
+  nocashMessage(buffer.c_str());
+#endif
+  auto ensureKv = ensureReuseTextures.find(path);
+  if (ensureKv == ensureReuseTextures.end())
+    return;
+  ensureReuseTextures.erase(ensureKv);
 }
 
 TextureManager textureManager;

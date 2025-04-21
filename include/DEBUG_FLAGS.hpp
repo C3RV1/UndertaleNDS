@@ -13,5 +13,6 @@
 // #define DEBUG_ZONES
 // #define DEBUG_ZONES_DUMP
 #define DEBUG_SAVE
+#define DEBUG_FONTS
 
 #endif // UNDERTALE_DEBUG_FLAGS_HPP

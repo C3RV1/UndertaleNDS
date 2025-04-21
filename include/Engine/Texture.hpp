@@ -6,6 +6,7 @@
 #include <map>
 #include <memory>
 #include <nds.h>
+#include <vector>
 
 namespace Engine {
 
@@ -64,10 +65,13 @@ private:
 
 class TextureManager {
 public:
-  std::shared_ptr<Engine::Texture> loadTexture(const std::string &path);
+  std::shared_ptr<Engine::Texture> loadTexture(const std::string &path,
+                                               bool ensureReuse = false);
+  void clearEnsureReuse(std::string path);
 
 private:
   std::map<std::string, std::weak_ptr<Engine::Texture>> textures;
+  std::map<std::string, std::shared_ptr<Engine::Texture>> ensureReuseTextures;
 };
 
 extern TextureManager textureManager;

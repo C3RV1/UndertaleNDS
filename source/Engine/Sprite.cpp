@@ -32,10 +32,12 @@ void Sprite::setAnimation(int animId) {
   _cFrame = _texture->_animations[animId].frames[0].frame;
 }
 
-void spriteLoadTexture(std::shared_ptr<Sprite> spr, std::string path) {
+void spriteLoadTexture(std::shared_ptr<Sprite> spr, std::string path,
+                       bool ensureReuse) {
   if (!spr)
     return;
-  std::shared_ptr<Texture> texture = textureManager.loadTexture(path);
+  std::shared_ptr<Texture> texture =
+      textureManager.loadTexture(path, ensureReuse);
   if (!texture->getLoaded())
     return;
   if (texture == spr->_texture)

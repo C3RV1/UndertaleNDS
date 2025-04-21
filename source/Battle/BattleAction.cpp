@@ -9,6 +9,7 @@
 #include "Engine/Font.hpp"
 #include "Engine/Sprite.hpp"
 #include "Engine/TextBGManager.hpp"
+#include "Engine/Texture.hpp"
 #include "Formats/utils.hpp"
 #include "Save.hpp"
 #include <memory>
@@ -31,10 +32,10 @@ BattleAction::BattleAction(std::vector<std::unique_ptr<Enemy>> *enemies,
     Engine::spriteSetShown(_btn[i], true);
   }
 
-  Engine::spriteLoadTexture(_btn[ACTION_FIGHT], "btn/spr_fightbt");
-  Engine::spriteLoadTexture(_btn[ACTION_ACT], "btn/spr_talkbt");
-  Engine::spriteLoadTexture(_btn[ACTION_ITEM], "btn/spr_itembt");
-  Engine::spriteLoadTexture(_btn[ACTION_MERCY], "btn/spr_sparebt");
+  Engine::spriteLoadTexture(_btn[ACTION_FIGHT], "btn/spr_fightbt", true);
+  Engine::spriteLoadTexture(_btn[ACTION_ACT], "btn/spr_talkbt", true);
+  Engine::spriteLoadTexture(_btn[ACTION_ITEM], "btn/spr_itembt", true);
+  Engine::spriteLoadTexture(_btn[ACTION_MERCY], "btn/spr_sparebt", true);
 
   _gfxAnimId = _btn[0]->nameToAnimId("gfx");
   _activeAnimId = _btn[0]->nameToAnimId("active");
@@ -72,6 +73,13 @@ BattleAction::BattleAction(std::vector<std::unique_ptr<Enemy>> *enemies,
   fclose(f);
 
   enter(PRINTING_FLAVOR_TEXT);
+}
+
+void BattleAction::clearReuse() {
+  Engine::textureManager.clearEnsureReuse("btn/spr_fightbt");
+  Engine::textureManager.clearEnsureReuse("btn/spr_talkbt");
+  Engine::textureManager.clearEnsureReuse("btn/spr_itembt");
+  Engine::textureManager.clearEnsureReuse("btn/spr_sparebt");
 }
 
 void BattleAction::enter(BattleActionState state) {

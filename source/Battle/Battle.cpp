@@ -3,6 +3,7 @@
 //
 
 #include "Battle/Battle.hpp"
+#include "Battle/BattleAction.hpp"
 #include "Battle/Enemy.hpp"
 #include "Battle/FlavorTextDialogue.hpp"
 #include "Cutscene/Cutscene.hpp"
@@ -50,6 +51,7 @@ Battle::Battle() {
 }
 
 void Battle::exit(bool won) {
+  BattleAction::clearReuse();
   if (won) {
     hide();
     int earnedExp = 0, earnedGold = 0;
