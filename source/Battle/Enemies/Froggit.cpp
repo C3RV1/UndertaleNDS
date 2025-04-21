@@ -12,8 +12,8 @@ Froggit::Froggit(bool isFirstEnemy) {
 
   _hp = _maxHp;
 
-  _legsSpr = std::make_shared<Engine::Sprite>();
-  _headSpr = std::make_shared<Engine::Sprite>();
+  _legsSpr = std::make_shared<Engine::Sprite>(Engine::AllocatedOAM);
+  _headSpr = std::make_shared<Engine::Sprite>(Engine::AllocatedOAM);
 
   Engine::spriteLoadTexture(_legsSpr, "battle/spr_froglegs");
   Engine::spriteLoadTexture(_headSpr, "battle/spr_froghead");
@@ -37,3 +37,25 @@ std::shared_ptr<Engine::Sprite> Froggit::getSprite(u8 spriteId) {
     return _headSpr;
   return _legsSpr;
 }
+
+void Froggit::update() {
+  auto pos = _headPath.advance(kPathSpeed);
+  _headSpr->_wx = (kX << 8) + pos.first;
+  _headSpr->_wy = (kY << 8) + pos.second;
+}
+
+bool Froggit::damageAnimation() {
+  if (_headSpr->_texture == nullptr)
+    return true;
+  return defaultDamageAnimation(kX << 8, kY << 8,
+                                _headSpr->_texture->getWidth(),
+                                _headSpr->_texture->getHeight());
+}
+
+bool Froggit::canBeSpared() { return true; }
+
+void Froggit::doAct(int actId) {}
+
+void Froggit::slashFinished() {}
+
+void Froggit::damageAnimationFinished() {}

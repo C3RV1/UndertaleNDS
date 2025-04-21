@@ -48,7 +48,7 @@ public:
 
 protected:
   virtual void slashFinished();
-  virtual void damageAnimationFinished();
+  virtual void damageAnimationFinished() {}
   bool defaultDamageAnimation(s32 x, s32 y, int width, int height);
   void loadDamageSprites(int damage);
   void doSlash(s32 x, s32 y, int counter, int maxCounter);

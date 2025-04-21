@@ -4,14 +4,13 @@
 #include "Battle/Enemy.hpp"
 #include "Battle/Enemies/Dummy.hpp"
 #include "Battle/Enemies/Flowey.hpp"
+#include "Battle/Enemies/Froggit.hpp"
 #include "Engine/Audio.hpp"
 #include "Engine/Engine.hpp"
 #include "Engine/Sprite.hpp"
 #include "Engine/TextBGManager.hpp"
-#include "Engine/Texture.hpp"
 #include "Engine/WAV.hpp"
 #include "Formats/utils.hpp"
-#include <algorithm>
 #include <memory>
 #include <string>
 
@@ -25,6 +24,8 @@ std::unique_ptr<Enemy> getEnemy(u16 enemyId) {
     return std::make_unique<Flowey>();
   case 1:
     return std::make_unique<Dummy>();
+  case 2:
+    return std::make_unique<Froggit>(true);
   default: {
     std::string msg = "Couldn't create enemy: " + std::to_string(enemyId);
     nocashMessage(msg.c_str());

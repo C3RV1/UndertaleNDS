@@ -253,6 +253,7 @@ void runBattle(FILE *stream) {
   timer = kRoomChangeFadeFrames;
   while (timer >= 0) {
     Engine::tick();
+    globalBattle->update();
     setBrightness(3, (-16 * timer) / kRoomChangeFadeFrames);
     timer--;
   }
@@ -278,6 +279,7 @@ void runBattle(FILE *stream) {
   timer = kRoomChangeFadeFrames;
   while (timer >= 0) {
     Engine::tick();
+    globalBattle->update();
     setBrightness(3, (-16 * (kRoomChangeFadeFrames - timer)) /
                          kRoomChangeFadeFrames);
     timer--;

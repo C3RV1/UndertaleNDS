@@ -7,6 +7,7 @@
 
 #include <cmath>
 #include <nds.h>
+#include <utility>
 
 inline u32 double_to_fixed(double input, u8 bits) {
   return (u32)(round(input * (1 << bits)));
@@ -26,6 +27,15 @@ inline int mod(int a, int b) {
   return r < 0 ? r + b : r;
 }
 
-int lerp(int a, int b, int t, int maxT);
+inline int lerp(int a, int b, int t, int maxT) {
+  return a + ((b - a) * t / maxT);
+}
+
+inline std::pair<s32, s32> lerp(std::pair<s32, s32> &a, std::pair<s32, s32> &b,
+                                int t, int maxT) {
+  return {lerp(a.first, b.first, t, maxT), lerp(a.second, b.second, t, maxT)};
+}
+
+int smoothstep(int a, int b, int t, int maxT);
 
 #endif // UNDERTALE_MATH_HPP
