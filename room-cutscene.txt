@@ -33,7 +33,7 @@ r7 - ruins long hall
   c1 - Toriel caught behind the pillar.
   c2 - Toriel exits from behind the pillar.
 r8 - ruins save point
-  c0 - Sign/Froggit?.
+  c0 - Froggit.
   c1 - Phone.
   c100 - Save point.
 r9 - ruins candy (TODO)
@@ -43,8 +43,12 @@ r10 - ruins fall first
 r11 - ruins push rock
   c10 - Cinnamon or Butterscotch?
   c20 - Spikes down, rock on goal.
+  c30 - Sign.
 r12 - path fall
   c0 - Fall.
+  c1 - Come up.
+  c10 - Sign upstairs.
+  c20 - Sign downstairs.
 
 1000 - Phone
   c1 - Say hello.

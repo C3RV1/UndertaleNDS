@@ -26,12 +26,16 @@
         {
           "texture": "room_sprites/wall_panel_ruins",
           "x": 460,
-          "y": 110
+          "y": 110,
+          "action": "cutscene",
+          "cutscene_id": 10
         },
         {
           "texture": "room_sprites/wall_panel_ruins",
           "x": 475,
-          "y": 495
+          "y": 495,
+          "action": "cutscene",
+          "cutscene_id": 20
         }
       ],
       "colliders": [
@@ -72,9 +76,9 @@
           "h": 66
         },
         {
-          "x": -15,
+          "x": 0,
           "y": 336,
-          "w": 160,
+          "w": 145,
           "h": 119
         },
         {
@@ -86,7 +90,7 @@
         {
           "x": 176,
           "y": 336,
-          "w": 194,
+          "w": 193,
           "h": 119
         },
         {
@@ -102,9 +106,9 @@
           "h": 133
         },
         {
-          "x": -15,
+          "x": 0,
           "y": 455,
-          "w": 55,
+          "w": 40,
           "h": 213
         },
         {
@@ -121,37 +125,37 @@
         },
         {
           "_comment": "Fall 1",
-          "x": 240,
-          "y": 110,
-          "w": 80,
-          "h": 160,
+          "x": 247,
+          "y": 118,
+          "w": 65,
+          "h": 145,
           "action": "cutscene",
           "cutscene_id": 0
         },
         {
           "_comment": "Fall 2",
-          "x": 360,
+          "x": 365,
           "y": 150,
-          "w": 20,
-          "h": 100,
+          "w": 11,
+          "h": 92,
           "action": "cutscene",
           "cutscene_id": 0
         },
         {
           "_comment": "Fall 3",
-          "x": 420,
-          "y": 211,
-          "w": 21,
-          "h": 59,
+          "x": 426,
+          "y": 218,
+          "w": 9,
+          "h": 52,
           "action": "cutscene",
           "cutscene_id": 0
         },
         {
           "_comment": "Fall 4",
-          "x": 482,
+          "x": 488,
           "y": 150,
-          "w": 38,
-          "h": 81,
+          "w": 24,
+          "h": 76,
           "action": "cutscene",
           "cutscene_id": 0
         },
@@ -160,7 +164,7 @@
           "x": 520,
           "y": 150,
           "w": 20,
-          "h": 40,
+          "h": 31,
           "action": "cutscene",
           "cutscene_id": 0
         },
@@ -169,7 +173,9 @@
           "x": 145,
           "y": 404,
           "w": 31,
-          "h": 44
+          "h": 44,
+          "action": "cutscene",
+          "cutscene_id": 1
         }
       ]
     }

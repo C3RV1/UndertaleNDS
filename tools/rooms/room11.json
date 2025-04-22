@@ -36,7 +36,9 @@
         },
         {
           "texture": "room_sprites/wall_panel_ruins",
-          "x": 136, "y": 34
+          "x": 136, "y": 34,
+          "action": "cutscene",
+          "cutscene_id": 30
         },
         {
           "texture": "room_sprites/spike",
@@ -129,7 +131,10 @@
         },
         {
           "texture": "room_sprites/wall_panel_ruins",
-          "x": 136, "y": 34
+          "x": 136, "y": 34,
+          "action": "cutscene",
+          "cutscene_id": 30
+
         },
         {
           "texture": "room_sprites/spike",
@@ -207,7 +212,10 @@
         },
         {
           "texture": "room_sprites/wall_panel_ruins",
-          "x": 136, "y": 34
+          "x": 136, "y": 34,
+          "action": "cutscene",
+          "cutscene_id": 30
+
         },
         {
           "texture": "room_sprites/spike",

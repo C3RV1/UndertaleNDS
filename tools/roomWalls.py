@@ -150,27 +150,38 @@ def main():
                 elif event.key == pygame.K_LEFT:
                     if not selected_collider < len(colliders):
                         continue
-                    if not event.mod & pygame.KMOD_SHIFT:
-                        colliders[selected_collider]["x"] -= 1
-                    else:
+                    if event.mod & pygame.KMOD_SHIFT:
                         colliders[selected_collider]["w"] -= 1
+                    else:
+                        colliders[selected_collider]["x"] -= 1
+                    if event.mod & pygame.KMOD_CTRL:
+                        colliders[selected_collider]["w"] += 1
                 elif event.key == pygame.K_RIGHT:
                     if not selected_collider < len(colliders):
                         continue
-                    colliders[selected_collider]["x"] += 1
+                    if event.mod & pygame.KMOD_CTRL:
+                        colliders[selected_collider]["w"] += 1
+                    else:
+                        colliders[selected_collider]["x"] += 1
                     if event.mod & pygame.KMOD_SHIFT:
                         colliders[selected_collider]["w"] -= 1
                 elif event.key == pygame.K_UP:
                     if not selected_collider < len(colliders):
                         continue
-                    if not event.mod & pygame.KMOD_SHIFT:
-                        colliders[selected_collider]["y"] -= 1
-                    else:
+                    if event.mod & pygame.KMOD_SHIFT:
                         colliders[selected_collider]["h"] -= 1
+                    else:
+                        colliders[selected_collider]["y"] -= 1
+
+                    if event.mod & pygame.KMOD_CTRL:
+                        colliders[selected_collider]["h"] += 1
                 elif event.key == pygame.K_DOWN:
                     if not selected_collider < len(colliders):
                         continue
-                    colliders[selected_collider]["y"] += 1
+                    if event.mod & pygame.KMOD_CTRL:
+                        colliders[selected_collider]["h"] += 1
+                    else:
+                        colliders[selected_collider]["y"] += 1
                     if event.mod & pygame.KMOD_SHIFT:
                         colliders[selected_collider]["h"] -= 1
             elif event.type == pygame.QUIT:

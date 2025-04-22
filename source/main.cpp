@@ -42,8 +42,8 @@ int main() {
   u16 roomSpawn = globalSave.lastSavedRoom;
 
   // DEBUG
-  roomSpawn = 6;
-  globalSave.flags[0] = 5;
+  roomSpawn = 8;
+  globalSave.flags[0] = 9;
 
   globalPlayer = new Player();
   Engine::spriteSetShown(globalPlayer->_playerSpr, true);
