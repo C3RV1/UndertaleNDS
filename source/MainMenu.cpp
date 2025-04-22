@@ -3,6 +3,7 @@
 //
 #include "MainMenu.hpp"
 #include "Engine/Background.hpp"
+#include "Engine/DataBank.hpp"
 #include "Engine/Engine.hpp"
 #include "Engine/Font.hpp"
 #include "Engine/Sprite.hpp"
@@ -13,6 +14,7 @@
 #include "Save.hpp"
 #include <cstdio>
 #include <memory>
+#include <string>
 
 void runMainMenu() {
   constexpr int nameX = 42, nameY = 24 - 4;
@@ -41,36 +43,11 @@ void runMainMenu() {
     Audio2::playBGMusic("mus_menu1.wav", true);
   }
 
-  buffer = "nitro:/txt/room_names/" + std::to_string(globalSave.lastSavedRoom) +
-           ".txt";
-  FILE *f = fopen(buffer.c_str(), "rb");
-  if (f) {
-    int len = str_len_file(f, '\n');
-    roomName.resize(len);
-    fread(&roomName[0], len, 1, f);
-    fseek(f, 1, SEEK_CUR);
-  } else {
-    buffer = "Error opening room " + std::to_string(globalSave.lastSavedRoom) +
-             " name";
-    Engine::throw_(buffer);
-  }
-  fclose(f);
+  roomName = textBank.getText(
+      "room_names/" + std::to_string(globalSave.lastSavedRoom) + ".txt");
 
-  f = fopen("nitro:/txt/main_menu.txt", "rb");
-  if (f) {
-    int len = str_len_file(f, '\n');
-    continueText.resize(len);
-    fread(&continueText[0], len, 1, f);
-    fseek(f, 1, SEEK_CUR);
-
-    len = str_len_file(f, '\n');
-    resetText.resize(len);
-    fread(&resetText[0], len, 1, f);
-    fseek(f, 1, SEEK_CUR);
-  } else {
-    Engine::throw_("Error opening main menu text");
-  }
-  fclose(f);
+  continueText = textBank.getText("main_menu_continue.txt");
+  resetText = textBank.getText("main_menu_reset.txt");
 
   topBg.loadBgTextMain();
   btmBg.loadBgTextSub();

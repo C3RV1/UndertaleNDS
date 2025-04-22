@@ -5,11 +5,10 @@
 #include "Cutscene/Dialogue.hpp"
 #include "Cutscene/Cutscene.hpp"
 #include "Engine/Audio.hpp"
-#include "Engine/Engine.hpp"
+#include "Engine/DataBank.hpp"
 #include "Engine/Font.hpp"
 #include "Engine/OAMManager.hpp"
 #include "Engine/Sprite.hpp"
-#include "Formats/utils.hpp"
 #include <cstdio>
 #include <memory>
 
@@ -24,21 +23,10 @@ Dialogue::Dialogue(u16 textId, std::shared_ptr<Engine::Sprite> target,
   _heartSprite = std::make_shared<Engine::Sprite>(heartAlloc);
   Engine::spriteLoadTexture(_heartSprite, "spr_heartsmall");
 
-  std::string buffer = "nitro:/txt/dialogue/r" +
-                       std::to_string(globalCutscene->_roomId) + "/c" +
-                       std::to_string(globalCutscene->_cutsceneId) + "/d" +
-                       std::to_string(textId) + ".txt";
-  FILE *textStream = fopen(buffer.c_str(), "rb");
-
-  if (textStream == nullptr) {
-    Engine::throw_("Error opening text file #r" + buffer);
-  }
-  u32 textLen = str_len_file(textStream, '\0');
-  _text.resize(textLen);
-  fread(&_text[0], textLen, 1, textStream);
-
-  fclose(textStream);
-  textStream = nullptr;
+  std::string path = "dialogue/r" + std::to_string(globalCutscene->_roomId) +
+                     "/c" + std::to_string(globalCutscene->_cutsceneId) + "/d" +
+                     std::to_string(textId) + ".txt";
+  _text = textBank.getText(path);
 
   _textPos = _text.begin();
   _lastClearPos = _text.begin();

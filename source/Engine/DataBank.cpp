@@ -1,12 +1,12 @@
-#include "Engine/TextBank.hpp"
+#include "Engine/DataBank.hpp"
 #include "Engine/Engine.hpp"
-#include "Formats/TBNK.hpp"
+#include "Formats/CBNK.hpp"
 #include <cstdio>
 #include <cstring>
 #include <memory>
 #include <string>
 
-void TextBank::load(std::string path) {
+void DataBank::load(std::string path) {
   FILE *f = fopen(path.c_str(), "rb");
   if (!f) {
     std::string buffer = "Error opening text bank " + path;
@@ -38,13 +38,12 @@ void TextBank::load(std::string path) {
          decompressedSize - endTable);
 }
 
-bool TextBank::checkHeader(FILE *f, u32 &fileSize) {
+bool DataBank::checkHeader(FILE *f, u32 &fileSize) {
   char header[4];
-  char expectedHeader[4] = {'T', 'B', 'N', 'K'};
+  char expectedHeader[4] = {'C', 'B', 'N', 'K'};
 
   fread(header, 4, 1, f);
   if (memcmp(header, expectedHeader, 4) != 0) {
-    nocashMessage("HEADER");
     return false;
   }
 
@@ -55,15 +54,13 @@ bool TextBank::checkHeader(FILE *f, u32 &fileSize) {
   fseek(f, pos, SEEK_SET);
 
   if (size != fileSize) {
-    nocashMessage("SIZE");
     return false;
   }
 
   u32 version;
   fread(&version, 4, 1, f);
 
-  if (version != TBNK::version) {
-    nocashMessage("VERSION");
+  if (version != CBNK::version) {
     return false;
   }
 
@@ -71,7 +68,7 @@ bool TextBank::checkHeader(FILE *f, u32 &fileSize) {
   return true;
 }
 
-u32 TextBank::loadFileTable(u8 *data) {
+u32 DataBank::loadFileTable(u8 *data) {
   u32 pos = 0;
 
   u32 count = *(u32 *)data;
@@ -91,16 +88,16 @@ u32 TextBank::loadFileTable(u8 *data) {
     length = *(u32 *)(&data[pos]);
     pos += 4;
 
-    _fileTable.insert({{buffer}, {startPos, length}});
-    nocashMessage(("Added " + _fileTable.end()->first + ": " +
-                   std::to_string(_fileTable.end()->second.first) + ", " +
-                   std::to_string(_fileTable.end()->second.first))
+    auto added = _fileTable.insert({{buffer}, {startPos, length}}).first;
+    nocashMessage(("Added " + added->first + ": " +
+                   std::to_string(added->second.first) + ", " +
+                   std::to_string(added->second.second))
                       .c_str());
   }
   return pos;
 }
 
-std::string TextBank::getText(std::string textPath) {
+std::string DataBank::getText(std::string textPath) {
   auto textKV = _fileTable.find(textPath);
   if (textKV == _fileTable.end()) {
     std::string buffer = "Couldn't find text: " + textPath;
@@ -110,3 +107,25 @@ std::string TextBank::getText(std::string textPath) {
   return std::string(&_data[textPosLen.first],
                      &_data[textPosLen.first + textPosLen.second]);
 }
+
+const u8 *DataBank::getFile(std::string textPath) {
+  auto textKV = _fileTable.find(textPath);
+  if (textKV == _fileTable.end()) {
+    std::string buffer = "Couldn't find text: " + textPath;
+    Engine::throw_(buffer);
+  }
+  auto textPosLen = textKV->second;
+  return &_data[textPosLen.first];
+}
+
+u32 DataBank::getSize(std::string textPath) {
+  auto textKV = _fileTable.find(textPath);
+  if (textKV == _fileTable.end()) {
+    std::string buffer = "Couldn't find text: " + textPath;
+    Engine::throw_(buffer);
+  }
+  auto textPosLen = textKV->second;
+  return textPosLen.second;
+}
+
+DataBank textBank;

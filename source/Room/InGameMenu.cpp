@@ -3,12 +3,14 @@
 //
 #include "Room/InGameMenu.hpp"
 #include "Cutscene/Cutscene.hpp"
+#include "Engine/DataBank.hpp"
 #include "Engine/Font.hpp"
 #include "Engine/Sprite.hpp"
 #include "Engine/TextBGManager.hpp"
 #include "Formats/utils.hpp"
 #include "Save.hpp"
 #include <memory>
+#include <string>
 
 void InGameMenu::load() {
   _fnt = Engine::fontManager.loadFont("fnt_maintext.font");
@@ -129,7 +131,6 @@ void InGameMenu::clipOption() {
 }
 
 void InGameMenu::drawItemPage() {
-  char buffer[100];
   int x = 5;
   if (_itemPage > 0)
     Engine::textSub.drawGlyph(_fnt, '<', x, kPageChangeY);
@@ -149,15 +150,11 @@ void InGameMenu::drawItemPage() {
       break;
     int item = globalSave.items[itemIdx];
 
-    sprintf(buffer, "nitro:/txt/items/name%d.txt", item);
-    FILE *f = fopen(buffer, "rb");
-    int len = str_len_file(f, '\n');
-    fread(buffer, len + 1, 1, f);
-    fclose(f);
+    std::string name =
+        textBank.getText("items/name" + std::to_string(item) + ".txt");
     x = kItemsX;
-    for (char *pName = buffer; *pName != '\n'; pName++) {
+    for (auto pName = name.begin(); *pName != '\n'; pName++)
       Engine::textSub.drawGlyph(_fnt, *pName, x, y);
-    }
     y += kItemSpacingY;
   }
 }
@@ -169,23 +166,18 @@ void InGameMenu::setItemHeartPos() {
 
 void InGameMenu::drawItemDesc() {
   drawItemExplain();
-  char buffer[100];
   int itemIdx = _itemPage * 2 + _optionSelected;
   int item = globalSave.items[itemIdx];
-  sprintf(buffer, "nitro:/txt/items/desc%d.txt", item);
-  FILE *f = fopen(buffer, "rb");
-  int len = str_len_file(f, '\0');
-  fread(buffer, len + 1, 1, f);
-  buffer[len] = '\0';
-  fclose(f);
+  std::string desc =
+      textBank.getText("items/desc" + std::to_string(item) + ".txt");
   int x = 23, y = 104;
-  for (char *pName = buffer; *pName != '\0'; pName++) {
-    if (*pName == '\n') {
+  for (auto &c : desc) {
+    if (c == '\n') {
       y += 17;
       x = 23;
       continue;
     }
-    Engine::textSub.drawGlyph(_fnt, *pName, x, y);
+    Engine::textSub.drawGlyph(_fnt, c, x, y);
   }
 }
 
@@ -197,22 +189,17 @@ void InGameMenu::drawCell() {
 }
 
 void InGameMenu::drawCellPage() {
-  char buffer[100];
   int x, y = kItemsY;
 
   for (int i = 0; i < _optionCount; i++) {
     int cellOption = globalSave.cell[i];
 
-    sprintf(buffer, "nitro:/txt/cell/name%d.txt", cellOption);
-    FILE *f = fopen(buffer, "rb");
-    int len = str_len_file(f, '\n');
-    fread(buffer, len + 1, 1, f);
-    fclose(f);
+    auto cellText =
+        textBank.getText("cell/name" + std::to_string(cellOption) + ".txt");
 
     x = kItemsX;
-    for (char *pName = buffer; *pName != '\n'; pName++) {
+    for (auto pName = cellText.begin(); *pName != '\n'; pName++)
       Engine::textSub.drawGlyph(_fnt, *pName, x, y);
-    }
     y += kItemSpacingY;
   }
 }

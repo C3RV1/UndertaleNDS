@@ -4,6 +4,7 @@
 #include "Cutscene/SaveMenu.hpp"
 #include "Cutscene/Cutscene.hpp"
 #include "Engine/Audio.hpp"
+#include "Engine/DataBank.hpp"
 #include "Engine/Engine.hpp"
 #include "Engine/Font.hpp"
 #include "Engine/Sprite.hpp"
@@ -48,26 +49,15 @@ void SaveMenu::drawInfo(SaveData &saveData, u8 color) {
     return;
   }
 
-  std::string buffer;
   if (saveData.lastSavedRoom != 0) {
-    buffer = "nitro:/txt/room_names/" + std::to_string(saveData.lastSavedRoom) +
-             ".txt";
-    FILE *f = fopen(buffer.c_str(), "rb");
-    if (f) {
-      int len = str_len_file(f, '\n');
-      _roomName.resize(len);
-
-      fread(&_roomName[0], len, 1, f);
-    } else {
-      Engine::throw_("Error opening room" +
-                     std::to_string(saveData.lastSavedRoom) + " name file");
-    }
-    fclose(f);
+    std::string path =
+        "room_names/" + std::to_string(saveData.lastSavedRoom) + ".txt";
+    _roomName = textBank.getText(path);
   } else {
     _roomName = "";
   }
 
-  buffer = std::to_string(saveData.lv);
+  std::string buffer = std::to_string(saveData.lv);
   int x = kLvNumX;
   for (auto const &c : buffer)
     Engine::textSub.drawGlyph(_fnt, c, x, kLvNumY);

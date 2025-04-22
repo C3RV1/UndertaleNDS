@@ -5,11 +5,11 @@
 #include "WriteName.hpp"
 
 #include "Engine/Background.hpp"
+#include "Engine/DataBank.hpp"
 #include "Engine/Engine.hpp"
 #include "Engine/Font.hpp"
 #include "Engine/TextBGManager.hpp"
 #include "Engine/WAV.hpp"
-#include "Formats/utils.hpp"
 #include "Save.hpp"
 
 void runWriteNameMenu() {
@@ -30,64 +30,31 @@ void runWriteNameMenu() {
 
   auto mainFont = Engine::fontManager.loadFont("fnt_maintext.font");
 
-  FILE *textStream = fopen("nitro:/txt/write_name.txt", "rb");
-  if (textStream == nullptr)
-    nocashMessage("Error opening write name text file.");
-  else {
-    char charBuffer;
+  std::string writeNameTxt = textBank.getText("write_name.txt");
+  auto charBuffer = writeNameTxt.begin();
 
-    Engine::textMain.clear();
+  Engine::textMain.clear();
 
-    fread(&charBuffer, 1, 1, textStream);
-    int x = line1x, y = line1y;
-    while (charBuffer != '\n') {
-      Engine::textMain.drawGlyph(mainFont, charBuffer, x, y);
-      fread(&charBuffer, 1, 1, textStream);
-    }
+  int x = line1x, y = line1y;
+  for (; *charBuffer != '\n'; ++charBuffer)
+    Engine::textMain.drawGlyph(mainFont, *charBuffer, x, y);
 
-    fread(&charBuffer, 1, 1, textStream);
-    x = line2x;
-    y = line2y;
-    while (charBuffer != '\n') {
-      Engine::textMain.drawGlyph(mainFont, charBuffer, x, y);
-      fread(&charBuffer, 1, 1, textStream);
-    }
+  ++charBuffer;
+  x = line2x;
+  y = line2y;
+  for (; *charBuffer != '\n'; ++charBuffer)
+    Engine::textMain.drawGlyph(mainFont, *charBuffer, x, y);
 
-    fread(&charBuffer, 1, 1, textStream);
-    x = line3x;
-    y = line3y;
-    while (charBuffer != '\n') {
-      Engine::textMain.drawGlyph(mainFont, charBuffer, x, y);
-      fread(&charBuffer, 1, 1, textStream);
-    }
-  }
+  ++charBuffer;
+  x = line3x;
+  y = line3y;
+  for (; *charBuffer != '\n'; ++charBuffer)
+    Engine::textMain.drawGlyph(mainFont, *charBuffer, x, y);
 
-  char confirmText[100];
-  int len = str_len_file(textStream, '\n');
-  fread(confirmText, len + 1, 1, textStream);
-  confirmText[len] = '\0';
-
-  char confirmText2[100];
-  len = str_len_file(textStream, '\n');
-  fread(confirmText2, len + 1, 1, textStream);
-  confirmText2[len] = '\0';
-
-  char confirmText3[100];
-  len = str_len_file(textStream, '\n');
-  fread(confirmText3, len + 1, 1, textStream);
-  confirmText3[len] = '\0';
-
-  char confirmText4[100];
-  len = str_len_file(textStream, '\n');
-  fread(confirmText4, len + 1, 1, textStream);
-  confirmText4[len] = '\0';
-
-  fclose(textStream);
+  std::string confirmText = textBank.getText("write_name_c1.txt");
 
   char currentName[maxLen + 1] = {0};
   int currentLen = 0;
-
-  int x, y;
 
   bool running = true;
   while (running) {
@@ -248,27 +215,31 @@ void runWriteNameMenu() {
     Engine::textSub.setColor(15);
     x = 30;
     y = 30;
-    for (const char *t = confirmText; *t != 0; t++) {
-      Engine::textSub.drawGlyph(mainFont, *t, x, y);
-    }
+    auto p = confirmText.begin();
+    for (; *p != '\n'; ++p)
+      Engine::textSub.drawGlyph(mainFont, *p, x, y);
+    ++p;
+
     Engine::textSub.setColor(12);
-    for (char *t = currentName; t < currentName + currentLen; t++) {
+    for (char *t = currentName; t < currentName + currentLen; t++)
       Engine::textSub.drawGlyph(mainFont, *t, x, y);
-    }
+
     Engine::textSub.setColor(15);
-    for (const char *t = confirmText2; *t != 0; t++) {
-      Engine::textSub.drawGlyph(mainFont, *t, x, y);
-    }
+    for (; *p != '\n'; ++p)
+      Engine::textSub.drawGlyph(mainFont, *p, x, y);
+    ++p;
+
     x = 30;
     y = 60;
-    for (const char *t = confirmText3; *t != 0; t++) {
-      Engine::textSub.drawGlyph(mainFont, *t, x, y);
-    }
+    for (; *p != '\n'; ++p)
+      Engine::textSub.drawGlyph(mainFont, *p, x, y);
+    ++p;
+
     x = 30;
     y = 80;
-    for (const char *t = confirmText4; *t != 0; t++) {
-      Engine::textSub.drawGlyph(mainFont, *t, x, y);
-    }
+    for (; *p != '\n'; ++p)
+      Engine::textSub.drawGlyph(mainFont, *p, x, y);
+    ++p;
 
     for (;;) {
       Engine::tick();

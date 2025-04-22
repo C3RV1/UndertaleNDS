@@ -10,21 +10,20 @@
 #include <string>
 #include <utility>
 
-struct TBNK {
-  char header[4] = {'T', 'B', 'N', 'K'};
+struct CBNK {
+  char header[4] = {'C', 'B', 'N', 'K'};
   static constexpr u32 version = 1;
   u32 fileSize = 0;
   u8 *compressedData;
 };
 
-struct TBNKTable {
+struct CBNKTable {
   u32 count;
   std::map<std::string, std::pair<u32, u32>> fileTable;
 };
 
-struct TBNKUncompressed {
-  TBNKTable table;
-  u32 dataLength;
+struct CBNKUncompressed {
+  CBNKTable table;
   u8 *data;
 };
 

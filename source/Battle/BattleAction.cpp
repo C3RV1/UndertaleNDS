@@ -3,6 +3,7 @@
 //
 
 #include "Battle/BattleAction.hpp"
+#include "Engine/DataBank.hpp"
 #include "Engine/Engine.hpp"
 
 #include "Engine/Background.hpp"
@@ -13,6 +14,7 @@
 #include "Formats/utils.hpp"
 #include "Save.hpp"
 #include <memory>
+#include <string>
 
 // TODO: Touchscreen
 
@@ -47,30 +49,14 @@ BattleAction::BattleAction(std::vector<std::unique_ptr<Enemy>> *enemies,
   Engine::spriteLoadTexture(_smallHeartSpr, "spr_heartsmall");
   _smallHeartSpr->_layer = 3;
 
-  FILE *f = fopen("nitro:/txt/mercy.txt", "rb");
-  if (!f)
-    Engine::throw_("Error opening mercy text");
-  int len = str_len_file(f, '@');
-  _mercyText.resize(len);
-  fread(&_mercyText[0], len, 1, f);
-  fseek(f, 1, SEEK_CUR);
-  fclose(f);
+  _mercyText = textBank.getText("mercy.txt");
 
   if (flavorTextId == -1) {
     enter(CHOOSING_ACTION);
     return;
   }
-  std::string buffer =
-      "nitro:/txt/flavorTexts/" + std::to_string(flavorTextId) + ".txt";
-  f = fopen(buffer.c_str(), "rb");
-  if (!f) {
-    Engine::throw_("Error opening flavor text " + std::to_string(flavorTextId));
-  }
-  len = str_len_file(f, '\0');
-  _flavorText.resize(len);
-  fread(&_flavorText[0], len, 1, f);
-  // fseek(f, 1, SEEK_CUR);
-  fclose(f);
+  _flavorText =
+      textBank.getText("flavorTexts/" + std::to_string(flavorTextId) + ".txt");
 
   enter(PRINTING_FLAVOR_TEXT);
 }

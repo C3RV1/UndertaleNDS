@@ -8,6 +8,7 @@
 #include "Battle/FlavorTextDialogue.hpp"
 #include "Cutscene/Cutscene.hpp"
 #include "Engine/Background.hpp"
+#include "Engine/DataBank.hpp"
 #include "Engine/Engine.hpp"
 #include "Engine/Font.hpp"
 #include "Engine/Sprite.hpp"
@@ -36,18 +37,7 @@ Battle::Battle() {
     globalSave.flags[i] = 0;
   }
 
-  FILE *f = fopen("nitro:/txt/battle_win.txt", "rb");
-  if (f) {
-    long len = str_len_file(f, '\0');
-    _winText.resize(len);
-    fread(&_winText[0], len, 1, f);
-    fseek(f, 1, SEEK_CUR);
-  } else {
-    std::string buffer = "Error opening battle win text";
-    Engine::throw_(buffer);
-  }
-  fclose(f);
-  f = nullptr;
+  _winText = textBank.getText("battle_win.txt");
 }
 
 void Battle::exit(bool won) {

@@ -3,11 +3,11 @@
 //
 #include "TitleScreen.hpp"
 #include "Engine/Background.hpp"
+#include "Engine/DataBank.hpp"
 #include "Engine/Engine.hpp"
 #include "Engine/Font.hpp"
 #include "Engine/TextBGManager.hpp"
 #include "Engine/WAV.hpp"
-#include "Formats/utils.hpp"
 
 void runTitleScreen() {
   constexpr int fadeInFrames = 30;
@@ -30,12 +30,8 @@ void runTitleScreen() {
   constexpr int letterFrames = 4;
   int timer;
 
-  std::string textBuffer;
-  FILE *textStream = fopen("nitro:/intro.txt", "rb");
-  if (textStream == nullptr)
-    nocashMessage("Error opening intro text");
-  else
-    setvbuf(textStream, NULL, _IOFBF, 4 * 1024);
+  std::string text = textBank.getText("intro.txt");
+  auto textPointer = text.begin();
 
   Engine::Background cBackground;
   std::string buffer;
@@ -72,27 +68,18 @@ void runTitleScreen() {
 
     int textTimer = letterFrames;
 
-    if (textStream) {
-      int textLen = str_len_file(textStream, '@');
-      textBuffer.resize(textLen);
-      fread(&textBuffer[0], textLen, 1, textStream);
-      fseek(textStream, 2, SEEK_CUR); // read @\n characters
-    } else {
-      textBuffer = ""; // if file couldn't be opened don't write anything
-    }
-
-    const char *textPointer = textBuffer.c_str();
     int initialX = textX;
     if (introIdx == 3 || introIdx == 6) // Fit to screen
       initialX = textX_alt;
     else if (introIdx == 5) // MT EBOTT. centered
       initialX = textX_centered;
+
     int x = initialX, y = textY;
     Engine::textSub.clear();
     while (timer >= 0 && !skip) {
       Engine::tick();
       skip = keysDown() != 0;
-      if (textTimer == 0 && *textPointer != 0) {
+      if (textTimer == 0 && *textPointer != '@') {
         char glyph = *textPointer++;
         if (glyph == '\n') {
           x = initialX;
@@ -111,9 +98,10 @@ void runTitleScreen() {
           textTimer = otherPunctuationFrames;
       }
       timer--;
-      if (*textPointer != 0)
+      if (*textPointer != '@')
         textTimer--;
     }
+    textPointer += 2; // @\n characters
 
     if (introIdx == 10) { // Intro last scroll
       timer = scrollFrames;
@@ -149,7 +137,6 @@ void runTitleScreen() {
   Engine::textSub.clear();
 
   skip = false;
-  fclose(textStream);
   Audio2::playBGMusic("mus_intronoise.wav", false);
 
   Engine::Background titleBottom;
