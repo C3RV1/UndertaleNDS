@@ -25,11 +25,13 @@
       "sprites": [
         {
           "texture": "room_sprites/wall_panel_ruins",
-          "x": 460, "y": 110
+          "x": 460,
+          "y": 110
         },
         {
           "texture": "room_sprites/wall_panel_ruins",
-          "x": 475, "y": 495
+          "x": 475,
+          "y": 495
         }
       ],
       "colliders": [
@@ -70,49 +72,49 @@
           "h": 66
         },
         {
-          "x": 0,
+          "x": -15,
           "y": 336,
           "w": 160,
           "h": 119
         },
         {
-          "x": 160,
+          "x": 145,
           "y": 336,
           "w": 31,
           "h": 68
         },
         {
-          "x": 191,
+          "x": 176,
           "y": 336,
           "w": 194,
           "h": 119
         },
         {
-          "x": 375,
+          "x": 360,
           "y": 455,
           "w": 203,
           "h": 80
         },
         {
-          "x": 555,
+          "x": 540,
           "y": 535,
           "w": 23,
           "h": 133
         },
         {
-          "x": 0,
+          "x": -15,
           "y": 455,
           "w": 55,
           "h": 213
         },
         {
-          "x": 55,
+          "x": 40,
           "y": 495,
           "w": 200,
           "h": 173
         },
         {
-          "x": 255,
+          "x": 240,
           "y": 655,
           "w": 300,
           "h": 13
@@ -122,39 +124,49 @@
           "x": 240,
           "y": 110,
           "w": 80,
-          "h": 160
+          "h": 160,
+          "action": "cutscene",
+          "cutscene_id": 0
         },
         {
           "_comment": "Fall 2",
           "x": 360,
           "y": 150,
           "w": 20,
-          "h": 100
+          "h": 100,
+          "action": "cutscene",
+          "cutscene_id": 0
         },
         {
           "_comment": "Fall 3",
           "x": 420,
           "y": 211,
           "w": 21,
-          "h": 59
+          "h": 59,
+          "action": "cutscene",
+          "cutscene_id": 0
         },
         {
           "_comment": "Fall 4",
           "x": 482,
           "y": 150,
           "w": 38,
-          "h": 81
+          "h": 81,
+          "action": "cutscene",
+          "cutscene_id": 0
         },
         {
           "_comment": "Fall 5",
           "x": 520,
           "y": 150,
           "w": 20,
-          "h": 40
+          "h": 40,
+          "action": "cutscene",
+          "cutscene_id": 0
         },
         {
           "_comment": "Room up",
-          "x": 160,
+          "x": 145,
           "y": 404,
           "w": 31,
           "h": 44

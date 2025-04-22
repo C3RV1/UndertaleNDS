@@ -43,6 +43,8 @@ r10 - ruins fall first
 r11 - ruins push rock
   c10 - Cinnamon or Butterscotch?
   c20 - Spikes down, rock on goal.
+r12 - path fall
+  c0 - Fall.
 
 1000 - Phone
   c1 - Say hello.
