@@ -10,6 +10,7 @@
 #include "Engine/Sprite.hpp"
 #include "Engine/TextBGManager.hpp"
 #include "Engine/WAV.hpp"
+#include "Engine/math.hpp"
 #include "Formats/utils.hpp"
 #include <memory>
 #include <string>
@@ -148,12 +149,8 @@ void Enemy::doRenderHealth(int x, int y, int counter, int maxCounter) {
   //                 (m^3-(m-c)^3)/m^3
   int maxUsed = maxCounter / 2;
   int counterUsed = counter > maxUsed ? maxUsed : counter;
-  int maxCubed = maxUsed * maxUsed * maxUsed;
-  int diff = (maxUsed - counterUsed);
-  int diffCubed = diff * diff * diff;
-  int easeOutNominator = maxCubed - diffCubed;
 
-  int hpDraw = _prevHp + ((_hp - _prevHp) * easeOutNominator) / maxCubed;
+  int hpDraw = easeOutCubic(_prevHp, _hp, counterUsed, maxUsed);
 
   x -= kHpBarWidth / 2;
   y -= kHpBarHeigth + 2;
@@ -161,6 +158,15 @@ void Enemy::doRenderHealth(int x, int y, int counter, int maxCounter) {
     Engine::textSub.clearRect(x, y, kHpBarWidth, kHpBarHeigth);
   else
     Engine::textSub.drawHpBar(hpDraw, _maxHp, x, y, kHpBarWidth, kHpBarHeigth);
+}
+
+void Enemy::doShake(int counter, int maxCounter) {
+  s32 angle = kShakeMaxAngle * counter / maxCounter;
+  s16 sinAngle = sinLerp(angle % DEGREES_IN_CIRCLE); // 4.12 fixed
+  s32 amplitude = easeOutCubic(kShakeAmplitude, 0, counter, maxCounter);
+  s32 dx = (sinAngle * amplitude) >> (8 + 12 - 8); // 24.8 fixed
+
+  shakeSprites(dx);
 }
 
 bool Enemy::defaultDamageAnimation(s32 x, s32 y, int width, int height) {
@@ -175,10 +181,11 @@ bool Enemy::defaultDamageAnimation(s32 x, s32 y, int width, int height) {
   } else if (_damageAnimStep == EnemyDamageAnimationStep::DAMAGE_NUMBERS) {
     doDamageNumbers(x + (width << 8) / 2, y, _damageSpriteCounter,
                     kDamageNumFrames);
-    if (!_missed)
+    if (!_missed) {
       doRenderHealth((x >> 8) + (width) / 2, y >> 8, _damageSpriteCounter,
                      kDamageNumFrames);
-    doShake(_damageSpriteCounter, kDamageNumFrames);
+      doShake(_damageSpriteCounter, kDamageNumFrames);
+    }
     if (_damageSpriteCounter == kDamageNumFrames) {
       damageAnimationFinished();
       return true;

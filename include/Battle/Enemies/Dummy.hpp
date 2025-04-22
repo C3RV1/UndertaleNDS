@@ -18,6 +18,7 @@ public:
 
 protected:
   void slashFinished() final;
+  void shakeSprites(s32 dx) final;
 
 private:
   static constexpr int kX = 30, kY = (192 - 52) / 2;

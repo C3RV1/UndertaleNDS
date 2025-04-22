@@ -1,5 +1,6 @@
 #include "Battle/Enemies/Froggit.hpp"
 #include "Engine/Sprite.hpp"
+#include <cmath>
 #include <memory>
 
 Froggit::Froggit(bool isFirstEnemy) {
@@ -39,6 +40,8 @@ std::shared_ptr<Engine::Sprite> Froggit::getSprite(u8 spriteId) {
 }
 
 void Froggit::update() {
+  if (!_headBobEnabled)
+    return;
   auto pos = _headPath.advance(kPathSpeed);
   _headSpr->_wx = (kX << 8) + pos.first;
   _headSpr->_wy = (kY << 8) + pos.second;
@@ -47,15 +50,60 @@ void Froggit::update() {
 bool Froggit::damageAnimation() {
   if (_headSpr->_texture == nullptr)
     return true;
-  return defaultDamageAnimation(kX << 8, kY << 8,
+  return defaultDamageAnimation(kX << 8, (kY << 8) + kPathOffY,
                                 _headSpr->_texture->getWidth(),
                                 _headSpr->_texture->getHeight());
 }
 
-bool Froggit::canBeSpared() { return true; }
+bool Froggit::canBeSpared() { return _canBeSpared; }
 
-void Froggit::doAct(int actId) {}
+void Froggit::doAct(int actId) {
+  auto act = static_cast<FroggitActs>(actId);
+  switch (act) {
+  case FroggitActs::COMPLIMENT:
+  case FroggitActs::THREATEN:
+    _canBeSpared = true;
+    break;
+  default:
+    break;
+  }
+}
 
-void Froggit::slashFinished() {}
+void Froggit::slashFinished() {
+  _headSpr->setAnimation(_headSpr->nameToAnimId("kill"));
+  _legsSpr->setAnimation(_legsSpr->nameToAnimId("kill"));
+  _headSpr->_wx = kX << 8;
+  _headSpr->_wy = (kY << 8) + kDeathOffY;
+  _headBobEnabled = false;
+}
 
-void Froggit::damageAnimationFinished() {}
+void Froggit::damageAnimationFinished() {
+  if (_hp <= 0)
+    return;
+  _headSpr->setAnimation(_headSpr->nameToAnimId("gfx"));
+  _legsSpr->setAnimation(_legsSpr->nameToAnimId("gfx"));
+  _headBobEnabled = true;
+  _headPath.reset();
+}
+
+void Froggit::shakeSprites(s32 dx) {
+  _headSpr->_wx = (kX << 8) + dx;
+  _legsSpr->_wx = (kX << 8) + dx;
+}
+
+void Froggit::enemyCommand(u8 command) {
+  auto cmd = static_cast<FroggitCommands>(command);
+  switch (cmd) {
+  case FroggitCommands::ENABLE_HEAD_BOB:
+    _headPath.reset();
+    _headBobEnabled = true;
+    break;
+  case FroggitCommands::DISABLE_HEAD_BOB:
+    _headSpr->_wx = kX << 8;
+    _headSpr->_wy = kY << 8;
+    _headBobEnabled = false;
+    break;
+  default:
+    break;
+  }
+}

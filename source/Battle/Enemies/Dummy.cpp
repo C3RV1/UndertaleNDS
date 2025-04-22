@@ -34,6 +34,8 @@ bool Dummy::damageAnimation() {
                                 _dummySpr->_texture->getHeight());
 }
 
+void Dummy::shakeSprites(s32 dx) { _dummySpr->_wx = (kX << 8) + dx; }
+
 void Dummy::slashFinished() {
   Enemy::slashFinished();
   _dummySpr->setAnimation(_dummySpr->nameToAnimId("hurt"));

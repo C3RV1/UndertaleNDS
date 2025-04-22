@@ -36,6 +36,8 @@ inline std::pair<s32, s32> lerp(std::pair<s32, s32> &a, std::pair<s32, s32> &b,
   return {lerp(a.first, b.first, t, maxT), lerp(a.second, b.second, t, maxT)};
 }
 
+int easeOutCubic(int a, int b, int counter, int maxCounter);
+
 int smoothstep(int a, int b, int t, int maxT);
 
 #endif // UNDERTALE_MATH_HPP

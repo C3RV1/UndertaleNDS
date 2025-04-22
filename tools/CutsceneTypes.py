@@ -127,6 +127,10 @@ class FloweyCommands(enum.IntEnum):
     PROGRESS_TO_ATTACK = 1
     PROGRESS_TO_KILL = 2
 
+class FroggitCommands(enum.IntEnum):
+    ENABLE_HEAD_BOB = 0
+    DISABLE_HEAD_BOB = 1
+
 
 class DialogueTypes(enum.IntEnum):
     LEFT_ALIGNED = 0

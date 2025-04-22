@@ -13,6 +13,7 @@ class Path {
 public:
   Path(std::vector<std::pair<s32, s32>> positions, bool smooth, bool closed);
   std::pair<s32, s32> advance(s32 speed);
+  void reset();
 
 private:
   static constexpr size_t kSplineResolution = 5;

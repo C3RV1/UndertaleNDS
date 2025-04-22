@@ -17,12 +17,13 @@ Path::Path(std::vector<std::pair<s32, s32>> positions, bool smooth,
     _posSpline.push_back(_posSpline[0]);
 
   createPosLookup();
+  reset();
+}
 
+void Path::reset() {
   _currentIdx = 0;
   _currentDst = 0;
 }
-
-#include <string>
 
 void Path::createSplineInterpolations(std::vector<std::pair<s32, s32>> pos) {
   size_t posSplineSize = pos.size() * kSplineResolution;
@@ -71,7 +72,6 @@ void Path::createSplineInterpolations(std::vector<std::pair<s32, s32>> pos) {
 void Path::createPosLookup() {
   _dst.reserve(_posSpline.size() - 1);
 
-  std::string buffer;
   for (size_t i = 0; i < _posSpline.size() - 1; i++) {
     auto &p1 = _posSpline[i];
     auto &p2 = _posSpline[i + 1];

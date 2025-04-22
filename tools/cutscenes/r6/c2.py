@@ -36,7 +36,8 @@ def cutscene(c: Cutscene):
     c.cmp_flag(FlagOffsets.BATTLE_ACTION, "==", BtlActionOff.ACT + 1)
     compliment_jump = c.jump_if()
 
-    # TODO: Threaten.
+    c.cmp_flag(FlagOffsets.BATTLE_ACTION, "==", BtlActionOff.ACT + 2)
+    threaten_jump = c.jump_if()
 
     toriel_scare_jump = c.jump()
 
@@ -59,14 +60,23 @@ def cutscene(c: Cutscene):
     c.dialogue_flavor(30, type_sound="SND_TXT1.wav")
     # TODO: Add blush ribbit.
     c.wait(WaitTypes.DIALOGUE)
+    toriel_scare_jump_3 = c.jump()
+
+    # == THREATEN ==
+    c.bind(threaten_jump)
+    c.dialogue_flavor(40, type_sound="SND_TXT1.wav")
+    # TODO: Add shiver shiver.
+    c.wait(WaitTypes.DIALOGUE)
 
     # == TORIEL SCARE ==
     c.bind(toriel_scare_jump)
     c.bind(toriel_scare_jump_2)
+    c.bind(toriel_scare_jump_3)
 
     c.debug("Toriel scare")
     c.load_sprite(256, 192 // 4, "battle/spr_torieldisapprove")
 
+    c.enemy_command(enemy_idx=0, enemy_cmd=FroggitCommands.DISABLE_HEAD_BOB)
     c.wait(WaitTypes.FRAMES, 40)
 
     c.move_in_frames(Target(TargetType.SPRITE, 0), -76, 0, 80)

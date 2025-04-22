@@ -32,3 +32,16 @@ int smoothstep(int a, int b, int t, int maxT) {
   int denom = maxT * maxT * maxT;
   return a + ((b - a) * (coef1 - coef2)) / denom;
 }
+
+int easeOutCubic(int a, int b, int counter, int maxCounter) {
+  // Ease-out cubic: 1-(1-x)^3
+  //                 1-(1-c/m)^3
+  //                 1-((m-c)^3/m^3)
+  //                 (m^3-(m-c)^3)/m^3
+  int maxCubed = maxCounter * maxCounter * maxCounter;
+  int diff = (maxCounter - counter);
+  int diffCubed = diff * diff * diff;
+  int easeOutNominator = maxCubed - diffCubed;
+
+  return a + ((b - a) * easeOutNominator) / maxCubed;
+}

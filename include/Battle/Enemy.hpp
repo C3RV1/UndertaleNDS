@@ -15,7 +15,7 @@
 
 enum class EnemyDamageAnimationStep { SLASH = 0, DAMAGE_NUMBERS = 1 };
 
-// TODO: Shake on damage
+// TODO: Disintegrate on kill. (How? 3D engine? Particles? Mosaic??)
 
 class Enemy {
 public:
@@ -56,8 +56,8 @@ protected:
   void doSlash(s32 x, s32 y, int counter, int maxCounter);
   void doDamageNumbers(s32 x, s32 y, int counter, int maxCounter);
   void doRenderHealth(int x, int y, int counter, int maxCounter);
-  void doShake(int counter, int maxCounter) {}
-  virtual void shakeSprites(s32 dx, s32 dy) {}
+  void doShake(int counter, int maxCounter);
+  virtual void shakeSprites(s32 dx) {}
   void loadName(int enemyId);
   void loadActText(int textId);
 
@@ -87,6 +87,9 @@ private:
 
   static constexpr int kSlashFrames = 10 * 6;
   static constexpr int kDamageNumFrames = 90;
+
+  static constexpr s32 kShakeMaxAngle = DEGREES_IN_CIRCLE * 10;
+  static constexpr s32 kShakeAmplitude = 5 << 8;
 };
 
 std::unique_ptr<Enemy> getEnemy(u16 enemyId);
