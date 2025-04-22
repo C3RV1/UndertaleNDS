@@ -11,6 +11,8 @@ nitrofs/spr
 nitrofs/data/cutscenes
 nitrofs/data/rooms
 nitrofs/fnt
+nitrofs/txt
+tools/txt
 nitrofs/stamp_file.txt
 *.aseprite
 _*

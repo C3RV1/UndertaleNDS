@@ -47,7 +47,7 @@ BattleAction::BattleAction(std::vector<std::unique_ptr<Enemy>> *enemies,
   Engine::spriteLoadTexture(_smallHeartSpr, "spr_heartsmall");
   _smallHeartSpr->_layer = 3;
 
-  FILE *f = fopen("nitro:/data/mercy.txt", "rb");
+  FILE *f = fopen("nitro:/txt/mercy.txt", "rb");
   if (!f)
     Engine::throw_("Error opening mercy text");
   int len = str_len_file(f, '@');
@@ -61,7 +61,7 @@ BattleAction::BattleAction(std::vector<std::unique_ptr<Enemy>> *enemies,
     return;
   }
   std::string buffer =
-      "nitro:/data/flavorTexts/" + std::to_string(flavorTextId) + ".txt";
+      "nitro:/txt/flavorTexts/" + std::to_string(flavorTextId) + ".txt";
   f = fopen(buffer.c_str(), "rb");
   if (!f) {
     Engine::throw_("Error opening flavor text " + std::to_string(flavorTextId));

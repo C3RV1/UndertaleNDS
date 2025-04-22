@@ -368,7 +368,7 @@ def compile_rooms(force: bool = False):
     for root, _, files in os.walk("rooms"):
         for file in files:
             path = os.path.join(root, file)
-            path_dest = os.path.splitext(os.path.join("../nitrofs/data", path))[0] + ".room"
+            path_dest = os.path.splitext(os.path.join("../nitrofs", path))[0] + ".room"
             if os.path.isfile(path_dest):
                 src_time = os.path.getmtime(path)
                 dst_time = os.path.getmtime(path_dest)

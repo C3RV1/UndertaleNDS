@@ -24,7 +24,7 @@ Dialogue::Dialogue(u16 textId, std::shared_ptr<Engine::Sprite> target,
   _heartSprite = std::make_shared<Engine::Sprite>(heartAlloc);
   Engine::spriteLoadTexture(_heartSprite, "spr_heartsmall");
 
-  std::string buffer = "nitro:/data/dialogue/r" +
+  std::string buffer = "nitro:/txt/dialogue/r" +
                        std::to_string(globalCutscene->_roomId) + "/c" +
                        std::to_string(globalCutscene->_cutsceneId) + "/d" +
                        std::to_string(textId) + ".txt";

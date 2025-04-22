@@ -6,6 +6,7 @@
 #include "Engine/Engine.hpp"
 #include "Engine/Font.hpp"
 #include "Engine/OAMManager.hpp"
+#include "Engine/TextBank.hpp"
 #include "MainMenu.hpp"
 #include "Room/Camera.hpp"
 #include "Room/InGameMenu.hpp"
@@ -22,6 +23,11 @@ int main() {
   /* Configure the VRAM and background control registers. */
   if (Engine::init() != 0)
     return 0;
+
+  nocashMessage("Loading test text bank");
+  TextBank testTextBank;
+  testTextBank.load("nitro:/txts.tbnk");
+  nocashMessage(testTextBank.getText("dialogue/r3/c0/d10.txt").c_str());
 
   globalSave.loadData();
 

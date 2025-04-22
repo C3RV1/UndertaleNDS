@@ -36,7 +36,7 @@ Battle::Battle() {
     globalSave.flags[i] = 0;
   }
 
-  FILE *f = fopen("nitro:/data/battle_win.txt", "rb");
+  FILE *f = fopen("nitro:/txt/battle_win.txt", "rb");
   if (f) {
     long len = str_len_file(f, '\0');
     _winText.resize(len);

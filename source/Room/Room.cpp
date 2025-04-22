@@ -6,7 +6,6 @@
 #include "Cutscene/Cutscene.hpp"
 #include "Engine/Engine.hpp"
 #include "Engine/Sprite.hpp"
-#include "Engine/Texture.hpp"
 #include "Engine/WAV.hpp"
 #include "Formats/utils.hpp"
 #include "Room/Camera.hpp"
@@ -17,8 +16,7 @@
 
 Room::Room(int roomId) : _roomId(roomId) {
   _roomId = roomId;
-  std::string buffer =
-      "nitro:/data/rooms/room" + std::to_string(roomId) + ".room";
+  std::string buffer = "nitro:/rooms/room" + std::to_string(roomId) + ".room";
   FILE *f = fopen(buffer.c_str(), "rb");
   if (f == nullptr) {
     buffer = "Error opening room " + std::to_string(roomId);

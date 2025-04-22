@@ -149,7 +149,7 @@ void InGameMenu::drawItemPage() {
       break;
     int item = globalSave.items[itemIdx];
 
-    sprintf(buffer, "nitro:/data/items/name%d.txt", item);
+    sprintf(buffer, "nitro:/txt/items/name%d.txt", item);
     FILE *f = fopen(buffer, "rb");
     int len = str_len_file(f, '\n');
     fread(buffer, len + 1, 1, f);
@@ -172,7 +172,7 @@ void InGameMenu::drawItemDesc() {
   char buffer[100];
   int itemIdx = _itemPage * 2 + _optionSelected;
   int item = globalSave.items[itemIdx];
-  sprintf(buffer, "nitro:/data/items/desc%d.txt", item);
+  sprintf(buffer, "nitro:/txt/items/desc%d.txt", item);
   FILE *f = fopen(buffer, "rb");
   int len = str_len_file(f, '\0');
   fread(buffer, len + 1, 1, f);
@@ -203,7 +203,7 @@ void InGameMenu::drawCellPage() {
   for (int i = 0; i < _optionCount; i++) {
     int cellOption = globalSave.cell[i];
 
-    sprintf(buffer, "nitro:/data/cell/name%d.txt", cellOption);
+    sprintf(buffer, "nitro:/txt/cell/name%d.txt", cellOption);
     FILE *f = fopen(buffer, "rb");
     int len = str_len_file(f, '\n');
     fread(buffer, len + 1, 1, f);

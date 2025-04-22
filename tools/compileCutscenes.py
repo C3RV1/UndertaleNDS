@@ -27,7 +27,7 @@ def compile_cutscenes(force: bool = False):
             path = os.path.join(root, file)
             if not path.endswith(".py"):
                 continue
-            path_dest = os.path.splitext(os.path.join("../nitrofs/data", path))[0] + ".cscn"
+            path_dest = os.path.splitext(os.path.join("../nitrofs", path))[0] + ".cscn"
             if os.path.isfile(path_dest):
                 src_time = os.path.getmtime(path)
                 dst_time = os.path.getmtime(path_dest)

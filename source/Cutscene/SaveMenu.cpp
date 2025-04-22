@@ -50,8 +50,8 @@ void SaveMenu::drawInfo(SaveData &saveData, u8 color) {
 
   std::string buffer;
   if (saveData.lastSavedRoom != 0) {
-    buffer = "nitro:/data/room_names/" +
-             std::to_string(saveData.lastSavedRoom) + ".txt";
+    buffer = "nitro:/txt/room_names/" + std::to_string(saveData.lastSavedRoom) +
+             ".txt";
     FILE *f = fopen(buffer.c_str(), "rb");
     if (f) {
       int len = str_len_file(f, '\n');

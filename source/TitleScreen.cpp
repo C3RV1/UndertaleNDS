@@ -31,7 +31,7 @@ void runTitleScreen() {
   int timer;
 
   std::string textBuffer;
-  FILE *textStream = fopen("nitro:/data/intro.txt", "rb");
+  FILE *textStream = fopen("nitro:/intro.txt", "rb");
   if (textStream == nullptr)
     nocashMessage("Error opening intro text");
   else

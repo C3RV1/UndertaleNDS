@@ -41,8 +41,8 @@ void runMainMenu() {
     Audio2::playBGMusic("mus_menu1.wav", true);
   }
 
-  buffer = "nitro:/data/room_names/" +
-           std::to_string(globalSave.lastSavedRoom) + ".txt";
+  buffer = "nitro:/txt/room_names/" + std::to_string(globalSave.lastSavedRoom) +
+           ".txt";
   FILE *f = fopen(buffer.c_str(), "rb");
   if (f) {
     int len = str_len_file(f, '\n');
@@ -56,7 +56,7 @@ void runMainMenu() {
   }
   fclose(f);
 
-  f = fopen("nitro:/data/main_menu.txt", "rb");
+  f = fopen("nitro:/txt/main_menu.txt", "rb");
   if (f) {
     int len = str_len_file(f, '\n');
     continueText.resize(len);

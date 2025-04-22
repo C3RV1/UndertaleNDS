@@ -30,7 +30,7 @@ void runWriteNameMenu() {
 
   auto mainFont = Engine::fontManager.loadFont("fnt_maintext.font");
 
-  FILE *textStream = fopen("nitro:/data/write_name.txt", "rb");
+  FILE *textStream = fopen("nitro:/txt/write_name.txt", "rb");
   if (textStream == nullptr)
     nocashMessage("Error opening write name text file.");
   else {

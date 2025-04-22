@@ -37,7 +37,7 @@ std::unique_ptr<Enemy> getEnemy(u16 enemyId) {
 
 void Enemy::loadName(int enemyId) {
   char buffer[100];
-  sprintf(buffer, "nitro:/data/enemies/name%d.txt", enemyId);
+  sprintf(buffer, "nitro:/txt/enemies/name%d.txt", enemyId);
   FILE *enemyNameFile = fopen(buffer, "rb");
   if (enemyNameFile) {
     int len = str_len_file(enemyNameFile, '\n');
@@ -53,7 +53,7 @@ void Enemy::loadName(int enemyId) {
 
 void Enemy::loadActText(int textId) {
   std::string buffer =
-      "nitro:/data/battle_act_txt/" + std::to_string(textId) + ".txt";
+      "nitro:/txt/battle_act_txt/" + std::to_string(textId) + ".txt";
   FILE *actTextFile = fopen(buffer.c_str(), "rb");
   if (actTextFile) {
     int len = str_len_file(actTextFile, '@');

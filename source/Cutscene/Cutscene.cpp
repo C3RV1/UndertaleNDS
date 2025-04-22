@@ -25,8 +25,8 @@ std::unique_ptr<Cutscene> globalCutscene = nullptr;
 
 Cutscene::Cutscene(u16 cutsceneId, u16 roomId)
     : _cutsceneId(cutsceneId), _roomId(roomId) {
-  std::string buffer = "nitro:/data/cutscenes/r" + std::to_string(roomId) +
-                       "/c" + std::to_string(cutsceneId) + ".cscn";
+  std::string buffer = "nitro:/cutscenes/r" + std::to_string(roomId) + "/c" +
+                       std::to_string(cutsceneId) + ".cscn";
   FILE *f = fopen(buffer.c_str(), "rb");
   if (f) {
     setvbuf(f, NULL, _IOFBF, 4 * 1024);
