@@ -140,7 +140,7 @@ void runWriteNameMenu() {
       }
 
       if (confirm || keysDown() & KEY_A) {
-        if (cLetter < letterCount && currentLen <= maxLen) {
+        if (cLetter < letterCount && currentLen < maxLen) {
           // letter
           char glyph;
           if (cLetter < 26) {
