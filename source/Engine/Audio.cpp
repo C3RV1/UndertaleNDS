@@ -121,10 +121,10 @@ void AudioFile::update() {
     return;
   u16 timerTicks = timerTick(audioManager.getTimerId());
   u16 timerElapsed = timerTicks - _timerLast;
-  u32 samples = ((u32)timerElapsed * (u32)_sampleRate + _ticksRemain) /
-                (BUS_CLOCK / 1024);
-  _ticksRemain = ((u32)timerElapsed * (u32)_sampleRate + _ticksRemain) %
-                 (BUS_CLOCK / 1024);
+  u32 samples =
+      ((u32)timerElapsed * (u32)_sampleRate + _ticksRemain) / (BUS_CLOCK / 64);
+  _ticksRemain =
+      ((u32)timerElapsed * (u32)_sampleRate + _ticksRemain) % (BUS_CLOCK / 64);
   _expectedSampleBufferPos += samples;
 
   progress(samples);
@@ -149,7 +149,7 @@ void updateAudio() { Audio2::audioManager.update(); }
 
 AudioManager::AudioManager() {
   soundEnable();
-  timerStart(kTimerCounter, ClockDivider_1024, 0, nullptr);
+  timerStart(kTimerCounter, ClockDivider_64, 0, nullptr);
   timerStart(kTimerIrq, ClockDivider_1, 0, updateAudio);
 }
 
