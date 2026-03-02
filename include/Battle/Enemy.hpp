@@ -33,6 +33,7 @@ public:
       _hp = 0;
     loadDamageSprites(damage);
   }
+  virtual void enter() {};
   virtual void doAct(int actId) {}
   virtual bool damageAnimation() { return true; }
   virtual bool canBeSpared() { return true; }

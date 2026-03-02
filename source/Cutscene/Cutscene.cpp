@@ -381,8 +381,10 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_START_BATTLE");
 #endif
-    if (callingLocation == ROOM || callingLocation == LOAD_ROOM)
-      runBattle(_commandStream);
+    if (callingLocation == ROOM || callingLocation == LOAD_ROOM) {
+      globalBattle = std::make_unique<Battle>();
+      globalBattle->loadFromStream(_commandStream);
+    }
     return true;
   }
   case CMD_EXIT_BATTLE: {

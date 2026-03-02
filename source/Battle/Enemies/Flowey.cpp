@@ -14,8 +14,9 @@ Flowey::Flowey() {
   floweySpr->_wx = 30 << 8;
   floweySpr->_wy = ((192 - 44) / 2) << 8;
   floweySpr->_layer = 1;
-  Engine::spriteSetShown(floweySpr, true);
 }
+
+void Flowey::enter() { Engine::spriteSetShown(floweySpr, true); }
 
 std::shared_ptr<Engine::Sprite> Flowey::getSprite(u8 spriteId) {
   return floweySpr;

@@ -19,6 +19,7 @@ public:
   void exit(bool won);
   void loadFromStream(FILE *stream);
   void showHp();
+  void enter();
   void show();
   void drawBulletBoard();
   void drawRect();
@@ -61,7 +62,6 @@ public:
   void getMoveRect(int &x, int &y, int &w, int &h, int counter, int maxCounter);
 };
 
-void runBattle(FILE *stream);
 extern std::unique_ptr<Battle> globalBattle;
 
 #endif // UNDERTALE_BATTLE_HPP

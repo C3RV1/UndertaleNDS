@@ -2,6 +2,7 @@
 // Created by cervi on 24/08/2022.
 //
 
+#include "Battle/Battle.hpp"
 #include "Cutscene/Cutscene.hpp"
 #include "Engine/DataBank.hpp"
 #include "Engine/Engine.hpp"
@@ -17,6 +18,9 @@
 #include "WriteName.hpp"
 #include <cstdio>
 
+void runBattle();
+void runRoom();
+
 int main() {
   defaultExceptionHandler();
 
@@ -24,7 +28,7 @@ int main() {
   if (Engine::init() != 0)
     return 0;
 
-  textBank.load("nitro:/txts.tbnk");
+  textBank.load("nitro:/txts.cbnk");
 
   globalSave.loadData();
 
@@ -45,8 +49,8 @@ int main() {
   u16 roomSpawn = globalSave.lastSavedRoom;
 
   // DEBUG
-  roomSpawn = 8;
-  globalSave.flags[0] = 9;
+  roomSpawn = 6;
+  globalSave.flags[0] = 5;
 
   globalPlayer = new Player();
   Engine::spriteSetShown(globalPlayer->_playerSpr, true);
@@ -58,6 +62,17 @@ int main() {
   globalPlayer->_playerSpr->_wy = globalRoom->_spawnY << 8;
 
   for (;;) {
+    if (globalBattle == nullptr)
+      runRoom();
+    else
+      runBattle();
+  }
+
+  return 0;
+}
+
+void runRoom() {
+  while (globalBattle == nullptr) {
     Engine::tick();
     globalPlayer->update();
     globalRoom->update();
@@ -75,6 +90,86 @@ int main() {
     globalPlayer->draw();
     globalRoom->draw();
   }
+}
 
-  return 0;
+void runBattle() {
+  int timer = kRoomChangeFadeFrames;
+  while (timer >= 0) {
+    Engine::tick();
+    setBrightness(3, (-16 * (kRoomChangeFadeFrames - timer)) /
+                         kRoomChangeFadeFrames);
+    timer--;
+  }
+
+  globalRoom->push();
+  Engine::textMain.clear();
+  Engine::textSub.clear();
+  globalInGameMenu.unload();
+
+  lcdMainOnBottom();
+
+  globalBattle->enter();
+
+  if (globalCutscene != nullptr) {
+    globalCutscene->runCommands(LOAD_BATTLE);
+  }
+
+  timer = kRoomChangeFadeFrames;
+  while (timer >= 0) {
+    Engine::tick();
+    globalBattle->update();
+    setBrightness(3, (-16 * timer) / kRoomChangeFadeFrames);
+    timer--;
+  }
+
+  while (globalBattle->_running) {
+    Engine::tick();
+    if (globalCutscene != nullptr) {
+      if (globalBattle->_stopPostDialogue &&
+          globalCutscene->_cDialogue == nullptr) {
+        globalBattle->_running = false;
+      }
+      globalCutscene->update();
+      if (globalCutscene->runCommands(BATTLE)) {
+        globalCutscene = nullptr;
+        globalInGameMenu.show();
+        globalPlayer->set_player_control(true);
+        globalCamera._manual = false;
+      }
+    }
+    globalBattle->update();
+  }
+
+  timer = kRoomChangeFadeFrames;
+  while (timer >= 0) {
+    Engine::tick();
+    globalBattle->update();
+    setBrightness(3, (-16 * (kRoomChangeFadeFrames - timer)) /
+                         kRoomChangeFadeFrames);
+    timer--;
+  }
+
+  globalBattle = nullptr;
+  Engine::textMain.clear();
+  Engine::textSub.clear();
+  Engine::clearSub();
+
+  lcdMainOnTop();
+
+  globalRoom->pop();
+  globalInGameMenu.load();
+
+  if (globalCutscene != nullptr) {
+    globalCutscene->runCommands(LOAD_ROOM);
+  }
+  globalCamera.updatePosition(true);
+  globalPlayer->draw();
+  globalRoom->draw();
+
+  timer = kRoomChangeFadeFrames;
+  while (timer >= 0) {
+    Engine::tick();
+    setBrightness(3, (-16 * timer) / kRoomChangeFadeFrames);
+    timer--;
+  }
 }

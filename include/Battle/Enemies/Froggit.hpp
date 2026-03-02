@@ -16,6 +16,7 @@ enum class FroggitActs { CHECK = 0, COMPLIMENT = 1, THREATEN = 2 };
 class Froggit : public Enemy {
 public:
   Froggit(bool isFirstEnemy);
+  void enter() final;
   void update() final;
   bool damageAnimation() final;
   bool canBeSpared() final;

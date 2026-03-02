@@ -6,7 +6,7 @@
 #define UNDERTALE_ROOM_HPP
 
 #include "Cutscene/Navigation.hpp"
-#include "Engine/Engine.hpp"
+#include "Engine/Background.hpp"
 #include "Formats/ROOM_FILE.hpp"
 #include "Room/RoomSprite.hpp"
 #include <cstdio>

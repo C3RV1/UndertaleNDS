@@ -104,10 +104,15 @@ void Battle::loadFromStream(FILE *stream) {
   fread(&bgPath[0], len, 1, stream);
   fseek(stream, 1, SEEK_CUR);
   _battleBackground.loadPath(bgPath);
-  _battleBackground.loadBgTextSub();
 
   _playerSpr->_wx = ((_boardX + _boardW / 2) << 8) - (9 << 8) / 2;
   _playerSpr->_wy = ((_boardY + _boardH / 2) << 8) - (9 << 8) / 2;
+}
+
+void Battle::enter() {
+  _battleBackground.loadBgTextSub();
+  for (auto &c : _enemies)
+    c->enter();
   show();
 }
 
@@ -215,88 +220,4 @@ void Battle::update() {
 void Battle::updateEnemies() {
   for (auto &c : _enemies)
     c->update();
-}
-
-void runBattle(FILE *stream) {
-  int timer = kRoomChangeFadeFrames;
-  while (timer >= 0) {
-    Engine::tick();
-    setBrightness(3, (-16 * (kRoomChangeFadeFrames - timer)) /
-                         kRoomChangeFadeFrames);
-    timer--;
-  }
-
-  globalRoom->push();
-  Engine::textMain.clear();
-  Engine::textSub.clear();
-  globalInGameMenu.unload();
-
-  lcdMainOnBottom();
-
-  globalBattle = std::make_unique<Battle>();
-  globalBattle->loadFromStream(stream);
-  globalBattle->show();
-
-  if (globalCutscene != nullptr) {
-    globalCutscene->runCommands(LOAD_BATTLE);
-  }
-
-  timer = kRoomChangeFadeFrames;
-  while (timer >= 0) {
-    Engine::tick();
-    globalBattle->update();
-    setBrightness(3, (-16 * timer) / kRoomChangeFadeFrames);
-    timer--;
-  }
-
-  while (globalBattle->_running) {
-    Engine::tick();
-    if (globalCutscene != nullptr) {
-      if (globalBattle->_stopPostDialogue &&
-          globalCutscene->_cDialogue == nullptr) {
-        globalBattle->_running = false;
-      }
-      globalCutscene->update();
-      if (globalCutscene->runCommands(BATTLE)) {
-        globalCutscene = nullptr;
-        globalInGameMenu.show();
-        globalPlayer->set_player_control(true);
-        globalCamera._manual = false;
-      }
-    }
-    globalBattle->update();
-  }
-
-  timer = kRoomChangeFadeFrames;
-  while (timer >= 0) {
-    Engine::tick();
-    globalBattle->update();
-    setBrightness(3, (-16 * (kRoomChangeFadeFrames - timer)) /
-                         kRoomChangeFadeFrames);
-    timer--;
-  }
-
-  globalBattle = nullptr;
-  Engine::textMain.clear();
-  Engine::textSub.clear();
-  Engine::clearSub();
-
-  lcdMainOnTop();
-
-  globalRoom->pop();
-  globalInGameMenu.load();
-
-  if (globalCutscene != nullptr) {
-    globalCutscene->runCommands(LOAD_ROOM);
-  }
-  globalCamera.updatePosition(true);
-  globalPlayer->draw();
-  globalRoom->draw();
-
-  timer = kRoomChangeFadeFrames;
-  while (timer >= 0) {
-    Engine::tick();
-    setBrightness(3, (-16 * timer) / kRoomChangeFadeFrames);
-    timer--;
-  }
 }

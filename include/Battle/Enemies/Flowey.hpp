@@ -19,9 +19,10 @@ enum class FloweyCommands {
 class Flowey : public Enemy {
 public:
   Flowey();
-  std::shared_ptr<Engine::Sprite> getSprite(u8 spriteId) override;
-  std::unique_ptr<BattleAttack> getBattleAttack() override;
-  void enemyCommand(u8 command) override;
+  std::shared_ptr<Engine::Sprite> getSprite(u8 spriteId) final;
+  std::unique_ptr<BattleAttack> getBattleAttack() final;
+  void enemyCommand(u8 command) final;
+  void enter() final;
 
 private:
   FloweyCommands floweyAttack = FloweyCommands::MOVEMENT;

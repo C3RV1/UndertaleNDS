@@ -22,15 +22,18 @@ Froggit::Froggit(bool isFirstEnemy) {
   _legsSpr->_wx = kX << 8;
   _legsSpr->_wy = kY << 8;
   _legsSpr->_layer = 1;
-  Engine::spriteSetShown(_legsSpr, true);
 
   _headSpr->_wx = kX << 8;
   _headSpr->_wy = kY << 8;
   _headSpr->_layer = 1;
-  Engine::spriteSetShown(_headSpr, true);
 
   loadActText(1);
   _actOptionCount = 3;
+}
+
+void Froggit::enter() {
+  Engine::spriteSetShown(_legsSpr, true);
+  Engine::spriteSetShown(_headSpr, true);
 }
 
 std::shared_ptr<Engine::Sprite> Froggit::getSprite(u8 spriteId) {
