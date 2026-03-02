@@ -5,6 +5,7 @@
 #include "Save.hpp"
 #include "DEBUG_FLAGS.hpp"
 #include "card.hpp"
+#include <string>
 
 SaveData globalSave;
 
@@ -38,7 +39,10 @@ void SaveData::loadData() {
 
   if (memcmp(header, expectedHeader, 4) != 0) {
 #ifdef DEBUG_SAVE
-    nocashMessage("Save: BAD HEADER.");
+    std::string buffer = "Save: BAD HEADER: ";
+    for (int i = 0; i < 4; i++)
+      buffer += std::to_string((int)header[i]) + " ";
+    nocashMessage(buffer.c_str());
 #endif
     fCard.close();
     clear(INTERNAL_RESET);

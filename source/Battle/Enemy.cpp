@@ -7,12 +7,10 @@
 #include "Battle/Enemies/Froggit.hpp"
 #include "Engine/Audio.hpp"
 #include "Engine/DataBank.hpp"
-#include "Engine/Engine.hpp"
 #include "Engine/Sprite.hpp"
 #include "Engine/TextBGManager.hpp"
 #include "Engine/WAV.hpp"
 #include "Engine/math.hpp"
-#include "Formats/utils.hpp"
 #include <memory>
 #include <string>
 
