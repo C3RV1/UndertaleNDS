@@ -79,7 +79,7 @@ void tick() {
   main3dSpr.updateTextures();
   main3dSpr.draw();
   glFlush(0);
-  Audio2::audioManager.update();
+  // Audio2::audioManager.update();
   swiWaitForVBlank();
   OAMManagerSub.draw(); // Update oam in v-blank
   // TODO: Scroll and bg3 negative? Sub screen?
