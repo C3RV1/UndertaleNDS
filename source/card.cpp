@@ -96,15 +96,13 @@ u8 cardTransfer(u8 data) {
 
 void cardWaitInProgress() {
   cardCommand(SPI_EEPROM_RDSR, true);
-  cardCommand(0, false);
 
-  if (REG_AUXSPIDATA == 0xFF)
+  if (cardCommand(0, false) == 0xFF)
     Engine::throw_("Error accessing savefile.");
 
   do {
     cardCommand(SPI_EEPROM_RDSR, true);
-    cardCommand(0, false);
-  } while (REG_AUXSPIDATA & 1);
+  } while (cardCommand(0, false) & 1);
 }
 
 void cardReadBytes(u8 *dst, u32 addr, u16 size) {
@@ -171,7 +169,8 @@ bool CardBuffer::read(void *data, size_t size) {
     return false;
   if (!_running_in_file) {
 #ifdef DEBUG_SAVE
-    nocashMessage("Reading from card.");
+    std::string buf = "Reading from card. Pos: " + std::to_string(_pos);
+    nocashMessage(buf.c_str());
 #endif
     cardReadBytes((u8 *)data, _pos, size);
   } else if (_fatFile != nullptr) {
