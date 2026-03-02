@@ -5,12 +5,14 @@
 #include "Engine/Font.hpp"
 #include "DEBUG_FLAGS.hpp"
 #include "Engine/Engine.hpp"
+#include "Formats/utils.hpp"
 
 namespace Engine {
 bool Font::loadPath(const std::string &path) {
   std::string pathFull = "nitro:/fnt/" + path + ".cfnt";
   _path = path;
 
+  int oldIRQ = enterFileSection();
   FILE *f = fopen(pathFull.c_str(), "rb");
   if (!f) {
     std::string buffer = "Error opening font #r" + _path;
@@ -21,6 +23,7 @@ bool Font::loadPath(const std::string &path) {
   loadCFNT(f);
 
   fclose(f);
+  exitFileSection(oldIRQ);
 
   return true;
 }

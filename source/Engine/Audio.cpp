@@ -145,11 +145,13 @@ void AudioManager::update() {
   }
 }
 
-AudioManager::AudioManager(int timerId) {
+void updateAudio() { Audio2::audioManager.update(); }
+
+AudioManager::AudioManager() {
   soundEnable();
-  _timerId = timerId;
-  timerStart(timerId, ClockDivider_1024, 0, nullptr);
+  timerStart(kTimerCounter, ClockDivider_1024, 0, nullptr);
+  timerStart(kTimerIrq, ClockDivider_1, 0, updateAudio);
 }
 
-AudioManager audioManager(0);
+AudioManager audioManager;
 } // namespace Audio2

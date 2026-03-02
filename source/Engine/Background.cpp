@@ -6,6 +6,7 @@
 #include "Engine/dma.hpp"
 #include "Engine/math.hpp"
 #include "Formats/CBGF.hpp"
+#include "Formats/utils.hpp"
 
 namespace Engine {
 s32 bg3ScrollX = 0, bg3ScrollY = 0;
@@ -18,6 +19,7 @@ bool Background::loadPath(std::string path) {
   std::string pathFull = "nitro:/bg/" + path + ".cbgf";
   _path = path;
 
+  int oldIRQ = enterFileSection();
   FILE *f = fopen(pathFull.c_str(), "rb");
   if (!f) {
     std::string buffer = "Error opening bg #r" + path;
@@ -28,6 +30,7 @@ bool Background::loadPath(std::string path) {
   loadCBGF(f);
 
   fclose(f);
+  exitFileSection(oldIRQ);
 
   return true;
 }

@@ -16,6 +16,8 @@ namespace Audio2 {
 class AudioManager;
 
 constexpr int kAudioBuffer = 0x400; // in samples, better if it's a power of 2
+constexpr int kTimerCounter = 0;
+constexpr int kTimerIrq = 1;
 
 class AudioFile {
 public:
@@ -153,7 +155,7 @@ public:
    * timerId as the timer for timing audio sample loading.
    * @param timerId The id of the timer to use.
    */
-  explicit AudioManager(int timerId);
+  explicit AudioManager();
 
   void play(std::shared_ptr<AudioFile> audio_file);
   void stop(const std::shared_ptr<AudioFile> &audio_file);

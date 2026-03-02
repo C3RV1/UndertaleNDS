@@ -27,6 +27,7 @@ Cutscene::Cutscene(u16 cutsceneId, u16 roomId)
     : _cutsceneId(cutsceneId), _roomId(roomId) {
   std::string buffer = "nitro:/cutscenes/r" + std::to_string(roomId) + "/c" +
                        std::to_string(cutsceneId) + ".cscn";
+  int oldIRQ = enterFileSection();
   FILE *f = fopen(buffer.c_str(), "rb");
   if (f) {
     setvbuf(f, NULL, _IOFBF, 4 * 1024);
@@ -46,6 +47,7 @@ Cutscene::Cutscene(u16 cutsceneId, u16 roomId)
     buffer = "Error opening cutscene " + std::to_string(cutsceneId);
     nocashMessage(buffer.c_str());
   }
+  exitFileSection(oldIRQ);
   _commandStream = f;
 }
 
@@ -98,13 +100,21 @@ bool Cutscene::runCommands(CutsceneLocation callingLocation) {
     return true;
   if (_waiting.getBusy())
     return false;
-  if (ftell(_commandStream) >= _commandStreamLen)
+
+  int oldIRQ = enterFileSection();
+
+  if (ftell(_commandStream) >= _commandStreamLen) {
+    exitFileSection(oldIRQ);
     return true;
+  }
+
   while (!_waiting.getBusy() && ftell(_commandStream) < _commandStreamLen) {
     if (runCommand(callingLocation))
       break;
     _waiting.update(callingLocation, false);
   }
+
+  exitFileSection(oldIRQ);
   return false;
 }
 

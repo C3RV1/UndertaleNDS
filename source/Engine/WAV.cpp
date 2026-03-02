@@ -5,6 +5,7 @@
 #include "Engine/Audio.hpp"
 #include "Engine/Engine.hpp"
 #include "Engine/dma.hpp"
+#include "Formats/utils.hpp"
 #include <memory>
 
 constexpr bool enableAdpcm = false;
@@ -17,6 +18,7 @@ void WAV::load(const std::string &name) {
 
   _loops = 0;
   std::string realPath = "nitro:/z_audio/" + name;
+  int oldIRQ = enterFileSection();
   FILE *f = fopen(realPath.c_str(), "rb");
   _filename = name;
   if (f == nullptr) {
@@ -134,6 +136,7 @@ void WAV::load(const std::string &name) {
 
   _loaded = true;
   _stream = f;
+  exitFileSection(oldIRQ);
 }
 
 void WAV::resetPlaying() {
@@ -233,8 +236,10 @@ void WAV::copy_from_file_buffer(u16 copy_length_samples) {
 
 ITCM_CODE
 bool WAV::renew_file_buffer() {
+  int oldIRQ = enterFileSection();
   if (ftell(_stream) >= _dataEnd) {
     if (_loops == 0) {
+      exitFileSection(oldIRQ);
       return true;
     } else if (_loops > 0) {
       _loops--;
@@ -285,6 +290,7 @@ bool WAV::renew_file_buffer() {
                      " not implemented");
     }
   }
+  exitFileSection(oldIRQ);
   return false;
 }
 
