@@ -38,6 +38,8 @@ public:
   s32 _cam_scale_x = 1 << 8, _cam_scale_y = 1 << 8;
   s32 _layer = 0;
   u8 _opacity = 31;
+  bool _mosaic = false;
+  bool _semitransparent = false;
 
   int _cAnimation = -1;
 

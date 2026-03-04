@@ -67,6 +67,7 @@ private:
 };
 
 extern OAMManager OAMManagerSub;
+extern s16 objMosaicW, objMosaicH; // fixed 8.8
 } // namespace Engine
 
 #endif // UNDERTALE_OAM_MANAGER_HPP

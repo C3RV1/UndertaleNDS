@@ -62,6 +62,9 @@ void clearEngine(vu16 *bg3Reg, u16 *tileRam, u16 *mapRam);
 
 extern s32 bg3ScrollX, bg3ScrollY;
 extern s16 bg3Pa, bg3Pb, bg3Pc, bg3Pd;
+extern s16 bgMosaicW, bgMosaicH; // fixed 8.8
+
+void setBackgroundMosaicEnabled(bool mosaicEnabled);
 
 extern std::string mainLoadedBg;
 extern std::string subLoadedBg;

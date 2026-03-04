@@ -27,11 +27,11 @@ public:
   void draw();
 
   // sprite top left position
-  std::shared_ptr<Engine::Sprite> _playerSpr;
+  std::shared_ptr<Engine::Sprite> _spr;
 
 private:
   // animation ids
-  bool _playerControl = true;
+  bool _control = true;
   int _upIdleId;
   int _downIdleId;
   int _leftIdleId;

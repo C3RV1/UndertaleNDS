@@ -1,5 +1,6 @@
 #include "Engine/Engine.hpp"
-#include "Engine/Audio.hpp"
+#include "Engine/Background.hpp"
+#include "Engine/ColorEffects.hpp"
 #include "Engine/Font.hpp"
 #include "Engine/OAMManager.hpp"
 #include "Engine/Sprite3DManager.hpp"
@@ -89,6 +90,12 @@ void tick() {
   REG_BG3PB = bg3Pb;
   REG_BG3PC = bg3Pc;
   REG_BG3PD = bg3Pd;
+  REG_MOSAIC_SUB = ((bgMosaicW >> 8) & 0xF) | (((bgMosaicH >> 8) & 0xF) << 4) |
+                   (((objMosaicW >> 8) & 0xF) << 8) |
+                   (((objMosaicH >> 8) & 0xF) << 12);
+  REG_BLDCNT_SUB = bldCntSub;
+  REG_BLDALPHA_SUB = bldAlphaSub;
+  REG_BLDY_SUB = bldYSub;
   scanKeys();
 }
 

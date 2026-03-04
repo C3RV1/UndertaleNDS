@@ -11,6 +11,7 @@
 namespace Engine {
 s32 bg3ScrollX = 0, bg3ScrollY = 0;
 s16 bg3Pa = 0, bg3Pb = 0, bg3Pc = 0, bg3Pd = 0;
+s16 bgMosaicW = 0, bgMosaicH = 0;
 
 bool Background::loadPath(std::string path) {
   if (_path == path)
@@ -318,6 +319,14 @@ int Background::loadBgRectEngine(const vu16 *bg3Reg, u16 *tileRam, u16 *mapRam,
     }
   }
   return 0;
+}
+
+void setBackgroundMosaicEnabled(bool mosaicEnabled) {
+  if (mosaicEnabled) {
+    REG_BG3CNT_SUB |= 1 << 6;
+  } else {
+    REG_BG3CNT_SUB &= ~(1 << 6);
+  }
 }
 
 std::string mainLoadedBg = "";

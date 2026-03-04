@@ -10,6 +10,8 @@
 #include <vector>
 
 namespace Engine {
+s16 objMosaicW = 0, objMosaicH = 0;
+
 OAMManager::OAMManager(u16 *paletteRam, u16 *tileRam, u16 *oamRam)
     : _paletteRam(paletteRam), _oamRam(oamRam), _tileRam(tileRam),
       _tileZones(0, 4096, "2D_TILES") {
@@ -313,6 +315,7 @@ void OAMManager::setSpritePosAndScale(Engine::Sprite &spr,
     for (int oamX = 0; oamX < oamW; oamX++) {
       int oamId = mem.oamEntries[oamY * oamW + oamX];
       auto *oamStart = (u16 *)((u8 *)_oamRam + oamId * 8);
+
       bool useScale = (spr._scale_x != (1 << 8)) || (spr._scale_y != (1 << 8));
       if (useScale) {
         if (mem.oamScaleIdx == 0xff) {
@@ -343,15 +346,33 @@ void OAMManager::setSpritePosAndScale(Engine::Sprite &spr,
         oamStart[0] &= ~(1 << 8);
         oamStart[0] &= ~(1 << 9);
       }
-      oamStart[0] &= ~0xFF;
+
+      s16 mosaicW = ((objMosaicW >> 8) & 0xF) << 8;
+      s16 mosaicH = ((objMosaicH >> 8) & 0xF) << 8;
       s32 posX = spr._x + oamX * 64 * spr._scale_x;
+      posX -= posX % mosaicW;
+      posX -= mosaicW;
       posX %= (512 << 8);
       if (posX < 0)
         posX = (512 << 8) + posX;
+
       s32 posY = spr._y + oamY * 64 * spr._scale_y;
+      posY -= posY % mosaicH;
+      posY -= mosaicH;
       posY %= (256 << 8);
       if (posY < 0)
         posY = (256 << 8) + posY;
+
+      if (spr._mosaic)
+        oamStart[0] |= 1 << 12;
+      else
+        oamStart[0] &= ~(1 << 12);
+
+      oamStart[0] &= ~(0b11 << 10);
+      if (spr._semitransparent)
+        oamStart[0] |= 1 << 10;
+
+      oamStart[0] &= ~0xFF;
       oamStart[0] |= posY >> 8;
       oamStart[1] &= ~0x1FF;
       oamStart[1] |= posX >> 8;
