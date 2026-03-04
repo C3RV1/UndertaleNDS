@@ -71,25 +71,65 @@ void RoomSprite::draw() {
 }
 
 void RoomSprite::update() {
-  if (_interactAction != ROOMSpriteAction::PROXIMITY)
-    return;
+  switch (_interactAction) {
+  case ROOMSpriteAction::PROXIMITY:
+    updateProximity();
+    break;
+  case ROOMSpriteAction::PUSHABLE:
+    updatePushable();
+    break;
+  default:
+    break;
+  }
+}
 
+void RoomSprite::updateProximity() {
   if (_spr->_texture == nullptr)
     return;
-  if (globalPlayer->_playerSpr->_texture == nullptr)
+  if (globalPlayer->_spr->_texture == nullptr)
     return;
   const u16 width = _spr->_texture->getWidth();
   const u16 height = _spr->_texture->getHeight();
-  const u16 pw = globalPlayer->_playerSpr->_texture->getWidth();
-  const u16 ph = globalPlayer->_playerSpr->_texture->getHeight();
-  const u32 distance =
-      distSquared_fp(_spr->_wx + width / 2, _spr->_wy + height / 2,
-                     globalPlayer->_playerSpr->_wx + pw / 2,
-                     globalPlayer->_playerSpr->_wy + ph / 2);
+  const u16 pw = globalPlayer->_spr->_texture->getWidth();
+  const u16 ph = globalPlayer->_spr->_texture->getHeight();
+  const u32 distance = distSquared_fp(
+      _spr->_wx + width / 2, _spr->_wy + height / 2,
+      globalPlayer->_spr->_wx + pw / 2, globalPlayer->_spr->_wy + ph / 2);
   if (distance >> 8 < _distanceSquared)
     _spr->setAnimation(_closeAnim);
   else
     _spr->setAnimation(_animationId);
+}
+
+void RoomSprite::updatePushable() {
+  // Runs after Navigation, so any position changes can already be detected.
+  // If after Navigation we colide with the Player, we must have moved,
+  // not the Player. We should try to push the Player, then, if we collide
+  // with them.
+  s32 x = _spr->_wx;
+  s32 y = _spr->_wy;
+  s32 dx = x - _old_x;
+  s32 dy = y - _old_y;
+  if (dx == 0 && dy == 0)
+    return;
+
+  _old_x = _spr->_wx;
+  _old_y = _spr->_wy;
+
+  s32 px = globalPlayer->_spr->_wx;
+  s32 py = globalPlayer->_spr->_wy;
+  s32 pw = globalPlayer->_spr->_texture->getWidth() << 8;
+  s32 ph = globalPlayer->_spr->_texture->getHeight() << 8;
+
+  s32 w = _spr->_texture->getWidth() << 8;
+  s32 h = _spr->_texture->getHeight() << 8;
+
+  if (!collidesRect(px, py, pw, ph, x, y, w, h))
+    return;
+
+  // Push player
+  globalPlayer->_spr->_wx += dx;
+  globalPlayer->_spr->_wy += dy;
 }
 
 bool RoomSprite::check_player_collide(s32 x, s32 y, s32 w, s32 h, s32 dx,
@@ -147,6 +187,8 @@ void RoomSprite::commit_player_move() {
   bool flag_set = (globalSave.flags[_goal_flag_id] & _goal_flag_bit) != 0;
   _spr->_wx = _commit_x;
   _spr->_wy = _commit_y;
+  _old_x = _spr->_wx;
+  _old_y = _spr->_wy;
 
   bool should_set_flag = check_on_goal();
   if (should_set_flag)

@@ -212,7 +212,7 @@ Navigation::getTarget(const TargetInfo &targetInfo,
   TargetType targetType = static_cast<TargetType>(targetInfo.targetType);
   if (callingLocation == ROOM || callingLocation == LOAD_ROOM) {
     if (targetType == TargetType::PLAYER) {
-      return globalPlayer->_playerSpr;
+      return globalPlayer->_spr;
     } else if (targetType == TargetType::CAMERA) {
       return globalCamera._pos;
     } else if (targetType == TargetType::SPRITE) {

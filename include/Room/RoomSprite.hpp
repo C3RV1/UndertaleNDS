@@ -25,6 +25,8 @@ public:
   void commit_player_move();
 
   void update();
+  void updateProximity();
+  void updatePushable();
 
   void draw();
 
@@ -47,6 +49,7 @@ public:
   u16 _goal_flag_bit;
   bool _stop_on_goal;
   s32 _commit_x, _commit_y;
+  s32 _old_x, _old_y;
 
 private:
   bool check_on_goal();

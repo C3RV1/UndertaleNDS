@@ -11,10 +11,9 @@ void Camera::updatePosition(bool roomChange) {
   constexpr int offsetX = 0, offsetY = -20;
   int xTilePrev = (_prevX >> 8) / 8, yTilePrev = (_prevY >> 8) / 8;
   if (!_manual) {
-    _pos->_wx =
-        globalPlayer->_playerSpr->_wx - ((256 / 2 - 9) << 8) + (offsetX << 8);
+    _pos->_wx = globalPlayer->_spr->_wx - ((256 / 2 - 9) << 8) + (offsetX << 8);
     _pos->_wy =
-        globalPlayer->_playerSpr->_wy - ((192 / 2 - 14) << 8) + (offsetY << 8);
+        globalPlayer->_spr->_wy - ((192 / 2 - 14) << 8) + (offsetY << 8);
   }
   u16 roomW, roomH;
   globalRoom->_bg.getSize(roomW, roomH);

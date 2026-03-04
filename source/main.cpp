@@ -53,13 +53,13 @@ int main() {
   globalSave.flags[0] = 5;
 
   globalPlayer = new Player();
-  Engine::spriteSetShown(globalPlayer->_playerSpr, true);
+  Engine::spriteSetShown(globalPlayer->_spr, true);
   globalInGameMenu.load();
   globalInGameMenu.show();
   globalRoom = std::make_unique<Room>(roomSpawn);
   globalCamera.updatePosition(true);
-  globalPlayer->_playerSpr->_wx = globalRoom->_spawnX << 8;
-  globalPlayer->_playerSpr->_wy = globalRoom->_spawnY << 8;
+  globalPlayer->_spr->_wx = globalRoom->_spawnX << 8;
+  globalPlayer->_spr->_wy = globalRoom->_spawnY << 8;
 
   for (;;) {
     if (globalBattle == nullptr)

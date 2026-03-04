@@ -12,35 +12,35 @@
 #include <memory>
 
 Player::Player() {
-  _playerSpr = std::make_shared<Engine::Sprite>(Engine::Allocated3D);
-  Engine::spriteLoadTexture(_playerSpr, "mainchara");
+  _spr = std::make_shared<Engine::Sprite>(Engine::Allocated3D);
+  Engine::spriteLoadTexture(_spr, "mainchara");
 
-  _upIdleId = _playerSpr->nameToAnimId("upIdle");
-  _downIdleId = _playerSpr->nameToAnimId("downIdle");
-  _leftIdleId = _playerSpr->nameToAnimId("leftIdle");
-  _rightIdleId = _playerSpr->nameToAnimId("rightIdle");
-  _upMoveId = _playerSpr->nameToAnimId("upMove");
-  _downMoveId = _playerSpr->nameToAnimId("downMove");
-  _leftMoveId = _playerSpr->nameToAnimId("leftMove");
-  _rightMoveId = _playerSpr->nameToAnimId("rightMove");
+  _upIdleId = _spr->nameToAnimId("upIdle");
+  _downIdleId = _spr->nameToAnimId("downIdle");
+  _leftIdleId = _spr->nameToAnimId("leftIdle");
+  _rightIdleId = _spr->nameToAnimId("rightIdle");
+  _upMoveId = _spr->nameToAnimId("upMove");
+  _downMoveId = _spr->nameToAnimId("downMove");
+  _leftMoveId = _spr->nameToAnimId("leftMove");
+  _rightMoveId = _spr->nameToAnimId("rightMove");
 }
 
 void Player::set_player_control(bool playerControl) {
-  _playerControl = playerControl;
-  if (!_playerControl) {
-    if (_playerSpr->_cAnimation == _upMoveId)
-      _playerSpr->setAnimation(_upIdleId);
-    else if (_playerSpr->_cAnimation == _downMoveId)
-      _playerSpr->setAnimation(_downIdleId);
-    else if (_playerSpr->_cAnimation == _leftMoveId)
-      _playerSpr->setAnimation(_leftIdleId);
-    else if (_playerSpr->_cAnimation == _rightMoveId)
-      _playerSpr->setAnimation(_rightIdleId);
+  _control = playerControl;
+  if (!_control) {
+    if (_spr->_cAnimation == _upMoveId)
+      _spr->setAnimation(_upIdleId);
+    else if (_spr->_cAnimation == _downMoveId)
+      _spr->setAnimation(_downIdleId);
+    else if (_spr->_cAnimation == _leftMoveId)
+      _spr->setAnimation(_leftIdleId);
+    else if (_spr->_cAnimation == _rightMoveId)
+      _spr->setAnimation(_rightIdleId);
   }
 }
 
 void Player::update() {
-  if (!_playerControl)
+  if (!_control)
     return;
 
   s32 dx = 0, dy = 0;
@@ -49,25 +49,25 @@ void Player::update() {
   if (keysHeld() & KEY_DOWN) {
     dy += kMoveSpeed;
     moveDirection = _downMoveId;
-    if (_playerSpr->_cAnimation == _downMoveId)
+    if (_spr->_cAnimation == _downMoveId)
       setAnim = false;
   }
   if (keysHeld() & KEY_UP) {
     dy -= kMoveSpeed;
     moveDirection = _upMoveId;
-    if (_playerSpr->_cAnimation == _upMoveId)
+    if (_spr->_cAnimation == _upMoveId)
       setAnim = false;
   }
   if (keysHeld() & KEY_RIGHT) {
     dx += kMoveSpeed;
     moveDirection = _rightMoveId;
-    if (_playerSpr->_cAnimation == _rightMoveId)
+    if (_spr->_cAnimation == _rightMoveId)
       setAnim = false;
   }
   if (keysHeld() & KEY_LEFT) {
     dx -= kMoveSpeed;
     moveDirection = _leftMoveId;
-    if (_playerSpr->_cAnimation == _leftMoveId)
+    if (_spr->_cAnimation == _leftMoveId)
       setAnim = false;
   }
 
@@ -75,18 +75,18 @@ void Player::update() {
 
   if (dx == 0 && dy == 0) {
     if (moveDirection == -1)
-      moveDirection = _playerSpr->_cAnimation;
+      moveDirection = _spr->_cAnimation;
     if (moveDirection == _upMoveId)
-      _playerSpr->setAnimation(_upIdleId);
+      _spr->setAnimation(_upIdleId);
     else if (moveDirection == _downMoveId)
-      _playerSpr->setAnimation(_downIdleId);
+      _spr->setAnimation(_downIdleId);
     else if (moveDirection == _leftMoveId)
-      _playerSpr->setAnimation(_leftIdleId);
+      _spr->setAnimation(_leftIdleId);
     else if (moveDirection == _rightMoveId)
-      _playerSpr->setAnimation(_rightIdleId);
+      _spr->setAnimation(_rightIdleId);
   } else {
     if (setAnim) {
-      _playerSpr->setAnimation(moveDirection);
+      _spr->setAnimation(moveDirection);
     }
   }
 
@@ -120,8 +120,8 @@ void Player::attempt_move(s32 &dx, s32 &dy) {
 }
 
 void Player::commit_move(const s32 dx, const s32 dy) {
-  _playerSpr->_wx += dx;
-  _playerSpr->_wy += dy;
+  _spr->_wx += dx;
+  _spr->_wy += dy;
 
   // Push objects if necessary.
   for (auto &roomSprite : globalRoom->_sprites) {
@@ -132,28 +132,28 @@ void Player::commit_move(const s32 dx, const s32 dy) {
 void Player::check_exits() {
   u16 width, height;
   globalRoom->_bg.getSize(width, height);
-  if (_playerSpr->_wx < 0) {
-    _playerSpr->_wx = 0;
+  if (_spr->_wx < 0) {
+    _spr->_wx = 0;
     if (globalRoom->_exitLeft != nullptr) {
       loadNewRoom(globalRoom->_exitLeft->roomId, globalRoom->_exitLeft->spawnX,
                   globalRoom->_exitLeft->spawnY);
     }
-  } else if ((_playerSpr->_wx >> 8) + 19 > width) {
-    _playerSpr->_wx = (width - 19) << 8;
+  } else if ((_spr->_wx >> 8) + 19 > width) {
+    _spr->_wx = (width - 19) << 8;
     if (globalRoom->_exitRight != nullptr) {
       loadNewRoom(globalRoom->_exitRight->roomId,
                   globalRoom->_exitRight->spawnX,
                   globalRoom->_exitRight->spawnY);
     }
   }
-  if (_playerSpr->_wy < 0) {
-    _playerSpr->_wy = 0;
+  if (_spr->_wy < 0) {
+    _spr->_wy = 0;
     if (globalRoom->_exitTop != nullptr) {
       loadNewRoom(globalRoom->_exitTop->roomId, globalRoom->_exitTop->spawnX,
                   globalRoom->_exitTop->spawnY);
     }
-  } else if ((_playerSpr->_wy >> 8) + 29 > height) {
-    _playerSpr->_wy = (height - 29) << 8;
+  } else if ((_spr->_wy >> 8) + 29 > height) {
+    _spr->_wy = (height - 29) << 8;
     if (globalRoom->_exitBtm != nullptr) {
       loadNewRoom(globalRoom->_exitBtm->roomId, globalRoom->_exitBtm->spawnX,
                   globalRoom->_exitBtm->spawnY);
@@ -162,8 +162,8 @@ void Player::check_exits() {
 
   for (int i = 0; i < globalRoom->_rectExitCount; i++) {
     ROOMExit *rectExit = globalRoom->_rectExits[i];
-    if (collidesRect(_playerSpr->_wx >> 8, (_playerSpr->_wy >> 8) + 20, 19, 9,
-                     rectExit->x, rectExit->y, rectExit->w, rectExit->h)) {
+    if (collidesRect(_spr->_wx >> 8, (_spr->_wy >> 8) + 20, 19, 9, rectExit->x,
+                     rectExit->y, rectExit->w, rectExit->h)) {
       loadNewRoom(rectExit->roomId, rectExit->spawnX, rectExit->spawnY);
     }
   }
@@ -171,25 +171,24 @@ void Player::check_exits() {
 
 void Player::check_interact() const {
   s32 x, y, w = 19, h = 9;
-  if (_playerSpr->_cAnimation == _upIdleId ||
-      _playerSpr->_cAnimation == _upMoveId) {
+  if (_spr->_cAnimation == _upIdleId || _spr->_cAnimation == _upMoveId) {
     x = 0;
     y = -9;
     h = 19;
-  } else if (_playerSpr->_cAnimation == _downIdleId ||
-             _playerSpr->_cAnimation == _downMoveId) {
+  } else if (_spr->_cAnimation == _downIdleId ||
+             _spr->_cAnimation == _downMoveId) {
     x = 0;
     y = 29;
-  } else if (_playerSpr->_cAnimation == _rightIdleId ||
-             _playerSpr->_cAnimation == _rightMoveId) {
+  } else if (_spr->_cAnimation == _rightIdleId ||
+             _spr->_cAnimation == _rightMoveId) {
     x = 19;
     y = 29 - 9;
   } else {
     x = -19;
     y = 29 - 9;
   }
-  x += _playerSpr->_wx >> 8;
-  y += _playerSpr->_wy >> 8;
+  x += _spr->_wx >> 8;
+  y += _spr->_wy >> 8;
   for (auto const &sprite : globalRoom->_sprites) {
     if (sprite->_interactAction != ROOMSpriteAction::CUTSCENE)
       continue;
@@ -211,8 +210,8 @@ void Player::check_interact() const {
 }
 
 bool Player::check_collisions(s32 dx, s32 dy) const {
-  const s32 x = _playerSpr->_wx + dx;
-  const s32 y = _playerSpr->_wy + dy;
+  const s32 x = _spr->_wx + dx;
+  const s32 y = _spr->_wy + dy;
 
   for (auto &collider : globalRoom->_roomData.roomColliders.roomColliders) {
     if (!collider.enabled)
@@ -240,11 +239,11 @@ bool Player::check_collisions(s32 dx, s32 dy) const {
 }
 
 void Player::draw() {
-  _playerSpr->_cam_x = globalCamera._pos->_wx;
-  _playerSpr->_cam_y = globalCamera._pos->_wy;
-  _playerSpr->_cam_scale_x = globalCamera._pos->_w_scale_x;
-  _playerSpr->_cam_scale_y = globalCamera._pos->_w_scale_y;
-  _playerSpr->_layer = _playerSpr->_wy >> 8;
+  _spr->_cam_x = globalCamera._pos->_wx;
+  _spr->_cam_y = globalCamera._pos->_wy;
+  _spr->_cam_scale_x = globalCamera._pos->_w_scale_x;
+  _spr->_cam_scale_y = globalCamera._pos->_w_scale_y;
+  _spr->_layer = _spr->_wy >> 8;
 }
 
 Player *globalPlayer;
