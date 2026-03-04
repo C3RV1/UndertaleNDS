@@ -26,6 +26,7 @@ def main():
             force_sprites = True
             force_rooms = True
             force_bgs = True
+            force_texts = True
         elif arg == "--force-cutscenes" or arg == "-fc":
             force_cutscenes = True
         elif arg == "--force-fonts" or arg == "-ff":
