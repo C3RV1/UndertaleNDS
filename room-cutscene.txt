@@ -42,6 +42,7 @@ r10 - ruins fall first
   c1 - Come up.
 r11 - ruins push rock
   c10 - Cinnamon or Butterscotch?
+  c15 - Confirm not dislike other.
   c20 - Spikes down, rock on goal.
   c30 - Sign.
 r12 - path fall

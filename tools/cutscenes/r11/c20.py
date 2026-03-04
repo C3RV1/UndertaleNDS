@@ -16,5 +16,5 @@ def cutscene(c: Cutscene):
     c.set_collider_enabled(enabled=False, collider_id=0)
     c.play_sfx(path="snd_screenshake.wav")
 
-    c.set_flag(flag_id=FlagOffsets.PROGRESS, flag_value=10)
+    c.set_flag(flag_id=FlagOffsets.PROGRESS, flag_value=11)
 

@@ -7,8 +7,8 @@ else:
 
 def cutscene(c: Cutscene):
     c.player_control(False)
-    c.set_animation(Target(TargetType.PLAYER), "rightIdle")
-    c.set_collider_enabled(1, False)
+    # c.set_animation(Target(TargetType.PLAYER), "rightIdle")
+    c.set_collider_enabled(2, False)
     c.play_sfx("snd_phone.wav", 0)
     c.dialogue_centered(10, "", 0, 0, "", "",
                         Target(TargetType.NULL), "", "",

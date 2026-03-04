@@ -78,6 +78,13 @@
         },
 
         {
+          "_comment": "Call trigger 2",
+          "x": 63, "y": 94, "w": 6, "h": 40,
+          "action": "cutscene",
+          "cutscene_id": 15
+        },
+
+        {
           "_comment": "Call trigger",
           "x": 33, "y": 94, "w": 6, "h": 40,
           "action": "cutscene",
@@ -99,6 +106,102 @@
       "_comment": "Received call cinnamon/butterscotch. Spikes up.",
       "conditions": [
         { "flag_id": 0, "op": "==", "cmp_value": 9}
+      ],
+      "room_bg": "rooms/room11",
+      "music_path": "mus_ruins.wav",
+      "spawn_x": 3, "spawn_y": 91,
+      "exits": [
+        {
+          "exit_type": "side",
+          "room_id": 10,
+          "spawn_x": 351, "spawn_y": 104,
+          "side": "left"
+        },
+        {
+          "exit_type": "side",
+          "room_id": 12,
+          "spawn_x": 4, "spawn_y": 63,
+          "side": "right"
+        }
+      ],
+      "sprites": [
+        {
+          "texture": "room_sprites/spr_rock",
+          "x": 157, "y": 134,
+          "action": "pushable",
+          "valid_rect": [156, 134, 80, 18],
+          "goal_pos": [216, 134],
+          "goal_cutscene_id": 20,
+          "goal_flag_id": 210,
+          "goal_flag_bit": 1,
+          "stop_on_goal": true
+        },
+        {
+          "texture": "room_sprites/wall_panel_ruins",
+          "x": 136, "y": 34,
+          "action": "cutscene",
+          "cutscene_id": 30
+
+        },
+        {
+          "texture": "room_sprites/spike",
+          "animation": "up",
+          "x": 277, "y": 75
+        },
+        {
+          "texture": "room_sprites/spike",
+          "animation": "up",
+          "x": 277, "y": 95
+        },
+        {
+          "texture": "room_sprites/spike",
+          "animation": "up",
+          "x": 277, "y": 115
+        },
+        {
+          "texture": "room_sprites/spike",
+          "animation": "up",
+          "x": 277, "y": 135
+        },
+        {
+          "texture": "room_sprites/spike",
+          "animation": "up",
+          "x": 277, "y": 155
+        },
+        {
+          "texture": "room_sprites/spike",
+          "animation": "up",
+          "x": 277, "y": 175
+        }
+      ],
+      "colliders": [
+        {
+          "_comment": "Spikes",
+          "x": 276, "y": 74, "w": 20, "h": 120
+        },
+
+        {
+          "_comment": "Call trigger 2",
+          "x": 63, "y": 94, "w": 6, "h": 40,
+          "action": "cutscene",
+          "cutscene_id": 15
+        },
+
+        {
+          "_comment": "Walls start here",
+          "x": 0, "y": 0, "w": 36, "h": 94
+        },
+        {"x": 36, "y": 0, "w": 380, "h": 74},
+        {"x": 416, "y": 0, "w": 40, "h": 94},
+        {"x": 0, "y": 134, "w": 36, "h": 74},
+        {"x": 36, "y": 194, "w": 380, "h": 14},
+        {"x": 416, "y": 134, "w": 40, "h": 74}
+      ]
+    },
+    {
+      "_comment": "Received call not DISLIKE. Spikes up.",
+      "conditions": [
+        { "flag_id": 0, "op": "==", "cmp_value": 10}
       ],
       "room_bg": "rooms/room11",
       "music_path": "mus_ruins.wav",
