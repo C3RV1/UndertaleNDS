@@ -49,6 +49,8 @@ enum CutsceneCommands {
   CMD_SET_OPACITY = 40,
   CMD_CLEAR = 41,
   CMD_ENEMY_COMMAND = 42,
+  CMD_DARKEN_MAIN_BG3 = 43,       // TODO
+  CMD_DISABLE_COLOR_EFFECTS = 44, // TODO
   CMD_DEBUG = 0xff
 };
 

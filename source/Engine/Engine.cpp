@@ -75,6 +75,8 @@ int init() {
 
 ITCM_CODE
 void tick() {
+  objMosaicW %= 0x10 << 8;
+  objMosaicH %= 0x10 << 8;
   textMain.tick();
   textSub.tick();
   main3dSpr.updateTextures();
@@ -93,6 +95,9 @@ void tick() {
   REG_MOSAIC_SUB = ((bgMosaicW >> 8) & 0xF) | (((bgMosaicH >> 8) & 0xF) << 4) |
                    (((objMosaicW >> 8) & 0xF) << 8) |
                    (((objMosaicH >> 8) & 0xF) << 12);
+  REG_BLDCNT = bldCnt;
+  REG_BLDALPHA = bldAlpha;
+  REG_BLDY = bldY;
   REG_BLDCNT_SUB = bldCntSub;
   REG_BLDALPHA_SUB = bldAlphaSub;
   REG_BLDY_SUB = bldYSub;

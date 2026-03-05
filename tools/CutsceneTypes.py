@@ -59,6 +59,8 @@ class CutsceneCommands(enum.IntEnum):
     SET_OPACITY = 40  # Done
     CLEAR = 41  # Done
     ENEMY_COMMAND = 42  # Done
+    DARKEN_MAIN_BG3 = 43
+    DISABLE_COLOR_EFFECTS = 44
     DEBUG = 0xff  # Done
 
 
