@@ -1,4 +1,7 @@
 #include "Battle/Enemies/Froggit.hpp"
+#include "Engine/Background.hpp"
+#include "Engine/ColorEffects.hpp"
+#include "Engine/OAMManager.hpp"
 #include "Engine/Sprite.hpp"
 #include <cmath>
 #include <memory>
@@ -80,7 +83,7 @@ void Froggit::slashFinished() {
   _headBobEnabled = false;
 }
 
-void Froggit::damageAnimationFinished() {
+void Froggit::damageAnimationEnd_StillAlive() {
   if (_hp <= 0)
     return;
   _headSpr->setAnimation(_headSpr->nameToAnimId("gfx"));
@@ -92,6 +95,18 @@ void Froggit::damageAnimationFinished() {
 void Froggit::shakeSprites(s32 dx) {
   _headSpr->_wx = (kX << 8) + dx;
   _legsSpr->_wx = (kX << 8) + dx;
+}
+
+void Froggit::setSpritesForMosaicAndTransparency() {
+  _headSpr->_mosaic = true;
+  _legsSpr->_mosaic = true;
+  _headSpr->_semitransparent = true;
+  _legsSpr->_semitransparent = true;
+}
+
+void Froggit::hideSpritesDisintegrated() {
+  Engine::spriteSetShown(_headSpr, false);
+  Engine::spriteSetShown(_legsSpr, false);
 }
 
 void Froggit::enemyCommand(u8 command) {

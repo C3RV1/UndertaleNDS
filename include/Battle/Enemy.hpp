@@ -13,9 +13,13 @@
 #include <string>
 #include <vector>
 
-enum class EnemyDamageAnimationStep { SLASH = 0, DAMAGE_NUMBERS = 1 };
+enum class EnemyDamageAnimationStep {
+  SLASH = 0,
+  DAMAGE_NUMBERS = 1,
+  DISINTEGRATE = 2
+};
 
-// TODO: Disintegrate on kill. (How? 3D engine? Particles? Mosaic??)
+// Disintegrate on kill. (MOSAIC)
 
 class Enemy {
 public:
@@ -51,14 +55,17 @@ public:
 
 protected:
   virtual void slashFinished();
-  virtual void damageAnimationFinished() {}
+  virtual void damageAnimationEnd_StillAlive() {}
   bool defaultDamageAnimation(s32 x, s32 y, int width, int height);
   void loadDamageSprites(int damage);
   void doSlash(s32 x, s32 y, int counter, int maxCounter);
   void doDamageNumbers(s32 x, s32 y, int counter, int maxCounter);
   void doRenderHealth(int x, int y, int counter, int maxCounter);
   void doShake(int counter, int maxCounter);
+  void doKilledAnimation(int counter, int maxCounter);
   virtual void shakeSprites(s32 dx) {}
+  virtual void setSpritesForMosaicAndTransparency() {}
+  virtual void hideSpritesDisintegrated() {}
   void loadName(int enemyId);
   void loadActText(int textId);
 
@@ -88,6 +95,7 @@ private:
 
   static constexpr int kSlashFrames = 10 * 6;
   static constexpr int kDamageNumFrames = 90;
+  static constexpr int kKilledAnimFrames = 40;
 
   static constexpr s32 kShakeMaxAngle = DEGREES_IN_CIRCLE * 10;
   static constexpr s32 kShakeAmplitude = 5 << 8;

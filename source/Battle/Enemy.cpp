@@ -6,7 +6,9 @@
 #include "Battle/Enemies/Flowey.hpp"
 #include "Battle/Enemies/Froggit.hpp"
 #include "Engine/Audio.hpp"
+#include "Engine/ColorEffects.hpp"
 #include "Engine/DataBank.hpp"
+#include "Engine/OAMManager.hpp"
 #include "Engine/Sprite.hpp"
 #include "Engine/TextBGManager.hpp"
 #include "Engine/WAV.hpp"
@@ -145,8 +147,17 @@ void Enemy::doShake(int counter, int maxCounter) {
   shakeSprites(dx);
 }
 
+void Enemy::doKilledAnimation(int counter, int maxCounter) {
+  setSpritesForMosaicAndTransparency();
+  s32 mosaic = ((0xF << 8) * counter) / maxCounter;
+  Engine::objMosaicW = mosaic;
+  Engine::objMosaicH = mosaic;
+  Engine::setForegroundOpacitySub(0x10 - ((0x10 * counter) / maxCounter));
+}
+
 bool Enemy::defaultDamageAnimation(s32 x, s32 y, int width, int height) {
-  if (_damageAnimStep == EnemyDamageAnimationStep::SLASH) {
+  switch (_damageAnimStep) {
+  case EnemyDamageAnimationStep::SLASH:
     doSlash(x + (width << 8) / 2, y + (height << 8) / 2, _damageSpriteCounter,
             kSlashFrames);
     if (_damageSpriteCounter == kSlashFrames) {
@@ -154,7 +165,8 @@ bool Enemy::defaultDamageAnimation(s32 x, s32 y, int width, int height) {
       _damageSpriteCounter = 0;
       _damageAnimStep = EnemyDamageAnimationStep::DAMAGE_NUMBERS;
     }
-  } else if (_damageAnimStep == EnemyDamageAnimationStep::DAMAGE_NUMBERS) {
+    break;
+  case EnemyDamageAnimationStep::DAMAGE_NUMBERS:
     doDamageNumbers(x + (width << 8) / 2, y, _damageSpriteCounter,
                     kDamageNumFrames);
     if (!_missed) {
@@ -162,10 +174,26 @@ bool Enemy::defaultDamageAnimation(s32 x, s32 y, int width, int height) {
                      kDamageNumFrames);
       doShake(_damageSpriteCounter, kDamageNumFrames);
     }
+
     if (_damageSpriteCounter == kDamageNumFrames) {
-      damageAnimationFinished();
+      if (_hp > 0) {
+        damageAnimationEnd_StillAlive();
+        return true;
+      } else {
+        _damageSpriteCounter = 0;
+        _damageAnimStep = EnemyDamageAnimationStep::DISINTEGRATE;
+      }
+    }
+    break;
+  case EnemyDamageAnimationStep::DISINTEGRATE:
+    doKilledAnimation(_damageSpriteCounter, kKilledAnimFrames);
+    if (_damageSpriteCounter == kKilledAnimFrames) {
+      hideSpritesDisintegrated();
       return true;
     }
+    break;
+  default:
+    break;
   }
   _damageSpriteCounter++;
   return false;

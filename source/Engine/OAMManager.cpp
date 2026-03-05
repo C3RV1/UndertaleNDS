@@ -347,25 +347,23 @@ void OAMManager::setSpritePosAndScale(Engine::Sprite &spr,
         oamStart[0] &= ~(1 << 9);
       }
 
-      s16 mosaicW = ((objMosaicW >> 8) & 0xF) << 8;
-      s16 mosaicH = ((objMosaicH >> 8) & 0xF) << 8;
       s32 posX = spr._x + oamX * 64 * spr._scale_x;
-      posX -= posX % mosaicW;
-      posX -= mosaicW;
       posX %= (512 << 8);
       if (posX < 0)
         posX = (512 << 8) + posX;
 
       s32 posY = spr._y + oamY * 64 * spr._scale_y;
-      posY -= posY % mosaicH;
-      posY -= mosaicH;
       posY %= (256 << 8);
       if (posY < 0)
         posY = (256 << 8) + posY;
 
-      if (spr._mosaic)
+      if (spr._mosaic) {
+        int mosaicW = ((objMosaicW >> 8) & 0xF) + 1;
+        int mosaicH = ((objMosaicH >> 8) & 0xF) + 1;
+        posX -= (mosaicW << 8) / 2;
+        posY -= (mosaicH << 8) / 2;
         oamStart[0] |= 1 << 12;
-      else
+      } else
         oamStart[0] &= ~(1 << 12);
 
       oamStart[0] &= ~(0b11 << 10);

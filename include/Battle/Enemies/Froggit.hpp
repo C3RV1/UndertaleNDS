@@ -27,8 +27,10 @@ public:
 
 protected:
   void slashFinished() final;
-  void damageAnimationFinished() final;
+  void damageAnimationEnd_StillAlive() final;
   void shakeSprites(s32 dx) final;
+  void setSpritesForMosaicAndTransparency() final;
+  void hideSpritesDisintegrated() final;
 
 private:
   static constexpr int kX = 27, kY = 93;
