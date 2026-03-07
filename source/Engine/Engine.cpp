@@ -5,7 +5,7 @@
 #include "Engine/OAMManager.hpp"
 #include "Engine/dma.hpp"
 
-#ifndef BLOCKSDS_SDK
+#ifndef __BLOCKSDS__
 #include "nitrofs.h"
 #else
 #include <filesystem.h>

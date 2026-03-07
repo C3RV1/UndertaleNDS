@@ -30,6 +30,5 @@ private:
 };
 
 extern CardBuffer fCard;
-extern bool cardRead;
 
 #endif //UNDERTALE_CARD_HPP

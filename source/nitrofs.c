@@ -1,7 +1,7 @@
 // From libfilesystem, modified by Cervi
 // cardRead and ndsFileFD not static, access from Engine.cpp
 
-#ifndef BLOCKSDS_SDK
+#ifndef __BLOCKSDS__
 #include <nds/memory.h>
 #include <nds/system.h>
 #include <nds/card.h>
