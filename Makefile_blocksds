@@ -19,9 +19,6 @@ SOURCEDIRS	:= source
 INCLUDEDIRS	:= include
 NITROFSDIR	:= nitrofs
 
-# Libraries
-
-LIBS		:= -lnds9 -lmm9
-LIBDIRS		:= $(BLOCKSDS)/libs/maxmod
+ARM7ELF		?= $(BLOCKSDS)/sys/arm7/main_core/arm7_minimal.elf
 
 include $(BLOCKSDS)/sys/default_makefiles/rom_arm9/Makefile
