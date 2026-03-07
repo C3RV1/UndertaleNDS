@@ -11,7 +11,7 @@ NAME		:= UndertaleDS
 GAME_TITLE	:= Undertale NDS
 GAME_SUBTITLE	:= Built with BlocksDS
 GAME_AUTHOR	:= TobyFox, Cervi
-GAME_ICON	:= icon.bmp
+GAME_ICON	:= icon.png
 
 # Source code paths
 
