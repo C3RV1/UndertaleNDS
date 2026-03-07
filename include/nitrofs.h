@@ -1,4 +1,4 @@
-#ifndef BLOCKSDS_SDK
+#ifndef __BLOCKSDS__
 #ifndef _filesystem_h_
 
 #ifdef __cplusplus
