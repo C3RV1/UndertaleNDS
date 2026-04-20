@@ -3,6 +3,7 @@
 //
 #include "Engine/Audio.hpp"
 #include "DEBUG_FLAGS.hpp"
+#include "Formats/utils.hpp"
 #include <memory>
 
 namespace Audio2 {
@@ -132,8 +133,14 @@ void AudioFile::update() {
   _timerLast = timerTicks;
 }
 
+// FIXME: Reading from file buffers should be moved from main thread, as to not
+// block interruptions, and then not needing to block file reads by disabling
+// the audio timer interrupt.
+
 ITCM_CODE
 void AudioManager::update() {
+  int old_irq = enterFileSection();
+  REG_IME = 1; // Restore other interrupts.
   for (const auto &current : _playing) {
     current->update();
   }
@@ -143,6 +150,7 @@ void AudioManager::update() {
     } else
       ++current;
   }
+  exitFileSection(old_irq);
 }
 
 void updateAudio() { Audio2::audioManager.update(); }
