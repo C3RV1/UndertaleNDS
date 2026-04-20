@@ -35,8 +35,10 @@ void AudioManager::play(std::shared_ptr<AudioFile> audio_file) {
   if (audio_file->play()) {
     int old_irq = enterAudioCritical();
     for (const auto &current : _playing) {
-      if (current.get() == audio_file.get())
+      if (current.get() == audio_file.get()) {
+        exitAudioCritical(old_irq);
         return;
+      }
     }
     _playing.push_back(std::move(audio_file));
     exitAudioCritical(old_irq);
@@ -54,8 +56,7 @@ bool AudioFile::play() {
 #ifdef DEBUG_AUDIO
   std::string buffer = "Starting wav: " + getFilename() + " stereo " +
                        std::to_string(getStereo()) + " sample rate " +
-                       std::to_string(_sampleRate) + " format " +
-                       std::to_string(_format);
+                       std::to_string(_sampleRate);
   nocashMessage(buffer.c_str());
 #endif
 
