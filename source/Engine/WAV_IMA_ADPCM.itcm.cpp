@@ -73,7 +73,7 @@ void WAV::progress_ima_adpcm_mono(u16 samples) {
   if (_leftBuffer == nullptr)
     return;
   s16 *leftBuffer = reinterpret_cast<s16 *>(_leftBuffer.get());
-  u8 *fileBuffer = _fileBuffer[_fileBufferId];
+  u8 *fileBuffer = _fileBuffer[_cFileBufferId];
   for (int i = 0; i < samples; i++) {
     bool highBits, readHeader;
     u32 samplePos;
@@ -109,7 +109,7 @@ void WAV::progress_ima_adpcm_stereo(u16 samples) {
     return;
   s16 *leftBuffer = reinterpret_cast<s16 *>(_leftBuffer.get());
   s16 *rightBuffer = reinterpret_cast<s16 *>(_rightBuffer.get());
-  u8 *fileBuffer = _fileBuffer[_fileBufferId];
+  u8 *fileBuffer = _fileBuffer[_cFileBufferId];
   for (int i = 0; i < samples * 2; i++) {
     u8 channelIdx = i % 2;
     bool highBits, readHeader;

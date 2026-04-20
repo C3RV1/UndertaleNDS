@@ -152,7 +152,7 @@ void WAV::resetPlaying() {
     }
   }
 
-  _fileBufferId = 0;
+  _cFileBufferId = 0;
   _sourceBufferPos = 0;
   _sampleBufferPos = 0;
   _expectedSampleBufferPos = 0;
@@ -185,7 +185,7 @@ ITCM_CODE
 void WAV::progress(u16 samples) {
   while (samples > 0) {
     u32 remainingFileBuffer =
-        _fileBufferSampleEnd[_fileBufferId] - _fileBufferSamplePos;
+        _fileBufferSampleEnd[_cFileBufferId] - _fileBufferSamplePos;
     u32 remainingLeftBuffer = kAudioBuffer - _sampleBufferPos % kAudioBuffer;
     u32 max_copy = remainingFileBuffer < remainingLeftBuffer
                        ? remainingFileBuffer
@@ -198,20 +198,23 @@ void WAV::progress(u16 samples) {
     _sampleBufferPos += max_copy;
     _sourceBufferPos += max_copy;
 
-    if (_fileBufferSamplePos >= _fileBufferSampleEnd[_fileBufferId]) {
-      _fileBufferGood[_fileBufferId] = false;
+    if (_fileBufferSamplePos >= _fileBufferSampleEnd[_cFileBufferId]) {
+      u8 next = (_cFileBufferId + 1) % 3;
 
-      s8 next = _nextBufferId[_fileBufferId];
-      if (_isFileEnd[next]) {
+      if (_isFileEnd[_cFileBufferId]) {
         if (_loops == 0) {
           if (_expectedSampleBufferPos > _sampleBufferPos)
             stop();
           break;
         } else if (_loops > 0)
           _loops--;
+
+        if (_rotateBuffer)
+          next = 0;
       }
 
-      _fileBufferId = next;
+      _fileBufferGood[_cFileBufferId] = false;
+      _cFileBufferId = next;
       _fileBufferSamplePos = 0;
     }
 
@@ -222,7 +225,7 @@ void WAV::progress(u16 samples) {
 ITCM_CODE
 void WAV::updateSync() {
   for (u8 id = 0; id < 3; id++)
-    renew_file_buffer((_fileBufferId + id) % 3, false);
+    renew_file_buffer((_cFileBufferId + id) % 3, false);
 }
 
 ITCM_CODE
@@ -269,8 +272,6 @@ void WAV::renew_file_buffer(u8 bufferId, bool isFirst) {
 
   if (!_rotateBuffer)
     return;
-
-  _nextBufferId[bufferId] = (bufferId + 1) % 3;
 
   u32 pos = ftell(_stream);
   u32 maxReadSize = _dataEnd - pos;
@@ -321,7 +322,6 @@ void WAV::renew_file_buffer(u8 bufferId, bool isFirst) {
     _isFileEnd[bufferId] = true;
 
     if (isFirst) {
-      _nextBufferId[bufferId] = 0;
       _rotateBuffer = false;
     } else
       fseek(_stream, _dataStart, SEEK_SET);

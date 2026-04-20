@@ -78,8 +78,7 @@ private:
   u8 _fileBuffer[3][kAudioBuffer];
   bool _fileBufferGood[3];
   bool _rotateBuffer = true;
-  u8 _fileBufferId = 0;
-  s8 _nextBufferId[3];
+  u8 _cFileBufferId = 0;
   bool _isFileEnd[3];
   u32 _sourceBufferPos = 0; // TODO: Cleanup.
   u32 _fileBufferSamplePos;
