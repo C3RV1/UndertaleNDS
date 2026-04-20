@@ -20,7 +20,6 @@ bool Background::loadPath(std::string path) {
   std::string pathFull = "nitro:/bg/" + path + ".cbgf";
   _path = path;
 
-  int oldIRQ = enterFileSection();
   FILE *f = fopen(pathFull.c_str(), "rb");
   if (!f) {
     std::string buffer = "Error opening bg #r" + path;
@@ -31,7 +30,6 @@ bool Background::loadPath(std::string path) {
   loadCBGF(f);
 
   fclose(f);
-  exitFileSection(oldIRQ);
 
   return true;
 }

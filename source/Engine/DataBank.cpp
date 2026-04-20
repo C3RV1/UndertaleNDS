@@ -8,7 +8,6 @@
 #include <string>
 
 void DataBank::load(std::string path) {
-  int oldIRQ = enterFileSection();
   FILE *f = fopen(path.c_str(), "rb");
   if (!f) {
     std::string buffer = "Error opening text bank " + path;
@@ -25,7 +24,6 @@ void DataBank::load(std::string path) {
   auto data = std::unique_ptr<u32[]>(new u32[(fileSizeWithoutHeader + 3) / 4]);
   fread(data.get(), fileSizeWithoutHeader, 1, f);
   fclose(f);
-  exitFileSection(oldIRQ);
 
   u32 decompressedSize = data[0] >> 8;
 

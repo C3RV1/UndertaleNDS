@@ -17,7 +17,6 @@
 Room::Room(int roomId) : _roomId(roomId) {
   _roomId = roomId;
   std::string buffer = "nitro:/rooms/room" + std::to_string(roomId) + ".room";
-  int oldIRQ = enterFileSection();
   FILE *f = fopen(buffer.c_str(), "rb");
   if (f == nullptr) {
     buffer = "Error opening room " + std::to_string(roomId);
@@ -25,7 +24,6 @@ Room::Room(int roomId) : _roomId(roomId) {
   }
   loadRoom(f);
   fclose(f);
-  exitFileSection(oldIRQ);
 
   _bg.loadPath(_roomData.roomBg);
 

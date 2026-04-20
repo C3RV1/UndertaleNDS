@@ -9,7 +9,4 @@
 
 int str_len_file(FILE *f, char terminator);
 
-int enterFileSection();
-void exitFileSection(int old);
-
 #endif // UNDERTALE_UTILS_HPP

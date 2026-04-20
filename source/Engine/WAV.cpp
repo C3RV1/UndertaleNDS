@@ -4,8 +4,7 @@
 #include "Engine/WAV.hpp"
 #include "Engine/Audio.hpp"
 #include "Engine/Engine.hpp"
-#include "Engine/dma.hpp"
-#include "Formats/utils.hpp"
+#include <cstdio>
 #include <memory>
 
 constexpr bool enableAdpcm = false;
@@ -18,7 +17,6 @@ void WAV::load(const std::string &name) {
 
   _loops = 0;
   std::string realPath = "nitro:/z_audio/" + name;
-  int oldIRQ = enterFileSection();
   FILE *f = fopen(realPath.c_str(), "rb");
   _filename = name;
   if (f == nullptr) {
@@ -134,18 +132,31 @@ void WAV::load(const std::string &name) {
 
   allocateBuffers();
 
+  _rotateBuffer = true;
+  for (u8 id = 0; id < 3; id++) {
+    _fileBufferGood[id] = false;
+    renew_file_buffer(id, true);
+  }
+
   _loaded = true;
   _stream = f;
-  exitFileSection(oldIRQ);
 }
 
 void WAV::resetPlaying() {
-  fseek(_stream, _dataStart, SEEK_SET);
+  if (_rotateBuffer) {
+    fseek(_stream, _dataStart, SEEK_SET);
+
+    for (u8 id = 0; id < 3; id++) {
+      _fileBufferGood[id] = false;
+      renew_file_buffer(id, false);
+    }
+  }
+
+  _fileBufferId = 0;
   _sourceBufferPos = 0;
   _sampleBufferPos = 0;
   _expectedSampleBufferPos = 0;
   _fileBufferSamplePos = 0;
-  _fileBufferSampleEnd = 0;
 }
 
 WAV::~WAV() { free_(); }
@@ -173,7 +184,8 @@ u8 WAV::getBitsPerSample() {
 ITCM_CODE
 void WAV::progress(u16 samples) {
   while (samples > 0) {
-    u32 remainingFileBuffer = _fileBufferSampleEnd - _fileBufferSamplePos;
+    u32 remainingFileBuffer =
+        _fileBufferSampleEnd[_fileBufferId] - _fileBufferSamplePos;
     u32 remainingLeftBuffer = kAudioBuffer - _sampleBufferPos % kAudioBuffer;
     u32 max_copy = remainingFileBuffer < remainingLeftBuffer
                        ? remainingFileBuffer
@@ -186,17 +198,31 @@ void WAV::progress(u16 samples) {
     _sampleBufferPos += max_copy;
     _sourceBufferPos += max_copy;
 
-    if (_fileBufferSamplePos >= _fileBufferSampleEnd) {
-      if (renew_file_buffer()) {
-        // We should stop the audio if we have completed.
-        if (_expectedSampleBufferPos > _sampleBufferPos)
-          stop();
-        break;
+    if (_fileBufferSamplePos >= _fileBufferSampleEnd[_fileBufferId]) {
+      _fileBufferGood[_fileBufferId] = false;
+
+      s8 next = _nextBufferId[_fileBufferId];
+      if (_isFileEnd[next]) {
+        if (_loops == 0) {
+          if (_expectedSampleBufferPos > _sampleBufferPos)
+            stop();
+          break;
+        } else if (_loops > 0)
+          _loops--;
       }
+
+      _fileBufferId = next;
+      _fileBufferSamplePos = 0;
     }
 
     samples -= max_copy;
   }
+}
+
+ITCM_CODE
+void WAV::updateSync() {
+  for (u8 id = 0; id < 3; id++)
+    renew_file_buffer((_fileBufferId + id) % 3, false);
 }
 
 ITCM_CODE
@@ -235,37 +261,36 @@ void WAV::copy_from_file_buffer(u16 copy_length_samples) {
 }
 
 ITCM_CODE
-bool WAV::renew_file_buffer() {
-  int oldIRQ = enterFileSection();
-  if (ftell(_stream) >= _dataEnd) {
-    if (_loops == 0) {
-      exitFileSection(oldIRQ);
-      return true;
-    } else if (_loops > 0) {
-      _loops--;
-    }
-    fseek(_stream, _dataStart, SEEK_SET);
-    _sourceBufferPos = 0;
-  }
+void WAV::renew_file_buffer(u8 bufferId, bool isFirst) {
+  if (_fileBufferGood[bufferId])
+    return;
 
-  u32 maxReadSize = _dataEnd - ftell(_stream);
-  if (maxReadSize >= kAudioBuffer * 2)
-    maxReadSize = kAudioBuffer * 2;
-  fread(_fileBuffer, maxReadSize, 1, _stream);
-  _fileBufferSamplePos = 0;
+  _fileBufferGood[bufferId] = true;
+
+  if (!_rotateBuffer)
+    return;
+
+  _nextBufferId[bufferId] = (bufferId + 1) % 3;
+
+  u32 pos = ftell(_stream);
+  u32 maxReadSize = _dataEnd - pos;
+  if (maxReadSize >= kAudioBuffer)
+    maxReadSize = kAudioBuffer;
+  fread(_fileBuffer[bufferId], maxReadSize, 1, _stream);
 
   // Calculate _fileBufferSampleEnd
   if (!_stereo) {
     switch (_format) {
     case SoundFormat_8Bit:
-      _fileBufferSampleEnd = maxReadSize;
+      _fileBufferSampleEnd[bufferId] = maxReadSize;
       break;
     case SoundFormat_16Bit:
-      _fileBufferSampleEnd = maxReadSize / 2;
+      _fileBufferSampleEnd[bufferId] = maxReadSize / 2;
       break;
     case SoundFormat_ADPCM: {
       u32 samplesPerBlock = (_blockAlign * 2) - 7;
-      _fileBufferSampleEnd = (maxReadSize * samplesPerBlock) / (u32)_blockAlign;
+      _fileBufferSampleEnd[bufferId] =
+          (maxReadSize * samplesPerBlock) / (u32)_blockAlign;
       break;
     }
     default:
@@ -275,14 +300,15 @@ bool WAV::renew_file_buffer() {
   } else {
     switch (_format) {
     case SoundFormat_8Bit:
-      _fileBufferSampleEnd = maxReadSize / 2;
+      _fileBufferSampleEnd[bufferId] = maxReadSize / 2;
       break;
     case SoundFormat_16Bit:
-      _fileBufferSampleEnd = maxReadSize / 4;
+      _fileBufferSampleEnd[bufferId] = maxReadSize / 4;
       break;
     case SoundFormat_ADPCM: {
       u32 samplesPerBlock = (_blockAlign * 2) / 2 - 7;
-      _fileBufferSampleEnd = (maxReadSize * samplesPerBlock) / (u32)_blockAlign;
+      _fileBufferSampleEnd[bufferId] =
+          (maxReadSize * samplesPerBlock) / (u32)_blockAlign;
       break;
     }
     default:
@@ -290,8 +316,17 @@ bool WAV::renew_file_buffer() {
                      " not implemented");
     }
   }
-  exitFileSection(oldIRQ);
-  return false;
+
+  if (pos + maxReadSize >= _dataEnd) {
+    _isFileEnd[bufferId] = true;
+
+    if (isFirst) {
+      _nextBufferId[bufferId] = 0;
+      _rotateBuffer = false;
+    } else
+      fseek(_stream, _dataStart, SEEK_SET);
+  } else
+    _isFileEnd[bufferId] = false;
 }
 
 void playBGMusic(const std::string &filename, bool loop) {
@@ -306,7 +341,7 @@ void playBGMusic(const std::string &filename, bool loop) {
     audioManager.play(cBGMusic);
 }
 
-void stopBGMusic() { audioManager.stop(cBGMusic); }
+void stopBGMusic() { cBGMusic->stop(); }
 
 std::shared_ptr<WAV> cBGMusic = nullptr;
 } // namespace Audio2

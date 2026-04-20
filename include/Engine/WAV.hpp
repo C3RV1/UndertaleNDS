@@ -43,8 +43,9 @@ protected:
 
 private:
   void progress(u16 samples) override;
+  void updateSync() override;
   void copy_from_file_buffer(u16 copy_length_samples);
-  bool renew_file_buffer();
+  void renew_file_buffer(u8 bufferId, bool isFirst);
 
   void progress_pcm8_mono(u16 samples);
 
@@ -74,10 +75,15 @@ private:
   u32 _dataStart = 0;
   u16 _blockAlign = 0;
 
-  u8 _fileBuffer[kAudioBuffer * 2];
+  u8 _fileBuffer[3][kAudioBuffer];
+  bool _fileBufferGood[3];
+  bool _rotateBuffer = true;
+  u8 _fileBufferId = 0;
+  s8 _nextBufferId[3];
+  bool _isFileEnd[3];
   u32 _sourceBufferPos = 0; // TODO: Cleanup.
   u32 _fileBufferSamplePos;
-  u32 _fileBufferSampleEnd;
+  u32 _fileBufferSampleEnd[3];
 
   SoundFormat _format;
   u8 _bitsPerSample;

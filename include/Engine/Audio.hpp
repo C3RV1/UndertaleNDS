@@ -13,6 +13,10 @@
 #include <string>
 
 namespace Audio2 {
+
+int enterAudioCritical();
+void exitAudioCritical(int old);
+
 class AudioManager;
 
 constexpr int kAudioBuffer = 0x400; // in samples, better if it's a power of 2
@@ -26,6 +30,12 @@ public:
    * @param name The name of the audio file to load.
    */
   virtual void load(const std::string &name) = 0;
+
+  /**
+   * Stops the audio file if it is playing. If the file has been setup as
+   * self-freeing, then it frees itself.
+   */
+  void stop();
 
   /**
    * Gets the filename that was used when load was called.
@@ -91,12 +101,6 @@ protected:
   bool play();
 
   /**
-   * Stops the audio file if it is playing. If the file has been setup as
-   * self-freeing, then it frees itself.
-   */
-  void stop();
-
-  /**
    * Should reset the playing audio file to the beginning of the playback,
    * resetting any needed internal values.
    */
@@ -140,6 +144,13 @@ private:
    * Is called by the AudioManager.
    */
   void update();
+
+  /**
+   * Should only be called from updateSync(). Should update any internal buffer
+   * that the AudioFile needs to stream in progress.
+   */
+  virtual void updateSync() = 0;
+
   u16 _timerLast;
   u32 _ticksRemain;
 
@@ -158,13 +169,18 @@ public:
   explicit AudioManager();
 
   void play(std::shared_ptr<AudioFile> audio_file);
-  void stop(const std::shared_ptr<AudioFile> &audio_file);
+
+  /**
+   * Should be called from timer irq. Handles moving from file buffers to audio
+   * buffers.
+   */
+  void update();
 
   /**
    * Should be called in every frame. Called from Engine::tick, and iterates
    * through all the currently playing audio files and updates them.
    */
-  void update();
+  void updateSync();
 
   /**
    * Gets the timer used by the audio system, specified when the audio manager

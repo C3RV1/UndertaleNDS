@@ -9,7 +9,7 @@ void WAV::progress_pcm8_mono(u16 samples) {
   if (_leftBuffer == nullptr)
     return;
   u8 *leftBuffer = _leftBuffer.get();
-  u8 *fileBuffer = _fileBuffer;
+  u8 *fileBuffer = _fileBuffer[_fileBufferId];
   dmaCopySafe(2, fileBuffer + _fileBufferSamplePos,
               leftBuffer + _sampleBufferPos, samples);
 }
@@ -19,7 +19,7 @@ void WAV::progress_pcm8_stereo(u16 samples) {
     return;
   u8 *leftBuffer = _leftBuffer.get();
   u8 *rightBuffer = _rightBuffer.get();
-  u8 *fileBuffer = _fileBuffer;
+  u8 *fileBuffer = _fileBuffer[_fileBufferId];
   for (int i = 0; i < samples * 2; i++) {
     u32 audioBufferPos = _sampleBufferPos + i / 2;
     audioBufferPos %= kAudioBuffer;
@@ -39,7 +39,7 @@ void WAV::progress_pcm16_mono(u16 samples) {
   if (_leftBuffer == nullptr)
     return;
   u16 *leftBuffer = reinterpret_cast<u16 *>(_leftBuffer.get());
-  u16 *fileBuffer = reinterpret_cast<u16 *>(_fileBuffer);
+  u16 *fileBuffer = reinterpret_cast<u16 *>(_fileBuffer[_fileBufferId]);
   dmaCopySafe(2, fileBuffer + _fileBufferSamplePos,
               leftBuffer + _sampleBufferPos % kAudioBuffer, samples * 2);
 }
@@ -49,7 +49,7 @@ void WAV::progress_pcm16_stereo(u16 samples) {
     return;
   u16 *leftBuffer = reinterpret_cast<u16 *>(_leftBuffer.get());
   u16 *rightBuffer = reinterpret_cast<u16 *>(_rightBuffer.get());
-  u16 *fileBuffer = reinterpret_cast<u16 *>(_fileBuffer);
+  u16 *fileBuffer = reinterpret_cast<u16 *>(_fileBuffer[_fileBufferId]);
   for (int i = 0; i < samples * 2; i++) {
     u32 audioBufferPos = _sampleBufferPos + i / 2;
     audioBufferPos %= kAudioBuffer;

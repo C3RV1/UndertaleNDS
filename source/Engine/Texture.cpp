@@ -16,7 +16,6 @@ bool Texture::loadPath(const std::string &path) {
 
   pathFull = "nitro:/spr/" + path + ".cspr";
 
-  int oldIRQ = enterFileSection();
   FILE *f = fopen(pathFull.c_str(), "rb");
   if (!f) {
     buffer = "Error opening spr #r" + path;
@@ -27,7 +26,6 @@ bool Texture::loadPath(const std::string &path) {
   loadCSPR(f);
 
   fclose(f);
-  exitFileSection(oldIRQ);
 
   return true;
 }

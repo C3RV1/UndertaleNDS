@@ -7,6 +7,15 @@
 #include <memory>
 
 namespace Audio2 {
+
+int enterAudioCritical() {
+  int v = REG_IE & IRQ_TIMER(Audio2::kTimerIrq);
+  irqDisable(IRQ_TIMER(Audio2::kTimerIrq));
+  return v;
+}
+
+void exitAudioCritical(int old) { irqEnable(old); }
+
 void AudioFile::allocateBuffers() {
   if (!_leftBuffer)
     _leftBuffer =
@@ -24,11 +33,13 @@ void AudioManager::play(std::shared_ptr<AudioFile> audio_file) {
   }
 
   if (audio_file->play()) {
+    int old_irq = enterAudioCritical();
     for (const auto &current : _playing) {
       if (current.get() == audio_file.get())
         return;
     }
     _playing.push_back(std::move(audio_file));
+    exitAudioCritical(old_irq);
   }
 }
 
@@ -79,23 +90,6 @@ void AudioFile::setVolume(u8 volume) {
   _volume = volume;
 }
 
-void AudioManager::stop(const std::shared_ptr<AudioFile> &audio_file) {
-  if (!audio_file) {
-    nocashMessage("Tried to stop nullptr audio_file!");
-    return;
-  }
-
-  if (!audio_file->getPlaying())
-    return;
-  audio_file->stop();
-  for (auto current = _playing.begin(); current != _playing.end(); ++current) {
-    if (audio_file.get() == current->get()) {
-      _playing.erase(current);
-      break;
-    }
-  }
-}
-
 void AudioFile::stop() {
   if (!_active)
     return;
@@ -139,10 +133,19 @@ void AudioFile::update() {
 
 ITCM_CODE
 void AudioManager::update() {
-  int old_irq = enterFileSection();
+  int old_irq = enterAudioCritical();
   REG_IME = 1; // Restore other interrupts.
   for (const auto &current : _playing) {
     current->update();
+  }
+  exitAudioCritical(old_irq);
+}
+
+ITCM_CODE
+void AudioManager::updateSync() {
+  int old_irq = enterAudioCritical();
+  for (const auto &current : _playing) {
+    current->updateSync();
   }
   for (auto current = _playing.begin(); current != _playing.end();) {
     if (!(*current)->getPlaying()) {
@@ -150,9 +153,10 @@ void AudioManager::update() {
     } else
       ++current;
   }
-  exitFileSection(old_irq);
+  exitAudioCritical(old_irq);
 }
 
+ITCM_CODE
 void updateAudio() { Audio2::audioManager.update(); }
 
 AudioManager::AudioManager() {
