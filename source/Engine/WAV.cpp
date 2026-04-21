@@ -132,6 +132,8 @@ void WAV::load(const std::string &name) {
 
   allocateBuffers();
 
+  _stream = f;
+
   _rotateBuffer = true;
   for (u8 id = 0; id < 3; id++) {
     _fileBufferGood[id] = false;
@@ -139,7 +141,6 @@ void WAV::load(const std::string &name) {
   }
 
   _loaded = true;
-  _stream = f;
 }
 
 void WAV::resetPlaying() {
