@@ -141,7 +141,7 @@ void Battle::showHp() {
   sprintf(buffer, "%2d/%2d", globalSave.hp, globalSave.maxHp);
   int x = kHPx + kHPw + kPadding;
   for (char *p = buffer; *p != 0; p++)
-    Engine::textMain.drawGlyph(_fnt, *p, x, kHPy + kTxtYOff);
+    Engine::textMain.drawGlyph(*_fnt, *p, x, kHPy + kTxtYOff);
 }
 
 void Battle::hide() {

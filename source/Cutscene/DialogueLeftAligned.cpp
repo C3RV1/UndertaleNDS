@@ -45,7 +45,7 @@ void DialogueLeftAligned::onClear() {
 }
 
 void DialogueLeftAligned::draw(bool draw_, bool clear_) {
-  _textManager->drawGlyph(_fnt, *(_textPos - 1), _x, _y);
+  _textManager->drawGlyph(*_fnt, *(_textPos - 1), _x, _y);
   _x += 1;
 }
 

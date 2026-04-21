@@ -28,7 +28,7 @@ void BattleAction::drawAct(bool draw) {
       y += optionSpacingY;
       continue;
     }
-    Engine::textMain.drawGlyph(_fnt, c, x, y);
+    Engine::textMain.drawGlyph(*_fnt, c, x, y);
   }
 }
 

@@ -15,17 +15,14 @@ void TextBGManager::resetTileReserve() {
 }
 
 ITCM_CODE
-void TextBGManager::drawGlyph(std::shared_ptr<Font> font, u8 glyph, int &x,
-                              int y) {
-  if (!font)
-    return;
-  if (!font->_loaded)
+void TextBGManager::drawGlyph(Font &font, u8 glyph, int &x, int y) {
+  if (!font._loaded)
     return;
 
-  u8 glyphIdx = font->_glyphMap.glyphMap[glyph];
+  u8 glyphIdx = font._glyphMap.glyphMap[glyph];
   if (glyphIdx == 0)
     return;
-  const CFNTGlyph *glyphObj = font->getGlyph(glyphIdx);
+  const CFNTGlyph *glyphObj = font.getGlyph(glyphIdx);
   int endX = x + glyphObj->shift;
   x += glyphObj->offset;
 

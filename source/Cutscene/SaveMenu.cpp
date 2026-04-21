@@ -41,11 +41,11 @@ void SaveMenu::drawInfo(SaveData &saveData, u8 color) {
 
   if (!saveData.saveExists) {
     int x = kNameX;
-    Engine::textSub.drawGlyph(_fnt, '-', x, kNameY);
+    Engine::textSub.drawGlyph(*_fnt, '-', x, kNameY);
     x = kLvNumX;
-    Engine::textSub.drawGlyph(_fnt, '0', x, kLvNumY);
+    Engine::textSub.drawGlyph(*_fnt, '0', x, kLvNumY);
     x = kRoomNameX;
-    Engine::textSub.drawGlyph(_fnt, '-', x, kRoomNameY);
+    Engine::textSub.drawGlyph(*_fnt, '-', x, kRoomNameY);
     return;
   }
 
@@ -60,17 +60,17 @@ void SaveMenu::drawInfo(SaveData &saveData, u8 color) {
   std::string buffer = std::to_string(saveData.lv);
   int x = kLvNumX;
   for (auto const &c : buffer)
-    Engine::textSub.drawGlyph(_fnt, c, x, kLvNumY);
+    Engine::textSub.drawGlyph(*_fnt, c, x, kLvNumY);
 
   Engine::textSub.setColor(color);
 
   x = kRoomNameX;
   for (auto const &c : _roomName)
-    Engine::textSub.drawGlyph(_fnt, c, x, kRoomNameY);
+    Engine::textSub.drawGlyph(*_fnt, c, x, kRoomNameY);
 
   x = kNameX;
   for (char *p = saveData.name; *p != 0; p++)
-    Engine::textSub.drawGlyph(_fnt, *p, x, kNameY);
+    Engine::textSub.drawGlyph(*_fnt, *p, x, kNameY);
 }
 
 void SaveMenu::drawError() {
@@ -82,11 +82,11 @@ void SaveMenu::drawError() {
 
   int x = kNameX;
   for (auto const &c : errorText)
-    Engine::textSub.drawGlyph(_fnt, c, x, kNameY);
+    Engine::textSub.drawGlyph(*_fnt, c, x, kNameY);
   x = kLvNumX;
-  Engine::textSub.drawGlyph(_fnt, '0', x, kLvNumY);
+  Engine::textSub.drawGlyph(*_fnt, '0', x, kLvNumY);
   x = kRoomNameX;
-  Engine::textSub.drawGlyph(_fnt, '-', x, kRoomNameY);
+  Engine::textSub.drawGlyph(*_fnt, '-', x, kRoomNameY);
 }
 
 bool SaveMenu::update() {

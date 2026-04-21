@@ -6,7 +6,6 @@
 #define UNDERTALE_TEXTBGMANAGER_HPP
 
 #include "Engine/Font.hpp"
-#include <memory>
 #include <nds.h>
 
 namespace Engine {
@@ -17,7 +16,7 @@ public:
     reloadColors();
     void resetTileReserve();
   }
-  void drawGlyph(std::shared_ptr<Font> font, u8 glyph, int &x, int y);
+  void drawGlyph(Font &font, u8 glyph, int &x, int y);
   void reloadColors();
   void setPaletteColor(int colorIdx, int r, int g, int b, bool color8bit);
   void setPaletteColor(int colorIdx, u16 color5bit);

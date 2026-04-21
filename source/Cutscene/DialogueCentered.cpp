@@ -103,7 +103,7 @@ void DialogueCentered::draw(bool draw_, bool _clear) {
       handleInline(++pLine, false);
       continue;
     }
-    _textManager->drawGlyph(_fnt, *pLine++, _x, _y);
+    _textManager->drawGlyph(*_fnt, *pLine++, _x, _y);
     _x += 1;
   }
   _lastPrintedPos = _textPos;
@@ -121,7 +121,7 @@ void DialogueCentered::clearCentered() {
       _x += sizeInline(++pLine);
       continue;
     }
-    _textManager->drawGlyph(_fnt, *pLine++, _x, _y);
+    _textManager->drawGlyph(*_fnt, *pLine++, _x, _y);
     _x += 1;
   }
   _textManager->setColor(color);

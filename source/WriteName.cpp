@@ -37,19 +37,19 @@ void runWriteNameMenu() {
 
   int x = line1x, y = line1y;
   for (; *charBuffer != '\n'; ++charBuffer)
-    Engine::textMain.drawGlyph(mainFont, *charBuffer, x, y);
+    Engine::textMain.drawGlyph(*mainFont, *charBuffer, x, y);
 
   ++charBuffer;
   x = line2x;
   y = line2y;
   for (; *charBuffer != '\n'; ++charBuffer)
-    Engine::textMain.drawGlyph(mainFont, *charBuffer, x, y);
+    Engine::textMain.drawGlyph(*mainFont, *charBuffer, x, y);
 
   ++charBuffer;
   x = line3x;
   y = line3y;
   for (; *charBuffer != '\n'; ++charBuffer)
-    Engine::textMain.drawGlyph(mainFont, *charBuffer, x, y);
+    Engine::textMain.drawGlyph(*mainFont, *charBuffer, x, y);
 
   std::string confirmText = textBank.getText("write_name_c1.txt");
 
@@ -70,7 +70,7 @@ void runWriteNameMenu() {
       else
         Engine::textSub.setColor(15);
 
-      Engine::textSub.drawGlyph(mainFont, c, x, y);
+      Engine::textSub.drawGlyph(*mainFont, c, x, y);
     }
 
     for (char c = 'a', i = 0; c <= 'z'; c++, i++) {
@@ -79,7 +79,7 @@ void runWriteNameMenu() {
       x = startX + x * spacingX;
       y = startY + y * spacingY;
 
-      Engine::textSub.drawGlyph(mainFont, c, x, y);
+      Engine::textSub.drawGlyph(*mainFont, c, x, y);
     }
 
     // get char loop
@@ -154,7 +154,7 @@ void runWriteNameMenu() {
           y = nameY;
           for (char *src = currentName; src <= currentName + currentLen;
                src++) {
-            Engine::textMain.drawGlyph(mainFont, *src, x, y);
+            Engine::textMain.drawGlyph(*mainFont, *src, x, y);
           }
         }
       }
@@ -170,7 +170,7 @@ void runWriteNameMenu() {
           for (char *src = currentName; src < currentName + currentLen; src++) {
             if (src == currentName + currentLen - 1)
               Engine::textMain.setColor(0); // transparent to clear char
-            Engine::textMain.drawGlyph(mainFont, *src, x, y);
+            Engine::textMain.drawGlyph(*mainFont, *src, x, y);
           }
           currentName[currentLen - 1] = 0;
           currentLen--;
@@ -203,7 +203,7 @@ void runWriteNameMenu() {
           x = startX + x * spacingX;
           y = startY + y * spacingY;
           Engine::textSub.setColor(colorToChangeTo);
-          Engine::textSub.drawGlyph(mainFont, glyph, x, y);
+          Engine::textSub.drawGlyph(*mainFont, glyph, x, y);
         }
       }
     }
@@ -217,28 +217,28 @@ void runWriteNameMenu() {
     y = 30;
     auto p = confirmText.begin();
     for (; *p != '\n'; ++p)
-      Engine::textSub.drawGlyph(mainFont, *p, x, y);
+      Engine::textSub.drawGlyph(*mainFont, *p, x, y);
     ++p;
 
     Engine::textSub.setColor(12);
     for (char *t = currentName; t < currentName + currentLen; t++)
-      Engine::textSub.drawGlyph(mainFont, *t, x, y);
+      Engine::textSub.drawGlyph(*mainFont, *t, x, y);
 
     Engine::textSub.setColor(15);
     for (; *p != '\n'; ++p)
-      Engine::textSub.drawGlyph(mainFont, *p, x, y);
+      Engine::textSub.drawGlyph(*mainFont, *p, x, y);
     ++p;
 
     x = 30;
     y = 60;
     for (; *p != '\n'; ++p)
-      Engine::textSub.drawGlyph(mainFont, *p, x, y);
+      Engine::textSub.drawGlyph(*mainFont, *p, x, y);
     ++p;
 
     x = 30;
     y = 80;
     for (; *p != '\n'; ++p)
-      Engine::textSub.drawGlyph(mainFont, *p, x, y);
+      Engine::textSub.drawGlyph(*mainFont, *p, x, y);
     ++p;
 
     for (;;) {

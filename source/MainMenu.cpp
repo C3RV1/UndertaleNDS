@@ -55,19 +55,19 @@ void runMainMenu() {
 
   int x = nameX;
   for (char *p = globalSave.name; *p != 0; p++) {
-    Engine::textSub.drawGlyph(font, *p, x, nameY);
+    Engine::textSub.drawGlyph(*font, *p, x, nameY);
   }
 
   buffer = std::to_string(globalSave.lv);
   x = lvX;
   for (auto const &c : buffer) {
-    Engine::textSub.drawGlyph(font, c, x, lvY);
+    Engine::textSub.drawGlyph(*font, c, x, lvY);
   }
 
   if (!roomName.empty()) {
     x = roomNameX;
     for (auto const &c : roomName) {
-      Engine::textSub.drawGlyph(font, c, x, roomNameY);
+      Engine::textSub.drawGlyph(*font, c, x, roomNameY);
     }
   }
 
@@ -104,7 +104,7 @@ void runMainMenu() {
         Engine::textSub.setColor(15);
       x = continueX;
       for (auto const &c : continueText) {
-        Engine::textSub.drawGlyph(font, c, x, continueY);
+        Engine::textSub.drawGlyph(*font, c, x, continueY);
       }
 
       if (selected == 1 && !resetConfirm)
@@ -115,7 +115,7 @@ void runMainMenu() {
         Engine::textSub.setColor(15);
       x = resetX;
       for (auto const &c : resetText) {
-        Engine::textSub.drawGlyph(font, c, x, resetY);
+        Engine::textSub.drawGlyph(*font, c, x, resetY);
       }
 
       draw = false;

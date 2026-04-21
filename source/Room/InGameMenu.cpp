@@ -75,7 +75,7 @@ void InGameMenu::updateSelectMenuHeart() {
 void InGameMenu::drawName() {
   int x = kNameX, y = kNameY;
   for (char *pName = globalSave.name; *pName != 0; pName++) {
-    Engine::textSub.drawGlyph(_fnt, *pName, x, y);
+    Engine::textSub.drawGlyph(*_fnt, *pName, x, y);
   }
 }
 
@@ -84,7 +84,7 @@ void InGameMenu::drawLv() {
   sprintf(buffer, "%d", globalSave.lv);
   int x = kLvX, y = kLvY;
   for (char *pName = buffer; *pName != 0; pName++) {
-    Engine::textSub.drawGlyph(_fnt, *pName, x, y);
+    Engine::textSub.drawGlyph(*_fnt, *pName, x, y);
   }
 }
 
@@ -93,7 +93,7 @@ void InGameMenu::drawExp() {
   sprintf(buffer, "%d", globalSave.exp);
   int x = kExpX, y = kExpY;
   for (char *pName = buffer; *pName != 0; pName++) {
-    Engine::textSub.drawGlyph(_fnt, *pName, x, y);
+    Engine::textSub.drawGlyph(*_fnt, *pName, x, y);
   }
 }
 
@@ -133,15 +133,15 @@ void InGameMenu::clipOption() {
 void InGameMenu::drawItemPage() {
   int x = 5;
   if (_itemPage > 0)
-    Engine::textSub.drawGlyph(_fnt, '<', x, kPageChangeY);
+    Engine::textSub.drawGlyph(*_fnt, '<', x, kPageChangeY);
   else
-    Engine::textSub.drawGlyph(_fnt, ' ', x, kPageChangeY);
+    Engine::textSub.drawGlyph(*_fnt, ' ', x, kPageChangeY);
 
   x = 256 - 15;
   if (_itemPage < (_optionCount - 1) / 2)
-    Engine::textSub.drawGlyph(_fnt, '>', x, kPageChangeY);
+    Engine::textSub.drawGlyph(*_fnt, '>', x, kPageChangeY);
   else
-    Engine::textSub.drawGlyph(_fnt, ' ', x, kPageChangeY);
+    Engine::textSub.drawGlyph(*_fnt, ' ', x, kPageChangeY);
 
   int y = kItemsY;
   for (int i = 0; i < 2; i++) {
@@ -154,7 +154,7 @@ void InGameMenu::drawItemPage() {
         textBank.getText("items/name" + std::to_string(item) + ".txt");
     x = kItemsX;
     for (auto pName = name.begin(); *pName != '\n'; pName++)
-      Engine::textSub.drawGlyph(_fnt, *pName, x, y);
+      Engine::textSub.drawGlyph(*_fnt, *pName, x, y);
     y += kItemSpacingY;
   }
 }
@@ -177,7 +177,7 @@ void InGameMenu::drawItemDesc() {
       x = 23;
       continue;
     }
-    Engine::textSub.drawGlyph(_fnt, c, x, y);
+    Engine::textSub.drawGlyph(*_fnt, c, x, y);
   }
 }
 
@@ -199,7 +199,7 @@ void InGameMenu::drawCellPage() {
 
     x = kItemsX;
     for (auto pName = cellText.begin(); *pName != '\n'; pName++)
-      Engine::textSub.drawGlyph(_fnt, *pName, x, y);
+      Engine::textSub.drawGlyph(*_fnt, *pName, x, y);
     y += kItemSpacingY;
   }
 }
@@ -217,7 +217,7 @@ void InGameMenu::updateHp() {
   sprintf(buffer, "%d/%d", globalSave.hp, globalSave.maxHp);
   int x = kHpX, y = kHpY;
   for (char *p = buffer; *p != 0; p++)
-    Engine::textSub.drawGlyph(_fnt, *p, x, y);
+    Engine::textSub.drawGlyph(*_fnt, *p, x, y);
 }
 
 void InGameMenu::update() {

@@ -152,7 +152,7 @@ void tick() {
       x = spacing * 4;
       y += lineSpacing;
     }
-    textMain.drawGlyph(system_font, message_char, x, y);
+    textMain.drawGlyph(*system_font, message_char, x, y);
   }
 
   while (true) {

@@ -85,7 +85,7 @@ void runTitleScreen() {
           x = initialX;
           y += lineSpacing;
         } else {
-          Engine::textSub.drawGlyph(mainFont, glyph, x, y);
+          Engine::textSub.drawGlyph(*mainFont, glyph, x, y);
           if (introIdx == 3) // Fit to screen
             x += characterExtraSpacing_intro3;
           else

@@ -27,10 +27,10 @@ void BattleAction::drawTarget() {
       Engine::textMain.setColor(12);
     else
       Engine::textMain.setColor(15);
-    Engine::textMain.drawGlyph(_fnt, '*', x, y);
-    Engine::textMain.drawGlyph(_fnt, ' ', x, y);
+    Engine::textMain.drawGlyph(*_fnt, '*', x, y);
+    Engine::textMain.drawGlyph(*_fnt, ' ', x, y);
     for (auto const &c : (*_enemies)[enemyId]->getName()) {
-      Engine::textMain.drawGlyph(_fnt, c, x, y);
+      Engine::textMain.drawGlyph(*_fnt, c, x, y);
     }
   }
 }
