@@ -113,18 +113,9 @@ void DialogueCentered::clearCentered() {
   if (_lastPrintedPos == _text.end())
     return;
   u16 width = getLineWidth(_lastPrintedPos);
-  u8 color = _textManager->getColor();
-  _textManager->setColor(0); // clear color
+  u16 height = _lineSpacing;
   _x = 128 - width / 2;
-  for (auto pLine = _lineStart; pLine < _lastPrintedPos;) {
-    if (*pLine == '@') {
-      _x += sizeInline(++pLine);
-      continue;
-    }
-    _textManager->drawGlyph(*_fnt, *pLine++, _x, _y);
-    _x += 1;
-  }
-  _textManager->setColor(color);
+  _textManager->clearRect(_x, _y, width, height);
 }
 
 int DialogueCentered::sizeInline(std::string::iterator &posToProgress) {
