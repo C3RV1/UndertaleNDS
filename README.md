@@ -39,6 +39,8 @@ by running:
 python -m pip install -r requirements.txt
 ```
 
+Note: The script has been tested on Python 3.12.
+
 Once you've run the `patcher.exe` file, or the python script, just provide the
 files the program asks for, and it'll create the `.nds` rom automatically.
 
@@ -51,7 +53,8 @@ play in a more recent version.
 
 To build the project from the source code, you'll need to have installed the
 [BlocksDS](https://blocksds.skylyrac.net/) development SDK for the NintendoDS.
-Just follow the instructions from the webpage linked.
+Just follow the instructions from the webpage linked. You'll also need Python,
+and the project has been developed with Python 3.12.
 
 Then, proceed by cloning the
 repository, and follow the steps in [[Creating the ROM]] to create the
