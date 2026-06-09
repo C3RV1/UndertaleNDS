@@ -1,0 +1,5 @@
+numpy==2.2.4
+pillow==11.1.0
+pycryptodome==3.22.0
+pygame==2.6.1
+typing_extensions==4.13.2

@@ -1,51 +1,99 @@
 # UndertaleNDS
-Undertale port for Nintendo DS (src only, no copyrighted material).
+**This project is currently halted. Progress will be resumed whenever
+possible.**
 
-Note: A bit of spaghetti code. Somewhaaat, actually. Tbh, a lot. Too much spaghetti code.
-Don't judge me :)
+UndertaleNDS is a port of the famous 2015 game by Toby Fox for the NintendoDS.
+It aims to recreate somewhat accurately the mechanics, graphics and gameplay of
+the original, while adapting them to the destination platform as best as
+possible.
 
-UndertaleNDS - 10 minute gameplay: [https://youtu.be/n27m40_RAGQ](https://youtu.be/n27m40_RAGQ)
+If you want to get an idea of what the game looks like, you can check out the
+UndertaleNDS - 10 minute gameplay:
+[https://youtu.be/n27m40_RAGQ](https://youtu.be/n27m40_RAGQ),
+although it is quite outdated at the moment.
 
-## Installation
-I recommend you run the game on MelonDS if you're using an emulator. It yiels
-the best results in terms of audio and performance.
+If you want to play the game on your own console/emulator, follow the
+[[Creating the ROM]] instructions. If you wish, however, to tinker with the
+source code, or make your own modifications, go to [[Building from source]].
 
-To compile the game or use the rom, you will need to provide the `data.win` file from the
-original UNDERTALE game. This file can be located at
-`C:\Program Files (x86)\Steam\steamapps\common\Undertale\data.win` or
-`C:\Program Files\Steam\steamapps\common\Undertale\data.win` for the Steam installation.
+**NOTE: As this repository only contains the original source code, and no
+copyrighted material from the game, the first thing you'll need is to have
+bought the game. Then, get the `data.win` file from the game files (in Steam
+and Windows, located in
+`C:/Program Files/Steam/steamapps/common/Undertale/data.win`). This is the file
+you'll need for creating the ROM or getting the assets for building the game.**
 
-Once you have located this file, you should copy it to the root directory of the project.
-This file will be used to get the copyrighted material. This way I make sure you
-own a legitimate copy of the game before playing the NDS port. Say no to piracy!
+*(Also, the compatibility with a `data.win` file from any other version that
+the one mentioned above is not guaranteed.)*
 
-You should download the patch files (`Undertale.nds.patch`, `tools.zip.patch`,
-`nitrofs.zip.patch`) from the latest release and also copy them to the project root.
+## Creating the ROM
+Download the following files from the latest release: `patcher.exe`,
+`Undertale.nds.patch`, `nitrofs.zip.patch`, `tools.zip.patch`.
+Then, run the `.exe` file, which is just a bundled python script.
 
-Once you have all files at the root of the directory (`data.win`, `Undertale.nds.patch`, `tools.zip.patch`,
-`nitrofs.zip.patch`) run `./patch_all.sh`.
+Alternatively, you can find the source code that generated the `.exe` file at
+the root of the repository, named `patch.py`. If you prefer to run the python
+script instead, make sure to have `tkinter` installed and all the requirements
+by running:
+```sh
+python -m pip install -r requirements.txt
+```
 
-All this should result in the corresponding
-project files: `Undertale.nds`, `tools` (directory) and `nitrofs` (directory).
+Once you've run the `patcher.exe` file, or the python script, just provide the
+files the program asks for, and it'll create the `.nds` rom automatically.
 
-## Compiling
-Note: Make sure to follow the installation instructions, which will
-extract `nitrofs` and `tools`, needed for compiling.
+Note: If you wish to play the game on an emulator, the best one to do so is,
+at the moment, melonDS 0.9.1. Versions after 0.9.1 require you to set up a DLDI
+system for the game to be able to save, so keep that in mind if you decide to
+play in a more recent version.
 
-When you make any changes to the assets the game uses (located in `tools/spr`, `tools/bg`, `tools/cutscenes`,
-`tools/rooms`, `tools/fnt`) you should run `python3 tools/all.py` in order to recompile
-all these files to their corresponding rom files. Some other information used by the game is:
-- Dialogues, in `nitrofs/data/dialogue`
-- Cell calls, in `nitrofs/data/cell`
-- Battle act texts, in `nitrofs/data/battle_act_txt`
-- Enemy names, in `nitrofs/data/enemies`
-- Item names and descriptions, in `nitrofs/data/items`
-- Room names, in `nitrofs/data/room_names`
-- Other .txt files in `nitrofs/data`
+## Building from source
 
-Then, you should run `make` to build the rom. Make sure to have
-[devkitarm](https://devkitpro.org/wiki/Getting_Started) installed.
+To build the project from the source code, you'll need to have installed the
+[BlocksDS](https://blocksds.skylyrac.net/) development SDK for the NintendoDS.
+Just follow the instructions from the webpage linked.
+
+Then, proceed by cloning the
+repository, and follow the steps in [[Creating the ROM]] to create the
+`tools` and `nitrofs` folders you'll need to compile the game. Running the
+patcher will also create a `.nds` file, but you can ignore it: it will be
+replaced by a new file once you compile the project.
+The reason you create these folders this way is that they contain copyrighted
+data from the game, and as such can only be created by using the `data.win`
+file.
+
+Then, you can proceed by modifying any of the assets/code from the project.
+The code is structured as such:
+- The `source` and `include` directories contain the C++ code in which the game
+engine is written. It contains an `Engine` subdirectory, which is used for
+handling the interaction with the hardware, and all other directories form the
+actual game logic.
+- The `tools` directory contains all intermediate files which will be converted
+to game assets. These are, for example:
+   - `.png` images for the backgrounds in the `bg` subdirectory.
+   - `.json`/`.png` for sprites (the first file has metadata, like the number
+  of frames, the animations..., while the second one has the actual frames) in
+  the `spr` subdirectory.
+   - `.json` for rooms, which specify the possible transitions to other
+  rooms, the colliders in the room, the sprites to be loaded when the room is
+  entered, the music to be played... in the `rooms` subdirectory.
+  - `.py` scripts (which compile to a binary stream) for cutscenes, located
+  in the `cutscene` subdirectory.
+  - `.txt` for all texts in the game, in the `txt` subdirectory.
+  - `.gmx`/`.png` for fonts, in the `fnt` subdirectory.
+- The `nitrofs` directory contains all the compiled data from the `tools`
+directory, in a format that the game engine supports. The only data specific
+to this directory is the audio from the game as `.wav` files,
+located in the `z_audio` subdirectory.
+
+Once you've made any desired changes to all these assets, you can build the
+game by running `python tools/all.py`, which will convert all the data files
+in the `tools` directory to the corresponding files in the `nitrofs` directory.
+Note that it is normal for this step to generate some errors, specifically when
+trying to process rooms which are not yet finished.
+
+After compiling the assets, build the rom by running `make`.
 
 ## Credits
-Toby Fox - Original Game  
+Toby Fox - Original game
 Cervi - DS Port
