@@ -17,6 +17,7 @@
 #include "TitleScreen.hpp"
 #include "WriteName.hpp"
 #include <cstdio>
+#include <memory>
 
 void runBattle();
 void runRoom();
@@ -52,7 +53,7 @@ int main() {
   roomSpawn = 6;
   globalSave.flags[0] = 5;
 
-  globalPlayer = new Player();
+  globalPlayer = std::make_unique<Player>();
   Engine::spriteSetShown(globalPlayer->_spr, true);
   globalInGameMenu.load();
   globalInGameMenu.show();

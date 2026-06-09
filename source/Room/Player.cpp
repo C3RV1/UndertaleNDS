@@ -246,4 +246,4 @@ void Player::draw() {
   _spr->_layer = _spr->_wy >> 8;
 }
 
-Player *globalPlayer;
+std::unique_ptr<Player> globalPlayer;

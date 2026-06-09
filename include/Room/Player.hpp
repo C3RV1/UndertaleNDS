@@ -42,6 +42,6 @@ private:
   int _rightMoveId;
 };
 
-extern Player *globalPlayer;
+extern std::unique_ptr<Player> globalPlayer;
 
 #endif // UNDERTALE_PLAYER_HPP
