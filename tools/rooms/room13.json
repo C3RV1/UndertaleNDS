@@ -1,6 +1,23 @@
 {
   "parts": [
     {
+      "conditions": [],
+      "room_bg": "rooms/room13",
+      "spawn_x": 0, "spawn_y": 0,
+      "exits": [
+        {
+          "exit_type": "side",
+          "room_id": 12,
+          "spawn_x": 0, "spawn_y": 0,
+          "side": "left"
+        },
+        {
+          "exit_type": "side",
+          "room_id": 14,
+          "spawn_x": 0, "spawn_y": 0,
+          "side": "right"
+        }
+      ],
       "colliders": [
         {
           "x": 0,
