@@ -11,6 +11,8 @@ nitrofs/spr
 nitrofs/data/cutscenes
 nitrofs/data/rooms
 nitrofs/fnt
+nitrofs/txt
+tools/txt
 nitrofs/stamp_file.txt
 *.aseprite
 _*
@@ -18,6 +20,10 @@ _*
 
 # Exclude misc internal
 .idea
+.cache
+venv
+compile_commands.json
+*.sav
 build
 .vscode
 cmake*
@@ -31,5 +37,6 @@ notes.txt
 *.rar
 *.patch
 _test*
+.cmake
 
 tsukuyomi_v01
