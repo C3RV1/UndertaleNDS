@@ -5,7 +5,6 @@
 #include "Engine/TextBGManager.hpp"
 #include "Engine/dma.hpp"
 #include <cstring>
-#include <memory>
 
 namespace Engine {
 void TextBGManager::resetTileReserve() {
@@ -61,18 +60,12 @@ void TextBGManager::drawGlyph(Font &font, u8 glyph, int &x, int y) {
         for (; tileX_ < 8 && (x_ / 8) * 8 + tileX_ < 256 &&
                glyphX_ < glyphObj->width;
              tileX_++) {
-          // Get pointer to the current pixel (can only write in words, so we
-          // round to the word (& (~1)). Then we'll shift the bits accordingly).
-          u8 *tileByte = tilePointer + (((tileY * 8 + tileX_) / 2) & (~1));
-          auto *tile = (vu16 *)tileByte;
+          // Get pointer to the current pixel.
+          u8 *tileByte = tilePointer + ((tileY * 8 + tileX_) / 2);
 
           // Are we writing to the high bits of the byte (0xX0) or low bits
           // (0x0X)?
           bool highBits = (tileX_ & 1) == 1;
-
-          // Are we writing to the byte coming before (0xXX00) or memory of
-          // after (0x00XX) (because we can only write in words)?
-          bool prevByte = (((tileY * 8 + tileX_) / 2) & 1) == 1;
 
           // Position of glyph bit (glyphs are 1 bit depth)
           u32 bitPos = glyphY_ * glyphObj->width + glyphX_;
@@ -84,10 +77,10 @@ void TextBGManager::drawGlyph(Font &font, u8 glyph, int &x, int y) {
           u8 bit = glyphObj->glyphData[byte] >> bitPos;
 
           // Clear tile position.
-          *tile &= ~(0xF << (4 * highBits + 8 * prevByte));
+          *tileByte &= ~(0xF << (4 * highBits));
           if (bit & 1) {
             // Write palette color
-            *tile |= _paletteColor << (4 * highBits + 8 * prevByte);
+            *tileByte |= _paletteColor << (4 * highBits);
           }
           glyphX_++;
         }
@@ -139,7 +132,7 @@ u8 *TextBGManager::getTile(int x, int y) {
   y /= 8;
   u16 tileId = *(vu16 *)((u8 *)_mapRam + (y * 32 + x) * 2) & 0x1FF;
 
-  u16 innerTileId = (x + 32 * (y % 2)) % TILE_BUFFER_SIZE;
+  u16 innerTileId = (y * 32 + x) % TILE_BUFFER_SIZE;
 
   if (tileId == 0) {
     tileId = _tileReserve[_tileFront++];
@@ -149,7 +142,7 @@ u8 *TextBGManager::getTile(int x, int y) {
 
     updateDirty(innerTileId);
     _tileIds[innerTileId] = tileId;
-    dmaFillSafe(3, 0, _tiles[innerTileId], 32);
+    memset(_tiles[innerTileId], 0, 32);
   } else if (_tileIds[innerTileId] != tileId) {
     updateDirty(innerTileId);
     _tileIds[innerTileId] = tileId;
@@ -171,7 +164,7 @@ void TextBGManager::clearTile(int x, int y) {
   _tileReserve[--_tileFront] = tileId;
   *(vu16 *)((u8 *)_mapRam + (y * 32 + x) * 2) = 0;
 
-  u16 innerTileId = (x + 32 * (y % 2)) % TILE_BUFFER_SIZE;
+  u16 innerTileId = (y * 32 + x) % TILE_BUFFER_SIZE;
   if (_tileIds[innerTileId] == tileId)
     _tileIds[innerTileId] = 0;
 }
@@ -235,9 +228,9 @@ void TextBGManager::drawRect(int x, int y, int w, int h, int colorIdx) {
 
       if (tileX == 0 && tileY == 0 && x_ + 8 < dstX && y + 8 < dstY) {
         // Each tile is 4 bits.
-        if (colorIdx != 0) {
+        if (colorIdx != 0 || true) {
           u8 *tilePointer = getTile(x_, y);
-          dmaFillSafe(3, colorIdx * 0x11111111, tilePointer, 32);
+          memset(tilePointer, colorIdx * 0x11, 32);
         } else
           clearTile(x_, y);
         x_ += 8;
@@ -247,14 +240,12 @@ void TextBGManager::drawRect(int x, int y, int w, int h, int colorIdx) {
       for (; tileY < 8 && (y / 8) * 8 + tileY < dstY; tileY++) {
         int tileX_ = tileX;
         for (; tileX_ < 8 && (x_ / 8) * 8 + tileX_ < dstX; tileX_++) {
-          u8 *tileByte = tilePointer + (((tileY * 8 + tileX_) / 2) & (~1));
-          auto *tile = (vu16 *)tileByte;
+          u8 *tileByte = tilePointer + ((tileY * 8 + tileX_) / 2);
 
           bool highBits = (tileX_ & 1) == 1;
-          bool prevByte = (((tileY * 8 + tileX_) / 2) & 1) == 1;
 
-          *tile &= ~(0xF << (4 * highBits + 8 * prevByte));
-          *tile |= colorIdx << (4 * highBits + 8 * prevByte);
+          *tileByte &= ~(0xF << (4 * highBits));
+          *tileByte |= colorIdx << (4 * highBits);
         }
       }
       x_ += 8 - (x_ % 8);

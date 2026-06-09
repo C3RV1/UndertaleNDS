@@ -44,7 +44,7 @@ private:
   u16 _tileFront = 0;
   int _paletteColor = 15;
 
-  static constexpr u32 TILE_BUFFER_SIZE = 64;
+  static constexpr u32 TILE_BUFFER_SIZE = 24 * 32;
 
   bool _dirty[TILE_BUFFER_SIZE] = {false};
   u16 _tileIds[TILE_BUFFER_SIZE] = {0};
