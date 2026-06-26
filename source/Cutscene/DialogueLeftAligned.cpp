@@ -6,12 +6,12 @@
 #include <memory>
 
 DialogueLeftAligned::DialogueLeftAligned(
-    SaveData *save, u16 cutsceneId, u16 roomId, u16 textId, s32 startingX,
-    s32 startingY, std::shared_ptr<Engine::Sprite> target,
-    const std::string &targetIdle, const std::string &targetTalk,
-    const std::string &typeSndPath, const std::string &fontTxt,
-    u16 framesPerLetter, Engine::TextBGManager &txtManager,
-    Engine::AllocationMode heartAlloc)
+    SaveData *save, u16 cutsceneId, u16 roomId, u16 textId,
+    std::shared_ptr<Engine::Sprite> target, const std::string &targetIdle,
+    const std::string &targetTalk, const std::string &typeSndPath,
+    const std::string &fontTxt, u16 framesPerLetter,
+    Engine::TextBGManager &txtManager, Engine::AllocationMode heartAlloc,
+    s32 startingX, s32 startingY)
     : Dialogue(save, cutsceneId, roomId, textId, target, targetIdle, targetTalk,
                typeSndPath, fontTxt, framesPerLetter, txtManager, heartAlloc) {
   _startingX = startingX >> 8;
@@ -22,12 +22,14 @@ DialogueLeftAligned::DialogueLeftAligned(
 }
 
 DialogueLeftAligned::DialogueLeftAligned(
-    SaveData *save, int startingX, int startingY, const std::string &text_,
-    const std::string &typeSndPath, const std::string &fontTxt,
-    u16 framesPerLetter, Engine::TextBGManager &txtManager,
-    Engine::AllocationMode heartAlloc)
-    : Dialogue(save, text_, typeSndPath, fontTxt, framesPerLetter, txtManager,
-               heartAlloc) {
+    SaveData *save, const std::string &text_,
+    std::shared_ptr<Engine::Sprite> target, const std::string &targetIdle,
+    const std::string &targetTalk, const std::string &typeSndPath,
+    const std::string &fontTxt, u16 framesPerLetter,
+    Engine::TextBGManager &txtManager, Engine::AllocationMode heartAlloc,
+    s32 startingX, s32 startingY)
+    : Dialogue(save, text_, target, targetIdle, targetTalk, typeSndPath,
+               fontTxt, framesPerLetter, txtManager, heartAlloc) {
   _startingX = startingX >> 8;
   _x = _startingX;
   _startingY = startingY >> 8;

@@ -7,12 +7,13 @@
 
 DialogueCentered::DialogueCentered(
     SaveData *save, u16 cutsceneId, u16 roomId, u16 textId,
-    const std::string &speaker, s32 speakerX, s32 speakerY,
-    const std::string &speakerIdle, const std::string &speakerTalk,
     std::shared_ptr<Engine::Sprite> target, const std::string &targetIdle,
     const std::string &targetTalk, const std::string &typeSndPath,
     const std::string &fontTxt, u16 framesPerLetter,
-    Engine::TextBGManager &txtManager, Engine::AllocationMode heartAlloc)
+    Engine::TextBGManager &txtManager, Engine::AllocationMode heartAlloc,
+    const std::string &speaker, s32 speakerX, s32 speakerY,
+    const std::string &speakerIdle, const std::string &speakerTalk
+  )
     : Dialogue(save, cutsceneId, roomId, textId, target, targetIdle, targetTalk,
                typeSndPath, fontTxt, framesPerLetter, txtManager, heartAlloc) {
 
@@ -34,18 +35,31 @@ DialogueCentered::DialogueCentered(
   _lineStart = _text.begin();
 }
 
-// TODO: Maybe this constructor could also take a speaker?
-//       Would then Dialogue need to take a target?
-DialogueCentered::DialogueCentered(SaveData *save, const std::string &text_,
-                                   const std::string &typeSndPath,
-                                   const std::string &fontTxt,
-                                   u16 framesPerLetter,
-                                   Engine::TextBGManager &txtManager,
-                                   Engine::AllocationMode heartAlloc)
-    : Dialogue(save, text_, typeSndPath, fontTxt, framesPerLetter, txtManager,
-               heartAlloc) {
-  _startingY = 192 / 4;
+DialogueCentered::DialogueCentered(
+    SaveData *save, const std::string &text_,
+    std::shared_ptr<Engine::Sprite> target, const std::string &targetIdle,
+    const std::string &targetTalk, const std::string &typeSndPath,
+    const std::string &fontTxt, u16 framesPerLetter,
+    Engine::TextBGManager &txtManager, Engine::AllocationMode heartAlloc,
+    const std::string &speaker, s32 speakerX, s32 speakerY,
+    const std::string &speakerIdle, const std::string &speakerTalk)
+    : Dialogue(save, text_, target, targetIdle, targetTalk, typeSndPath,
+               fontTxt, framesPerLetter, txtManager, heartAlloc) {
+
+  if (!speaker.empty())
+    _startingY = 192 / 2;
+  else
+    _startingY = 192 / 4;
   _y = _startingY;
+
+  _speakerSpr = std::make_shared<Engine::Sprite>(Engine::AllocatedOAM);
+  if (!speaker.empty())
+    Engine::spriteLoadTexture(_speakerSpr, speaker);
+  _speakerSpr->_wx = speakerX;
+  _speakerSpr->_wy = speakerY;
+  Engine::spriteSetShown(_speakerSpr, true);
+  _speakerIdle = _speakerSpr->nameToAnimId(speakerIdle);
+  _speakerTalk = _speakerSpr->nameToAnimId(speakerTalk);
 
   _lineStart = _text.begin();
 }

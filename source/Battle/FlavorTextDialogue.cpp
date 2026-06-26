@@ -12,19 +12,19 @@ FlavorTextDialogue::FlavorTextDialogue(Battle *battle, u16 cutsceneId,
                                        u16 roomId, u16 textId,
                                        std::string typeSnd, std::string font,
                                        u16 framesPerLetter)
-    : DialogueLeftAligned(battle->_save, cutsceneId, roomId, textId, 30 << 8,
-                          22 << 8, nullptr, "", "", typeSnd, font,
-                          framesPerLetter, Engine::textMain,
-                          Engine::Allocated3D),
+    : DialogueLeftAligned(battle->_save, cutsceneId, roomId, textId, nullptr,
+                          "", "", typeSnd, font, framesPerLetter,
+                          Engine::textMain, Engine::Allocated3D, 30 << 8,
+                          22 << 8),
       _battle(battle) {
   _battle->hide();
   _battle->drawRect();
 }
 
 FlavorTextDialogue::FlavorTextDialogue(Battle *battle, std::string text)
-    : DialogueLeftAligned(battle->_save, 30 << 8, 22 << 8, text, "SND_TXT2.wav",
+    : DialogueLeftAligned(battle->_save, text, nullptr, "", "", "SND_TXT2.wav",
                           "fnt_maintext.font", 2, Engine::textMain,
-                          Engine::Allocated3D),
+                          Engine::Allocated3D, 30 << 8, 22 << 8),
       _battle(battle) {
   _battle->hide();
   _battle->drawRect();

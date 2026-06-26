@@ -5,8 +5,6 @@
 #ifndef UNDERTALE_TITLE_SCREEN_HPP
 #define UNDERTALE_TITLE_SCREEN_HPP
 
-#include <nds.h>
-
 void runTitleScreen();
 
 #endif //UNDERTALE_TITLE_SCREEN_HPP

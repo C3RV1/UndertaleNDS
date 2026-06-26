@@ -17,16 +17,18 @@ class SaveData;
 
 class Dialogue {
 public:
+  Dialogue(SaveData* save, const std::string &text_,
+           std::shared_ptr<Engine::Sprite> target,
+           const std::string &targetIdle, const std::string &targetTalk,
+           const std::string &typeSndPath,
+           const std::string &fontTxt, u16 framesPerLetter,
+           Engine::TextBGManager &txtManager,
+           Engine::AllocationMode heartAlloc);
   Dialogue(SaveData* save, u16 cutsceneId, u16 roomId, u16 textId,
            std::shared_ptr<Engine::Sprite> target,
            const std::string &targetIdle, const std::string &targetTalk,
            const std::string &typeSndPath, const std::string &fontTxt,
            u16 framesPerLetter, Engine::TextBGManager &txtManager,
-           Engine::AllocationMode heartAlloc);
-
-  Dialogue(SaveData* save, const std::string &text_, const std::string &typeSndPath,
-           const std::string &fontTxt, u16 framesPerLetter,
-           Engine::TextBGManager &txtManager,
            Engine::AllocationMode heartAlloc);
   virtual bool update();
   virtual ~Dialogue() = default;
@@ -82,18 +84,23 @@ protected:
 class DialogueCentered : public Dialogue {
 public:
   DialogueCentered(SaveData *save, u16 cutsceneId, u16 roomId, u16 textId,
-                   const std::string &speaker, s32 speakerX, s32 speakerY,
-                   const std::string &speakerIdle,
-                   const std::string &speakerTalk,
                    std::shared_ptr<Engine::Sprite> target,
                    const std::string &targetIdle, const std::string &targetTalk,
                    const std::string &typeSndPath, const std::string &fontTxt,
                    u16 framesPerLetter, Engine::TextBGManager &txtManager,
-                   Engine::AllocationMode heartAlloc);
+                   Engine::AllocationMode heartAlloc,
+                   const std::string &speaker, s32 speakerX, s32 speakerY,
+                   const std::string &speakerIdle,
+                   const std::string &speakerTalk);
   DialogueCentered(SaveData *save, const std::string &text_,
+                   std::shared_ptr<Engine::Sprite> target,
+                   const std::string &targetIdle, const std::string &targetTalk,
                    const std::string &typeSndPath, const std::string &fontTxt,
                    u16 framesPerLetter, Engine::TextBGManager &txtManager,
-                   Engine::AllocationMode heartAlloc);
+                   Engine::AllocationMode heartAlloc,
+                   const std::string &speaker, s32 speakerX, s32 speakerY,
+                   const std::string &speakerIdle,
+                   const std::string &speakerTalk);
 
 protected:
   void clearCentered();
@@ -119,19 +126,23 @@ protected:
 class DialogueLeftAligned : public Dialogue {
 public:
   DialogueLeftAligned(SaveData *save, u16 cutsceneId, u16 roomId, u16 textId,
-                      s32 startingX, s32 startingY,
                       std::shared_ptr<Engine::Sprite> target,
                       const std::string &targetIdle,
                       const std::string &targetTalk,
                       const std::string &typeSndPath,
                       const std::string &fontTxt, u16 framesPerLetter,
                       Engine::TextBGManager &txtManager,
-                      Engine::AllocationMode heartAlloc);
-  DialogueLeftAligned(SaveData *save, int startingX, int startingY,
-                      const std::string &text_, const std::string &typeSndPath,
+                      Engine::AllocationMode heartAlloc, s32 startingX,
+                      s32 startingY);
+  DialogueLeftAligned(SaveData *save, const std::string &text_,
+                      std::shared_ptr<Engine::Sprite> target,
+                      const std::string &targetIdle,
+                      const std::string &targetTalk,
+                      const std::string &typeSndPath,
                       const std::string &fontTxt, u16 framesPerLetter,
                       Engine::TextBGManager &txtManager,
-                      Engine::AllocationMode heartAlloc);
+                      Engine::AllocationMode heartAlloc, s32 startingX,
+                      s32 startingY);
 
   void doRedraw() override;
 

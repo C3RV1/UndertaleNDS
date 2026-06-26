@@ -12,22 +12,19 @@
 #include <cstdio>
 #include <memory>
 
-Dialogue::Dialogue(SaveData *save, u16 cutsceneId, u16 roomId, u16 textId,
+Dialogue::Dialogue(SaveData *save, const std::string &text_,
                    std::shared_ptr<Engine::Sprite> target,
                    const std::string &targetIdle, const std::string &targetTalk,
                    const std::string &typeSndPath, const std::string &fontTxt,
                    u16 framesPerLetter, Engine::TextBGManager &txtManager,
                    Engine::AllocationMode heartAlloc)
-    : _target(target), _textManager(&txtManager), _save(save) {
+    : _save(save), _textManager(&txtManager), _target(target) {
   _typeSnd = std::make_shared<Audio2::WAV>();
   _fnt = Engine::fontManager.loadFont(fontTxt);
   _heartSprite = std::make_shared<Engine::Sprite>(heartAlloc);
   Engine::spriteLoadTexture(_heartSprite, "spr_heartsmall");
 
-  std::string path = "dialogue/r" + std::to_string(roomId) + "/c" +
-                     std::to_string(cutsceneId) + "/d" +
-                     std::to_string(textId) + ".txt";
-  _text = textBank.getText(path);
+  _text = text_;
 
   _textPos = _text.begin();
   _lastClearPos = _text.begin();
@@ -35,7 +32,7 @@ Dialogue::Dialogue(SaveData *save, u16 cutsceneId, u16 roomId, u16 textId,
 
   _letterFrames = framesPerLetter;
   _cTimer = _letterFrames;
-
+  
   if (target != nullptr) {
     _targetIdle = target->nameToAnimId(targetIdle);
     _targetTalk = target->nameToAnimId(targetTalk);
@@ -49,31 +46,22 @@ Dialogue::Dialogue(SaveData *save, u16 cutsceneId, u16 roomId, u16 textId,
   _typeSnd->setLoops(0);
 }
 
-Dialogue::Dialogue(SaveData* save, const std::string &text_, const std::string &typeSndPath,
-                   const std::string &fontTxt, u16 framesPerLetter,
-                   Engine::TextBGManager &txtManager,
-                   Engine::AllocationMode heartAlloc)
-    : _textManager(&txtManager), _save(save) {
-  _typeSnd = std::make_shared<Audio2::WAV>();
-  _fnt = Engine::fontManager.loadFont(fontTxt);
-  _heartSprite = std::make_shared<Engine::Sprite>(heartAlloc);
-  Engine::spriteLoadTexture(_heartSprite, "spr_heartsmall");
-
-  _text = text_;
-
-  _textPos = _text.begin();
-  _lastClearPos = _text.begin();
-
-  _letterFrames = framesPerLetter;
-  _cTimer = _letterFrames;
-
-  _textManager->clear();
-  _textManager->reloadColors();
-  _textManager->setColor(15);
-
-  _typeSnd->load(typeSndPath);
-  _typeSnd->setLoops(0);
+std::string loadCutsceneText(u16 cutsceneId, u16 roomId, u16 textId) {
+  std::string path = "dialogue/r" + std::to_string(roomId) + "/c" +
+                     std::to_string(cutsceneId) + "/d" +
+                     std::to_string(textId) + ".txt";
+  return textBank.getText(path);
 }
+
+Dialogue::Dialogue(SaveData *save, u16 cutsceneId, u16 roomId, u16 textId,
+                   std::shared_ptr<Engine::Sprite> target,
+                   const std::string &targetIdle, const std::string &targetTalk,
+                   const std::string &typeSndPath, const std::string &fontTxt,
+                   u16 framesPerLetter, Engine::TextBGManager &txtManager,
+                   Engine::AllocationMode heartAlloc)
+    : Dialogue(save, loadCutsceneText(cutsceneId, roomId, textId), target,
+               targetIdle, targetTalk, typeSndPath, fontTxt, framesPerLetter,
+               txtManager, heartAlloc) {}
 
 void Dialogue::setTalk() {
   if (_target != nullptr)
