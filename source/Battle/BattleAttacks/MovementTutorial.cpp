@@ -3,17 +3,17 @@
 //
 #include "Battle/BattleAttacks/MovementTutorial.hpp"
 #include "Battle/Battle.hpp"
+#include "Battle/BattleAttack.hpp"
 #include "Engine/Sprite.hpp"
-#include "Engine/Texture.hpp"
 #include <memory>
 
 namespace BtlAttacks {
-MovementTutorial::MovementTutorial() {
+MovementTutorial::MovementTutorial(Battle *battle) : BattleAttack(battle) {
   _tutorialSpr = std::make_shared<Engine::Sprite>(Engine::Allocated3D);
   Engine::spriteLoadTexture(_tutorialSpr, "cutscene/0/spr_guidearrows");
   Engine::spriteSetShown(_tutorialSpr, true);
-  _tutorialSpr->_wx = globalBattle->_playerSpr->_wx - (10 << 8);
-  _tutorialSpr->_wy = globalBattle->_playerSpr->_wy - (10 << 8);
+  _tutorialSpr->_wx = _battle->_playerSpr->_wx - (10 << 8);
+  _tutorialSpr->_wy = _battle->_playerSpr->_wy - (10 << 8);
   _tutorialSpr->_layer = 50;
   int animId = _tutorialSpr->nameToAnimId("tutorial");
   _tutorialSpr->setAnimation(animId);

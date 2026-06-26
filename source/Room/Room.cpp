@@ -4,17 +4,24 @@
 
 #include "Room/Room.hpp"
 #include "Cutscene/Cutscene.hpp"
+#include "Engine/Background.hpp"
 #include "Engine/Engine.hpp"
 #include "Engine/Sprite.hpp"
 #include "Engine/WAV.hpp"
+#include "Engine/math.hpp"
 #include "Formats/utils.hpp"
 #include "Room/Camera.hpp"
 #include "Room/InGameMenu.hpp"
 #include "Room/Player.hpp"
 #include "Save.hpp"
 #include <cstdio>
+#include <optional>
 
-Room::Room(int roomId) : _roomId(roomId) {
+Room::Room(int roomId, std::optional<std::pair<u16, u16>> spawnCoords,
+           std::unique_ptr<InGameMenu> ingame_menu,
+           std::unique_ptr<SaveData> save)
+    : _roomId(roomId), _nav(this), _player(this), _camera(this),
+      _ingame_menu(std::move(ingame_menu)), _save(std::move(save)) {
   _roomId = roomId;
   std::string buffer = "nitro:/rooms/room" + std::to_string(roomId) + ".room";
   FILE *f = fopen(buffer.c_str(), "rb");
@@ -24,6 +31,10 @@ Room::Room(int roomId) : _roomId(roomId) {
   }
   loadRoom(f);
   fclose(f);
+  
+  for (int i = 210; i <= 219; i++) {
+    _save->flags[i] = 0; // clear room specific flags
+  }
 
   _bg.loadPath(_roomData.roomBg);
 
@@ -45,6 +56,16 @@ Room::Room(int roomId) : _roomId(roomId) {
   }
 
   loadSprites();
+  
+  if (spawnCoords) {
+    _player._spr->_wx = spawnCoords->first << 8;
+    _player._spr->_wy = spawnCoords->second << 8;
+  }
+  else {
+    _player._spr->_wx = _spawnX << 8;
+    _player._spr->_wy = _spawnY << 8;
+  }
+  _camera.updatePosition(true, _player);
 }
 
 void Room::loadRoom(FILE *f) {
@@ -236,14 +257,10 @@ void Room::loadRoom(FILE *f) {
   }
 }
 
-void Room::free_() {}
-
 void Room::loadSprites() {
   _sprites.reserve(_roomData.roomSprites.roomSprites.size());
   for (auto const &roomSprite : _roomData.roomSprites.roomSprites) {
-    auto sprite = std::make_unique<RoomSprite>(Engine::Allocated3D);
-    sprite->load(roomSprite);
-    _sprites.push_back(std::move(sprite));
+    _sprites.emplace_back(Engine::Allocated3D, this).load(roomSprite);
   }
 }
 
@@ -255,7 +272,7 @@ bool Room::evaluateCondition(FILE *f) {
   cond.cmpOperator = cond.cmpOperator & 3;
   fread(&cond.cmpValue, 2, 1, f);
 
-  u16 flagValue = globalSave.flags[cond.flagId];
+  u16 flagValue = _save->flags[cond.flagId];
   bool flag = false;
   if (cond.cmpOperator == ComparisonOperator::EQUALS)
     flag = (flagValue == cond.cmpValue);
@@ -268,75 +285,73 @@ bool Room::evaluateCondition(FILE *f) {
   return flag;
 }
 
-void Room::draw() const {
-  for (const auto &_sprite : _sprites) {
-    _sprite->draw();
-  }
-}
-
-void loadNewRoom(int roomId, s32 spawnX, s32 spawnY) {
-  int timer = kRoomChangeFadeFrames;
-  while (timer >= 0) {
-    Engine::tick();
-    setBrightness(1, (-16 * (kRoomChangeFadeFrames - timer)) /
-                         kRoomChangeFadeFrames);
-    timer--;
-  }
-
-  for (int i = 210; i <= 219; i++) {
-    globalSave.flags[i] = 0; // clear room specific flags
-  }
-
-  globalRoom = std::make_unique<Room>(roomId);
-  globalPlayer->_spr->_wx = spawnX << 8;
-  globalPlayer->_spr->_wy = spawnY << 8;
-
-  if (globalCutscene != nullptr) {
-    // Cutscenes are confined to rooms
-    globalCutscene = nullptr;
-    globalInGameMenu.show();
-    globalPlayer->set_player_control(true);
-    globalCamera._manual = false;
-  }
-  globalCamera.updatePosition(true);
-  globalPlayer->draw();
-  globalRoom->draw();
-
-  timer = kRoomChangeFadeFrames;
-  while (timer >= 0) {
-    Engine::tick();
-    setBrightness(1, (-16 * timer) / kRoomChangeFadeFrames);
-    timer--;
+void Room::draw() {
+  _player.draw();
+  for (auto &_sprite : _sprites) {
+    _sprite.draw();
   }
 }
 
 void Room::update() {
-  _nav.update();
-  for (const auto &_sprite : _sprites) {
-    _sprite->update();
+  if (_cutscene != nullptr) {
+    _cutscene->update();
+    if (_cutscene->runCommands()) {
+      _cutscene = nullptr;
+      _ingame_menu->show();
+      _player.set_player_control(true);
+      _camera._manual = false;
+    } else if (!_cutscene->_fader.fadeFinished())
+      return;
   }
+
+  if (_pushed)
+    return;
+  
+  _player.update();
+  _nav.update();
+  for (auto &_sprite : _sprites) {
+    _sprite.update();
+  }
+  
+  _camera.updatePosition(false, _player);
+  _ingame_menu->update(*this);
 }
 
 void Room::push() {
-  Engine::spritePush(globalPlayer->_spr);
-  for (const auto &_sprite : _sprites) {
-    Engine::spritePush(_sprite->_spr);
+  _pushed = true;
+  
+  Engine::spritePush(_player._spr);
+  for (auto &_sprite : _sprites) {
+    Engine::spritePush(_sprite._spr);
   }
+
+  _ingame_menu->unload();
+  
+  Engine::textMain.clear();
+  Engine::textSub.clear();
 }
 
 void Room::pop() {
-  char buffer[100];
+  _pushed = false;
+  
+  Engine::textMain.clear();
+  Engine::textSub.clear();
+  
   _bg.loadPath(_roomData.roomBg);
-  Engine::spritePop(globalPlayer->_spr);
+  Engine::spritePop(_player._spr);
+  Engine::clearSub();
 
   int bgLoad = _bg.loadBgExtendedMain(512 / 8);
-  if (bgLoad != 0) {
-    sprintf(buffer, "Error loading room bg: %d", bgLoad);
-    nocashMessage(buffer);
+  if (bgLoad != 0)
+    nocashMessage(("Error loading room bg: %d" + std::to_string(bgLoad)).c_str());
+
+  for (auto &_sprite : _sprites) {
+    Engine::spritePop(_sprite._spr);
   }
-  for (const auto &_sprite : _sprites) {
-    Engine::spritePop(_sprite->_spr);
-  }
+
+  _ingame_menu->load();
+
+  _camera.updatePosition(true, _player);
+  draw();
 }
 
-std::unique_ptr<Room> globalRoom = nullptr;

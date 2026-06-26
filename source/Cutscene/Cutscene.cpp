@@ -8,8 +8,8 @@
 #include "Cutscene/CutsceneEnums.hpp"
 #include "Cutscene/Dialogue.hpp"
 #include "Cutscene/Navigation.hpp"
-#include "DEBUG_FLAGS.hpp"
 #include "Engine/Audio.hpp"
+#include "Fader.hpp"
 #include "Formats/CSCN.hpp"
 #include "Formats/ROOM_FILE.hpp"
 #include "Formats/utils.hpp"
@@ -17,135 +17,151 @@
 #include "Room/InGameMenu.hpp"
 #include "Room/Player.hpp"
 #include "Room/Room.hpp"
-#include "Save.hpp"
 #include <memory>
 #include <string>
 
-std::unique_ptr<Cutscene> globalCutscene = nullptr;
-
-Cutscene::Cutscene(u16 cutsceneId, u16 roomId)
-    : _cutsceneId(cutsceneId), _roomId(roomId) {
+Cutscene::Cutscene(u16 cutsceneId, u16 roomId, Room* room)
+    : _cutsceneId(cutsceneId), _roomId(roomId), _room(room), _waiting(this) {
   std::string buffer = "nitro:/cutscenes/r" + std::to_string(roomId) + "/c" +
                        std::to_string(cutsceneId) + ".cscn";
   FILE *f = fopen(buffer.c_str(), "rb");
   if (f) {
     setvbuf(f, NULL, _IOFBF, 4 * 1024);
+    fseek(f, 0, SEEK_END);
+    long len = ftell(f);
+    fseek(f, 0, SEEK_SET);
 
-    if (checkHeader(f)) {
-      long pos = ftell(f);
-      fseek(f, 0, SEEK_END);
-      _commandStreamLen = ftell(f);
-      fseek(f, pos, SEEK_SET);
-    } else {
+    _commandData.openFromFile(f, len);
+
+    if (!checkHeader()) {
       buffer = "Error cutscene " + std::to_string(cutsceneId) + ": HEADER";
       nocashMessage(buffer.c_str());
-      fclose(f);
-      f = nullptr;
+      _commandData.close();
     }
   } else {
     buffer = "Error opening cutscene " + std::to_string(cutsceneId);
     nocashMessage(buffer.c_str());
   }
-  _commandStream = f;
+  fclose(f);
 }
 
-bool Cutscene::checkHeader(FILE *f) {
+bool Cutscene::checkHeader() {
   char header[4];
   char expectedHeader[4] = {'C', 'S', 'C', 'N'};
 
-  fread(header, 4, 1, f);
-  if (memcmp(header, expectedHeader, 4) != 0) {
+  _commandData.read(&header, 4);
+  if (memcmp(header, expectedHeader, 4) != 0)
     return false;
-  }
 
   u32 version;
-  fread(&version, 4, 1, f);
-
-  if (version != CSCN::version) {
+  _commandData.read(&version, 4);
+  if (version != CSCN::version)
     return false;
-  }
 
   u32 fileSize;
-
-  fread(&fileSize, 4, 1, f);
-  long pos = ftell(f);
-  fseek(f, 0, SEEK_END);
-  u32 size = ftell(f);
-  fseek(f, pos, SEEK_SET);
-
-  if (size != fileSize) {
+  _commandData.read(&fileSize, 4);
+  if (_commandData.size() != fileSize)
     return false;
-  }
 
   return true;
 }
 
 void Cutscene::update() {
-  if (_cDialogue != nullptr) {
+  if (!_fader.fadeFinished()) {
+    _fader.update();
+    if (!_fader.fadeFinished())
+      return;
+    switch(_fader.getLastFadeType()) {
+    case FadeType::FADE_OUT:
+      _waiting.waitIgnore(WaitingType::WAIT_EXIT);
+      if (_cBattle && _cBattle->_running) {
+        _room->push();
+        lcdMainOnBottom();
+        _cBattle->enter();
+      }
+      else {
+        _cBattle = nullptr;
+        lcdMainOnTop();
+        _room->pop();
+      }
+      _fader.startFade(FadeType::FADE_IN);
+      break;
+    case FadeType::FADE_IN:
+      _waiting.waitIgnore(WaitingType::WAIT_ENTER);
+      break;
+    default:
+      break;
+    }
+  }
+  
+  if (_cBattle) {
+    _cBattle->update();
+    if (!_cBattle->_running) {
+      _fader.startFade(FadeType::FADE_OUT);
+    }
+  }
+
+  if (_cDialogue) {
     if (_cDialogue->update()) {
       _cDialogue = nullptr;
     }
-  } else if (_cSaveMenu != nullptr) {
+  } else if (_cSaveMenu) {
     if (_cSaveMenu->update()) {
       _cSaveMenu = nullptr;
     }
   }
 }
 
-bool Cutscene::runCommands(CutsceneLocation callingLocation) {
-  _waiting.update(callingLocation, true);
-  if (_commandStream == nullptr)
-    return true;
+bool Cutscene::runCommands() {
+  _waiting.update(true);
   if (_waiting.getBusy())
     return false;
-
-  if (ftell(_commandStream) >= _commandStreamLen) {
+  if (_commandData.at_end() && _fader.fadeFinished())
     return true;
-  }
 
-  while (!_waiting.getBusy() && ftell(_commandStream) < _commandStreamLen) {
-    if (runCommand(callingLocation))
-      break;
-    _waiting.update(callingLocation, false);
+  while (!_waiting.getBusy() && !_commandData.at_end()) {
+    u8 cmd;
+    _commandData.read(&cmd, 1);
+    
+    runCommand(cmd);
+    
+    _waiting.update(false);
   }
 
   return false;
 }
 
-bool Cutscene::runCommand(CutsceneLocation callingLocation) {
-  char buffer[100];
-  u8 cmd;
-  fread(&cmd, 1, 1, _commandStream);
-  int len;
+bool Cutscene::runCommand(u8 cmd) {
+  /*int len;
   TargetInfo targetInfo;
+  u32 address;*/
   u32 address;
-  Navigation *nav;
-  if (callingLocation == ROOM || callingLocation == LOAD_ROOM) {
-    nav = &globalRoom->_nav;
-  } else {
-    nav = &globalBattle->_nav;
-  }
+  
+  Navigation* nav;
+  if (_cBattle)
+    nav = &_cBattle->_nav;
+  else
+    nav = &_room->_nav;
 
   switch (cmd) {
-  case CMD_DEBUG:
+  case CMD_DEBUG: {
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_DEBUG");
 #endif
-    len = str_len_file(_commandStream, 0);
-    fread(buffer, len + 1, 1, _commandStream);
-    nocashMessage(buffer);
+    std::string buffer = _commandData.readstring();
+    nocashMessage(buffer.c_str());
     break;
+  }
   case CMD_LOAD_SPRITE: {
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_LOAD_SPRITE");
 #endif
     s32 x, y, layer;
-    fread(&x, 4, 1, _commandStream);
-    fread(&y, 4, 1, _commandStream);
-    fread(&layer, 4, 1, _commandStream);
-    len = str_len_file(_commandStream, 0);
-    fread(buffer, len + 1, 1, _commandStream);
-    Navigation::spawn_sprite(buffer, x, y, layer, callingLocation);
+    _commandData.read(&x, 4);
+    _commandData.read(&y, 4);
+    _commandData.read(&layer, 4);
+    std::string path = _commandData.readstring();
+    nav->spawn_sprite(path, x, y, layer);
     break;
   }
   case CMD_UNLOAD_SPRITE: {
@@ -153,8 +169,8 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
     nocashMessage("CMD_UNLOAD_SPRITE");
 #endif
     s8 sprId;
-    fread(&sprId, 1, 1, _commandStream);
-    Navigation::unload_sprite(sprId, callingLocation);
+    _commandData.read(&sprId, 1);
+    nav->unload_sprite(sprId);
     break;
   }
   case CMD_PLAYER_CONTROL: {
@@ -162,12 +178,12 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
     nocashMessage("CMD_PLAYER_CONTROL");
 #endif
     bool playerControl;
-    fread(&playerControl, 1, 1, _commandStream);
-    globalPlayer->set_player_control(playerControl);
+    _commandData.read(&playerControl, 1);
+    _room->_player.set_player_control(playerControl);
     if (playerControl)
-      globalInGameMenu.show();
+      _room->_ingame_menu->show();
     else
-      globalInGameMenu.hide();
+      _room->_ingame_menu->hide();
     break;
   }
   case CMD_MANUAL_CAMERA: {
@@ -175,8 +191,8 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
     nocashMessage("CMD_MANUAL_CAMERA");
 #endif
     bool manualCamera;
-    fread(&manualCamera, 1, 1, _commandStream);
-    globalCamera._manual = manualCamera;
+    _commandData.read(&manualCamera, 1);
+    _room->_camera._manual = manualCamera;
     break;
   }
   case CMD_WAIT: {
@@ -184,10 +200,10 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
     nocashMessage("CMD_WAIT");
 #endif
     u8 waitType;
-    fread(&waitType, 1, 1, _commandStream);
+    _commandData.read(&waitType, 1);
     if (waitType == WAIT_FRAMES) {
       u16 frames;
-      fread(&frames, 2, 1, _commandStream);
+      _commandData.read(&frames, 2);
       _waiting.waitFrames(frames);
       break;
     }
@@ -198,176 +214,166 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_SET_SHOWN");
 #endif
-    targetInfo = readTarget();
+    TargetInfo targetInfo = readTarget(_commandData);
     bool shown;
-    fread(&shown, 1, 1, _commandStream);
-    Navigation::set_shown(targetInfo, shown, callingLocation);
+    _commandData.read(&shown, 1);
+    nav->set_shown(targetInfo, shown);
     break;
   }
-  case CMD_SET_ANIMATION:
+  case CMD_SET_ANIMATION: {
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_SET_ANIMATION");
 #endif
-    targetInfo = readTarget();
-    len = str_len_file(_commandStream, 0);
-    fread(buffer, len + 1, 1, _commandStream);
-    Navigation::set_animation(targetInfo, buffer, callingLocation);
+    TargetInfo targetInfo = readTarget(_commandData);
+    std::string anim = _commandData.readstring();
+    nav->set_animation(targetInfo, anim);
     break;
+  }
   case CMD_SET_OPACITY: {
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_SET_OPACITY");
 #endif
-    targetInfo = readTarget();
+    TargetInfo targetInfo = readTarget(_commandData);
     u8 opacity;
-    fread(&opacity, 1, 1, _commandStream);
-    Navigation::set_opacity(targetInfo, opacity, callingLocation);
+    _commandData.read(&opacity, 1);
+    nav->set_opacity(targetInfo, opacity);
     break;
   }
   case CMD_SET_POS: {
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_SET_POS");
 #endif
-    targetInfo = readTarget();
+    TargetInfo targetInfo = readTarget(_commandData);
     s32 x, y;
-    fread(&x, 4, 1, _commandStream);
-    fread(&y, 4, 1, _commandStream);
-    Navigation::set_position(targetInfo, x, y, callingLocation);
+    _commandData.read(&x, 4);
+    _commandData.read(&y, 4);
+    nav->set_position(targetInfo, x, y);
     break;
   }
   case CMD_MOVE: {
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_MOVE");
 #endif
-    targetInfo = readTarget();
+    TargetInfo targetInfo = readTarget(_commandData);
     s32 dx, dy;
-    fread(&dx, 4, 1, _commandStream);
-    fread(&dy, 4, 1, _commandStream);
-    Navigation::move(targetInfo, dx, dy, callingLocation);
+    _commandData.read(&dx, 4);
+    _commandData.read(&dy, 4);
+    nav->move(targetInfo, dx, dy);
     break;
   }
   case CMD_SET_SCALE: {
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_SET_SCALE");
 #endif
-    targetInfo = readTarget();
+    TargetInfo targetInfo = readTarget(_commandData);
     s32 x, y;
-    fread(&x, 4, 1, _commandStream);
-    fread(&y, 4, 1, _commandStream);
-    Navigation::set_scale(targetInfo, x, y, callingLocation);
+    _commandData.read(&x, 4);
+    _commandData.read(&y, 4);
+    nav->set_scale(targetInfo, x, y);
     break;
   }
   case CMD_SET_POS_IN_FRAMES: {
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_SET_POS_IN_FRAMES");
 #endif
-    targetInfo = readTarget();
+    TargetInfo targetInfo = readTarget(_commandData);
     s32 x, y;
-    fread(&x, 4, 1, _commandStream);
-    fread(&y, 4, 1, _commandStream);
+    _commandData.read(&x, 4);
+    _commandData.read(&y, 4);
     u16 frames;
-    fread(&frames, 2, 1, _commandStream);
-    nav->set_pos_in_frames(targetInfo, x, y, frames, callingLocation);
+    _commandData.read(&frames, 2);
+    nav->set_pos_in_frames(targetInfo, x, y, frames);
     break;
   }
   case CMD_MOVE_IN_FRAMES: {
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_MOVE_IN_FRAMES");
 #endif
-    targetInfo = readTarget();
+    TargetInfo targetInfo = readTarget(_commandData);
     s32 x, y;
-    fread(&x, 4, 1, _commandStream);
-    fread(&y, 4, 1, _commandStream);
+    _commandData.read(&x, 4);
+    _commandData.read(&y, 4);
     u16 frames;
-    fread(&frames, 2, 1, _commandStream);
-    nav->move_in_frames(targetInfo, x, y, frames, callingLocation);
+    _commandData.read(&frames, 2);
+    nav->move_in_frames(targetInfo, x, y, frames);
     break;
   }
   case CMD_SCALE_IN_FRAMES: {
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_SCALE_IN_FRAMES");
 #endif
-    targetInfo = readTarget();
+    TargetInfo targetInfo = readTarget(_commandData);
     s32 x, y;
-    fread(&x, 4, 1, _commandStream);
-    fread(&y, 4, 1, _commandStream);
+    _commandData.read(&x, 4);
+    _commandData.read(&y, 4);
     u16 frames;
-    fread(&frames, 2, 1, _commandStream);
-    nav->scale_in_frames(targetInfo, x, y, frames, callingLocation);
+    _commandData.read(&frames, 2);
+    nav->scale_in_frames(targetInfo, x, y, frames);
     break;
   }
   case CMD_START_DIALOGUE: {
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_START_DIALOGUE");
 #endif
+    TargetInfo targetInfo;
     u16 textId, framesPerLetter;
     s32 x, y;
-    char speaker[50], font[50];
-    char speakerIdle[50], speakerTalk[50];
-    char targetIdle[50], targetTalk[50];
-    char typeSnd[50];
+    std::string speaker, font, speakerIdle, speakerTalk, targetIdle, targetTalk,
+        typeSnd;
     bool mainScreen;
     DialogueType dialogue_type;
 
-    fread(&dialogue_type, 1, 1, _commandStream);
-    fread(&textId, 2, 1, _commandStream);
+    _commandData.read(&dialogue_type, 1);
+    _commandData.read(&textId, 2);
 
-    if (dialogue_type == DIALOGUE_CENTERED) {
-      len = str_len_file(_commandStream, 0);
-      fread(speaker, len + 1, 1, _commandStream);
-    }
+    if (dialogue_type == DIALOGUE_CENTERED)
+      speaker = _commandData.readstring();
 
     if (dialogue_type != DIALOGUE_FLAVOR_TEXT) {
-      fread(&x, 4, 1, _commandStream);
-      fread(&y, 4, 1, _commandStream);
+      _commandData.read(&x, 4);
+      _commandData.read(&y, 4);
     }
 
     if (dialogue_type == DIALOGUE_CENTERED) {
-      len = str_len_file(_commandStream, 0);
-      fread(speakerIdle, len + 1, 1, _commandStream);
-
-      len = str_len_file(_commandStream, 0);
-      fread(speakerTalk, len + 1, 1, _commandStream);
+      speakerIdle = _commandData.readstring();
+      speakerTalk = _commandData.readstring();
     }
 
     if (dialogue_type != DIALOGUE_FLAVOR_TEXT) {
-      targetInfo = readTarget();
-
-      len = str_len_file(_commandStream, 0);
-      fread(targetIdle, len + 1, 1, _commandStream);
-
-      len = str_len_file(_commandStream, 0);
-      fread(targetTalk, len + 1, 1, _commandStream);
+      targetInfo = readTarget(_commandData);
+      targetIdle = _commandData.readstring();
+      targetTalk = _commandData.readstring();
     }
 
-    len = str_len_file(_commandStream, 0);
-    fread(typeSnd, len + 1, 1, _commandStream);
+    typeSnd = _commandData.readstring();
+    font = _commandData.readstring();
 
-    len = str_len_file(_commandStream, 0);
-    fread(font, len + 1, 1, _commandStream);
-
-    fread(&framesPerLetter, 2, 1, _commandStream);
+    _commandData.read(&framesPerLetter, 2);
 
     if (dialogue_type != DIALOGUE_FLAVOR_TEXT)
-      fread(&mainScreen, 1, 1, _commandStream);
+      _commandData.read(&mainScreen, 1);
 
     Engine::TextBGManager &txt =
         mainScreen ? Engine::textMain : Engine::textSub;
     Engine::AllocationMode heartAlloc =
         mainScreen ? Engine::Allocated3D : Engine::AllocatedOAM;
 
-    auto target = Navigation::getTarget(targetInfo, callingLocation);
+    auto target = nav->getTarget(targetInfo);
     if (_cDialogue == nullptr) {
       if (dialogue_type == DIALOGUE_CENTERED)
         _cDialogue = std::make_unique<DialogueCentered>(
-            textId, speaker, x, y, speakerIdle, speakerTalk, target, targetIdle,
-            targetTalk, typeSnd, font, framesPerLetter, txt, heartAlloc);
+            _room->_save.get(), _cutsceneId, _room->_roomId, textId, speaker, x,
+            y, speakerIdle, speakerTalk, target, targetIdle, targetTalk,
+            typeSnd, font, framesPerLetter, txt, heartAlloc);
       else if (dialogue_type == DIALOGUE_LEFT_ALIGNED)
         _cDialogue = std::make_unique<DialogueLeftAligned>(
-            textId, x, y, target, targetIdle, targetTalk, typeSnd, font,
-            framesPerLetter, txt, heartAlloc);
-      else if (dialogue_type == DIALOGUE_FLAVOR_TEXT && globalBattle)
-        _cDialogue = std::make_unique<FlavorTextDialogue>(textId, typeSnd, font,
-                                                          framesPerLetter);
+            _room->_save.get(), _cutsceneId, _room->_roomId, textId, x, y,
+            target, targetIdle, targetTalk, typeSnd, font, framesPerLetter, txt,
+            heartAlloc);
+      else if (dialogue_type == DIALOGUE_FLAVOR_TEXT && _cBattle)
+        _cDialogue = std::make_unique<FlavorTextDialogue>(
+            _cBattle.get(), _cutsceneId, _room->_roomId, textId, typeSnd, font,
+            framesPerLetter);
     }
     break;
   }
@@ -375,9 +381,10 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_START_BATTLE");
 #endif
-    if (callingLocation == ROOM || callingLocation == LOAD_ROOM) {
-      globalBattle = std::make_unique<Battle>();
-      globalBattle->loadFromStream(_commandStream);
+    if (_cBattle == nullptr) {
+      _cBattle = std::make_unique<Battle>(this);
+      _cBattle->loadFromBuffer(_commandData);
+      _fader.startFade(FadeType::FADE_OUT);
     }
     return true;
   }
@@ -386,70 +393,68 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
     nocashMessage("CMD_EXIT_BATTLE");
 #endif
     bool battleWon = false;
-    fread(&battleWon, 1, 1, _commandStream);
-    if (globalBattle != nullptr)
-      globalBattle->exit(battleWon);
+    _commandData.read(&battleWon, 1);
+    if (_cBattle != nullptr)
+      _cBattle->exit(battleWon);
     return true;
   }
   case CMD_BATTLE_ATTACK: {
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_BATTLE_ATTACK");
 #endif
-    if (globalBattle != nullptr) { // just in case
-      globalBattle->startBattleAttacks();
-    }
+    if (_cBattle) // just in case
+      _cBattle->startBattleAttacks();
+      
     break;
   }
   case CMD_BATTLE_ACTION: {
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_BATTLE_ACTION");
 #endif
-    if (globalBattle == nullptr) // just in case
+    if (_cBattle == nullptr) // just in case
       break;
-    if (globalBattle->_cBattleAction != nullptr)
+    if (_cBattle->_cBattleAction != nullptr)
       break;
-    globalBattle->hide();
+    _cBattle->hide();
 
     s16 flavorTextId;
-    fread(&flavorTextId, 2, 1, _commandStream);
+    _commandData.read(&flavorTextId, 2);
 
-    globalBattle->_cBattleAction =
-        std::make_unique<BattleAction>(&globalBattle->_enemies, flavorTextId);
+    _cBattle->_cBattleAction =
+        std::make_unique<BattleAction>(_cBattle.get(), &_cBattle->_enemies, flavorTextId);
     break;
   }
   case CMD_JUMP_IF:
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_JUMP_IF");
 #endif
-    fread(&address, 4, 1, _commandStream);
+    _commandData.read(&address, 4);
     if (_flag)
-      fseek(_commandStream, address, SEEK_SET);
+      _commandData.seek(address);
     break;
   case CMD_JUMP_IF_NOT:
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_JUMP_IF_NOT");
 #endif
-    fread(&address, 4, 1, _commandStream);
+    _commandData.read(&address, 4);
     if (!_flag)
-      fseek(_commandStream, address, SEEK_SET);
+      _commandData.seek(address);
     break;
   case CMD_JUMP:
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_JUMP");
 #endif
-    fread(&address, 4, 1, _commandStream);
-    fseek(_commandStream, address, SEEK_SET);
+    _commandData.read(&address, 4);
+    _commandData.seek(address);
     break;
   case CMD_START_BGM: {
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_START_BGM");
 #endif
     bool loop;
-    fread(&loop, 1, 1, _commandStream);
-
-    len = str_len_file(_commandStream, 0);
-    fread(buffer, len + 1, 1, _commandStream);
-    Audio2::playBGMusic(buffer, loop);
+    _commandData.read(&loop, 1);
+    std::string path = _commandData.readstring();
+    Audio2::playBGMusic(path, loop);
     break;
   }
   case CMD_STOP_BGM:
@@ -463,12 +468,11 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
     nocashMessage("CMD_PLAY_SFX");
 #endif
     s8 loops;
-    fread(&loops, 1, 1, _commandStream);
-    len = str_len_file(_commandStream, 0);
-    fread(buffer, len + 1, 1, _commandStream);
+    _commandData.read(&loops, 1);
+    std::string path = _commandData.readstring();
 
     auto sfxWav = std::make_shared<Audio2::WAV>();
-    sfxWav->load(buffer);
+    sfxWav->load(path);
     sfxWav->setLoops(loops);
     Audio2::audioManager.play(std::move(sfxWav));
     break;
@@ -478,10 +482,10 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
     nocashMessage("CMD_SET_FLAG");
 #endif
     u16 flagId, flagValue;
-    fread(&flagId, 2, 1, _commandStream);
-    fread(&flagValue, 2, 1, _commandStream);
-    globalSave.flags[flagId] = flagValue;
-    globalSave.writePermanentFlags();
+    _commandData.read(&flagId, 2);
+    _commandData.read(&flagValue, 2);
+    _room->_save->flags[flagId] = flagValue;
+    _room->_save->writePermanentFlags();
     break;
   }
   case CMD_MOD_FLAG: {
@@ -490,10 +494,10 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
 #endif
     u16 flagId;
     s16 flagMod;
-    fread(&flagId, 2, 1, _commandStream);
-    fread(&flagMod, 2, 1, _commandStream);
-    globalSave.flags[flagId] += flagMod;
-    globalSave.writePermanentFlags();
+    _commandData.read(&flagId, 2);
+    _commandData.read(&flagMod, 2);
+    _room->_save->flags[flagId] += flagMod;
+    _room->_save->writePermanentFlags();
     break;
   }
   case CMD_CMP_FLAG: {
@@ -502,10 +506,10 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
 #endif
     u16 flagId, flagValue, cmpValue;
     u8 comparator;
-    fread(&flagId, 2, 1, _commandStream);
-    fread(&comparator, 1, 1, _commandStream);
-    fread(&cmpValue, 2, 1, _commandStream);
-    flagValue = globalSave.flags[flagId];
+    _commandData.read(&flagId, 2);
+    _commandData.read(&comparator, 1);
+    _commandData.read(&cmpValue, 2);
+    flagValue = _room->_save->flags[flagId];
     if ((comparator & 3) == ComparisonOperator::EQUALS)
       _flag = (flagValue == cmpValue);
     else if ((comparator & 3) == ComparisonOperator::GREATER_THAN)
@@ -522,14 +526,11 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
 #endif
     u8 colliderId;
     bool enabled;
-    fread(&colliderId, 1, 1, _commandStream);
-    fread(&enabled, 1, 1, _commandStream);
-    if (callingLocation == ROOM || callingLocation == LOAD_ROOM) {
-      if (colliderId <
-          globalRoom->_roomData.roomColliders.roomColliders.size()) {
-        globalRoom->_roomData.roomColliders.roomColliders[colliderId].enabled =
-            enabled;
-      }
+    _commandData.read(&colliderId, 1);
+    _commandData.read(&enabled, 1);
+    if (colliderId < _room->_roomData.roomColliders.roomColliders.size()) {
+      _room->_roomData.roomColliders.roomColliders[colliderId].enabled =
+          enabled;
     }
     break;
   }
@@ -540,26 +541,26 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
     // TODO: IMPROVE
     u8 interactAction;
     u16 cutsceneId_;
-    targetInfo = readTarget();
-    fread(&interactAction, 1, 1, _commandStream);
+    TargetInfo targetInfo = readTarget(_commandData);
+    _commandData.read(&interactAction, 1);
+    
     if (interactAction == 1)
-      fread(&cutsceneId_, 2, 1, _commandStream);
-    if (callingLocation == ROOM || callingLocation == LOAD_ROOM) {
-      u8 targetId2 = 0;
+      _commandData.read(&cutsceneId_, 2);
+    
+    u8 targetId2 = 0;
 
-      if (targetInfo.targetId < 0)
-        targetId2 = globalRoom->_sprites.size() + targetInfo.targetId;
-      else
-        targetId2 = targetInfo.targetId;
+    if (targetInfo.targetId < 0)
+      targetId2 = _room->_sprites.size() + targetInfo.targetId;
+    else
+      targetId2 = targetInfo.targetId;
 
-      TargetType targetType = static_cast<TargetType>(targetInfo.targetType);
-      if (targetType == TargetType::SPRITE &&
-          targetId2 < globalRoom->_sprites.size()) {
-        auto &sprite = globalRoom->_sprites[targetInfo.targetId];
-        sprite->_interactAction = static_cast<ROOMSpriteAction>(interactAction);
-        if (interactAction == 1)
-          sprite->_cutsceneId = cutsceneId_;
-      }
+    TargetType targetType = static_cast<TargetType>(targetInfo.targetType);
+    if (targetType == TargetType::SPRITE &&
+        targetId2 < _room->_sprites.size()) {
+      auto &sprite = _room->_sprites[targetInfo.targetId];
+      sprite._interactAction = static_cast<ROOMSpriteAction>(interactAction);
+      if (interactAction == 1)
+        sprite._cutsceneId = cutsceneId_;
     }
     break;
   }
@@ -568,16 +569,16 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
     nocashMessage("CMD_SAVE_MENU");
 #endif
     if (_cSaveMenu == nullptr)
-      _cSaveMenu = std::make_unique<SaveMenu>();
+      _cSaveMenu = std::make_unique<SaveMenu>(_room->_save.get(), _roomId);
     break;
   case CMD_MAX_HEALTH:
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_MAX_HEALTH");
 #endif
-    globalSave.hp = globalSave.maxHp;
-    globalInGameMenu.updateHp();
-    if (globalBattle != nullptr)
-      globalBattle->showHp();
+    _room->_save->hp = _room->_save->maxHp;
+    _room->_ingame_menu->updateHp();
+    if (_cBattle != nullptr)
+      _cBattle->showHp();
     break;
   case CMD_CMP_ENEMY_HP: {
 #ifdef DEBUG_CUTSCENES
@@ -585,14 +586,14 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
 #endif
     u8 enemyIdx, comparator;
     u16 cmpValue;
-    fread(&enemyIdx, 1, 1, _commandStream);
-    fread(&comparator, 1, 1, _commandStream);
-    fread(&cmpValue, 2, 1, _commandStream);
-    if (globalBattle == nullptr)
+    _commandData.read(&enemyIdx, 1);
+    _commandData.read(&comparator, 1);
+    _commandData.read(&cmpValue, 2);
+    if (_cBattle == nullptr)
       break;
-    if (enemyIdx >= globalBattle->_enemies.size())
+    if (enemyIdx >= _cBattle->_enemies.size())
       break;
-    u16 flagValue = globalBattle->_enemies[enemyIdx]->_hp;
+    u16 flagValue = _cBattle->_enemies[enemyIdx]->_hp;
     if ((comparator & 3) == ComparisonOperator::EQUALS)
       _flag = (flagValue == cmpValue);
     else if ((comparator & 3) == ComparisonOperator::GREATER_THAN)
@@ -614,23 +615,21 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
     nocashMessage("CMD_LOAD_SPRITE_RELATIVE");
 #endif
     s32 dx, dy, layer;
-    fread(&dx, 4, 1, _commandStream);
-    fread(&dy, 4, 1, _commandStream);
-    fread(&layer, 4, 1, _commandStream);
-    len = str_len_file(_commandStream, 0);
-    fread(buffer, len + 1, 1, _commandStream);
-    targetInfo = readTarget();
+    _commandData.read(&dx, 4);
+    _commandData.read(&dy, 4);
+    _commandData.read(&layer, 4);
+    std::string path = _commandData.readstring();
+    TargetInfo targetInfo = readTarget(_commandData);
 
-    Navigation::spawn_relative(buffer, targetInfo, dx, dy, layer,
-                               callingLocation);
+    nav->spawn_relative(path, targetInfo, dx, dy, layer);
     break;
   }
   case CMD_SET_CELL:
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_SET_CELL");
 #endif
-    for (u8 &i : globalSave.cell) {
-      fread(&i, 1, 1, _commandStream);
+    for (u8 &i : _room->_save->cell) {
+      _commandData.read(&i, 1);
       if (i == 0)
         break;
     }
@@ -640,7 +639,7 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
     nocashMessage("CMD_CLEAR");
 #endif
     bool mainScreen;
-    fread(&mainScreen, 1, 1, _commandStream);
+    _commandData.read(&mainScreen, 1);
     Engine::TextBGManager &txt =
         mainScreen ? Engine::textMain : Engine::textSub;
     txt.clear();
@@ -653,49 +652,30 @@ bool Cutscene::runCommand(CutsceneLocation callingLocation) {
     s8 enemyNum;
     u8 enemyNum2;
     u8 enemyCmd;
-    fread(&enemyNum, 1, 1, _commandStream);
-    fread(&enemyCmd, 1, 1, _commandStream);
+    _commandData.read(&enemyNum, 1);
+    _commandData.read(&enemyCmd, 1);
 
-    if (globalBattle == nullptr) {
+    if (_cBattle == nullptr) {
       nocashMessage("Attempted enemy command while not in battle!");
       break;
     }
     if (enemyNum < 0)
-      enemyNum2 = globalBattle->_enemies.size() + enemyNum;
+      enemyNum2 = _cBattle->_enemies.size() + enemyNum;
     else
       enemyNum2 = enemyNum;
-    if (enemyNum2 >= globalBattle->_enemies.size()) {
+    if (enemyNum2 >= _cBattle->_enemies.size()) {
       nocashMessage("Enemy command num outside of range!");
       break;
     }
-    globalBattle->_enemies[enemyNum]->enemyCommand(enemyCmd);
+    _cBattle->_enemies[enemyNum]->enemyCommand(enemyCmd);
     break;
   }
   default:
-    sprintf(buffer, "Error cmd %d unknown, pos: %ld", cmd,
-            ftell(_commandStream));
-    nocashMessage(buffer);
-    fclose(_commandStream);
-    _commandStream = nullptr;
+    std::string buffer = "Error cmd " + std::to_string(cmd) +
+                         " unknown, pos:" + std::to_string(_commandData.tell());
+    nocashMessage(buffer.c_str());
     return true;
   }
   return false;
 }
 
-TargetInfo Cutscene::readTarget() {
-  TargetInfo targetInfo;
-  fread(&targetInfo.targetType, 1, 1, _commandStream);
-  TargetType targetType = static_cast<TargetType>(targetInfo.targetType);
-  if (targetType == TargetType::SPRITE)
-    fread(&targetInfo.targetId, 1, 1, _commandStream);
-  else if (targetType == TargetType::ENEMY) {
-    fread(&targetInfo.targetId, 1, 1, _commandStream);
-    fread(&targetInfo.enemySpriteId, 1, 1, _commandStream);
-  }
-  return targetInfo;
-}
-
-Cutscene::~Cutscene() {
-  if (_commandStream != nullptr)
-    fclose(_commandStream);
-}

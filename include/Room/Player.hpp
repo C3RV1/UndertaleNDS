@@ -10,13 +10,15 @@
 #include <memory>
 #include <nds.h>
 
+class Room;
+
 class Player {
 public:
   constexpr static int kMoveSpeed =
       (90 << 8) / 60; // 90 pixels per second, debug speed
   // const int MOVE_SPEED = (70 << 8) / 60;  // 70 pixels per second
 
-  Player();
+  explicit Player(Room* room);
   void update();
   void attempt_move(s32 &dx, s32 &dy);
   void commit_move(s32 dx, s32 dy);
@@ -40,8 +42,8 @@ private:
   int _downMoveId;
   int _leftMoveId;
   int _rightMoveId;
-};
 
-extern std::unique_ptr<Player> globalPlayer;
+  Room* _room;
+};
 
 #endif // UNDERTALE_PLAYER_HPP

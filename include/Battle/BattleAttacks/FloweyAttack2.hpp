@@ -12,7 +12,7 @@
 namespace BtlAttacks {
 class FloweyAttack2 : public BattleAttack {
 public:
-  FloweyAttack2();
+  FloweyAttack2(Battle *battle);
 
   bool update() override;
 

@@ -16,18 +16,18 @@
 #include <memory>
 #include <string>
 
-Enemy::Enemy() {
+Enemy::Enemy(Battle *battle) : _battle(battle) {
   _slashSpr = std::make_shared<Engine::Sprite>(Engine::AllocatedOAM);
 }
 
-std::unique_ptr<Enemy> getEnemy(u16 enemyId) {
+std::unique_ptr<Enemy> getEnemy(Battle *battle, u16 enemyId) {
   switch (enemyId) {
   case 0:
-    return std::make_unique<Flowey>();
+    return std::make_unique<Flowey>(battle);
   case 1:
-    return std::make_unique<Dummy>();
+    return std::make_unique<Dummy>(battle);
   case 2:
-    return std::make_unique<Froggit>(true);
+    return std::make_unique<Froggit>(battle, true);
   default: {
     std::string msg = "Couldn't create enemy: " + std::to_string(enemyId);
     nocashMessage(msg.c_str());

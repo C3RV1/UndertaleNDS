@@ -40,10 +40,10 @@ bool Battle::moveOutBattleRect() {
 
 void Battle::getMoveRect(int &x, int &y, int &w, int &h, int counter,
                          int maxCounter) {
-  x = lerp(globalBattle->_boardX, kFlavorRectX, counter, maxCounter);
-  y = lerp(globalBattle->_boardY, kFlavorRectY, counter, maxCounter);
-  w = lerp(globalBattle->_boardW, kFlavorRectW, counter, maxCounter);
-  h = lerp(globalBattle->_boardH, kFlavorRectH, counter, maxCounter);
+  x = lerp(_boardX, kFlavorRectX, counter, maxCounter);
+  y = lerp(_boardY, kFlavorRectY, counter, maxCounter);
+  w = lerp(_boardW, kFlavorRectW, counter, maxCounter);
+  h = lerp(_boardH, kFlavorRectH, counter, maxCounter);
 }
 
 void Battle::drawRect() {

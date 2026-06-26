@@ -8,18 +8,22 @@
 #include "Engine/Sprite.hpp"
 #include <memory>
 
+class Player;
+class Room;
+
 class Camera {
 public:
-  Camera() { _pos = std::make_shared<Engine::Sprite>(Engine::NoAlloc); }
-  void updatePosition(bool roomChange);
+  explicit Camera(Room *room) : _room(room) {
+    _pos = std::make_shared<Engine::Sprite>(Engine::NoAlloc);
+  }
+  void updatePosition(bool roomChange, Player& player);
   bool _manual = false;
   int _prevX = 0, _prevY = 0;
 
   // top left camera position
   // We need it to be a shared_ptr for Navigation.
   std::shared_ptr<Engine::Sprite> _pos;
+  Room *_room;
 };
-
-extern Camera globalCamera;
 
 #endif // UNDERTALE_CAMERA_HPP

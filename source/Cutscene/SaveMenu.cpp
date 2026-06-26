@@ -5,15 +5,13 @@
 #include "Cutscene/Cutscene.hpp"
 #include "Engine/Audio.hpp"
 #include "Engine/DataBank.hpp"
-#include "Engine/Engine.hpp"
 #include "Engine/Font.hpp"
 #include "Engine/Sprite.hpp"
 #include "Engine/WAV.hpp"
-#include "Formats/utils.hpp"
 #include <memory>
 #include <string>
 
-SaveMenu::SaveMenu() {
+SaveMenu::SaveMenu(SaveData *save, u16 roomId) : _save(save), _roomId(roomId) {
   _fnt = Engine::fontManager.loadFont("fnt_maintext.font");
 
   _bg.loadPath("save_menu_bg");
@@ -30,8 +28,10 @@ SaveMenu::SaveMenu() {
   _saveSnd->setLoops(0);
 
   SaveData lastSave;
-  lastSave.loadData();
-  drawInfo(lastSave, 15);
+  if (lastSave.loadData())
+    drawInfo(lastSave, 15);
+  else
+    drawError();
 }
 
 void SaveMenu::drawInfo(SaveData &saveData, u8 color) {
@@ -106,8 +106,8 @@ bool SaveMenu::update() {
     if (_selectedOption == 1)
       return true;
 
-    if (globalSave.saveData(globalCutscene->_roomId))
-      drawInfo(globalSave, 12);
+    if (_save->saveData(_roomId))
+      drawInfo(*_save, 12);
     else
       drawError();
 
@@ -125,4 +125,6 @@ bool SaveMenu::update() {
   return false;
 }
 
-void SaveMenu::free_() { Engine::clearSub(); }
+void SaveMenu::free_() {
+  Engine::clearSub();
+}

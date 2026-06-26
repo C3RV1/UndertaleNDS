@@ -5,7 +5,7 @@
 #ifndef UNDERTALE_DEBUG_FLAGS_HPP
 #define UNDERTALE_DEBUG_FLAGS_HPP
 
-// #define DEBUG_CUTSCENES
+#define DEBUG_CUTSCENES
 // #define DEBUG_2D
 // #define DEBUG_3D
 // #define DEBUG_TEXTURES

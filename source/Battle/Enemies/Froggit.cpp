@@ -1,12 +1,10 @@
 #include "Battle/Enemies/Froggit.hpp"
-#include "Engine/Background.hpp"
-#include "Engine/ColorEffects.hpp"
 #include "Engine/OAMManager.hpp"
 #include "Engine/Sprite.hpp"
 #include <cmath>
 #include <memory>
 
-Froggit::Froggit(bool isFirstEnemy) {
+Froggit::Froggit(Battle *battle, bool isFirstEnemy) : Enemy(battle) {
   loadName(2);
 
   if (isFirstEnemy)

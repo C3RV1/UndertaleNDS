@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 
-Dummy::Dummy() : Enemy() {
+Dummy::Dummy(Battle* battle) : Enemy(battle) {
   loadName(1);
 
   _maxHp = 15;

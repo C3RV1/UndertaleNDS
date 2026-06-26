@@ -159,7 +159,7 @@ class Target:
 class Cutscene:
     def __init__(self, wtr: binary.BinaryWriter):
         self.wtr: binary.BinaryWriter = wtr
-        self.version = 14
+        self.version = 15
         self.file_size_pos = 0
         self.instructions_address = []
         self.pending_address = {}
@@ -185,10 +185,15 @@ class Cutscene:
         self.instructions_address.append(self.wtr.tell())
         self.wtr.write_uint8(command_idx)
 
+    def end_command(self):
+        # This function can be used if we ever want to add
+        # a length parameter to a command.
+        return self.instructions_address[-1]
+
     def debug(self, string: str):
         self.write_header(CutsceneCommands.DEBUG)
         self.wtr.write_string(string, encoding="ascii")
-        return self.instructions_address[-1]
+        return self.end_command()
 
     def load_sprite(self, x: float, y: float, texture: str, layer=1):
         self.write_header(CutsceneCommands.LOAD_SPRITE)
@@ -196,7 +201,7 @@ class Cutscene:
         self.wtr.write_int32(to_fixed_point(y))
         self.wtr.write_int32(layer)
         self.wtr.write_string(texture, encoding="ascii")
-        return self.instructions_address[-1]
+        return self.end_command()
 
     def load_sprite_relative(self, dx: float, dy: float, texture: str,
                              target: Target, layer=1):
@@ -206,53 +211,53 @@ class Cutscene:
         self.wtr.write_int32(layer)
         self.wtr.write_string(texture, encoding="ascii")
         target.write(self.wtr)
-        return self.instructions_address[-1]
+        return self.end_command()
 
     def unload_sprite(self, sprite_id: int):
         self.write_header(CutsceneCommands.UNLOAD_SPRITE)
         self.wtr.write_int8(sprite_id)
-        return self.instructions_address[-1]
+        return self.end_command()
 
     def player_control(self, control: bool):
         self.write_header(CutsceneCommands.PLAYER_CONTROL)
         self.wtr.write_bool(control)
-        return self.instructions_address[-1]
+        return self.end_command()
 
     def manual_camera(self, control: bool):
         self.write_header(CutsceneCommands.MANUAL_CAMERA)
         self.wtr.write_bool(control)
-        return self.instructions_address[-1]
+        return self.end_command()
 
     def set_collider_enabled(self, collider_id: int, enabled: bool):
         self.write_header(CutsceneCommands.SET_COLLIDER_ENABLED)
         self.wtr.write_uint8(collider_id)
         self.wtr.write_bool(enabled)
-        return self.instructions_address[-1]
+        return self.end_command()
 
     def wait(self, wait_type: WaitTypes, value: int = 0):
         self.write_header(CutsceneCommands.WAIT)
         self.wtr.write_uint8(wait_type)
         if wait_type == WaitTypes.FRAMES:
             self.wtr.write_uint16(value)
-        return self.instructions_address[-1]
+        return self.end_command()
 
     def set_shown(self, target: Target, shown: bool):
         self.write_header(CutsceneCommands.SET_SHOWN)
         target.write(self.wtr)
         self.wtr.write_bool(shown)
-        return self.instructions_address[-1]
+        return self.end_command()
 
     def set_animation(self, target: Target, animation: str):
         self.write_header(CutsceneCommands.SET_ANIMATION)
         target.write(self.wtr)
         self.wtr.write_string(animation, encoding="ascii")
-        return self.instructions_address[-1]
+        return self.end_command()
     
     def set_opacity(self, target: Target, opacity: int):
         self.write_header(CutsceneCommands.SET_OPACITY)
         target.write(self.wtr)
         self.wtr.write_uint8(opacity)
-        return self.instructions_address[-1]
+        return self.end_command()
 
     # == NAVIGATION ==
     def set_pos(self, target: Target, x: float, y: float):
@@ -260,14 +265,14 @@ class Cutscene:
         target.write(self.wtr)
         self.wtr.write_int32(to_fixed_point(x))
         self.wtr.write_int32(to_fixed_point(y))
-        return self.instructions_address[-1]
+        return self.end_command()
 
     def set_scale(self, target: Target, x: float, y: float):
         self.write_header(CutsceneCommands.SET_SCALE)
         target.write(self.wtr)
         self.wtr.write_int32(to_fixed_point(x))
         self.wtr.write_int32(to_fixed_point(y))
-        return self.instructions_address[-1]
+        return self.end_command()
 
     def set_pos_in_frames(self, target: Target, x: float, y: float, frames: int):
         self.write_header(CutsceneCommands.SET_POS_IN_FRAMES)
@@ -275,7 +280,7 @@ class Cutscene:
         self.wtr.write_int32(to_fixed_point(x))
         self.wtr.write_int32(to_fixed_point(y))
         self.wtr.write_uint16(frames)
-        return self.instructions_address[-1]
+        return self.end_command()
 
     def move_in_frames(self, target: Target, dx: float, dy: float, frames: int):
         self.write_header(CutsceneCommands.MOVE_IN_FRAMES)
@@ -285,7 +290,7 @@ class Cutscene:
         self.wtr.write_int32(dx)
         self.wtr.write_int32(dy)
         self.wtr.write_uint16(frames)
-        return self.instructions_address[-1]
+        return self.end_command()
 
     def move(self, target: Target, dx: float, dy: float):
         self.write_header(CutsceneCommands.MOVE)
@@ -294,7 +299,7 @@ class Cutscene:
         dy = to_fixed_point(abs(dy)) * (1 if dy > 0 else -1)
         self.wtr.write_int32(dx)
         self.wtr.write_int32(dy)
-        return self.instructions_address[-1]
+        return self.end_command()
 
     def scale_in_frames(self, target: Target, x: float, y: float, frames: int):
         self.write_header(CutsceneCommands.SCALE_IN_FRAMES)
@@ -302,11 +307,11 @@ class Cutscene:
         self.wtr.write_int32(to_fixed_point(x))
         self.wtr.write_int32(to_fixed_point(y))
         self.wtr.write_uint16(frames)
-        return self.instructions_address[-1]
+        return self.end_command()
 
     def clear_nav_tasks(self):
         self.write_header(CutsceneCommands.CLEAR_NAV_TASKS)
-        return self.instructions_address[-1]
+        return self.end_command()
 
     def set_action(self, target: Target, action: str, cutscene_id=0):
         self.write_header(CutsceneCommands.SET_ACTION)
@@ -318,7 +323,7 @@ class Cutscene:
         self.wtr.write_uint8(action_int)
         if action_int == 1:
             self.wtr.write_uint16(cutscene_id)
-        return self.instructions_address[-1]
+        return self.end_command()
 
     # == DIALOGUE ==
     def dialogue_centered(self, dialogue_text_id: int,
@@ -344,7 +349,7 @@ class Cutscene:
         self.wtr.write_string(font, encoding="ascii")
         self.wtr.write_uint16(frames_per_letter)
         self.wtr.write_bool(main_screen)
-        return self.instructions_address[-1]
+        return self.end_command()
 
     def dialogue_left_align(self, dialogue_text_id: int,
                             x: float, y: float,
@@ -364,7 +369,7 @@ class Cutscene:
         self.wtr.write_string(font, encoding="ascii")
         self.wtr.write_uint16(frames_per_letter)
         self.wtr.write_bool(main_screen)
-        return self.instructions_address[-1]
+        return self.end_command()
     
     def dialogue_flavor(self, dialogue_text_id: int,
                         type_sound: str = "", font: str = "fnt_maintext.font", frames_per_letter: int = 2):
@@ -374,13 +379,13 @@ class Cutscene:
         self.wtr.write_string(type_sound, encoding="ascii")
         self.wtr.write_string(font, encoding="ascii")
         self.wtr.write_uint16(frames_per_letter)
-        return self.instructions_address[-1]
+        return self.end_command()
 
     
     def clear(self, main_screen: bool = False):
         self.write_header(CutsceneCommands.CLEAR)
         self.wtr.write_bool(main_screen)
-        return self.instructions_address[-1]
+        return self.end_command()
 
     # == BATTLE ==
     def start_battle(self, enemy_ids: List[int], board_id: int,
@@ -398,27 +403,27 @@ class Cutscene:
         self.wtr.write_uint8(board_h)
         self.wtr.write_bool(start_with_flavor)
         self.wtr.write_string(battle_background, encoding="ascii")
-        return self.instructions_address[-1]
+        return self.end_command()
 
     def exit_battle(self, won=False):
         self.write_header(CutsceneCommands.EXIT_BATTLE)
         self.wtr.write_bool(won)
-        return self.instructions_address[-1]
+        return self.end_command()
 
     def start_battle_attacks(self):
         self.write_header(CutsceneCommands.BATTLE_ATTACK)
-        return self.instructions_address[-1]
+        return self.end_command()
 
     def battle_action(self, flavor_text_id):
         self.write_header(CutsceneCommands.BATTLE_ACTION)
         self.wtr.write_int16(flavor_text_id)
-        return self.instructions_address[-1]
+        return self.end_command()
 
     def enemy_command(self, enemy_idx, enemy_cmd):
         self.write_header(CutsceneCommands.ENEMY_COMMAND)
         self.wtr.write_uint8(enemy_idx)
         self.wtr.write_uint8(enemy_cmd)
-        return self.instructions_address[-1]
+        return self.end_command()
 
 
     # == SAVE ==
@@ -426,13 +431,13 @@ class Cutscene:
         self.write_header(CutsceneCommands.SET_FLAG)
         self.wtr.write_uint16(flag_id)
         self.wtr.write_uint16(flag_value)
-        return self.instructions_address[-1]
+        return self.end_command()
 
     def mod_flag(self, flag_id: int, flag_mod: int):
         self.write_header(CutsceneCommands.MOD_FLAG)
         self.wtr.write_uint16(flag_id)
         self.wtr.write_int16(flag_mod)
-        return self.instructions_address[-1]
+        return self.end_command()
 
     def set_cell(self, phone_options: List[int]):
         self.write_header(CutsceneCommands.SET_CELL)
@@ -441,7 +446,7 @@ class Cutscene:
                 continue
             self.wtr.write_uint8(option)
         self.wtr.write_uint8(0)
-        return self.instructions_address[-1]
+        return self.end_command()
 
     def cmp_flag(self, flag_id: int, operator: str, value: int):
         self.write_header(CutsceneCommands.CMP_FLAG)
@@ -457,7 +462,7 @@ class Cutscene:
         op_byte += (1 << 2) if operator in ["!=", "<=", ">="] else 0
         self.wtr.write_uint8(op_byte)
         self.wtr.write_uint16(value)
-        return self.instructions_address[-1]
+        return self.end_command()
 
     def cmp_enemy_hp(self, enemy_id: int, operator: str, value: int):
         self.write_header(CutsceneCommands.CMP_ENEMY_HP)
@@ -473,7 +478,7 @@ class Cutscene:
         op_byte += (1 << 2) if operator in ["!=", "<=", ">="] else 0
         self.wtr.write_uint8(op_byte)
         self.wtr.write_uint16(value)
-        return self.instructions_address[-1]
+        return self.end_command()
 
     # == LOGIC ==
     def jump_if(self, dst=None):
@@ -483,7 +488,7 @@ class Cutscene:
             self.wtr.write_uint32(0)
         else:
             self.wtr.write_uint32(dst)
-        return self.instructions_address[-1]
+        return self.end_command()
 
     def jump_if_not(self, dst=None):
         self.write_header(CutsceneCommands.JUMP_IF_NOT)
@@ -492,7 +497,7 @@ class Cutscene:
             self.wtr.write_uint32(0)
         else:
             self.wtr.write_uint32(dst)
-        return self.instructions_address[-1]
+        return self.end_command()
 
     def jump(self, dst=None):
         self.write_header(CutsceneCommands.JUMP)
@@ -501,7 +506,7 @@ class Cutscene:
             self.wtr.write_uint32(0)
         else:
             self.wtr.write_uint32(dst)
-        return self.instructions_address[-1]
+        return self.end_command()
 
     def bind(self, jump_id):
         if jump_id in self.pending_address:
@@ -518,23 +523,23 @@ class Cutscene:
         self.write_header(CutsceneCommands.START_BGM)
         self.wtr.write_bool(loop)
         self.wtr.write_string(path, encoding="ascii")
-        return self.instructions_address[-1]
+        return self.end_command()
 
     def stop_bgm(self):
         self.write_header(CutsceneCommands.STOP_BGM)
-        return self.instructions_address[-1]
+        return self.end_command()
 
     def play_sfx(self, path: str, loops: int = 0):
         self.write_header(CutsceneCommands.PLAY_SFX)
         self.wtr.write_uint8(loops)
         self.wtr.write_string(path, encoding="ascii")
-        return self.instructions_address[-1]
+        return self.end_command()
 
     def save_menu(self):
         self.write_header(CutsceneCommands.SAVE_MENU)
-        return self.instructions_address[-1]
+        return self.end_command()
 
     def max_health(self):
         self.write_header(CutsceneCommands.MAX_HEALTH)
-        return self.instructions_address[-1]
+        return self.end_command()
 

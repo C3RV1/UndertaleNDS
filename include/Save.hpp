@@ -37,9 +37,9 @@ class SaveData {
 public:
   constexpr static u32 saveVersion = 5;
   void clear(ClearType clearType);
-  void loadData();
-  bool saveData(u16 roomId);
-  void writePermanentFlags();
+  [[nodiscard]] bool loadData();
+  [[nodiscard]] bool saveData(u16 roomId);
+  bool writePermanentFlags();
 
   bool saveExists = false;
   char name[MAX_NAME_LEN + 1] = {0};
@@ -53,7 +53,5 @@ public:
 
   u16 lastSavedRoom = 0;
 };
-
-extern SaveData globalSave;
 
 #endif // UNDERTALE_SAVE_HPP

@@ -7,25 +7,22 @@
 #include "Battle/Enemy.hpp"
 #include "Battle/FlavorTextDialogue.hpp"
 #include "Cutscene/Cutscene.hpp"
+#include "Cutscene/CutsceneEnums.hpp"
 #include "Engine/Background.hpp"
 #include "Engine/DataBank.hpp"
-#include "Engine/Engine.hpp"
 #include "Engine/Font.hpp"
 #include "Engine/Sprite.hpp"
 #include "Engine/TextBGManager.hpp"
+#include "Engine/Texture.hpp"
+#include "Fader.hpp"
 #include "Formats/utils.hpp"
-#include "Room/Camera.hpp"
-#include "Room/InGameMenu.hpp"
-#include "Room/Player.hpp"
 #include "Room/Room.hpp"
-#include "Save.hpp"
 #include <cstdio>
 #include <memory>
 #include <string>
 
-std::unique_ptr<Battle> globalBattle = nullptr;
-
-Battle::Battle() {
+Battle::Battle(Cutscene *cutscene)
+    : _nav(this), _cutscene(cutscene), _save(cutscene->_room->_save.get()) {
   _fnt = Engine::fontManager.loadFont("fnt_curs.font");
   _playerSpr = std::make_shared<Engine::Sprite>(Engine::Allocated3D);
   Engine::spriteLoadTexture(_playerSpr, "spr_heartsmall");
@@ -34,7 +31,7 @@ Battle::Battle() {
   _playerSpr->_layer = 100;
 
   for (int i = 220; i <= 229; i++) {
-    globalSave.flags[i] = 0;
+    _save->flags[i] = 0;
   }
 
   _winText = textBank.getText("battle_win.txt");
@@ -50,18 +47,18 @@ void Battle::exit(bool won) {
         earnedExp += _enemy->_expOnKill;
       earnedGold += _enemy->_goldOnWin;
     }
-    globalSave.exp += earnedExp;
-    globalSave.gold += earnedGold;
+    _save->exp += earnedExp;
+    _save->gold += earnedGold;
 
     int size_s =
         std::snprintf(nullptr, 0, _winText.c_str(), earnedExp, earnedGold);
     std::string buffer;
     buffer.resize(size_s);
     sprintf(&buffer[0], _winText.c_str(), earnedExp, earnedGold);
-    if (globalCutscene->_cDialogue == nullptr) {
-      auto dialogue = std::make_unique<FlavorTextDialogue>(buffer);
+    if (_cutscene->_cDialogue == nullptr) {
+      auto dialogue = std::make_unique<FlavorTextDialogue>(this, buffer);
       dialogue->setShown(true);
-      globalCutscene->_cDialogue = std::move(dialogue);
+      _cutscene->_cDialogue = std::move(dialogue);
     }
     _stopPostDialogue = true;
   } else {
@@ -69,40 +66,36 @@ void Battle::exit(bool won) {
   }
 }
 
-void Battle::loadFromStream(FILE *stream) {
+void Battle::loadFromBuffer(BufferReader &br) {
   u8 enemyCount;
-  fread(&enemyCount, 1, 1, stream);
+  br.read(&enemyCount, 1);
   _enemies.resize(enemyCount);
   _cBattleAttacks.resize(enemyCount);
   std::string buffer;
   u8 enemyId;
   for (int i = 0; i < enemyCount; i++) {
-    fread(&enemyId, 1, 1, stream);
-    _enemies[i] = getEnemy(enemyId);
+    br.read(&enemyId, 1);
+    _enemies[i] = getEnemy(this, enemyId);
   }
 
   u8 boardId;
-  fread(&boardId, 1, 1, stream);
+  br.read(&boardId, 1);
   buffer = "battle/board" + std::to_string(boardId);
   _bulletBoard.loadPath(buffer);
 
-  fread(&_boardX, 1, 1, stream);
-  fread(&_boardY, 1, 1, stream);
-  fread(&_boardW, 1, 1, stream);
-  fread(&_boardH, 1, 1, stream);
+  br.read(&_boardX, 1);
+  br.read(&_boardY, 1);
+  br.read(&_boardW, 1);
+  br.read(&_boardH, 1);
 
   bool boardIsFlavor;
-  fread(&boardIsFlavor, 1, 1, stream);
+  br.read(&boardIsFlavor, 1);
   if (boardIsFlavor)
     _moveCounter = kMoveFrames;
   else
     _moveCounter = 0;
 
-  int len = str_len_file(stream, '\0');
-  std::string bgPath;
-  bgPath.resize(len);
-  fread(&bgPath[0], len, 1, stream);
-  fseek(stream, 1, SEEK_CUR);
+  std::string bgPath = br.readstring();
   _battleBackground.loadPath(bgPath);
 
   _playerSpr->_wx = ((_boardX + _boardW / 2) << 8) - (9 << 8) / 2;
@@ -132,13 +125,13 @@ void Battle::showHp() {
   constexpr int kPadding = 6, kTxtYOff = 0, kTotalWidth = 100;
 
   Engine::textMain.clearRect(kHPx, kHPy, kTotalWidth, kHPh);
-  Engine::textMain.drawHpBar(globalSave.hp, globalSave.maxHp, kHPx, kHPy, kHPw,
+  Engine::textMain.drawHpBar(_save->hp, _save->maxHp, kHPx, kHPy, kHPw,
                              kHPh);
 
   Engine::textMain.setColor(15);
 
   char buffer[16];
-  sprintf(buffer, "%2d/%2d", globalSave.hp, globalSave.maxHp);
+  sprintf(buffer, "%2d/%2d", _save->hp, _save->maxHp);
   int x = kHPx + kHPw + kPadding;
   for (char *p = buffer; *p != 0; p++)
     Engine::textMain.drawGlyph(*_fnt, *p, x, kHPy + kTxtYOff);
@@ -173,9 +166,12 @@ void Battle::updateBattleAttacks() {
 }
 
 void Battle::update() {
+  if (!_running)
+    return;
   _nav.update();
   updateBattleAttacks();
   updateEnemies();
+  
   if (_cBattleAction != nullptr) {
     if (_cBattleAction->update()) {
       _cBattleAction = nullptr;
@@ -184,8 +180,15 @@ void Battle::update() {
       return;
     }
   }
+
+  if (_stopPostDialogue && _cutscene->_cDialogue == nullptr) {
+    _running = false;
+    return;
+  }
+  
   if (!_shown)
     return;
+  
   if (keysHeld() & KEY_RIGHT) {
     _playerSpr->_wx += _playerSpeed;
   }

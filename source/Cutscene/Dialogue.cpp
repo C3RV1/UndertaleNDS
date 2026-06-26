@@ -12,19 +12,20 @@
 #include <cstdio>
 #include <memory>
 
-Dialogue::Dialogue(u16 textId, std::shared_ptr<Engine::Sprite> target,
+Dialogue::Dialogue(SaveData *save, u16 cutsceneId, u16 roomId, u16 textId,
+                   std::shared_ptr<Engine::Sprite> target,
                    const std::string &targetIdle, const std::string &targetTalk,
                    const std::string &typeSndPath, const std::string &fontTxt,
                    u16 framesPerLetter, Engine::TextBGManager &txtManager,
                    Engine::AllocationMode heartAlloc)
-    : _target(target), _textManager(&txtManager) {
+    : _target(target), _textManager(&txtManager), _save(save) {
   _typeSnd = std::make_shared<Audio2::WAV>();
   _fnt = Engine::fontManager.loadFont(fontTxt);
   _heartSprite = std::make_shared<Engine::Sprite>(heartAlloc);
   Engine::spriteLoadTexture(_heartSprite, "spr_heartsmall");
 
-  std::string path = "dialogue/r" + std::to_string(globalCutscene->_roomId) +
-                     "/c" + std::to_string(globalCutscene->_cutsceneId) + "/d" +
+  std::string path = "dialogue/r" + std::to_string(roomId) + "/c" +
+                     std::to_string(cutsceneId) + "/d" +
                      std::to_string(textId) + ".txt";
   _text = textBank.getText(path);
 
@@ -48,11 +49,11 @@ Dialogue::Dialogue(u16 textId, std::shared_ptr<Engine::Sprite> target,
   _typeSnd->setLoops(0);
 }
 
-Dialogue::Dialogue(const std::string &text_, const std::string &typeSndPath,
+Dialogue::Dialogue(SaveData* save, const std::string &text_, const std::string &typeSndPath,
                    const std::string &fontTxt, u16 framesPerLetter,
                    Engine::TextBGManager &txtManager,
                    Engine::AllocationMode heartAlloc)
-    : _textManager(&txtManager) {
+    : _textManager(&txtManager), _save(save) {
   _typeSnd = std::make_shared<Audio2::WAV>();
   _fnt = Engine::fontManager.loadFont(fontTxt);
   _heartSprite = std::make_shared<Engine::Sprite>(heartAlloc);
@@ -170,7 +171,7 @@ void Dialogue::updateChoosingOption() {
     _paused = false;
     _choosingOption = false;
     _optionCount = 0;
-    globalSave.flags[FlagIds::DIALOGUE_OPTION] = _currentOption;
+    _save->flags[FlagIds::DIALOGUE_OPTION] = _currentOption;
     Engine::spriteSetShown(_heartSprite, false);
     return;
   }

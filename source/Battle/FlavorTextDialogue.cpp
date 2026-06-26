@@ -8,37 +8,42 @@
 #include "Engine/TextBGManager.hpp"
 #include <memory>
 
-FlavorTextDialogue::FlavorTextDialogue(u16 textId, std::string typeSnd,
-                                       std::string font, u16 framesPerLetter)
-    : DialogueLeftAligned(textId, 30 << 8, 22 << 8, nullptr, "", "", typeSnd,
-                          font, framesPerLetter, Engine::textMain,
-                          Engine::Allocated3D) {
-  globalBattle->hide();
-  globalBattle->drawRect();
+FlavorTextDialogue::FlavorTextDialogue(Battle *battle, u16 cutsceneId,
+                                       u16 roomId, u16 textId,
+                                       std::string typeSnd, std::string font,
+                                       u16 framesPerLetter)
+    : DialogueLeftAligned(battle->_save, cutsceneId, roomId, textId, 30 << 8,
+                          22 << 8, nullptr, "", "", typeSnd, font,
+                          framesPerLetter, Engine::textMain,
+                          Engine::Allocated3D),
+      _battle(battle) {
+  _battle->hide();
+  _battle->drawRect();
 }
 
-FlavorTextDialogue::FlavorTextDialogue(std::string text)
-    : DialogueLeftAligned(30 << 8, 22 << 8, text, "SND_TXT2.wav",
+FlavorTextDialogue::FlavorTextDialogue(Battle *battle, std::string text)
+    : DialogueLeftAligned(battle->_save, 30 << 8, 22 << 8, text, "SND_TXT2.wav",
                           "fnt_maintext.font", 2, Engine::textMain,
-                          Engine::Allocated3D) {
-  globalBattle->hide();
-  globalBattle->drawRect();
+                          Engine::Allocated3D),
+      _battle(battle) {
+  _battle->hide();
+  _battle->drawRect();
 }
 
-void FlavorTextDialogue::setShown(bool shown) { globalBattle->drawRect(); }
+void FlavorTextDialogue::setShown(bool shown) { _battle->drawRect(); }
 
 void FlavorTextDialogue::doRedraw() {
   DialogueLeftAligned::doRedraw();
-  globalBattle->drawRect();
+  _battle->drawRect();
 }
 
 void FlavorTextDialogue::onClear() {
   DialogueLeftAligned::onClear();
-  globalBattle->drawRect();
+  _battle->drawRect();
 }
 
 bool FlavorTextDialogue::update() {
-  if (!globalBattle->moveInBattleRect())
+  if (!_battle->moveInBattleRect())
     return false;
   if (!DialogueLeftAligned::update())
     return false;

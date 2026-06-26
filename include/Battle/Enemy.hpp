@@ -23,7 +23,7 @@ enum class EnemyDamageAnimationStep {
 
 class Enemy {
 public:
-  Enemy();
+  explicit Enemy(Battle *battle);
   std::string getName() { return _name; }
   std::string getActText() { return _actText; }
   bool getSpared() { return _spared; }
@@ -54,6 +54,8 @@ public:
   u8 _expOnKill = 0;
 
 protected:
+  Battle *_battle;
+  
   virtual void slashFinished();
   virtual void damageAnimationEnd_StillAlive() {}
   bool defaultDamageAnimation(s32 x, s32 y, int width, int height);
@@ -101,6 +103,6 @@ private:
   static constexpr s32 kShakeAmplitude = 5 << 8;
 };
 
-std::unique_ptr<Enemy> getEnemy(u16 enemyId);
+std::unique_ptr<Enemy> getEnemy(Battle *battle, u16 enemyId);
 
 #endif // UNDERTALE_ENEMY_HPP

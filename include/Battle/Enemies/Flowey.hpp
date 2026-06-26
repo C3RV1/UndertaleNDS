@@ -18,7 +18,7 @@ enum class FloweyCommands {
 
 class Flowey : public Enemy {
 public:
-  Flowey();
+  explicit Flowey(Battle *battle);
   std::shared_ptr<Engine::Sprite> getSprite(u8 spriteId) final;
   std::unique_ptr<BattleAttack> getBattleAttack() final;
   void enemyCommand(u8 command) final;

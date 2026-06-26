@@ -63,10 +63,10 @@ void RoomSprite::spawn(s32 x, s32 y, std::string path) {
 }
 
 void RoomSprite::draw() {
-  _spr->_cam_x = (globalCamera._pos->_wx * _parallax_x) >> 8;
-  _spr->_cam_y = (globalCamera._pos->_wy * _parallax_y) >> 8;
-  _spr->_cam_scale_x = globalCamera._pos->_w_scale_x;
-  _spr->_cam_scale_y = globalCamera._pos->_w_scale_y;
+  _spr->_cam_x = (_room->_camera._pos->_wx * _parallax_x) >> 8;
+  _spr->_cam_y = (_room->_camera._pos->_wy * _parallax_y) >> 8;
+  _spr->_cam_scale_x = _room->_camera._pos->_w_scale_x;
+  _spr->_cam_scale_y = _room->_camera._pos->_w_scale_y;
   _spr->_layer = _spr->_wy >> 8;
 }
 
@@ -86,15 +86,15 @@ void RoomSprite::update() {
 void RoomSprite::updateProximity() {
   if (_spr->_texture == nullptr)
     return;
-  if (globalPlayer->_spr->_texture == nullptr)
+  if (_room->_player._spr->_texture == nullptr)
     return;
   const u16 width = _spr->_texture->getWidth();
   const u16 height = _spr->_texture->getHeight();
-  const u16 pw = globalPlayer->_spr->_texture->getWidth();
-  const u16 ph = globalPlayer->_spr->_texture->getHeight();
+  const u16 pw = _room->_player._spr->_texture->getWidth();
+  const u16 ph = _room->_player._spr->_texture->getHeight();
   const u32 distance = distSquared_fp(
       _spr->_wx + width / 2, _spr->_wy + height / 2,
-      globalPlayer->_spr->_wx + pw / 2, globalPlayer->_spr->_wy + ph / 2);
+      _room->_player._spr->_wx + pw / 2, _room->_player._spr->_wy + ph / 2);
   if (distance >> 8 < _distanceSquared)
     _spr->setAnimation(_closeAnim);
   else
@@ -116,10 +116,10 @@ void RoomSprite::updatePushable() {
   _old_x = _spr->_wx;
   _old_y = _spr->_wy;
 
-  s32 px = globalPlayer->_spr->_wx;
-  s32 py = globalPlayer->_spr->_wy;
-  s32 pw = globalPlayer->_spr->_texture->getWidth() << 8;
-  s32 ph = globalPlayer->_spr->_texture->getHeight() << 8;
+  s32 px = _room->_player._spr->_wx;
+  s32 py = _room->_player._spr->_wy;
+  s32 pw = _room->_player._spr->_texture->getWidth() << 8;
+  s32 ph = _room->_player._spr->_texture->getHeight() << 8;
 
   s32 w = _spr->_texture->getWidth() << 8;
   s32 h = _spr->_texture->getHeight() << 8;
@@ -128,8 +128,8 @@ void RoomSprite::updatePushable() {
     return;
 
   // Push player
-  globalPlayer->_spr->_wx += dx;
-  globalPlayer->_spr->_wy += dy;
+  _room->_player._spr->_wx += dx;
+  _room->_player._spr->_wy += dy;
 }
 
 bool RoomSprite::check_player_collide(s32 x, s32 y, s32 w, s32 h, s32 dx,
@@ -184,7 +184,7 @@ bool RoomSprite::check_player_collide(s32 x, s32 y, s32 w, s32 h, s32 dx,
 void RoomSprite::commit_player_move() {
   if (_interactAction != ROOMSpriteAction::PUSHABLE)
     return;
-  bool flag_set = (globalSave.flags[_goal_flag_id] & _goal_flag_bit) != 0;
+  bool flag_set = (_room->_save->flags[_goal_flag_id] & _goal_flag_bit) != 0;
   _spr->_wx = _commit_x;
   _spr->_wy = _commit_y;
   _old_x = _spr->_wx;
@@ -192,9 +192,9 @@ void RoomSprite::commit_player_move() {
 
   bool should_set_flag = check_on_goal();
   if (should_set_flag)
-    globalSave.flags[_goal_flag_id] |= _goal_flag_bit;
+    _room->_save->flags[_goal_flag_id] |= _goal_flag_bit;
   else
-    globalSave.flags[_goal_flag_id] &= ~_goal_flag_bit;
+    _room->_save->flags[_goal_flag_id] &= ~_goal_flag_bit;
 
   if (should_set_flag != flag_set) {
     if (should_set_flag && _stop_on_goal) {
@@ -202,9 +202,9 @@ void RoomSprite::commit_player_move() {
       _spr->_wy = _goal_y << 8;
     }
 
-    if (globalCutscene == nullptr)
-      globalCutscene =
-          std::make_unique<Cutscene>(_cutsceneId, globalRoom->_roomId);
+    if (_room->_cutscene == nullptr)
+      _room->_cutscene =
+          std::make_unique<Cutscene>(_cutsceneId, _room->_roomId, _room);
     else
       nocashMessage("Cannot create goal cutscene: Already playing another!");
   }

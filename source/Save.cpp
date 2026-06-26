@@ -7,8 +7,6 @@
 #include "card.hpp"
 #include <string>
 
-SaveData globalSave;
-
 void SaveData::clear(ClearType clearType) {
   lv = 1;
   exp = 0;
@@ -28,14 +26,16 @@ void SaveData::clear(ClearType clearType) {
   }
 }
 
-void SaveData::loadData() {
+bool SaveData::loadData() {
   // Initializing it like this for some reason fixes the issues
   unsigned char header[4] = {0xDE, 0xAD, 0xBE, 0xEF};
   char expectedHeader[4] = {'U', 'S', 'A', 'V'};
 
-  fCard.open("rb");
+  if (!fCard.open("rb"))
+    return false;
+  
   fCard.seek(0, SEEK_SET);
-  bool readCorrectly = fCard.read(header, 4);
+  fCard.read(header, 4);
 
   if (memcmp(header, expectedHeader, 4) != 0) {
 #ifdef DEBUG_SAVE
@@ -46,79 +46,77 @@ void SaveData::loadData() {
 #endif
     fCard.close();
     clear(INTERNAL_RESET);
-    return;
+    return true;
   }
 
   u32 saveVersion_;
-  readCorrectly &= fCard.read(&saveVersion_, 4);
+  fCard.read(&saveVersion_, 4);
   if (saveVersion_ != saveVersion) {
 #ifdef DEBUG_SAVE
     nocashMessage("Save: BAD VERSION.");
 #endif
     fCard.close();
     clear(INTERNAL_RESET);
-    return;
+    return true;
   }
-  readCorrectly &= fCard.read(name, MAX_NAME_LEN + 1);
-  readCorrectly &= fCard.read(flags, 2 * FLAG_COUNT);
-  readCorrectly &= fCard.read(&maxHp, 1);
+  fCard.read(name, MAX_NAME_LEN + 1);
+  fCard.read(flags, 2 * FLAG_COUNT);
+  fCard.read(&maxHp, 1);
   hp = maxHp;
-  readCorrectly &= fCard.read(&lv, 2);
-  readCorrectly &= fCard.read(&exp, 2);
-  readCorrectly &= fCard.read(&gold, 2);
-  readCorrectly &= fCard.read(items, ITEM_COUNT);
-  readCorrectly &= fCard.read(cell, CELL_COUNT);
+  fCard.read(&lv, 2);
+  fCard.read(&exp, 2);
+  fCard.read(&gold, 2);
+  fCard.read(items, ITEM_COUNT);
+  fCard.read(cell, CELL_COUNT);
   items[ITEM_COUNT] = 0;
   cell[CELL_COUNT] = 0;
-  readCorrectly &= fCard.read(&cWeapon, 1);
-  readCorrectly &= fCard.read(&cArmor, 1);
+  fCard.read(&cWeapon, 1);
+  fCard.read(&cArmor, 1);
 
   saveExists = true;
 
-  readCorrectly &= fCard.read(&lastSavedRoom, 2);
+  fCard.read(&lastSavedRoom, 2);
   fCard.close();
-
-  if (!readCorrectly) {
-    clear(INTERNAL_RESET);
-    return;
-  }
+  return true;
 }
 
 bool SaveData::saveData(u16 roomId) {
   char header[4] = {'U', 'S', 'A', 'V'};
 
-  fCard.open("wb");
+  if (!fCard.open("wb"))
+    return false;
   fCard.seek(0, SEEK_SET);
-  bool writeCorrectly = fCard.write(header, 4);
+  fCard.write(header, 4);
   u32 saveVersion_ = saveVersion;
-  writeCorrectly &= fCard.write(&saveVersion_, 4);
-  writeCorrectly &= fCard.write(name, MAX_NAME_LEN + 1);
-  writeCorrectly &= fCard.write(flags, 2 * FLAG_COUNT);
-  writeCorrectly &= fCard.write(&maxHp, 1);
-  writeCorrectly &= fCard.write(&lv, 2);
-  writeCorrectly &= fCard.write(&exp, 2);
-  writeCorrectly &= fCard.write(&gold, 2);
-  writeCorrectly &= fCard.write(items, ITEM_COUNT);
-  writeCorrectly &= fCard.write(cell, CELL_COUNT);
-  writeCorrectly &= fCard.write(&cWeapon, 1);
-  writeCorrectly &= fCard.write(&cArmor, 1);
+  fCard.write(&saveVersion_, 4);
+  fCard.write(name, MAX_NAME_LEN + 1);
+  fCard.write(flags, 2 * FLAG_COUNT);
+  fCard.write(&maxHp, 1);
+  fCard.write(&lv, 2);
+  fCard.write(&exp, 2);
+  fCard.write(&gold, 2);
+  fCard.write(items, ITEM_COUNT);
+  fCard.write(cell, CELL_COUNT);
+  fCard.write(&cWeapon, 1);
+  fCard.write(&cArmor, 1);
   items[ITEM_COUNT] = 0;
 
   lastSavedRoom = roomId;
-  writeCorrectly &= fCard.write(&lastSavedRoom, 2);
+  fCard.write(&lastSavedRoom, 2);
 
   saveExists = true;
   fCard.close();
-
-  return writeCorrectly;
+  return true;
 }
 
-void SaveData::writePermanentFlags() {
-  fCard.open("wb");
-  fCard.seek(4 + 4 + MAX_NAME_LEN + 1 + 2 * FlagIds::PERSISTENT, SEEK_SET);
-  bool writeCorrectly = fCard.write(&flags[FlagIds::PERSISTENT],
-                                    (FLAG_COUNT - FlagIds::PERSISTENT) * 2);
-  if (!writeCorrectly)
+bool SaveData::writePermanentFlags() {
+  if (!fCard.open("wb")) {
     nocashMessage("Error saving permanent flags!");
+    return false;
+  }
+  fCard.seek(4 + 4 + MAX_NAME_LEN + 1 + 2 * FlagIds::PERSISTENT, SEEK_SET);
+  fCard.write(&flags[FlagIds::PERSISTENT],
+              (FLAG_COUNT - FlagIds::PERSISTENT) * 2);
   fCard.close();
+  return true;
 }

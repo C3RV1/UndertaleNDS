@@ -6,7 +6,28 @@
 #define UNDERTALE_UTILS_HPP
 
 #include <cstdio>
+#include <vector>
+#include <string>
+#include "nds.h"
 
 int str_len_file(FILE *f, char terminator);
+
+class BufferReader {
+public:
+  void close();
+  void openFromFile(FILE *f, size_t size);
+  bool isOpen();
+  void read(void *ptr, size_t size);
+  [[deprecated]] void strncpy(char *ptr, size_t max_size);
+  std::string readstring();
+  long tell() const;
+  void seek(long where);
+  size_t size() const;
+  bool at_end() const;
+private:
+  bool _opened = false;
+  std::vector<u8> data;
+  std::vector<u8>::const_iterator pos;
+};
 
 #endif // UNDERTALE_UTILS_HPP

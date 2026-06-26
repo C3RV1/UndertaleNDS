@@ -12,7 +12,7 @@
 #include "Engine/WAV.hpp"
 #include "Save.hpp"
 
-void runWriteNameMenu() {
+void runWriteNameMenu(SaveData &save) {
   // letter selection
   constexpr int startX = 30, startY = 30, spacingX = 30, spacingY = 17;
 
@@ -253,8 +253,8 @@ void runWriteNameMenu() {
   }
   Audio2::stopBGMusic();
 
-  memset(globalSave.name, 0, currentLen + 1);
-  memcpy(globalSave.name, currentName, currentLen + 1);
-  std::string buffer = "Selected name: " + std::string(globalSave.name);
+  memset(save.name, 0, currentLen + 1);
+  memcpy(save.name, currentName, currentLen + 1);
+  std::string buffer = "Selected name: " + std::string(save.name);
   nocashMessage(buffer.c_str());
 }

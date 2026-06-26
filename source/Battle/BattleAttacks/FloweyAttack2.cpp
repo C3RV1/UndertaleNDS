@@ -4,6 +4,7 @@
 
 #include "Battle/BattleAttacks/FloweyAttack2.hpp"
 #include "Battle/Battle.hpp"
+#include "Battle/BattleAttack.hpp"
 #include "Engine/Sprite.hpp"
 #include "Engine/Texture.hpp"
 #include "Engine/math.hpp"
@@ -11,7 +12,7 @@
 #include <memory>
 
 namespace BtlAttacks {
-FloweyAttack2::FloweyAttack2() {
+FloweyAttack2::FloweyAttack2(Battle *battle) : BattleAttack(battle) {
   int i = 0;
   for (auto &pellet : _pelletSpr) {
     pellet = std::make_shared<Engine::Sprite>(Engine::Allocated3D);
@@ -52,10 +53,10 @@ bool FloweyAttack2::update() {
         pellet->_wy -= kPelletSpeed;
       }
       if (distSquared_fp(pellet->_wx + (4 << 8), pellet->_wy + (4 << 8),
-                         globalBattle->_playerSpr->_wx + (9 << 8) / 2,
-                         globalBattle->_playerSpr->_wy + (9 << 8) / 2) <=
+                         _battle->_playerSpr->_wx + (9 << 8) / 2,
+                         _battle->_playerSpr->_wy + (9 << 8) / 2) <=
           (kPelletRadius * kPelletRadius) << 8) {
-        globalSave.hp = 20;
+        _battle->_save->hp = 20;
         return true;
       }
     }

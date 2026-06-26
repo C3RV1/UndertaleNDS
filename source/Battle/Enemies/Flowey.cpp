@@ -7,7 +7,7 @@
 #include "Engine/Texture.hpp"
 #include <memory>
 
-Flowey::Flowey() {
+Flowey::Flowey(Battle *battle) : Enemy(battle) {
   _hp = 100;
   floweySpr = std::make_shared<Engine::Sprite>(Engine::AllocatedOAM);
   Engine::spriteLoadTexture(floweySpr, "speaker/flowey");
@@ -25,11 +25,11 @@ std::shared_ptr<Engine::Sprite> Flowey::getSprite(u8 spriteId) {
 std::unique_ptr<BattleAttack> Flowey::getBattleAttack() {
   switch (floweyAttack) {
   case FloweyCommands::MOVEMENT:
-    return std::make_unique<BtlAttacks::MovementTutorial>();
+    return std::make_unique<BtlAttacks::MovementTutorial>(_battle);
   case FloweyCommands::PROGRESS_TO_ATTACK:
-    return std::make_unique<BtlAttacks::FloweyAttack>();
+    return std::make_unique<BtlAttacks::FloweyAttack>(_battle);
   case FloweyCommands::PROGRESS_TO_KILL:
-    return std::make_unique<BtlAttacks::FloweyAttack2>();
+    return std::make_unique<BtlAttacks::FloweyAttack2>(_battle);
   default:
     return nullptr;
   }

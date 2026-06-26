@@ -5,36 +5,36 @@
 #ifndef UNDERTALE_CUTSCENE_HPP
 #define UNDERTALE_CUTSCENE_HPP
 
-#include "Cutscene/Navigation.hpp"
 #include "Dialogue.hpp"
 #include "SaveMenu.hpp"
 #include "Waiting.hpp"
 #include <cstdio>
 #include <nds.h>
+#include "Formats/utils.hpp"
+#include "Battle/Battle.hpp"
+#include "Fader.hpp"
 
-// TODO: Modernize Cutscene
+class Room;
 
 class Cutscene {
 public:
-  explicit Cutscene(u16 cutsceneId, u16 roomId);
-  static bool checkHeader(FILE *f);
+  explicit Cutscene(u16 cutsceneId, u16 roomId, Room* room);
+  bool checkHeader();
   void update();
-  bool runCommands(CutsceneLocation callingLocation);
-  bool runCommand(CutsceneLocation callingLocation);
+  bool runCommands();
+  bool runCommand(u8 cmd);
   u16 _cutsceneId;
   u16 _roomId;
-  ~Cutscene();
   std::unique_ptr<Dialogue> _cDialogue = nullptr;
   std::unique_ptr<SaveMenu> _cSaveMenu = nullptr;
+  std::unique_ptr<Battle> _cBattle = nullptr;
+  Room* _room;
+  Waiting _waiting;
+  Fader _fader;
 
 private:
-  TargetInfo readTarget();
-  Waiting _waiting;
   bool _flag = false;
-  FILE *_commandStream = nullptr;
-  long _commandStreamLen = 0;
+  BufferReader _commandData;
 };
-
-extern std::unique_ptr<Cutscene> globalCutscene;
 
 #endif // UNDERTALE_CUTSCENE_HPP

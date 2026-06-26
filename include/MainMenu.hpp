@@ -5,6 +5,8 @@
 #ifndef UNDERTALE_MAIN_MENU_HPP
 #define UNDERTALE_MAIN_MENU_HPP
 
-void runMainMenu();
+class SaveData;
+
+void runMainMenu(SaveData &save);
 
 #endif //UNDERTALE_MAIN_MENU_HPP

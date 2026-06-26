@@ -13,15 +13,18 @@
 #include <memory>
 #include <nds.h>
 
+class SaveData;
+
 class Dialogue {
 public:
-  Dialogue(u16 textId, std::shared_ptr<Engine::Sprite> target,
+  Dialogue(SaveData* save, u16 cutsceneId, u16 roomId, u16 textId,
+           std::shared_ptr<Engine::Sprite> target,
            const std::string &targetIdle, const std::string &targetTalk,
            const std::string &typeSndPath, const std::string &fontTxt,
            u16 framesPerLetter, Engine::TextBGManager &txtManager,
            Engine::AllocationMode heartAlloc);
 
-  Dialogue(const std::string &text_, const std::string &typeSndPath,
+  Dialogue(SaveData* save, const std::string &text_, const std::string &typeSndPath,
            const std::string &fontTxt, u16 framesPerLetter,
            Engine::TextBGManager &txtManager,
            Engine::AllocationMode heartAlloc);
@@ -31,6 +34,7 @@ public:
   virtual void doRedraw();
 
 protected:
+  SaveData *_save;
   virtual void setTalk();
   virtual void setNoTalk();
   void progressText(bool clear_, bool draw_);
@@ -77,17 +81,18 @@ protected:
 
 class DialogueCentered : public Dialogue {
 public:
-  DialogueCentered(u16 textId, const std::string &speaker, s32 speakerX,
-                   s32 speakerY, const std::string &speakerIdle,
+  DialogueCentered(SaveData *save, u16 cutsceneId, u16 roomId, u16 textId,
+                   const std::string &speaker, s32 speakerX, s32 speakerY,
+                   const std::string &speakerIdle,
                    const std::string &speakerTalk,
                    std::shared_ptr<Engine::Sprite> target,
                    const std::string &targetIdle, const std::string &targetTalk,
                    const std::string &typeSndPath, const std::string &fontTxt,
                    u16 framesPerLetter, Engine::TextBGManager &txtManager,
                    Engine::AllocationMode heartAlloc);
-  DialogueCentered(const std::string &text_, const std::string &typeSndPath,
-                   const std::string &fontTxt, u16 framesPerLetter,
-                   Engine::TextBGManager &txtManager,
+  DialogueCentered(SaveData *save, const std::string &text_,
+                   const std::string &typeSndPath, const std::string &fontTxt,
+                   u16 framesPerLetter, Engine::TextBGManager &txtManager,
                    Engine::AllocationMode heartAlloc);
 
 protected:
@@ -113,7 +118,8 @@ protected:
 
 class DialogueLeftAligned : public Dialogue {
 public:
-  DialogueLeftAligned(u16 textId, s32 startingX, s32 startingY,
+  DialogueLeftAligned(SaveData *save, u16 cutsceneId, u16 roomId, u16 textId,
+                      s32 startingX, s32 startingY,
                       std::shared_ptr<Engine::Sprite> target,
                       const std::string &targetIdle,
                       const std::string &targetTalk,
@@ -121,8 +127,8 @@ public:
                       const std::string &fontTxt, u16 framesPerLetter,
                       Engine::TextBGManager &txtManager,
                       Engine::AllocationMode heartAlloc);
-  DialogueLeftAligned(int startingX, int startingY, const std::string &text_,
-                      const std::string &typeSndPath,
+  DialogueLeftAligned(SaveData *save, int startingX, int startingY,
+                      const std::string &text_, const std::string &typeSndPath,
                       const std::string &fontTxt, u16 framesPerLetter,
                       Engine::TextBGManager &txtManager,
                       Engine::AllocationMode heartAlloc);

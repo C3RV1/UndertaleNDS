@@ -6,13 +6,14 @@
 #include <memory>
 
 DialogueLeftAligned::DialogueLeftAligned(
-    u16 textId, s32 startingX, s32 startingY,
-    std::shared_ptr<Engine::Sprite> target, const std::string &targetIdle,
-    const std::string &targetTalk, const std::string &typeSndPath,
-    const std::string &fontTxt, u16 framesPerLetter,
-    Engine::TextBGManager &txtManager, Engine::AllocationMode heartAlloc)
-    : Dialogue(textId, target, targetIdle, targetTalk, typeSndPath, fontTxt,
-               framesPerLetter, txtManager, heartAlloc) {
+    SaveData *save, u16 cutsceneId, u16 roomId, u16 textId, s32 startingX,
+    s32 startingY, std::shared_ptr<Engine::Sprite> target,
+    const std::string &targetIdle, const std::string &targetTalk,
+    const std::string &typeSndPath, const std::string &fontTxt,
+    u16 framesPerLetter, Engine::TextBGManager &txtManager,
+    Engine::AllocationMode heartAlloc)
+    : Dialogue(save, cutsceneId, roomId, textId, target, targetIdle, targetTalk,
+               typeSndPath, fontTxt, framesPerLetter, txtManager, heartAlloc) {
   _startingX = startingX >> 8;
   _x = _startingX;
   _startingY = startingY >> 8;
@@ -20,14 +21,12 @@ DialogueLeftAligned::DialogueLeftAligned(
   _lastClearStartingX = _startingX;
 }
 
-DialogueLeftAligned::DialogueLeftAligned(int startingX, int startingY,
-                                         const std::string &text_,
-                                         const std::string &typeSndPath,
-                                         const std::string &fontTxt,
-                                         u16 framesPerLetter,
-                                         Engine::TextBGManager &txtManager,
-                                         Engine::AllocationMode heartAlloc)
-    : Dialogue(text_, typeSndPath, fontTxt, framesPerLetter, txtManager,
+DialogueLeftAligned::DialogueLeftAligned(
+    SaveData *save, int startingX, int startingY, const std::string &text_,
+    const std::string &typeSndPath, const std::string &fontTxt,
+    u16 framesPerLetter, Engine::TextBGManager &txtManager,
+    Engine::AllocationMode heartAlloc)
+    : Dialogue(save, text_, typeSndPath, fontTxt, framesPerLetter, txtManager,
                heartAlloc) {
   _startingX = startingX >> 8;
   _x = _startingX;

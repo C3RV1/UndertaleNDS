@@ -15,14 +15,16 @@
 
 class SaveMenu {
 public:
-  SaveMenu();
-  ~SaveMenu() { free_(); }
+  explicit SaveMenu(SaveData* save, u16 roomId);
   void drawInfo(SaveData &saveData, u8 color);
   void drawError();
   bool update();
+  ~SaveMenu() { free_(); }
 
 private:
-  void free_();
+  SaveData* _save;
+  u16 _roomId;
+  
   constexpr static int kNameX = 41, kNameY = 43 - 4;
   constexpr static int kLvNumX = 131, kLvNumY = 43 - 4;
   constexpr static int kRoomNameX = 41, kRoomNameY = 63 - 4;
@@ -37,6 +39,8 @@ private:
   std::shared_ptr<Engine::Sprite> _optionsHeartSpr;
   std::shared_ptr<Engine::Font> _fnt;
   Engine::Background _bg;
+
+  void free_();
 };
 
 #endif // UNDERTALE_SAVE_MENU_HPP

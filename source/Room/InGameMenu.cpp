@@ -8,6 +8,7 @@
 #include "Engine/Sprite.hpp"
 #include "Engine/TextBGManager.hpp"
 #include "Formats/utils.hpp"
+#include "Room/Room.hpp"
 #include "Save.hpp"
 #include <memory>
 #include <string>
@@ -54,7 +55,7 @@ void InGameMenu::show() {
 }
 
 void InGameMenu::updateBg() {
-  _bgLoadedCell = globalSave.flags[FlagIds::OWNS_PHONE] == 1;
+  _bgLoadedCell = _save->flags[FlagIds::OWNS_PHONE] == 1;
 
   if (_bgLoadedCell)
     _bg.loadPath("ingame_menu/bg");
@@ -74,14 +75,14 @@ void InGameMenu::updateSelectMenuHeart() {
 
 void InGameMenu::drawName() {
   int x = kNameX, y = kNameY;
-  for (char *pName = globalSave.name; *pName != 0; pName++) {
+  for (char *pName = _save->name; *pName != 0; pName++) {
     Engine::textSub.drawGlyph(*_fnt, *pName, x, y);
   }
 }
 
 void InGameMenu::drawLv() {
   char buffer[16];
-  sprintf(buffer, "%d", globalSave.lv);
+  sprintf(buffer, "%d", _save->lv);
   int x = kLvX, y = kLvY;
   for (char *pName = buffer; *pName != 0; pName++) {
     Engine::textSub.drawGlyph(*_fnt, *pName, x, y);
@@ -90,7 +91,7 @@ void InGameMenu::drawLv() {
 
 void InGameMenu::drawExp() {
   char buffer[16];
-  sprintf(buffer, "%d", globalSave.exp);
+  sprintf(buffer, "%d", _save->exp);
   int x = kExpX, y = kExpY;
   for (char *pName = buffer; *pName != 0; pName++) {
     Engine::textSub.drawGlyph(*_fnt, *pName, x, y);
@@ -98,7 +99,7 @@ void InGameMenu::drawExp() {
 }
 
 void InGameMenu::drawItems() {
-  if (globalSave.items[0] == 0) {
+  if (_save->items[0] == 0) {
     Engine::spriteSetShown(_listHeartSpr, false);
   } else {
     drawItemPage();
@@ -115,7 +116,7 @@ void InGameMenu::drawItemExplain() {
 
 void InGameMenu::clipOption() {
   if (_selectedMenu == MENU_ITEMS) {
-    for (_optionCount = 0; globalSave.items[_optionCount] != 0; _optionCount++)
+    for (_optionCount = 0; _save->items[_optionCount] != 0; _optionCount++)
       ;
     _pageCount = ((_optionCount - 1) / 2) + 1;
     if (_itemPage > _pageCount - 1)
@@ -123,7 +124,7 @@ void InGameMenu::clipOption() {
     if (_optionSelected > _optionCount - _itemPage * 2 - 1)
       _optionSelected = _optionCount - _itemPage * 2 - 1;
   } else {
-    for (_optionCount = 0; globalSave.cell[_optionCount] != 0; _optionCount++)
+    for (_optionCount = 0; _save->cell[_optionCount] != 0; _optionCount++)
       ;
     if (_optionSelected > _optionCount - 1)
       _optionSelected = _optionCount - 1;
@@ -148,7 +149,7 @@ void InGameMenu::drawItemPage() {
     int itemIdx = (_itemPage * 2) + i;
     if (itemIdx >= _optionCount)
       break;
-    int item = globalSave.items[itemIdx];
+    int item = _save->items[itemIdx];
 
     std::string name =
         textBank.getText("items/name" + std::to_string(item) + ".txt");
@@ -167,7 +168,7 @@ void InGameMenu::setItemHeartPos() {
 void InGameMenu::drawItemDesc() {
   drawItemExplain();
   int itemIdx = _itemPage * 2 + _optionSelected;
-  int item = globalSave.items[itemIdx];
+  int item = _save->items[itemIdx];
   std::string desc =
       textBank.getText("items/desc" + std::to_string(item) + ".txt");
   int x = 23, y = 104;
@@ -192,7 +193,7 @@ void InGameMenu::drawCellPage() {
   int x, y = kItemsY;
 
   for (int i = 0; i < _optionCount; i++) {
-    int cellOption = globalSave.cell[i];
+    int cellOption = _save->cell[i];
 
     auto cellText =
         textBank.getText("cell/name" + std::to_string(cellOption) + ".txt");
@@ -214,13 +215,13 @@ void InGameMenu::updateHp() {
 
   char buffer[16];
 
-  sprintf(buffer, "%d/%d", globalSave.hp, globalSave.maxHp);
+  sprintf(buffer, "%d/%d", _save->hp, _save->maxHp);
   int x = kHpX, y = kHpY;
   for (char *p = buffer; *p != 0; p++)
     Engine::textSub.drawGlyph(*_fnt, *p, x, y);
 }
 
-void InGameMenu::update() {
+void InGameMenu::update(Room &room) {
   if (!_shown)
     return;
   if (keysDown() & KEY_TOUCH) {
@@ -229,7 +230,7 @@ void InGameMenu::update() {
     if (_selectedMenu == MENU_ITEMS)
       processTouchItems(touch);
     else
-      processTouchCell(touch);
+      processTouchCell(touch, room);
   }
 }
 
@@ -237,7 +238,7 @@ void InGameMenu::processTouchItems(touchPosition &touch) {
   if (touch.px > 140 && touch.px < 140 + 58 && touch.py > 35 &&
       touch.py < 35 + 19) {
     if (_selectedMenu != MENU_CELL &&
-        globalSave.flags[FlagIds::OWNS_PHONE] == 1) {
+        _save->flags[FlagIds::OWNS_PHONE] == 1) {
       _selectedMenu = MENU_CELL;
       updateSelectMenuHeart();
       _optionSelected = 0;
@@ -279,7 +280,7 @@ void InGameMenu::processTouchItems(touchPosition &touch) {
   }
 }
 
-void InGameMenu::processTouchCell(touchPosition &touch) {
+void InGameMenu::processTouchCell(touchPosition &touch, Room& room) {
   if (touch.px > 53 && touch.px < 53 + 58 && touch.py > 35 &&
       touch.py < 35 + 19) {
     if (_selectedMenu != MENU_ITEMS) {
@@ -295,18 +296,17 @@ void InGameMenu::processTouchCell(touchPosition &touch) {
     int touchedOption = (touch.py - kItemsY) / kItemSpacingY;
     if (touchedOption != _optionSelected) {
       _optionSelected = touchedOption;
-      for (_optionCount = 0; globalSave.cell[_optionCount] != 0; _optionCount++)
+      for (_optionCount = 0; _save->cell[_optionCount] != 0; _optionCount++)
         ;
       if (_optionSelected > _optionCount - 1)
         _optionSelected = _optionCount - 1;
       setItemHeartPos();
     } else {
       // Room 1000 for phone cutscenes
-      if (globalCutscene == nullptr)
-        globalCutscene =
-            std::make_unique<Cutscene>(globalSave.cell[touchedOption], 1000);
+      if (room._cutscene == nullptr)
+        room._cutscene = std::make_unique<Cutscene>(
+            _save->cell[touchedOption], 1000, &room);
     }
   }
 }
 
-InGameMenu globalInGameMenu;

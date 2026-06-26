@@ -9,30 +9,27 @@
 
 u8 cardCommand(u8 command, bool hold);
 u8 cardTransfer(u8 data);
+bool cardIsValid();
 void cardWaitInProgress();
 void cardReadBytes(u8 *dst, u32 addr, u16 size);
 void cardWriteBytes(u8 *src, u32 addr, u16 size);
 
 class CardBuffer {
 public:
-  void open(const char *mode);
+  [[nodiscard]] bool open(const char* mode);
   void close();
-  [[nodiscard]] bool read(void *data, size_t size);
-  [[nodiscard]] bool write(void *src, size_t size);
+  void read(void *data, size_t size);
+  void write(void *src, size_t size);
   int tell() const;
   void seek(s32 offset, u8 mode);
   ~CardBuffer() { close(); }
 
 private:
-  bool _running_in_file;
   int _pos = 0;
   FILE *_fatFile = nullptr;
   bool _opened = false;
 };
 
 extern CardBuffer fCard;
-#ifndef BLOCKSDS_SDK
-extern bool cardRead;
-#endif
 
 #endif // UNDERTALE_CARD_HPP

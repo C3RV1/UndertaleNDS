@@ -7,17 +7,21 @@
 
 #include "BattleAction.hpp"
 #include "BattleAttack.hpp"
-#include "Cutscene/Navigation.hpp"
+#include "BattleNavigation.hpp"
 #include "Enemy.hpp"
-#include <cstdio>
+#include "Formats/utils.hpp"
+#include "Fader.hpp"
 #include <memory>
 #include <nds.h>
 
+class Cutscene;
+class SaveData;
+
 class Battle {
 public:
-  Battle();
+  explicit Battle(Cutscene* cutscene);
   void exit(bool won);
-  void loadFromStream(FILE *stream);
+  void loadFromBuffer(BufferReader& br);
   void showHp();
   void enter();
   void show();
@@ -35,7 +39,7 @@ public:
   bool _running = true;
   bool _stopPostDialogue = false;
   std::string _winText;
-  Navigation _nav;
+  BattleNavigation _nav;
 
   std::vector<std::unique_ptr<Enemy>> _enemies;
 
@@ -60,8 +64,12 @@ public:
   bool moveInBattleRect();
   bool moveOutBattleRect();
   void getMoveRect(int &x, int &y, int &w, int &h, int counter, int maxCounter);
+  
+private:
+  Cutscene* _cutscene;
+  
+public:
+  SaveData* _save;
 };
-
-extern std::unique_ptr<Battle> globalBattle;
 
 #endif // UNDERTALE_BATTLE_HPP

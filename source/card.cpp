@@ -6,62 +6,60 @@
 #include "DEBUG_FLAGS.hpp"
 #include "Engine/Engine.hpp"
 #include <cerrno>
-#include <cstdio>
 #include <fat.h>
 #include <string>
+#include <cstdio>
 
-void CardBuffer::open(const char *mode) {
-  if (_opened)
-    return;
-  _pos = 0;
-  _opened = true;
-
-  _running_in_file = access("sd:/", F_OK) == 0; // Returns 0 on success
-  if (_running_in_file) {                       // check if sd was inited
-#ifdef DEBUG_SAVE
-    nocashMessage("Running in sd.");
-#endif
-
-    _fatFile = fopen("sd:/Undertale.sav", mode);
-
-#ifdef DEBUG_SAVE
-    if (_fatFile)
-      nocashMessage("SaveFile opened.");
-    else {
-      std::string buf =
-          "SaveFile couldn't be opened. Errno: " + std::to_string(errno);
-      nocashMessage(buf.c_str());
-    }
-#endif
-
-    return;
-  }
-
-  _running_in_file = access("fat:/", F_OK) == 0; // Returns 0 on success
-  if (_running_in_file) {                        // check if dldi was inited
+bool CardBuffer::open(const char *mode) {
+    if (_opened)
+        return true;
+    
+    _pos = 0;
+    _opened = true;
+    
+    if (access("fat:/", F_OK) == 0) {  // check if sd was inited
 #ifdef DEBUG_SAVE
     nocashMessage("Running in fat.");
 #endif
 
-    _fatFile = fopen("fat:/Undertale.sav", mode);
-
-#ifdef DEBUG_SAVE
-    if (_fatFile)
-      nocashMessage("SaveFile opened.");
-    else {
-      std::string buf =
-          "SaveFile couldn't be opened. Errno: " + std::to_string(errno);
-      nocashMessage(buf.c_str());
+        _fatFile = fopen("fat:/Undertale.sav", mode);
+        
+        if (_fatFile)
+          return true;
+        else {
+          std::string buf =
+              "SaveFile couldn't be opened. Errno: " + std::to_string(errno);
+          nocashMessage(buf.c_str());
+        }
     }
-#endif
 
-    return;
-  }
-
+    if (access("sd:/", F_OK) == 0) {
 #ifdef DEBUG_SAVE
-  nocashMessage("Not running in fat.");
+    nocashMessage("Running in sd.");
 #endif
-  _fatFile = nullptr;
+        _fatFile = fopen("sd:/Undertale.sav", mode);
+        if (_fatFile)
+          return true;
+        else {
+          std::string buf =
+              "SaveFile couldn't be opened. Errno: " + std::to_string(errno);
+          nocashMessage(buf.c_str());
+        }
+    }
+    
+    _fatFile = nullptr;
+    if (cardIsValid()) {
+#ifdef DEBUG_SAVE
+    nocashMessage("Running in card.");
+#endif
+        return true;
+    }
+    
+#ifdef DEBUG_SAVE
+    nocashMessage("Couldn't open save file.");
+#endif
+    _opened = false;
+    return false;
 }
 
 void CardBuffer::close() {
@@ -164,69 +162,69 @@ void cardWriteBytes(u8 *src, u32 addr, u16 size) {
   leaveCriticalSection(oldIME);
 }
 
-bool CardBuffer::read(void *data, size_t size) {
+bool cardIsValid() {
+    return REG_AUXSPIDATA != 0xFF;
+}
+
+void CardBuffer::read(void *data, size_t size) {
   if (!_opened)
-    return false;
-  if (!_running_in_file) {
+    return;
+  if (_fatFile == nullptr) {
 #ifdef DEBUG_SAVE
     std::string buf = "Reading from card. Pos: " + std::to_string(_pos);
     nocashMessage(buf.c_str());
 #endif
+
     cardReadBytes((u8 *)data, _pos, size);
-  } else if (_fatFile != nullptr) {
+  } else {
     size_t bytes_read = fread(data, 1, size, _fatFile);
+    
 #ifdef DEBUG_SAVE
     std::string buf = "Read " + std::to_string(bytes_read) + " bytes of " +
                       std::to_string(size);
     nocashMessage(buf.c_str());
-
 #endif
+
     if (bytes_read < size) {
       std::string buf2 = "ERROR READING. Errno: " + std::to_string(errno);
       nocashMessage(buf2.c_str());
-      return false;
+      return;
     }
-  } else {
-#ifdef DEBUG_SAVE
-    nocashMessage("Reading from unopened file.");
-#endif
-    // We are running in fat but file was not opened
-    return false;
   }
   _pos += size;
-  return true;
 }
 
-bool CardBuffer::write(void *src, size_t size) {
+void CardBuffer::write(void *src, size_t size) {
   if (!_opened)
-    return false;
-  if (!_running_in_file) {
+    return;
+  if (_fatFile == nullptr) {
 #ifdef DEBUG_SAVE
     std::string buf = "Writing " + std::to_string(size) + " bytes to card.";
     nocashMessage(buf.c_str());
 #endif
+
     cardWriteBytes((u8 *)src, _pos, size);
-  } else if (_fatFile != nullptr) {
+  }
+  else {
 #ifdef DEBUG_SAVE
     std::string buf = "Writing " + std::to_string(size) + " bytes to savefile.";
     nocashMessage(buf.c_str());
 #endif
+
     size_t bytesWritten = fwrite(src, 1, size, _fatFile);
+    
 #ifdef DEBUG_SAVE
     buf = "Written " + std::to_string(bytesWritten) + " bytes to savefile.";
     nocashMessage(buf.c_str());
 #endif
+
     if (bytesWritten < size) {
       std::string buf2 = "ERROR WRITING. Errno: " + std::to_string(errno);
       nocashMessage(buf2.c_str());
-      return false;
+      return;
     }
-  } else {
-    // The else branch runs in file but file couldn't be opened
-    return false;
   }
   _pos += size;
-  return true;
 }
 
 void CardBuffer::seek(s32 offset, u8 mode) {

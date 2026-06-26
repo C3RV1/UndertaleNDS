@@ -15,7 +15,7 @@
 namespace BtlAttacks {
 class MovementTutorial : public BattleAttack {
 public:
-  MovementTutorial();
+  MovementTutorial(Battle *battle);
 
   bool update() override;
 

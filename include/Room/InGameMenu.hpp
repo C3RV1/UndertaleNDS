@@ -8,14 +8,16 @@
 #include "Engine/Background.hpp"
 #include "Engine/Font.hpp"
 #include "Engine/Sprite.hpp"
-#include "Engine/Texture.hpp"
 #include <memory>
+
+class SaveData;
+class Room;
 
 enum SelectedMenu { MENU_ITEMS, MENU_CELL };
 
 class InGameMenu {
 public:
-  InGameMenu() {
+  InGameMenu(SaveData* save) : _save(save) {
     _selectedMenuHeartSpr =
         std::make_shared<Engine::Sprite>(Engine::AllocatedOAM);
     _listHeartSpr = std::make_shared<Engine::Sprite>(Engine::AllocatedOAM);
@@ -39,9 +41,9 @@ public:
   void drawItemExplain();
   void setItemHeartPos();
   void processTouchItems(touchPosition &touch);
-  void processTouchCell(touchPosition &touch);
+  void processTouchCell(touchPosition &touch, Room& room);
   void hide();
-  void update();
+  void update(Room &room);
 
 private:
   constexpr static int kNameX = 18, kNameY = 10;
@@ -55,6 +57,8 @@ private:
   const int kPageChangeY = kItemsY + kItemSpacingY - kItemSpacingY / 2;
   const int kButtonWidth = 90;
 
+  SaveData* _save;
+
   bool _shown = false;
   std::shared_ptr<Engine::Font> _fnt;
   Engine::Background _bg;
@@ -67,7 +71,5 @@ private:
 
   bool _bgLoadedCell = false;
 };
-
-extern InGameMenu globalInGameMenu;
 
 #endif // UNDERTALE_INGAME_MENU_HPP

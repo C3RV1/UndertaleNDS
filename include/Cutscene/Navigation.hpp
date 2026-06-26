@@ -5,8 +5,8 @@
 #ifndef UNDERTALE_NAVIGATION_HPP
 #define UNDERTALE_NAVIGATION_HPP
 
-#include "Cutscene/CutsceneEnums.hpp"
 #include "Engine/Sprite.hpp"
+#include "Formats/utils.hpp"
 #include <memory>
 #include <vector>
 
@@ -30,6 +30,8 @@ struct TargetInfo {
   s8 enemySpriteId;
 };
 
+TargetInfo readTarget(BufferReader &br);
+
 struct NavigationTask {
   s32 startingX = 0, startingY = 0;
   s32 destX = 0, destY = 0;
@@ -41,41 +43,32 @@ struct NavigationTask {
 
 class Navigation {
 public:
-  static void spawn_sprite(const std::string &path, s32 x, s32 y, s32 layer,
-                           CutsceneLocation callingLocation);
-  static void spawn_relative(const std::string &path,
-                             const TargetInfo &targetInfo, s32 dx, s32 dy,
-                             s32 layer, CutsceneLocation callingLocation);
-  static void unload_sprite(s8 sprId, CutsceneLocation callingLocation);
-  static void set_position(const TargetInfo &targetInfo, s32 x, s32 y,
-                           CutsceneLocation callingLocation);
-  static void move(const TargetInfo &targetInfo, s32 dx, s32 dy,
-                   CutsceneLocation callingLocation);
-  static void set_scale(const TargetInfo &targetInfo, s32 x, s32 y,
-                        CutsceneLocation callingLocation);
-  static void set_shown(const TargetInfo &targetInfo, bool shown,
-                        CutsceneLocation callingLocation);
-  static void set_animation(const TargetInfo &targetInfo, char *animName,
-                            CutsceneLocation callingLocation);
-  static void set_opacity(const TargetInfo &targetInfo, u8 opacity,
-                          CutsceneLocation callingLocation);
-  void set_pos_in_frames(const TargetInfo &targetInfo, s32 x, s32 y, u16 frames,
-                         CutsceneLocation callingLocation);
-  void move_in_frames(const TargetInfo &targetInfo, s32 dx, s32 dy, u16 frames,
-                      CutsceneLocation callingLocation);
-  void scale_in_frames(const TargetInfo &targetInfo, s32 x, s32 y, u16 frames,
-                       CutsceneLocation callingLocation);
+  virtual void spawn_sprite(const std::string &path, s32 x, s32 y, s32 layer) = 0;
+  void spawn_relative(const std::string &path, const TargetInfo &targetInfo,
+                      s32 dx, s32 dy, s32 layer);
+  virtual void unload_sprite(s8 sprId) = 0;
+  void set_position(const TargetInfo &targetInfo, s32 x, s32 y);
+  void move(const TargetInfo &targetInfo, s32 dx, s32 dy);
+  void set_scale(const TargetInfo &targetInfo, s32 x, s32 y);
+  void set_shown(const TargetInfo &targetInfo, bool shown);
+  void set_animation(const TargetInfo &targetInfo, const std::string& animName);
+  void set_opacity(const TargetInfo &targetInfo, u8 opacity);
+  void set_pos_in_frames(const TargetInfo &targetInfo, s32 x, s32 y,
+                         u16 frames);
+  void move_in_frames(const TargetInfo &targetInfo, s32 dx, s32 dy, u16 frames);
+  void scale_in_frames(const TargetInfo &targetInfo, s32 x, s32 y, u16 frames);
   void update();
   void clearAllTasks();
-  static std::shared_ptr<Engine::Sprite>
-  getTarget(const TargetInfo &targetInfo, CutsceneLocation callingLocation);
+  virtual std::shared_ptr<Engine::Sprite>
+  getTarget(const TargetInfo &targetInfo) = 0;
 
 private:
-  void startTask(std::unique_ptr<NavigationTask> task);
-  bool updateTask(std::vector<std::unique_ptr<NavigationTask>>::iterator &task);
-  void endTask(std::vector<std::unique_ptr<NavigationTask>>::iterator &task);
+  void startTask(NavigationTask task);
+  bool updateTask(std::vector<NavigationTask>::iterator &task);
+  void endTask(std::vector<NavigationTask>::iterator &task);
 
-  std::vector<std::unique_ptr<NavigationTask>> _tasks;
+  std::vector<NavigationTask> _tasks;
 };
+
 
 #endif // UNDERTALE_NAVIGATION_HPP

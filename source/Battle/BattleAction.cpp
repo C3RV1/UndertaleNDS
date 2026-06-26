@@ -4,23 +4,22 @@
 
 #include "Battle/BattleAction.hpp"
 #include "Engine/DataBank.hpp"
-#include "Engine/Engine.hpp"
 
 #include "Engine/Background.hpp"
 #include "Engine/Font.hpp"
 #include "Engine/Sprite.hpp"
 #include "Engine/TextBGManager.hpp"
 #include "Engine/Texture.hpp"
-#include "Formats/utils.hpp"
 #include "Save.hpp"
+#include "Battle/Battle.hpp"
 #include <memory>
 #include <string>
 
 // TODO: Touchscreen
 
-BattleAction::BattleAction(std::vector<std::unique_ptr<Enemy>> *enemies,
+BattleAction::BattleAction(Battle *battle, std::vector<std::unique_ptr<Enemy>> *enemies,
                            int flavorTextId)
-    : _enemies(enemies) {
+    : _battle(battle), _enemies(enemies) {
   _bigHeartSpr = std::make_shared<Engine::Sprite>(Engine::Allocated3D);
   _smallHeartSpr = std::make_shared<Engine::Sprite>(Engine::Allocated3D);
   _attackSpr = std::make_shared<Engine::Sprite>(Engine::Allocated3D);
@@ -78,7 +77,8 @@ void BattleAction::enter(BattleActionState state) {
   Engine::textMain.clearRect(0, 192 / 2, 256, 192 / 2);
   switch (state) {
   case PRINTING_FLAVOR_TEXT:
-    _flavorTextDialogue = std::make_unique<FlavorTextDialogue>(_flavorText);
+    _flavorTextDialogue =
+        std::make_unique<FlavorTextDialogue>(_battle, _flavorText);
     _flavorTextDialogue->setShown(true);
     break;
   case CHOOSING_ACTION:
@@ -167,5 +167,5 @@ int BattleAction::getActionNum() const {
 }
 
 BattleAction::~BattleAction() {
-  globalSave.flags[FlagIds::BATTLE_ACTION] = getActionNum();
+  _battle->_save->flags[FlagIds::BATTLE_ACTION] = getActionNum();
 }

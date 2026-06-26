@@ -16,7 +16,7 @@
 #include <memory>
 #include <string>
 
-void runMainMenu() {
+void runMainMenu(SaveData &save) {
   constexpr int nameX = 42, nameY = 24 - 4;
   constexpr int lvX = 132, lvY = 24 - 4;
   constexpr int roomNameX = 42, roomNameY = 44 - 4;
@@ -35,7 +35,7 @@ void runMainMenu() {
   topBg.loadPath("main_menu_top");
   btmBg.loadPath("main_menu_btm");
 
-  if (globalSave.flags[FlagIds::PROGRESS] < 20) {
+  if (save.flags[FlagIds::PROGRESS] < 20) {
     Engine::spriteLoadTexture(floweySpr, "room_sprites/flowey");
     floweySpr->_wx = 118 << 8;
     floweySpr->_wy = 116 << 8;
@@ -44,7 +44,7 @@ void runMainMenu() {
   }
 
   roomName = textBank.getText(
-      "room_names/" + std::to_string(globalSave.lastSavedRoom) + ".txt");
+      "room_names/" + std::to_string(save.lastSavedRoom) + ".txt");
 
   continueText = textBank.getText("main_menu_continue.txt");
   resetText = textBank.getText("main_menu_reset.txt");
@@ -54,11 +54,11 @@ void runMainMenu() {
   Engine::textSub.clear();
 
   int x = nameX;
-  for (char *p = globalSave.name; *p != 0; p++) {
+  for (char *p = save.name; *p != 0; p++) {
     Engine::textSub.drawGlyph(*font, *p, x, nameY);
   }
 
-  buffer = std::to_string(globalSave.lv);
+  buffer = std::to_string(save.lv);
   x = lvX;
   for (auto const &c : buffer) {
     Engine::textSub.drawGlyph(*font, c, x, lvY);
@@ -90,7 +90,7 @@ void runMainMenu() {
         resetConfirm = true;
         draw = true;
       } else if (resetConfirm) {
-        globalSave.clear(PLAYER_RESET);
+        save.clear(PLAYER_RESET);
         break;
       } else {
         break;

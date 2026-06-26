@@ -5,6 +5,8 @@
 #ifndef UNDERTALE_WRITE_NAME_HPP
 #define UNDERTALE_WRITE_NAME_HPP
 
-void runWriteNameMenu();
+class SaveData;
+
+void runWriteNameMenu(SaveData &save);
 
 #endif //UNDERTALE_WRITE_NAME_HPP

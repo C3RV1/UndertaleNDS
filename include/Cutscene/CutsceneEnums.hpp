@@ -54,8 +54,6 @@ enum CutsceneCommands {
   CMD_DEBUG = 0xff
 };
 
-enum CutsceneLocation { LOAD_ROOM = 0, ROOM = 1, LOAD_BATTLE = 2, BATTLE = 3 };
-
 enum ComparisonOperator { EQUALS = 0, GREATER_THAN = 1, LESS_THAN = 2 };
 
 enum WaitingType {

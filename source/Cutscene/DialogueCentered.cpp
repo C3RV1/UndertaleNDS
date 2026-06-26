@@ -6,14 +6,15 @@
 #include <memory>
 
 DialogueCentered::DialogueCentered(
-    u16 textId, const std::string &speaker, s32 speakerX, s32 speakerY,
+    SaveData *save, u16 cutsceneId, u16 roomId, u16 textId,
+    const std::string &speaker, s32 speakerX, s32 speakerY,
     const std::string &speakerIdle, const std::string &speakerTalk,
     std::shared_ptr<Engine::Sprite> target, const std::string &targetIdle,
     const std::string &targetTalk, const std::string &typeSndPath,
     const std::string &fontTxt, u16 framesPerLetter,
     Engine::TextBGManager &txtManager, Engine::AllocationMode heartAlloc)
-    : Dialogue(textId, target, targetIdle, targetTalk, typeSndPath, fontTxt,
-               framesPerLetter, txtManager, heartAlloc) {
+    : Dialogue(save, cutsceneId, roomId, textId, target, targetIdle, targetTalk,
+               typeSndPath, fontTxt, framesPerLetter, txtManager, heartAlloc) {
 
   if (!speaker.empty())
     _startingY = 192 / 2;
@@ -35,13 +36,13 @@ DialogueCentered::DialogueCentered(
 
 // TODO: Maybe this constructor could also take a speaker?
 //       Would then Dialogue need to take a target?
-DialogueCentered::DialogueCentered(const std::string &text_,
+DialogueCentered::DialogueCentered(SaveData *save, const std::string &text_,
                                    const std::string &typeSndPath,
                                    const std::string &fontTxt,
                                    u16 framesPerLetter,
                                    Engine::TextBGManager &txtManager,
                                    Engine::AllocationMode heartAlloc)
-    : Dialogue(text_, typeSndPath, fontTxt, framesPerLetter, txtManager,
+    : Dialogue(save, text_, typeSndPath, fontTxt, framesPerLetter, txtManager,
                heartAlloc) {
   _startingY = 192 / 4;
   _y = _startingY;

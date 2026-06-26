@@ -11,9 +11,11 @@ class RoomSprite;
 #include "Engine/Sprite.hpp"
 #include "Formats/ROOM_FILE.hpp"
 
+class Room;
+
 class RoomSprite {
 public:
-  explicit RoomSprite(Engine::AllocationMode alloc) {
+  RoomSprite(Engine::AllocationMode alloc, Room* room) : _room(room) {
     _spr = std::make_shared<Engine::Sprite>(alloc);
   }
 
@@ -52,6 +54,7 @@ public:
   s32 _old_x, _old_y;
 
 private:
+  Room* _room;
   bool check_on_goal();
 };
 

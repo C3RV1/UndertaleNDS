@@ -39,7 +39,7 @@ class BattleAction {
                                    {134 << 8, 142 << 8}};
 
 public:
-  explicit BattleAction(std::vector<std::unique_ptr<Enemy>> *enemies,
+  explicit BattleAction(Battle* battle, std::vector<std::unique_ptr<Enemy>> *enemies,
                         int flavorTextId);
   bool update();
   int getActionNum() const;
@@ -48,6 +48,7 @@ public:
   static void clearReuse();
 
 private:
+  Battle *_battle;
   void setBtn();
   void enter(BattleActionState state);
 
