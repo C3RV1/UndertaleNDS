@@ -17,6 +17,7 @@
 #include "Save.hpp"
 #include "TitleScreen.hpp"
 #include "WriteName.hpp"
+#include "SaveErrorScreen.hpp"
 #include <cstdio>
 #include <memory>
 
@@ -32,10 +33,13 @@ int main() {
 
   textBank.load("nitro:/txts.cbnk");
 
-  auto save = std::make_unique<SaveData>();
-  save->loadData();
 
   runTitleScreen();
+  
+  auto save = std::make_unique<SaveData>();
+  if (!save->loadData())
+    runSaveErrorScreen(*save);
+  
   if (!save->saveExists) {
     runWriteNameMenu(*save);
   } else {
