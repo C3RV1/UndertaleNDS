@@ -27,12 +27,49 @@ enum class RoomSpriteAction {
   PUSHABLE = 4
 };
 
+class RoomSpriteActionUnion : public ConditionalObj {
+public:
+  void read(BufferReader* rdr, SaveData* save) override;
+
+private:
+  RoomSpriteAction _action;
+  union {
+    struct {
+      // Type Cutscene
+      u16 _cutsceneId;
+    } _cutscene;
+    struct {
+      // Type Proximity
+      u16 _distance;
+    } _proximity;
+    struct {
+      // Type Parallax
+      s32 _parallaxX, _parallaxY;
+    } _parallax;
+    struct {
+      // Type Pushable
+      u16 _validRectX, _validRectY, _validRectW, _validRectH;
+      u16 _goalPosX, _goalPosY;
+      u16 _cutsceneId;
+      u16 _goalFlagId;
+      u16 _goalFlagBit;
+      bool _stopOnGoal;
+    } _pushable;
+  };
+};
+RoomSpriteActionUnion readConditionalValue(tag<RoomSpriteActionUnion>, BufferReader* rdr, SaveData* save);
 
 
 class RoomSpriteData : public ConditionalObj {
 public:
+  void read(BufferReader* rdr, SaveData* save) override;
   
 private:
+  s16 _sprId;
+  std::string _texture;
+  u16 _x, _y;
+  std::string _animation;
+  RoomSpriteActionUnion _action;
 };
 RoomSpriteData readConditionalValue(tag<RoomSpriteData>, BufferReader* rdr, SaveData* save);
 
@@ -81,8 +118,17 @@ RoomColliderData readConditionalValue(tag<RoomColliderData>, BufferReader* rdr, 
 
 class RoomData : public ConditionalObj {
 public:
+  void read(BufferReader* rdr, SaveData* save) override;
 
 private:
+  std::string _roomBg;
+  std::string _musicPath;
+  u8 _musicVolume;
+  u16 _spawnX, _spawnY;
+
+  std::vector<RoomSideExit> _roomExits;
+  std::vector<RoomSpriteData> _roomSprites;
+  std::vector<RoomColliderData> _roomColliders;
 };
 
 #endif
