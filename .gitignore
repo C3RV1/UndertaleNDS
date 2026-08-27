@@ -22,6 +22,7 @@ _*
 .idea
 .cache
 venv
+venv-bak
 compile_commands.json
 *.sav
 build

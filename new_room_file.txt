@@ -1,0 +1,91 @@
+HEADER
+	'ROOM'
+	file_size
+	version
+OBJ ROOM
+	str room_bg
+	str music_path
+	u8 music_volume
+	u16 spawn_x, spawn_y
+	variable_list<OBJ RoomExit>
+	variable_list<OBJ RoomSprites>
+	variable_list<OBJ RoomColliders>
+
+OBJ RoomSideExit
+	u16 room_id
+	u16 spawn_x, spawn_y
+	u8 exit_type (0 = side up, 1 = side down, 2 = side left,
+		3 = side right)
+
+OBJ RoomSprite
+	i16 id (-1 is no id)
+	str texture
+	tuple<u16, u16> pos
+	str animation
+	UNION RoomSpriteAction action
+
+UNION RoomSpriteAction
+	types: 0 = none, 1 = exit, 2 = cutscene, 3 = distance anim,
+		4 = parallax, 5 = movable
+	if exit:
+		u16 room_id
+		tuple<u16, u16> spawn_x, spawn_y
+	elif cutscene:
+		u16 cutscene_id
+	elif distance anim:
+		u16 distance
+		str close_anim
+	elif parallax:
+		tuple<s32, s32> parallax (fixed_point)
+	elif movable:
+		tuple<u16, u16, u16, u16> valid_rect
+		tuple<u16, u16> goal_pos
+		u16 cutscene_id
+		u16 goal_flag_id, goal_flag_bit
+		bool freeze_on_goal
+
+OBJ RoomCollider
+	i16 id (-1 is no id)
+	u16 x, y, w, h
+	bool enabled
+	UNION ColliderAction action
+
+UNION ColliderAction
+	types: 0 = wall, 1 = exit, 2 = cutscene
+	if exit:
+		u16 room_id
+		u16 spawn_x, spawn_y
+	elif cutscene:
+		u16 cutscene_id
+
+3 types of nested data: objects, lists, union
+
+objects are composed of (un)conditional data
+	unconditional data
+		number of reads without condition - 1 (max 0xFF - 1)
+		data
+	conditional data
+		0xFF
+		u8 condition 0b00cbaaaa
+			aaaa: 4 LSB are the same as CUTSCENE CMP
+			b: is there more conditions
+			c: are there more variations
+		variation of data (fixed length or string)
+		after variations, default data
+
+lists are composed of (un)conditional data
+	u16 total_objects
+	unconditional data
+		number of objects without condition (max 0xFF - 1)
+		objects
+	conditional object
+		0xFF
+		u8 condition 0b000baaaa
+			aaaa: same as CUTSCENE CMP
+			b: is there more conditions
+		object
+
+union
+	u8 union_type
+	enum_data
+	

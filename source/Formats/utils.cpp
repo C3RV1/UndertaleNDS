@@ -28,19 +28,23 @@ void BufferReader::openFromFile(FILE* f, size_t size) {
 void BufferReader::read(void *ptr, size_t size) {
   if (!_opened)
     return;
-  memcpy(ptr, pos.base(), size);
+  if (ptr != nullptr)
+    memcpy(ptr, pos.base(), size);
   pos += size;
 }
 
 void BufferReader::strncpy(char *ptr, size_t max_size) {
   if (!_opened) {
-    *ptr = 0;
+    if (ptr != nullptr)
+      *ptr = 0;
     return;
   }
   size_t i = 0;
   while (i < max_size - 1 && *pos != '\0' && pos != data.cend()) {
     i++;
-    *(ptr++) = (*pos++);
+    if (ptr != nullptr)
+      *(ptr++) = (*pos);
+    pos++;
   }
   *ptr = '\0';
   
