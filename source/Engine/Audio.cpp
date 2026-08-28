@@ -3,8 +3,10 @@
 //
 #include "Engine/Audio.hpp"
 #include "DEBUG_FLAGS.hpp"
+#include "Engine/Engine.hpp"
 #include "Formats/utils.hpp"
 #include <memory>
+#include <string>
 
 namespace Audio2 {
 
@@ -46,18 +48,19 @@ void AudioManager::play(std::shared_ptr<AudioFile> audio_file) {
 }
 
 bool AudioFile::play() {
-  if (!_loaded)
+  int old_irq = enterAudioCritical();
+  if (!_loaded) {
+    exitAudioCritical(old_irq);
     return false;
+  }
   if (_active) {
     stop();
   }
   _active = true;
-
 #ifdef DEBUG_AUDIO
-  std::string buffer = "Starting wav: " + getFilename() + " stereo " +
-                       std::to_string(getStereo()) + " sample rate " +
-                       std::to_string(_sampleRate);
-  nocashMessage(buffer.c_str());
+  Engine::log_("Starting wav: " + getFilename() + " stereo " +
+               std::to_string(getStereo()) + " sample rate " +
+               std::to_string(_sampleRate));
 #endif
 
   resetPlaying();
@@ -74,10 +77,17 @@ bool AudioFile::play() {
                                    (getBitsPerSample() * kAudioBuffer) / 8,
                                    _sampleRate, _volume, 64, true, 0);
   }
-
+  
   _timerLast = timerTick(audioManager.getTimerId());
 
   progress(kAudioBuffer / 2);
+  
+#ifdef DEBUG_AUDIO
+  Engine::log_("Sound channels: " + std::to_string(_leftChannel) + " " +
+               std::to_string(_rightChannel));
+#endif
+
+  exitAudioCritical(old_irq);
   return true;
 }
 
@@ -92,13 +102,16 @@ void AudioFile::setVolume(u8 volume) {
 }
 
 void AudioFile::stop() {
-  if (!_active)
+  int old_irq = enterAudioCritical();
+  if (!_active) {
+    exitAudioCritical(old_irq);
     return;
+  }
 
 #ifdef DEBUG_AUDIO
-  char buffer[100];
-  sprintf(buffer, "Stopping wav: %s", getFilename().c_str());
-  nocashMessage(buffer);
+  Engine::log_("Stopping wav: " + getFilename());
+  Engine::log_("Sound channels: " + std::to_string(_leftChannel) + " " +
+               std::to_string(_rightChannel));
 #endif
 
   _active = false;
@@ -109,6 +122,7 @@ void AudioFile::stop() {
 
   _leftChannel = -1;
   _rightChannel = -1;
+  exitAudioCritical(old_irq);
 }
 
 ITCM_CODE
@@ -127,10 +141,6 @@ void AudioFile::update() {
 
   _timerLast = timerTicks;
 }
-
-// FIXME: Reading from file buffers should be moved from main thread, as to not
-// block interruptions, and then not needing to block file reads by disabling
-// the audio timer interrupt.
 
 ITCM_CODE
 void AudioManager::update() {

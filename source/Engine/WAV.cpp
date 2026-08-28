@@ -160,7 +160,9 @@ void WAV::resetPlaying() {
   _fileBufferSamplePos = 0;
 }
 
-WAV::~WAV() { free_(); }
+WAV::~WAV() {
+  free_();
+}
 
 void WAV::free_() {
   if (_stream != nullptr) {

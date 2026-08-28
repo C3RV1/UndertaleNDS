@@ -82,7 +82,9 @@ public:
    */
   void setVolume(u8 volume);
 
-  virtual ~AudioFile() = default;
+  virtual ~AudioFile() {
+    stop();
+  };
 
 protected:
   /**
