@@ -1,5 +1,6 @@
 #include "Room/RoomNavigation.hpp"
 #include "Cutscene/Navigation.hpp"
+#include "Engine/Engine.hpp"
 #include "Engine/Sprite.hpp"
 #include "Room/RoomSprite.hpp"
 #include "Room/Room.hpp"
@@ -7,25 +8,25 @@
 #include "Room/Camera.hpp"
 #include <memory>
 #include <string>
+#include <tuple>
+#include <utility>
 
 RoomNavigation::RoomNavigation(Room* room) : _room(room) {}
 
-void RoomNavigation::spawn_sprite(const std::string &path, s32 x, s32 y,
-                                  s32 layer) {
-  _room->_sprites.emplace_back(Engine::Allocated3D, _room).spawn(x, y, path);
+void RoomNavigation::spawn_sprite(u16 sprId, const std::string &path, s32 x,
+                                  s32 y, s32 layer) {
+  if (sprId != 0 && _room->_sprites.count(sprId) > 0)
+    Engine::throw_("RoomNav: Duplicate spr id != 0: " + std::to_string(sprId));
+  _room->_sprites
+      .emplace(std::piecewise_construct, std::make_tuple(sprId),
+               std::make_tuple(Engine::Allocated3D, _room))
+      ->second.spawn(x, y, path);
 }
 
-void RoomNavigation::unload_sprite(s8 sprId) {
-  u8 sprId2;
-  if (sprId < 0)
-    sprId2 = _room->_sprites.size() + sprId;
-  else
-    sprId2 = sprId;
-
-  if (sprId2 >= _room->_sprites.size())
+void RoomNavigation::unload_sprite(u16 sprId) {
+  if (sprId == 0)
     return;
-
-  _room->_sprites.erase(_room->_sprites.begin() + sprId2);
+  _room->_sprites.erase(sprId);
 }
 
 std::shared_ptr<Engine::Sprite>
@@ -37,17 +38,13 @@ RoomNavigation::getTarget(const TargetInfo &targetInfo) {
   case TargetType::CAMERA:
     return _room->_camera._pos;
   case TargetType::SPRITE: {
-    u8 targetId2;
-    if (targetInfo.targetId < 0)
-      targetId2 = _room->_sprites.size() + targetInfo.targetId;
-    else
-      targetId2 = targetInfo.targetId;
-
-    if (targetId2 >= _room->_sprites.size()) {
-      nocashMessage("Error: target id outside of sprite count");
-      return nullptr;
-    }
-    return _room->_sprites[targetId2]._spr;
+    auto it = _room->_sprites.find(targetInfo.targetId);
+    if (it != _room->_sprites.end())
+      return it->second._spr;
+    nocashMessage(("RoomNav: Target sprite with id " +
+                   std::to_string(targetInfo.targetId) + " not found.")
+                      .c_str());
+    return nullptr;
   }
   default:
     nocashMessage(("Unknown target type for room nav: " +

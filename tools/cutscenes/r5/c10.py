@@ -1,6 +1,16 @@
 import typing
+
 if typing.TYPE_CHECKING:
-    from tools.CutsceneTypes import *
+    from tools.CutsceneTypes import (
+        Cutscene,
+        Target,
+        TargetType,
+        WaitTypes,
+        FlagOffsets,
+        BtlActionOff,
+        SpriteIDs,
+        EnemyID,
+    )
 else:
     from CutsceneTypes import *
 
@@ -8,9 +18,18 @@ else:
 def cutscene(c: Cutscene):
     # Dummy battle
     c.player_control(False)
-    c.set_action(Target(TargetType.SPRITE, 1), "none")
+    c.set_action(Target(TargetType.SPRITE, SpriteIDs.DUMMY_ROOM), "none")
 
-    c.start_battle([1,], 0, 61, 63, 134, 75)
+    c.start_battle(
+        [
+            EnemyID.DUMMY,
+        ],
+        0,
+        61,
+        63,
+        134,
+        75,
+    )
     c.wait(WaitTypes.EXIT)
 
     # == LOAD BATTLE ==
@@ -40,7 +59,7 @@ def cutscene(c: Cutscene):
     c.cmp_flag(FlagOffsets.BATTLE_ACTION, "==", BtlActionOff.FLEE)
     flee_jump = c.jump_if()
 
-    continue_battle = c.mod_flag(FlagOffsets.BATTLE_FLAGS, 1)
+    continue_battle = c.add_flag(FlagOffsets.BATTLE_FLAGS, 1)
     c.cmp_flag(FlagOffsets.BATTLE_FLAGS, ">=", 8)
     bored_dummy_jump = c.jump_if()
 
@@ -49,9 +68,15 @@ def cutscene(c: Cutscene):
 
     # == IDLE 2 ==
 
-    c.dialogue_left_align(12, 90, 192 // 4 + 20,
-                          Target(TargetType.NULL), "", "",
-                          type_sound="SND_TXT1.wav")
+    c.dialogue_left_align(
+        12,
+        90,
+        192 // 4 + 20,
+        Target(TargetType.NULL),
+        "",
+        "",
+        type_sound="SND_TXT1.wav",
+    )
     c.wait(WaitTypes.DIALOGUE)
 
     c.battle_action(1)
@@ -61,9 +86,15 @@ def cutscene(c: Cutscene):
 
     c.bind(jump_idle_1)
 
-    c.dialogue_left_align(12, 90, 192 // 4 + 20,
-                          Target(TargetType.NULL), "", "",
-                          type_sound="SND_TXT1.wav")
+    c.dialogue_left_align(
+        12,
+        90,
+        192 // 4 + 20,
+        Target(TargetType.NULL),
+        "",
+        "",
+        type_sound="SND_TXT1.wav",
+    )
     c.wait(WaitTypes.DIALOGUE)
 
     c.battle_action(2)
@@ -83,15 +114,22 @@ def cutscene(c: Cutscene):
     c.start_bgm("mus_ruins.wav", True)
 
     # We have killed it, so unload it
-    c.unload_sprite(-1)
+    c.unload_sprite(SpriteIDs.DUMMY_ROOM)
 
     c.wait(WaitTypes.ENTER)
 
-    c.dialogue_centered(25, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4,
-                     "talkIdle", "talkTalk",
-                        Target(TargetType.SPRITE, 0),
-                     "downIdle", "downTalk",
-                        type_sound="snd_txttor.wav")
+    c.dialogue_centered(
+        25,
+        "speaker/toriel",
+        (256 - 50) // 2,
+        (192 - 39) // 4,
+        "talkIdle",
+        "talkTalk",
+        Target(TargetType.SPRITE, SpriteIDs.TORIEL_ROOM),
+        "downIdle",
+        "downTalk",
+        type_sound="snd_txttor.wav",
+    )
     c.wait(WaitTypes.DIALOGUE)
 
     post_fight_jump = c.jump()
@@ -121,11 +159,18 @@ def cutscene(c: Cutscene):
     c.start_bgm("mus_ruins.wav", True)
     c.wait(WaitTypes.ENTER)
 
-    c.dialogue_centered(45, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4,
-                     "talkIdle", "talkTalk",
-                        Target(TargetType.SPRITE, 0),
-                     "downIdle", "downTalk",
-                        type_sound="snd_txttor.wav")
+    c.dialogue_centered(
+        45,
+        "speaker/toriel",
+        (256 - 50) // 2,
+        (192 - 39) // 4,
+        "talkIdle",
+        "talkTalk",
+        Target(TargetType.SPRITE, SpriteIDs.TORIEL_ROOM),
+        "downIdle",
+        "downTalk",
+        type_sound="snd_txttor.wav",
+    )
     c.wait(WaitTypes.DIALOGUE)
 
     post_talk_jump = c.jump()
@@ -141,11 +186,18 @@ def cutscene(c: Cutscene):
     c.start_bgm("mus_ruins.wav", True)
     c.wait(WaitTypes.ENTER)
 
-    c.dialogue_centered(50, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4,
-                     "talkIdle", "talkTalk",
-                        Target(TargetType.SPRITE, 0),
-                     "downIdle", "downTalk",
-                        type_sound="snd_txttor.wav")
+    c.dialogue_centered(
+        50,
+        "speaker/toriel",
+        (256 - 50) // 2,
+        (192 - 39) // 4,
+        "talkIdle",
+        "talkTalk",
+        Target(TargetType.SPRITE, SpriteIDs.TORIEL_ROOM),
+        "downIdle",
+        "downTalk",
+        type_sound="snd_txttor.wav",
+    )
     c.wait(WaitTypes.DIALOGUE)
 
     post_flee_jump = c.jump()
@@ -156,15 +208,15 @@ def cutscene(c: Cutscene):
     c.debug("Dummy got bored")
     c.set_flag(FlagOffsets.DUMMY, 3)
 
-    c.dialogue_left_align(12, 90, 192 // 4,
-                          Target(TargetType.NULL), "", "",
-                          type_sound="SND_TXT1.wav")
+    c.dialogue_left_align(
+        12, 90, 192 // 4, Target(TargetType.NULL), "", "", type_sound="SND_TXT1.wav"
+    )
     c.wait(WaitTypes.DIALOGUE)
 
     c.move_in_frames(Target(TargetType.ENEMY, 0), 0, -120, 90)
 
     c.dialogue_flavor(61, type_sound="SND_TXT1.wav")
-    c.wait(WaitTypes.FRAMES, value=90)
+    c.wait(WaitTypes.FRAMES, 90)
     c.wait(WaitTypes.DIALOGUE)
 
     c.stop_bgm()
@@ -173,11 +225,18 @@ def cutscene(c: Cutscene):
     c.start_bgm("mus_ruins.wav", True)
     c.wait(WaitTypes.ENTER)
 
-    c.dialogue_centered(65, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4,
-                     "what", "what",
-                        Target(TargetType.SPRITE, 0),
-                     "downIdle", "downTalk",
-                        type_sound="snd_txttor.wav")
+    c.dialogue_centered(
+        65,
+        "speaker/toriel",
+        (256 - 50) // 2,
+        (192 - 39) // 4,
+        "what",
+        "what",
+        Target(TargetType.SPRITE, SpriteIDs.TORIEL_ROOM),
+        "downIdle",
+        "downTalk",
+        type_sound="snd_txttor.wav",
+    )
     c.wait(WaitTypes.DIALOGUE)
 
     # == BRANCH MERGE ==
@@ -188,9 +247,9 @@ def cutscene(c: Cutscene):
 
     c.debug("Branches merged")
     c.set_flag(FlagOffsets.PROGRESS, 5)
-    c.set_collider_enabled(1, False)
+    c.set_collider_enabled(2, False)
 
-    c.set_animation(Target(TargetType.SPRITE, 0), "upMove")
-    c.move_in_frames(Target(TargetType.SPRITE, 0), 0, -30, 20)
+    c.set_animation(Target(TargetType.SPRITE, SpriteIDs.TORIEL_ROOM), "upMove")
+    c.move_in_frames(Target(TargetType.SPRITE, SpriteIDs.TORIEL_ROOM), 0, -30, 20)
     c.wait(WaitTypes.FRAMES, 20)
-    c.unload_sprite(0)
+    c.unload_sprite(SpriteIDs.TORIEL_ROOM)

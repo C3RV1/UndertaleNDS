@@ -6,49 +6,48 @@
 #include "Cutscene/Cutscene.hpp"
 #include "Engine/Sprite.hpp"
 #include "Engine/math.hpp"
-#include "Formats/ROOM_FILE.hpp"
 #include "Room/Camera.hpp"
 #include "Room/Player.hpp"
 #include "Room/Room.hpp"
-#include "Save.hpp"
 #include <memory>
 
-void RoomSprite::load(ROOMSpriteData const &sprData) {
-  Engine::spriteLoadTexture(_spr, sprData.path);
-  _animationId = _spr->nameToAnimId(sprData.animation);
-  _spr->_wx = sprData.x << 8;
-  _spr->_wy = sprData.y << 8;
-  _spr->setAnimation(_animationId);
+void RoomSprite::load(RoomSpriteData const &sprData) {
+  Engine::spriteLoadTexture(_spr, sprData._texture);
+  _animation_id = _spr->nameToAnimId(sprData._animation);
+  _spr->_wx = sprData._x << 8;
+  _spr->_wy = sprData._y << 8;
+  _spr->setAnimation(_animation_id);
 
   Engine::spriteSetShown(_spr, true);
 
-  _interactAction = static_cast<ROOMSpriteAction>(sprData.interactAction);
-  _parallax_x = 1 << 8;
-  _parallax_y = 1 << 8;
+  const RoomSpriteActionUnion &a = sprData._action;
+  _action = a._action;
 
-  switch (_interactAction) {
-  case ROOMSpriteAction::CUTSCENE:
-    _cutsceneId = sprData.cutsceneId;
+  switch (_action) {
+  case RoomSpriteAction::CUTSCENE:
+    _cutscene._cutscene_id = a._cutscene._cutscene_id;
     break;
-  case ROOMSpriteAction::PROXIMITY:
-    _distanceSquared = sprData.distance * sprData.distance;
-    _closeAnim = _spr->nameToAnimId(sprData.closeAnim);
+  case RoomSpriteAction::PROXIMITY: {
+    u16 d = a._proximity._distance;
+    _proximity._distanceSquared = d * d;
+    _proximity._closeAnim = _spr->nameToAnimId(a._proximity._close_anim);
     break;
-  case ROOMSpriteAction::PARALLAX:
-    _parallax_x = sprData.parallax_x;
-    _parallax_y = sprData.parallax_y;
+  }
+  case RoomSpriteAction::PARALLAX:
+    _parallax._parallax_x = a._parallax._parallax_x;
+    _parallax._parallax_y = a._parallax._parallax_y;
     break;
-  case ROOMSpriteAction::PUSHABLE:
-    _valid_rect_x = sprData.valid_rect_x;
-    _valid_rect_y = sprData.valid_rect_y;
-    _valid_rect_w = sprData.valid_rect_w;
-    _valid_rect_h = sprData.valid_rect_h;
-    _goal_x = sprData.goal_x;
-    _goal_y = sprData.goal_y;
-    _cutsceneId = sprData.goal_cutscene_id;
-    _goal_flag_id = sprData.goal_flag_id;
-    _goal_flag_bit = sprData.goal_flag_bit;
-    _stop_on_goal = sprData.stop_on_goal;
+  case RoomSpriteAction::PUSHABLE:
+    _pushable._valid_rect_x = a._pushable._valid_rect_x;
+    _pushable._valid_rect_y = a._pushable._valid_rect_y;
+    _pushable._valid_rect_w = a._pushable._valid_rect_w;
+    _pushable._valid_rect_h = a._pushable._valid_rect_h;
+    _pushable._goal_x = a._pushable._goal_x;
+    _pushable._goal_y = a._pushable._goal_y;
+    _pushable._goal_cutscene_id = a._pushable._goal_cutscene_id;
+    _pushable._goal_flag_id = a._pushable._goal_flag_id;
+    _pushable._goal_flag_bit = a._pushable._goal_flag_bit;
+    _pushable._stop_on_goal = a._pushable._stop_on_goal;
   default:
     break;
   }
@@ -63,19 +62,26 @@ void RoomSprite::spawn(s32 x, s32 y, std::string path) {
 }
 
 void RoomSprite::draw() {
-  _spr->_cam_x = (_room->_camera._pos->_wx * _parallax_x) >> 8;
-  _spr->_cam_y = (_room->_camera._pos->_wy * _parallax_y) >> 8;
+  _spr->_cam_x = _room->_camera._pos->_wx;
+  _spr->_cam_y = _room->_camera._pos->_wy;
+  if (_action == RoomSpriteAction::PARALLAX) {
+    _spr->_cam_x *= _parallax._parallax_x;
+    _spr->_cam_x >>= 8;
+    _spr->_cam_y *= _parallax._parallax_y;
+    _spr->_cam_y >>= 8;
+  }
+  
   _spr->_cam_scale_x = _room->_camera._pos->_w_scale_x;
   _spr->_cam_scale_y = _room->_camera._pos->_w_scale_y;
   _spr->_layer = _spr->_wy >> 8;
 }
 
 void RoomSprite::update() {
-  switch (_interactAction) {
-  case ROOMSpriteAction::PROXIMITY:
+  switch (_action) {
+  case RoomSpriteAction::PROXIMITY:
     updateProximity();
     break;
-  case ROOMSpriteAction::PUSHABLE:
+  case RoomSpriteAction::PUSHABLE:
     updatePushable();
     break;
   default:
@@ -95,10 +101,10 @@ void RoomSprite::updateProximity() {
   const u32 distance = distSquared_fp(
       _spr->_wx + width / 2, _spr->_wy + height / 2,
       _room->_player._spr->_wx + pw / 2, _room->_player._spr->_wy + ph / 2);
-  if (distance >> 8 < _distanceSquared)
-    _spr->setAnimation(_closeAnim);
+  if (distance >> 8 < _proximity._distanceSquared)
+    _spr->setAnimation(_proximity._closeAnim);
   else
-    _spr->setAnimation(_animationId);
+    _spr->setAnimation(_animation_id);
 }
 
 void RoomSprite::updatePushable() {
@@ -108,13 +114,13 @@ void RoomSprite::updatePushable() {
   // with them.
   s32 x = _spr->_wx;
   s32 y = _spr->_wy;
-  s32 dx = x - _old_x;
-  s32 dy = y - _old_y;
+  s32 dx = x - _pushable._old_x;
+  s32 dy = y - _pushable._old_y;
   if (dx == 0 && dy == 0)
     return;
 
-  _old_x = _spr->_wx;
-  _old_y = _spr->_wy;
+  _pushable._old_x = _spr->_wx;
+  _pushable._old_y = _spr->_wy;
 
   s32 px = _room->_player._spr->_wx;
   s32 py = _room->_player._spr->_wy;
@@ -134,47 +140,50 @@ void RoomSprite::updatePushable() {
 
 bool RoomSprite::check_player_collide(s32 x, s32 y, s32 w, s32 h, s32 dx,
                                       s32 dy) {
-  if (_interactAction != ROOMSpriteAction::PUSHABLE)
+  if (_action != RoomSpriteAction::PUSHABLE)
     return false;
 
-  _commit_x = _spr->_wx;
-  _commit_y = _spr->_wy;
+  _pushable._commit_x = _spr->_wx;
+  _pushable._commit_y = _spr->_wy;
   const s32 w2 = _spr->_texture->getWidth() << 8;
   const s32 h2 = _spr->_texture->getHeight() << 8;
 
   if (!collidesRect(x, y, w, h, _spr->_wx, _spr->_wy, w2, h2))
     return false;
-  if (check_on_goal() && _stop_on_goal)
+  if (check_on_goal() && _pushable._stop_on_goal)
     return true;
 
   if (!collidesRect(x, y, w, h, _spr->_wx + dx, _spr->_wy, w2, h2)) {
     // Attempt move x-axis
-    if (!rectContainsOther(_valid_rect_x, _valid_rect_y, _valid_rect_w,
-                           _valid_rect_h, (_spr->_wx + dx) >> 8, _spr->_wy >> 8,
+    if (!rectContainsOther(_pushable._valid_rect_x, _pushable._valid_rect_y,
+                           _pushable._valid_rect_w, _pushable._valid_rect_h,
+                           (_spr->_wx + dx) >> 8, _spr->_wy >> 8,
                            w2 >> 8, h2 >> 8))
       return true;
-    _commit_x = _spr->_wx + dx;
+    _pushable._commit_x = _spr->_wx + dx;
     return false;
   }
 
   if (!collidesRect(x, y, w, h, _spr->_wx, _spr->_wy + dy, w2, h2)) {
     // Attempt move y-axis
-    if (!rectContainsOther(_valid_rect_x, _valid_rect_y, _valid_rect_w,
-                           _valid_rect_h, _spr->_wx >> 8, (_spr->_wy + dy) >> 8,
-                           w2 >> 8, h2 >> 8))
+    if (!rectContainsOther(_pushable._valid_rect_x, _pushable._valid_rect_y,
+                           _pushable._valid_rect_w, _pushable._valid_rect_h,
+                           _spr->_wx >> 8, (_spr->_wy + dy) >> 8, w2 >> 8,
+                           h2 >> 8))
       return true;
-    _commit_y = _spr->_wy + dy;
+    _pushable._commit_y = _spr->_wy + dy;
     return false;
   }
 
   if (!collidesRect(x, y, w, h, _spr->_wx + dx, _spr->_wy + dy, w2, h2)) {
     // Attempt move both axes
-    if (!rectContainsOther(_valid_rect_x, _valid_rect_y, _valid_rect_w,
-                           _valid_rect_h, (_spr->_wx + dx) >> 8,
-                           (_spr->_wy + dy) >> 8, w2 >> 8, h2 >> 8))
+    if (!rectContainsOther(_pushable._valid_rect_x, _pushable._valid_rect_y,
+                           _pushable._valid_rect_w, _pushable._valid_rect_h,
+                           (_spr->_wx + dx) >> 8, (_spr->_wy + dy) >> 8,
+                           w2 >> 8, h2 >> 8))
       return true;
-    _commit_x = _spr->_wx + dx;
-    _commit_y = _spr->_wy + dy;
+    _pushable._commit_x = _spr->_wx + dx;
+    _pushable._commit_y = _spr->_wy + dy;
     return false;
   }
 
@@ -182,39 +191,40 @@ bool RoomSprite::check_player_collide(s32 x, s32 y, s32 w, s32 h, s32 dx,
 }
 
 void RoomSprite::commit_player_move() {
-  if (_interactAction != ROOMSpriteAction::PUSHABLE)
+  if (_action != RoomSpriteAction::PUSHABLE)
     return;
-  bool flag_set = (_room->_save->flags[_goal_flag_id] & _goal_flag_bit) != 0;
-  _spr->_wx = _commit_x;
-  _spr->_wy = _commit_y;
-  _old_x = _spr->_wx;
-  _old_y = _spr->_wy;
+  bool flag_set = (_room->_save->flags[_pushable._goal_flag_id] &
+                   _pushable._goal_flag_bit) != 0;
+  _spr->_wx = _pushable._commit_x;
+  _spr->_wy = _pushable._commit_y;
+  _pushable._old_x = _spr->_wx;
+  _pushable._old_y = _spr->_wy;
 
   bool should_set_flag = check_on_goal();
   if (should_set_flag)
-    _room->_save->flags[_goal_flag_id] |= _goal_flag_bit;
+    _room->_save->flags[_pushable._goal_flag_id] |= _pushable._goal_flag_bit;
   else
-    _room->_save->flags[_goal_flag_id] &= ~_goal_flag_bit;
+    _room->_save->flags[_pushable._goal_flag_id] &= ~_pushable._goal_flag_bit;
 
   if (should_set_flag != flag_set) {
-    if (should_set_flag && _stop_on_goal) {
-      _spr->_wx = _goal_x << 8;
-      _spr->_wy = _goal_y << 8;
+    if (should_set_flag && _pushable._stop_on_goal) {
+      _spr->_wx = _pushable._goal_x << 8;
+      _spr->_wy = _pushable._goal_y << 8;
     }
 
     if (_room->_cutscene == nullptr)
-      _room->_cutscene =
-          std::make_unique<Cutscene>(_cutsceneId, _room->_roomId, _room);
+      _room->_cutscene = std::make_unique<Cutscene>(_pushable._goal_cutscene_id,
+                                                    _room->_roomId, _room);
     else
       nocashMessage("Cannot create goal cutscene: Already playing another!");
   }
 }
 
 bool RoomSprite::check_on_goal() {
-  s32 dx = _spr->_wx - ((s32)_goal_x << 8);
+  s32 dx = _spr->_wx - ((s32)_pushable._goal_x << 8);
   if (dx < 0)
     dx = -dx;
-  s32 dy = _spr->_wy - ((s32)_goal_y << 8);
+  s32 dy = _spr->_wy - ((s32)_pushable._goal_y << 8);
   if (dy < 0)
     dy = -dy;
 

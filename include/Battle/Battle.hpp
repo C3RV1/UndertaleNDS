@@ -9,8 +9,8 @@
 #include "BattleAttack.hpp"
 #include "BattleNavigation.hpp"
 #include "Enemy.hpp"
+#include "Engine/Sprite.hpp"
 #include "Formats/utils.hpp"
-#include "Fader.hpp"
 #include <memory>
 #include <nds.h>
 
@@ -43,7 +43,7 @@ public:
 
   std::vector<std::unique_ptr<Enemy>> _enemies;
 
-  std::vector<std::shared_ptr<Engine::Sprite>> _sprites;
+  std::multimap<u16, std::shared_ptr<Engine::Sprite>> _sprites;
 
   Engine::Background _bulletBoard;
   u8 _boardX = 0, _boardY = 0, _boardW = 0, _boardH = 0;

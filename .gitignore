@@ -13,6 +13,7 @@ nitrofs/data/rooms
 nitrofs/fnt
 nitrofs/txt
 tools/txt
+tools/rooms_old
 nitrofs/stamp_file.txt
 *.aseprite
 _*

@@ -13,15 +13,15 @@ TargetInfo readTarget(BufferReader &br) {
   br.read(&targetInfo.targetType, 1);
   TargetType targetType = static_cast<TargetType>(targetInfo.targetType);
   if (targetType == TargetType::SPRITE)
-    br.read(&targetInfo.targetId, 1);
+    br.read(&targetInfo.targetId, 2);
   else if (targetType == TargetType::ENEMY) {
-    br.read(&targetInfo.targetId, 1);
+    br.read(&targetInfo.enemyTargetId, 1);
     br.read(&targetInfo.enemySpriteId, 1);
   }
   return targetInfo;
 }
 
-void Navigation::spawn_relative(const std::string &path,
+void Navigation::spawn_relative(u16 sprId, const std::string &path,
                                 const TargetInfo &targetInfo, s32 dx, s32 dy,
                                 s32 layer) {
   auto target = getTarget(targetInfo);
@@ -29,7 +29,7 @@ void Navigation::spawn_relative(const std::string &path,
     return;
   s32 x = target->_wx + dx;
   s32 y = target->_wy + dy;
-  spawn_sprite(path, x, y, layer);
+  spawn_sprite(sprId, path, x, y, layer);
 }
 
 void Navigation::set_position(const TargetInfo &targetInfo, s32 x, s32 y) {

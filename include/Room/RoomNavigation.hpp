@@ -12,8 +12,8 @@ class Room;
 class RoomNavigation : public Navigation {
 public:
   explicit RoomNavigation(Room* room);
-  void spawn_sprite(const std::string &path, s32 x, s32 y, s32 layer) final;
-  void unload_sprite(s8 sprId) final;
+  void spawn_sprite(u16 sprId, const std::string &path, s32 x, s32 y, s32 layer) final;
+  void unload_sprite(u16 sprId) final;
   std::shared_ptr<Engine::Sprite> getTarget(const TargetInfo &targetInfo) final;
 
 private:

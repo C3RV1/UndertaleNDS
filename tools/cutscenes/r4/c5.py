@@ -1,6 +1,7 @@
 import typing
 if typing.TYPE_CHECKING:
-    from tools.CutsceneTypes import *
+    from tools.CutsceneTypes import (Cutscene, FlagOffsets, Target, TargetType,
+        WaitTypes, SpriteIDs)
 else:
     from CutsceneTypes import *
 
@@ -12,7 +13,7 @@ def cutscene(c: Cutscene):
 
     c.dialogue_centered(10, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4 - 5,
                      "worriedLeftIdle", "worriedLeftTalk",
-                        Target(TargetType.SPRITE, 7),
+                        Target(TargetType.SPRITE, SpriteIDs.TORIEL_ROOM),
                      "leftIdle", "leftTalk", type_sound="snd_txttor.wav")
     c.wait(WaitTypes.DIALOGUE)
     jump_end = c.jump()

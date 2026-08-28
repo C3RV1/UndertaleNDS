@@ -24,9 +24,10 @@ struct TargetInfo {
   u8 targetType;
 
   // If targetType == SPRITE
-  s8 targetId;
+  u16 targetId;
 
   // If targetType == ENEMY
+  s8 enemyTargetId;
   s8 enemySpriteId;
 };
 
@@ -43,10 +44,10 @@ struct NavigationTask {
 
 class Navigation {
 public:
-  virtual void spawn_sprite(const std::string &path, s32 x, s32 y, s32 layer) = 0;
-  void spawn_relative(const std::string &path, const TargetInfo &targetInfo,
+  virtual void spawn_sprite(u16 spr_id, const std::string &path, s32 x, s32 y, s32 layer) = 0;
+  void spawn_relative(u16 spr_id, const std::string &path, const TargetInfo &targetInfo,
                       s32 dx, s32 dy, s32 layer);
-  virtual void unload_sprite(s8 sprId) = 0;
+  virtual void unload_sprite(u16 spr_id) = 0;
   void set_position(const TargetInfo &targetInfo, s32 x, s32 y);
   void move(const TargetInfo &targetInfo, s32 dx, s32 dy);
   void set_scale(const TargetInfo &targetInfo, s32 x, s32 y);

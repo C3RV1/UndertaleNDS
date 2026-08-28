@@ -1,11 +1,16 @@
 import typing
 if typing.TYPE_CHECKING:
-    from tools.CutsceneTypes import *
+    from tools.CutsceneTypes import (Cutscene, TargetType, SpriteIDs,
+        FlagOffsets, Target, EnemyID, WaitTypes, FloweyCommands)
 else:
     from CutsceneTypes import *
 
 
-FLOWEY_ATTACK1_FLAG = 220
+FLOWEY_ATTACK1_FLAG = FlagOffsets.BATTLE_FLAGS
+PELLETS_IDS = list(range(1, 6))
+TORIEL_FLAME_ID = 10
+TORIEL_BODY_ID = 11
+TORIEL_FACE_ID = 12
 
 
 def cutscene(c: Cutscene):
@@ -16,7 +21,7 @@ def cutscene(c: Cutscene):
     c.start_bgm("mus_flowey.wav", True)
     c.set_animation(Target(TargetType.PLAYER), "upIdle")
     c.dialogue_centered(10, "speaker/flowey", 128 - 21, (192 - 44) // 4 - 5, "nice1", "nice1_talk",
-                        Target(TargetType.SPRITE, 0), "gfx", "talk",
+                        Target(TargetType.SPRITE, SpriteIDs.FLOWEY_ROOM), "gfx", "talk",
                         type_sound="snd_floweytalk1.wav")
     c.wait(WaitTypes.DIALOGUE)
 
@@ -44,18 +49,12 @@ def cutscene(c: Cutscene):
     c.wait(WaitTypes.FRAMES, 120)
 
     # Load pellets (sprites 1, 2, 3, 4, 5)
-    c.load_sprite(40, 192 // 2, "battle/attack_pellets")
-    c.load_sprite(40, 192 // 2, "battle/attack_pellets")
-    c.load_sprite(40, 192 // 2, "battle/attack_pellets")
-    c.load_sprite(40, 192 // 2, "battle/attack_pellets")
-    c.load_sprite(40, 192 // 2, "battle/attack_pellets")
+    for i in PELLETS_IDS:
+        c.load_sprite(i, 40, 192 // 2, "battle/attack_pellets")
 
     def set_pellet_pos():
-        c.set_pos_in_frames(Target(TargetType.SPRITE, 0), 30, 140, 120)
-        c.set_pos_in_frames(Target(TargetType.SPRITE, 1), 70, 140, 120)
-        c.set_pos_in_frames(Target(TargetType.SPRITE, 2), 110, 140, 120)
-        c.set_pos_in_frames(Target(TargetType.SPRITE, 3), 150, 140, 120)
-        c.set_pos_in_frames(Target(TargetType.SPRITE, 4), 190, 140, 120)
+        for i, id in enumerate(PELLETS_IDS):
+            c.set_pos_in_frames(Target(TargetType.SPRITE, id), 30 + 40 * i, 140, 120)
         c.wait(WaitTypes.FRAMES, 160)
     set_pellet_pos()
 
@@ -65,11 +64,8 @@ def cutscene(c: Cutscene):
     c.wait(WaitTypes.FRAMES, 60)
 
     def pellet_attack():
-        c.move_in_frames(Target(TargetType.SPRITE, 0), 0, 70, 60)
-        c.move_in_frames(Target(TargetType.SPRITE, 1), 0, 70, 60)
-        c.move_in_frames(Target(TargetType.SPRITE, 2), 0, 70, 60)
-        c.move_in_frames(Target(TargetType.SPRITE, 3), 0, 70, 60)
-        c.move_in_frames(Target(TargetType.SPRITE, 4), 0, 70, 60)
+        for i in PELLETS_IDS:
+            c.move_in_frames(Target(TargetType.SPRITE, i), 0, 70, 60)
         c.wait(WaitTypes.FRAMES, 60)
         c.start_battle_attacks()
         c.wait(WaitTypes.BATTLE_ATTACK)
@@ -139,11 +135,8 @@ def cutscene(c: Cutscene):
     c.wait(WaitTypes.DIALOGUE)
 
     # Unload pellets
-    c.unload_sprite(-1)
-    c.unload_sprite(-1)
-    c.unload_sprite(-1)
-    c.unload_sprite(-1)
-    c.unload_sprite(-1)
+    for i in PELLETS_IDS:
+        c.unload_sprite(i)
 
     c.set_animation(Target(TargetType.ENEMY, 0), "skull_laugh")
     c.play_sfx("snd_floweylaugh.wav")
@@ -160,14 +153,14 @@ def cutscene(c: Cutscene):
     c.set_animation(Target(TargetType.ENEMY, 0), "annoyed_open_mouth")
     c.wait(WaitTypes.FRAMES, 80)
 
-    c.load_sprite(256 - 60, (192 - 30) // 2, "cutscene/0/spr_torielflame")
+    c.load_sprite(TORIEL_FLAME_ID, 256 - 60, (192 - 30) // 2, "cutscene/0/spr_torielflame")
 
-    c.set_animation(Target(TargetType.SPRITE, 0), "flashing")
+    c.set_animation(Target(TargetType.SPRITE, TORIEL_FLAME_ID), "flashing")
     c.wait(WaitTypes.FRAMES, 60)
-    c.set_animation(Target(TargetType.SPRITE, 0), "flying")
-    c.set_pos_in_frames(Target(TargetType.SPRITE, 0), 30, (192 - 30) // 2, 60)
+    c.set_animation(Target(TargetType.SPRITE, TORIEL_FLAME_ID), "flying")
+    c.set_pos_in_frames(Target(TargetType.SPRITE, TORIEL_FLAME_ID), 30, (192 - 30) // 2, 60)
     c.wait(WaitTypes.FRAMES, 60)
-    c.unload_sprite(-1)
+    c.unload_sprite(TORIEL_FLAME_ID)
 
     c.set_animation(Target(TargetType.ENEMY, 0), "hurt")
     c.play_sfx("snd_ehurt1.wav")
@@ -176,13 +169,13 @@ def cutscene(c: Cutscene):
 
     c.wait(WaitTypes.FRAMES, 120)
     c.start_bgm("mus_toriel.wav", True)
-    c.load_sprite(256, 192 // 4, "speaker/toriel_bodyonly")
-    c.load_sprite(256, 192 // 4, "speaker/toriel_face")
-    c.set_animation(Target(TargetType.SPRITE, 1), "worried_side")
-    c.move_in_frames(Target(TargetType.SPRITE, 1), -220, 0, 180)
-    c.move_in_frames(Target(TargetType.SPRITE, 0), -220, 0, 180)
+    c.load_sprite(TORIEL_BODY_ID, 256, 192 // 4, "speaker/toriel_bodyonly")
+    c.load_sprite(TORIEL_FACE_ID, 256, 192 // 4, "speaker/toriel_face")
+    c.set_animation(Target(TargetType.SPRITE, TORIEL_FACE_ID), "worried_side")
+    c.move_in_frames(Target(TargetType.SPRITE, TORIEL_FACE_ID), -220, 0, 180)
+    c.move_in_frames(Target(TargetType.SPRITE, TORIEL_BODY_ID), -220, 0, 180)
     c.wait(WaitTypes.FRAMES, 180)
-    c.dialogue_left_align(90, 100, 192 // 4, Target(TargetType.SPRITE, 1),
+    c.dialogue_left_align(90, 100, 192 // 4, Target(TargetType.SPRITE, TORIEL_FACE_ID),
                             "worried_side", "worried_side_talk",
                           type_sound="snd_txttor.wav")
     c.wait(WaitTypes.DIALOGUE)
@@ -193,25 +186,25 @@ def cutscene(c: Cutscene):
     c.debug("Loading room!")
 
     # Unload flowey and load toriel world
-    c.unload_sprite(0)
-    c.load_sprite(149, 198, "room_sprites/toriel")  # Toriel world
-    c.set_animation(Target(TargetType.SPRITE, 0), "downIdle")
+    c.unload_sprite(SpriteIDs.FLOWEY_ROOM)
+    c.load_sprite(SpriteIDs.TORIEL_ROOM, 149, 198, "room_sprites/toriel")  # Toriel world
+    c.set_animation(Target(TargetType.SPRITE, SpriteIDs.TORIEL_ROOM), "downIdle")
 
     c.wait(WaitTypes.ENTER)
     c.debug("Entered room!")
 
     c.dialogue_centered(100, "speaker/toriel", (256 - 50) // 2, (192 - 39) // 4, "talkIdle", "talkTalk",
-                        Target(TargetType.SPRITE, 0), "downIdle", "downTalk",
+                        Target(TargetType.SPRITE, SpriteIDs.TORIEL_ROOM), "downIdle", "downTalk",
                         type_sound="snd_txttor.wav")
     c.wait(WaitTypes.DIALOGUE)
-    c.set_animation(Target(TargetType.SPRITE, 0), "upMove")
-    c.set_pos_in_frames(Target(TargetType.SPRITE, 0), 149, 67, 180)
-    c.move_in_frames(Target(TargetType.CAMERA, 0), 0, 67-198, 180)
+    c.set_animation(Target(TargetType.SPRITE, SpriteIDs.TORIEL_ROOM), "upMove")
+    c.set_pos_in_frames(Target(TargetType.SPRITE, SpriteIDs.TORIEL_ROOM), 149, 67, 180)
+    c.move_in_frames(Target(TargetType.CAMERA), 0, 67-198, 180)
     c.wait(WaitTypes.FRAMES, 180)
-    c.unload_sprite(0)
+    c.unload_sprite(SpriteIDs.TORIEL_ROOM)
     c.wait(WaitTypes.FRAMES, 60 * 2)
     c.manual_camera(False)
     c.player_control(True)
     c.set_flag(FlagOffsets.PROGRESS, 1)
-    c.set_collider_enabled(0, False)
+    c.set_collider_enabled(1, False)
     c.debug("Meet flowey cutscene end!")

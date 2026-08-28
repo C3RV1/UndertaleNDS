@@ -5,10 +5,10 @@
 #ifndef UNDERTALE_ROOM_HPP
 #define UNDERTALE_ROOM_HPP
 
+#include "ConditionalFile/RoomConditionalFile.hpp"
 #include "Room/InGameMenu.hpp"
 #include "RoomNavigation.hpp"
 #include "Engine/Background.hpp"
-#include "Formats/ROOM_FILE.hpp"
 #include "Room/RoomSprite.hpp"
 #include "Cutscene/Cutscene.hpp"
 #include "Player.hpp"
@@ -16,6 +16,7 @@
 #include <cstdio>
 #include <cstring>
 #include <vector>
+#include <map>
 #include <optional>
 
 class Cutscene;
@@ -34,17 +35,14 @@ public:
   u16 _roomId;
   Engine::Background _bg;
 
-  std::vector<RoomSprite> _sprites;
+  std::multimap<u16, RoomSprite> _sprites;
 
-  ROOMPart _roomData;
-  u16 _spawnX = 0, _spawnY = 0;
+  RoomData _roomData;
 
-  ROOMExit *_exitTop = nullptr;
-  ROOMExit *_exitBtm = nullptr;
-  ROOMExit *_exitLeft = nullptr;
-  ROOMExit *_exitRight = nullptr;
-  u8 _rectExitCount = 0;
-  std::vector<ROOMExit *> _rectExits;
+  RoomSideExit *_exitTop = nullptr;
+  RoomSideExit *_exitBtm = nullptr;
+  RoomSideExit *_exitLeft = nullptr;
+  RoomSideExit *_exitRight = nullptr;
   RoomNavigation _nav;
 
   Player _player;
@@ -53,12 +51,11 @@ public:
   std::unique_ptr<Cutscene> _cutscene = nullptr;
 
   std::unique_ptr<SaveData> _save;
-
+  
 private:
   void loadRoom(FILE *f);
   bool evaluateCondition(FILE *f);
   void loadSprites();
- 
 };
 
 #endif // UNDERTALE_ROOM_HPP

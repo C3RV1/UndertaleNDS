@@ -1,13 +1,14 @@
 #include "Battle/BattleNavigation.hpp"
 #include "Battle/Battle.hpp"
-#include "Battle/BattleAction.hpp"
+#include "Engine/Engine.hpp"
 #include <memory>
 #include <string>
+#include <utility>
 
 BattleNavigation::BattleNavigation(Battle* battle): _battle(battle) {}
 
-void BattleNavigation::spawn_sprite(const std::string &path, s32 x, s32 y,
-                                  s32 layer) {
+void BattleNavigation::spawn_sprite(u16 sprId, const std::string &path, s32 x,
+                                    s32 y, s32 layer) {
   auto newSprite = std::make_shared<Engine::Sprite>(Engine::AllocatedOAM);
   newSprite->_wx = x;
   newSprite->_wy = y;
@@ -15,20 +16,16 @@ void BattleNavigation::spawn_sprite(const std::string &path, s32 x, s32 y,
   Engine::spriteLoadTexture(newSprite, path);
   Engine::spriteSetShown(newSprite, true);
 
-  _battle->_sprites.push_back(std::move(newSprite));
+  if (sprId != 0 && _battle->_sprites.count(sprId) > 0)
+    Engine::throw_("BattleNav: Duplicate spr id != 0: " +
+                   std::to_string(sprId));
+  _battle->_sprites.emplace(sprId, newSprite);
 }
 
-void BattleNavigation::unload_sprite(s8 sprId) {
-  u8 sprId2;
-  if (sprId < 0)
-    sprId2 = _battle->_sprites.size() + sprId;
-  else
-    sprId2 = sprId;
-
-  if (sprId2 >= _battle->_sprites.size())
+void BattleNavigation::unload_sprite(u16 sprId) {
+  if (sprId == 0)
     return;
-
-  _battle->_sprites.erase(_battle->_sprites.begin() + sprId2);
+  _battle->_sprites.erase(sprId);
 }
 
 std::shared_ptr<Engine::Sprite>
@@ -36,23 +33,20 @@ BattleNavigation::getTarget(const TargetInfo &targetInfo) {
   TargetType targetType = static_cast<TargetType>(targetInfo.targetType);
   switch (targetType) {
   case TargetType::SPRITE: {
-    u8 targetId2;
-    if (targetInfo.targetId < 0)
-      targetId2 = _battle->_sprites.size() + targetInfo.targetId;
-    else
-      targetId2 = targetInfo.targetId;
-    if (targetId2 >= _battle->_sprites.size()) {
-      nocashMessage("Error: target id outside of sprite count");
-      return nullptr;
-    }
-    return _battle->_sprites[targetInfo.targetId];
+    auto it = _battle->_sprites.find(targetInfo.targetId);
+    if (it != _battle->_sprites.end())
+      return it->second;
+    nocashMessage(("BattleNav: Target sprite with id " +
+                   std::to_string(targetInfo.targetId) + " not found.")
+                      .c_str());
+    return nullptr;
   }
   case TargetType::ENEMY: {
     u8 enemyTargetId2;
-    if (targetInfo.targetId < 0)
-      enemyTargetId2 = _battle->_enemies.size() + targetInfo.targetId;
+    if (targetInfo.enemyTargetId < 0)
+      enemyTargetId2 = _battle->_enemies.size() + targetInfo.enemyTargetId;
     else
-      enemyTargetId2 = targetInfo.targetId;
+      enemyTargetId2 = targetInfo.enemyTargetId;
     if (enemyTargetId2 >= _battle->_enemies.size()) {
       nocashMessage("Error: target id outside of enemy count");
       return nullptr;

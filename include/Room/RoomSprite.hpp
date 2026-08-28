@@ -9,7 +9,7 @@
 class RoomSprite;
 
 #include "Engine/Sprite.hpp"
-#include "Formats/ROOM_FILE.hpp"
+#include "ConditionalFile/RoomConditionalFile.hpp"
 
 class Room;
 
@@ -19,7 +19,7 @@ public:
     _spr = std::make_shared<Engine::Sprite>(alloc);
   }
 
-  void load(ROOMSpriteData const &sprData);
+  void load(RoomSpriteData const &sprData);
 
   void spawn(s32 x, s32 y, std::string path);
 
@@ -34,24 +34,34 @@ public:
 
   std::shared_ptr<Engine::Sprite> _spr;
 
-  ROOMSpriteAction _interactAction = ROOMSpriteAction::NONE;
-
-  u16 _cutsceneId = 0;
-
-  u32 _distanceSquared = 0;
-  int _closeAnim = 0;
-
-  int _animationId = 0;
-  s32 _parallax_x = 1 << 8;
-  s32 _parallax_y = 1 << 8;
-
-  u16 _valid_rect_x, _valid_rect_y, _valid_rect_w, _valid_rect_h;
-  u16 _goal_x, _goal_y;
-  u16 _goal_flag_id;
-  u16 _goal_flag_bit;
-  bool _stop_on_goal;
-  s32 _commit_x, _commit_y;
-  s32 _old_x, _old_y;
+  RoomSpriteAction _action = RoomSpriteAction::NONE;
+  
+  int _animation_id = 0;
+  
+  struct {
+    u16 _cutscene_id = 0;
+  } _cutscene;
+  
+  struct {
+    u32 _distanceSquared = 0;
+    int _closeAnim = 0;
+  } _proximity;
+  
+  struct {
+    s32 _parallax_x = 1 << 8;
+    s32 _parallax_y = 1 << 8;
+  } _parallax;
+  
+  struct {
+    u16 _valid_rect_x, _valid_rect_y, _valid_rect_w, _valid_rect_h;
+    u16 _goal_x, _goal_y;
+    u16 _goal_cutscene_id;
+    u16 _goal_flag_id;
+    u16 _goal_flag_bit;
+    bool _stop_on_goal;
+    s32 _commit_x, _commit_y;
+    s32 _old_x, _old_y;
+  } _pushable;
 
 private:
   Room* _room;

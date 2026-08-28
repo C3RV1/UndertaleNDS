@@ -5,13 +5,14 @@
 #include "Cutscene/Cutscene.hpp"
 #include "Battle/Battle.hpp"
 #include "Battle/FlavorTextDialogue.hpp"
+#include "ConditionalFile/RoomConditionalFile.hpp"
 #include "Cutscene/CutsceneEnums.hpp"
 #include "Cutscene/Dialogue.hpp"
 #include "Cutscene/Navigation.hpp"
 #include "Engine/Audio.hpp"
+#include "Engine/Engine.hpp"
 #include "Fader.hpp"
 #include "Formats/CSCN.hpp"
-#include "Formats/ROOM_FILE.hpp"
 #include "Formats/utils.hpp"
 #include "Room/Camera.hpp"
 #include "Room/InGameMenu.hpp"
@@ -156,20 +157,22 @@ bool Cutscene::runCommand(u8 cmd) {
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_LOAD_SPRITE");
 #endif
+    u16 sprId;
     s32 x, y, layer;
+    _commandData.read(&sprId, 2);
     _commandData.read(&x, 4);
     _commandData.read(&y, 4);
     _commandData.read(&layer, 4);
     std::string path = _commandData.readstring();
-    nav->spawn_sprite(path, x, y, layer);
+    nav->spawn_sprite(sprId, path, x, y, layer);
     break;
   }
   case CMD_UNLOAD_SPRITE: {
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_UNLOAD_SPRITE");
 #endif
-    s8 sprId;
-    _commandData.read(&sprId, 1);
+    u16 sprId;
+    _commandData.read(&sprId, 2);
     nav->unload_sprite(sprId);
     break;
   }
@@ -333,38 +336,40 @@ bool Cutscene::runCommand(u8 cmd) {
       _commandData.read(&x, 4);
       _commandData.read(&y, 4);
     }
-
+    
     if (dialogue_type == DIALOGUE_CENTERED) {
       speakerIdle = _commandData.readstring();
       speakerTalk = _commandData.readstring();
     }
-
+    
     if (dialogue_type != DIALOGUE_FLAVOR_TEXT) {
       targetInfo = readTarget(_commandData);
       targetIdle = _commandData.readstring();
       targetTalk = _commandData.readstring();
     }
-
+    
     typeSnd = _commandData.readstring();
     font = _commandData.readstring();
-
+    
     _commandData.read(&framesPerLetter, 2);
 
     if (dialogue_type != DIALOGUE_FLAVOR_TEXT)
       _commandData.read(&mainScreen, 1);
-
+    
     Engine::TextBGManager &txt =
         mainScreen ? Engine::textMain : Engine::textSub;
     Engine::AllocationMode heartAlloc =
         mainScreen ? Engine::Allocated3D : Engine::AllocatedOAM;
-
+      
     auto target = nav->getTarget(targetInfo);
     if (_cDialogue == nullptr) {
       if (dialogue_type == DIALOGUE_CENTERED)
         _cDialogue = std::make_unique<DialogueCentered>(
             _room->_save.get(), _cutsceneId, _room->_roomId, textId, target,
-            targetIdle, targetTalk, typeSnd, font, framesPerLetter, txt,
-            heartAlloc, speaker, x, y, speakerIdle, speakerTalk);
+            std::move(targetIdle), std::move(targetTalk), std::move(typeSnd),
+            std::move(font), framesPerLetter, txt, heartAlloc,
+            std::move(speaker), x, y, std::move(speakerIdle),
+            std::move(speakerTalk));
       else if (dialogue_type == DIALOGUE_LEFT_ALIGNED)
         _cDialogue = std::make_unique<DialogueLeftAligned>(
             _room->_save.get(), _cutsceneId, _room->_roomId, textId, target,
@@ -375,6 +380,7 @@ bool Cutscene::runCommand(u8 cmd) {
             _cBattle.get(), _cutsceneId, _room->_roomId, textId, typeSnd, font,
             framesPerLetter);
     }
+    
     break;
   }
   case CMD_START_BATTLE: {
@@ -488,9 +494,9 @@ bool Cutscene::runCommand(u8 cmd) {
     _room->_save->writePermanentFlags();
     break;
   }
-  case CMD_MOD_FLAG: {
+  case CMD_ADD_FLAG: {
 #ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_MOD_FLAG");
+    nocashMessage("CMD_ADD_FLAG");
 #endif
     u16 flagId;
     s16 flagMod;
@@ -528,9 +534,11 @@ bool Cutscene::runCommand(u8 cmd) {
     bool enabled;
     _commandData.read(&colliderId, 1);
     _commandData.read(&enabled, 1);
-    if (colliderId < _room->_roomData.roomColliders.roomColliders.size()) {
-      _room->_roomData.roomColliders.roomColliders[colliderId].enabled =
-          enabled;
+    for (auto & collider : _room->_roomData._roomColliders) {
+      if (collider._collId == colliderId) {
+        collider._enabled = enabled;
+        break;
+      }
     }
     break;
   }
@@ -538,7 +546,7 @@ bool Cutscene::runCommand(u8 cmd) {
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_SET_ACTION");
 #endif
-    // TODO: IMPROVE
+    // TODO: IMPROVE and add other actions
     u8 interactAction;
     u16 cutsceneId_;
     TargetInfo targetInfo = readTarget(_commandData);
@@ -546,21 +554,16 @@ bool Cutscene::runCommand(u8 cmd) {
     
     if (interactAction == 1)
       _commandData.read(&cutsceneId_, 2);
-    
-    u8 targetId2 = 0;
-
-    if (targetInfo.targetId < 0)
-      targetId2 = _room->_sprites.size() + targetInfo.targetId;
-    else
-      targetId2 = targetInfo.targetId;
 
     TargetType targetType = static_cast<TargetType>(targetInfo.targetType);
-    if (targetType == TargetType::SPRITE &&
-        targetId2 < _room->_sprites.size()) {
-      auto &sprite = _room->_sprites[targetInfo.targetId];
-      sprite._interactAction = static_cast<ROOMSpriteAction>(interactAction);
-      if (interactAction == 1)
-        sprite._cutsceneId = cutsceneId_;
+    if (targetType == TargetType::SPRITE) {
+      auto it = _room->_sprites.find(targetInfo.targetId);
+      if (it != _room->_sprites.end()) {
+        auto &spr = it->second;
+        spr._action = static_cast<RoomSpriteAction>(interactAction);
+        if (interactAction == 1)
+          spr._cutscene._cutscene_id = cutsceneId_;
+      }
     }
     break;
   }
@@ -614,14 +617,16 @@ bool Cutscene::runCommand(u8 cmd) {
 #ifdef DEBUG_CUTSCENES
     nocashMessage("CMD_LOAD_SPRITE_RELATIVE");
 #endif
+    u16 sprId;
     s32 dx, dy, layer;
+    _commandData.read(&sprId, 2);
     _commandData.read(&dx, 4);
     _commandData.read(&dy, 4);
     _commandData.read(&layer, 4);
     std::string path = _commandData.readstring();
     TargetInfo targetInfo = readTarget(_commandData);
 
-    nav->spawn_relative(path, targetInfo, dx, dy, layer);
+    nav->spawn_relative(sprId, path, targetInfo, dx, dy, layer);
     break;
   }
   case CMD_SET_CELL:

@@ -1,5 +1,6 @@
 import enum
 from typing import List
+from spriteIDs import SpriteIDs
 
 import binary
 
@@ -138,7 +139,7 @@ class DialogueTypes(enum.IntEnum):
     LEFT_ALIGNED = 0
     CENTERED = 1
     FLAVOR_TEXT = 2
-
+    
 
 class Target:
     def __init__(self, target_type: int, target_id: int = 0,
@@ -150,7 +151,7 @@ class Target:
     def write(self, wtr):
         wtr.write_uint8(self.target_type)
         if self.target_type == TargetType.SPRITE:
-            wtr.write_int8(self.target_id)
+            wtr.write_uint16(self.target_id)
         elif self.target_type == TargetType.ENEMY:
             wtr.write_int8(self.target_id)
             wtr.write_uint8(self.enemy_sprite_id)
@@ -159,7 +160,7 @@ class Target:
 class Cutscene:
     def __init__(self, wtr: binary.BinaryWriter):
         self.wtr: binary.BinaryWriter = wtr
-        self.version = 15
+        self.version = 16
         self.file_size_pos = 0
         self.instructions_address = []
         self.pending_address = {}
@@ -195,17 +196,19 @@ class Cutscene:
         self.wtr.write_string(string, encoding="ascii")
         return self.end_command()
 
-    def load_sprite(self, x: float, y: float, texture: str, layer=1):
+    def load_sprite(self, spr_id: int, x: float, y: float, texture: str, layer=1):
         self.write_header(CutsceneCommands.LOAD_SPRITE)
+        self.wtr.write_uint16(spr_id)
         self.wtr.write_int32(to_fixed_point(x))
         self.wtr.write_int32(to_fixed_point(y))
         self.wtr.write_int32(layer)
         self.wtr.write_string(texture, encoding="ascii")
         return self.end_command()
 
-    def load_sprite_relative(self, dx: float, dy: float, texture: str,
+    def load_sprite_relative(self, spr_id: int, dx: float, dy: float, texture: str,
                              target: Target, layer=1):
         self.write_header(CutsceneCommands.LOAD_SPRITE_RELATIVE)
+        self.wtr.write_uint16(spr_id)
         self.wtr.write_int32(to_fixed_point(dx))
         self.wtr.write_int32(to_fixed_point(dy))
         self.wtr.write_int32(layer)
@@ -215,7 +218,7 @@ class Cutscene:
 
     def unload_sprite(self, sprite_id: int):
         self.write_header(CutsceneCommands.UNLOAD_SPRITE)
-        self.wtr.write_int8(sprite_id)
+        self.wtr.write_uint16(sprite_id)
         return self.end_command()
 
     def player_control(self, control: bool):
@@ -433,7 +436,7 @@ class Cutscene:
         self.wtr.write_uint16(flag_value)
         return self.end_command()
 
-    def mod_flag(self, flag_id: int, flag_mod: int):
+    def add_flag(self, flag_id: int, flag_mod: int):
         self.write_header(CutsceneCommands.MOD_FLAG)
         self.wtr.write_uint16(flag_id)
         self.wtr.write_int16(flag_mod)

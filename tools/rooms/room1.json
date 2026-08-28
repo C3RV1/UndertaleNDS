@@ -1,77 +1,43 @@
 {
-  "parts": [
+  "bg": "rooms/room1",
+  "music": "",
+  "spawn": [152, 311],
+  "exits": [
     {
-      "comment": "not met flowey",
-      "conditions": [
-        { "flag_id": 0, "op": "==", "cmp_value": 0 }
-      ],
-      "room_bg": "rooms/room1",
-      "music_path": "",
-      "spawn_x": 152, "spawn_y": 311,
-      "exits": [
-        {
-          "exit_type": "side",
-          "room_id": 0,
-          "spawn_x": 618,
-          "spawn_y": 147,
-          "side": "down"
-        },
-        {
-          "exit_type": "rect",
-          "room_id": 2,
-          "spawn_x": 131,
-          "spawn_y": 430,
-          "x": 142,
-          "y": 63,
-          "w": 41,
-          "h": 51
-        }
-      ],
-      "sprites": [
-        {
-          "texture": "room_sprites/flowey",
-          "x": 151,
-          "y": 227
-        }
-      ],
-      "colliders": [
-        {
-          "x": 0,
-          "y": 278,
-          "w": 318,
-          "h": 16,
-          "action": "cutscene",
+      "room_id": 0,
+      "spawn": [618, 147],
+      "side": "down"
+    }
+  ],
+  "sprites": [
+    {
+      "only_if": {"flag": 0, "cmp": "==", "val": 0},
+      "then": {
+        "id": "flowey_room",
+        "texture": "room_sprites/flowey",
+        "pos": [151, 227]
+      }
+    }
+  ],
+  "colliders": [
+    {
+      "only_if": {"flag": 0, "cmp": "==", "val": 0},
+      "then": {
+        "id": 1,
+        "rect": [0, 278, 318, 16],
+        "type": {
+          "type": "cutscene",
           "cutscene_id": 0
         }
-      ]
+      }
     },
     {
-      "comment": "already met flowey",
-      "conditions": [],
-      "room_bg": "rooms/room1",
-      "music_path": "",
-      "spawn_x": 152, "spawn_y": 311,
-      "exits": [
-        {
-          "exit_type": "side",
-          "room_id": 0,
-          "spawn_x": 618,
-          "spawn_y": 147,
-          "side": "down"
-        },
-        {
-          "exit_type": "rect",
-          "room_id": 2,
-          "spawn_x": 131,
-          "spawn_y": 430,
-          "x": 142,
-          "y": 63,
-          "w": 41,
-          "h": 51
-        }
-      ],
-      "sprites": [],
-      "colliders": []
+      "rect": [142, 63, 41, 51],
+      "type": {
+        "type": "exit",
+        "room_id": 2,
+        "spawn": [131, 430]
+      }
     }
   ]
-}
+}  

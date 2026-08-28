@@ -14,5 +14,6 @@
 // #define DEBUG_ZONES_DUMP
 #define DEBUG_SAVE
 #define DEBUG_FONTS
+// #define DEBUG_CONDITIONAL_FILE
 
 #endif // UNDERTALE_DEBUG_FLAGS_HPP

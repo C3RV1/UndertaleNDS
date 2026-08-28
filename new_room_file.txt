@@ -66,10 +66,12 @@ objects are composed of (un)conditional data
 		data
 	conditional data
 		0xFF
-		u8 condition 0b00cbaaaa
+		u8 condition 0b0dcbaaaa
 			aaaa: 4 LSB are the same as CUTSCENE CMP
 			b: is there more conditions
 			c: are there more variations
+			d: 0 - AND with previous value
+			   1 - OR with previous value
 		variation of data (fixed length or string)
 		after variations, default data
 
@@ -80,9 +82,11 @@ lists are composed of (un)conditional data
 		objects
 	conditional object
 		0xFF
-		u8 condition 0b000baaaa
+		u8 condition 0b0d0baaaa
 			aaaa: same as CUTSCENE CMP
 			b: is there more conditions
+			d: 0 - AND with previous value
+			   1 - OR with previous value
 		object
 
 union

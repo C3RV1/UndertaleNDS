@@ -3,10 +3,10 @@
 //
 
 #include "Room/Player.hpp"
+#include "ConditionalFile/RoomConditionalFile.hpp"
 #include "Cutscene/Cutscene.hpp"
 #include "Engine/Sprite.hpp"
 #include "Engine/math.hpp"
-#include "Formats/ROOM_FILE.hpp"
 #include "Room/Camera.hpp"
 #include "Room/Room.hpp"
 #include "GameLoop.hpp"
@@ -102,24 +102,19 @@ void Player::attempt_move(s32 &dx, s32 &dy) {
   if (dx == 0 && dy == 0)
     return;
 
-  check_exits();
-
   if (!check_collisions(dx, dy)) {
     commit_move(dx, dy);
-    return;
   }
-
-  if (!check_collisions(dx, 0)) {
+  else if (!check_collisions(dx, 0)) {
     dy = 0;
     commit_move(dx, dy);
-    return;
   }
-
-  if (!check_collisions(0, dy)) {
+  else if (!check_collisions(0, dy)) {
     dx = 0;
     commit_move(dx, dy);
-    return;
   }
+  
+  check_exits();
 }
 
 void Player::commit_move(const s32 dx, const s32 dy) {
@@ -128,7 +123,7 @@ void Player::commit_move(const s32 dx, const s32 dy) {
 
   // Push objects if necessary.
   for (auto &roomSprite : _room->_sprites) {
-    roomSprite.commit_player_move();
+    roomSprite.second.commit_player_move();
   }
 }
 
@@ -138,35 +133,49 @@ void Player::check_exits() {
   if (_spr->_wx < 0) {
     _spr->_wx = 0;
     if (_room->_exitLeft != nullptr) {
-      scheduleRoom(_room->_exitLeft->roomId, _room->_exitLeft->spawnX,
-                   _room->_exitLeft->spawnY);
+      scheduleRoom(_room->_exitLeft->_roomId, _room->_exitLeft->_spawnX,
+                   _room->_exitLeft->_spawnY);
     }
   } else if ((_spr->_wx >> 8) + 19 > width) {
     _spr->_wx = (width - 19) << 8;
     if (_room->_exitRight != nullptr) {
-      scheduleRoom(_room->_exitRight->roomId, _room->_exitRight->spawnX,
-                   _room->_exitRight->spawnY);
+      scheduleRoom(_room->_exitRight->_roomId, _room->_exitRight->_spawnX,
+                   _room->_exitRight->_spawnY);
     }
   }
   if (_spr->_wy < 0) {
     _spr->_wy = 0;
     if (_room->_exitTop != nullptr) {
-      scheduleRoom(_room->_exitTop->roomId, _room->_exitTop->spawnX,
-                   _room->_exitTop->spawnY);
+      scheduleRoom(_room->_exitTop->_roomId, _room->_exitTop->_spawnX,
+                   _room->_exitTop->_spawnY);
     }
   } else if ((_spr->_wy >> 8) + 29 > height) {
     _spr->_wy = (height - 29) << 8;
     if (_room->_exitBtm != nullptr) {
-      scheduleRoom(_room->_exitBtm->roomId, _room->_exitBtm->spawnX,
-                   _room->_exitBtm->spawnY);
+      scheduleRoom(_room->_exitBtm->_roomId, _room->_exitBtm->_spawnX,
+                   _room->_exitBtm->_spawnY);
     }
   }
 
-  for (int i = 0; i < _room->_rectExitCount; i++) {
-    ROOMExit *rectExit = _room->_rectExits[i];
-    if (collidesRect(_spr->_wx >> 8, (_spr->_wy >> 8) + 20, 19, 9, rectExit->x,
-                     rectExit->y, rectExit->w, rectExit->h)) {
-      scheduleRoom(rectExit->roomId, rectExit->spawnX, rectExit->spawnY);
+  for (auto & collider : _room->_roomData._roomColliders) {
+    if (collider._type._type == RoomColliderType::WALL || !collider._enabled)
+      continue;
+    if (collidesRect(_spr->_wx >> 8, (_spr->_wy >> 8) + 20, 19, 9, collider._x,
+                     collider._y, collider._w, collider._h)) {
+      switch (collider._type._type) {
+      case RoomColliderType::CUTSCENE:
+        // Cutscene
+        _room->_cutscene = std::make_unique<Cutscene>(
+            collider._type._cutscene._cutsceneId, _room->_roomId, _room);
+        break;
+      case RoomColliderType::EXIT:
+        scheduleRoom(collider._type._exit._roomId,
+                     collider._type._exit._spawnX,
+                     collider._type._exit._spawnY);
+        break;
+      default:
+        break;
+      }
     }
   }
 }
@@ -192,20 +201,21 @@ void Player::check_interact() const {
   x += _spr->_wx >> 8;
   y += _spr->_wy >> 8;
   for (auto const &sprite : _room->_sprites) {
-    if (sprite._interactAction != ROOMSpriteAction::CUTSCENE)
+    auto &spr = sprite.second;
+    if (spr._action != RoomSpriteAction::CUTSCENE)
       continue;
-    if (sprite._spr->_texture == nullptr)
+    if (spr._spr->_texture == nullptr)
       continue;
 
-    const s32 x2 = sprite._spr->_wx >> 8;
-    const s32 y2 = sprite._spr->_wy >> 8;
-    const s32 w2 = sprite._spr->_texture->getWidth();
-    const s32 h2 = sprite._spr->_texture->getHeight();
+    const s32 x2 = spr._spr->_wx >> 8;
+    const s32 y2 = spr._spr->_wy >> 8;
+    const s32 w2 = spr._spr->_texture->getWidth();
+    const s32 h2 = spr._spr->_texture->getHeight();
 
     if (collidesRect(x, y, w, h, x2, y2, w2, h2)) {
       if (_room->_cutscene == nullptr)
         _room->_cutscene = std::make_unique<Cutscene>(
-            sprite._cutsceneId, _room->_roomId, _room);
+            spr._cutscene._cutscene_id, _room->_roomId, _room);
       return;
     }
   }
@@ -215,25 +225,25 @@ bool Player::check_collisions(s32 dx, s32 dy) const {
   const s32 x = _spr->_wx + dx;
   const s32 y = _spr->_wy + dy;
 
-  for (auto &collider : _room->_roomData.roomColliders.roomColliders) {
-    if (!collider.enabled)
+  for (auto &collider : _room->_roomData._roomColliders) {
+    if (!collider._enabled || collider._type._type != RoomColliderType::WALL)
       continue;
-    if (collidesRect(x >> 8, (y >> 8) + 20, 19, 9, collider.x, collider.y,
-                     collider.w, collider.h)) {
-      if (collider.colliderAction == 0) // Wall
+    if (collidesRect(x >> 8, (y >> 8) + 20, 19, 9, collider._x, collider._y,
+                     collider._w, collider._h)) {
+      switch(collider._type._type) {
+      case RoomColliderType::WALL:
         return true;
-      if (collider.colliderAction == 1 && _room->_cutscene == nullptr) {
-        // Cutscene
-        _room->_cutscene = std::make_unique<Cutscene>(
-            collider.cutsceneId, _room->_roomId, _room);
+      case RoomColliderType::CUTSCENE:
         return true;
+      default:
+        break;
       }
     }
   }
 
   for (auto &roomSprite : _room->_sprites) {
-    if (roomSprite.check_player_collide(x, y + (20 << 8), 19 << 8, 9 << 8, dx,
-                                         dy))
+    if (roomSprite.second.check_player_collide(x, y + (20 << 8), 19 << 8,
+                                               9 << 8, dx, dy))
       return true;
   }
 

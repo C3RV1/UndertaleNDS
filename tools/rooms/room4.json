@@ -1,170 +1,145 @@
 {
-  "parts": [
+  "cond": {"flag": 0, "cmp": "==", "val": 3},
+  "bg": "rooms/room4",
+  "music": "mus_ruins.wav",
+  "spawn": [99, 207],
+  "exits": [
     {
-      "comment": "Following Toriel",
-      "conditions": [
-        {"flag_id": 0, "op": "==", "cmp_value": 3}
+      "room_id": 3,
+      "spawn": [98, 56],
+      "side": "down"
+    },
+    {
+      "room_id": 5,
+      "spawn": [2, 144],
+      "side": "right"
+    }
+  ],
+  "sprites": [
+    {
+      "only_if": {"flag": 0, "cmp": "==", "val": 3},
+      "then": {
+        "id": "toriel_room",
+        "texture": "room_sprites/toriel",
+        "pos": [98, 110],
+        "animation": "downIdle"
+      }
+    },
+    {
+      "id": 1,
+      "texture": "room_sprites/lever_ruins",
+      "pos": [357, 55],
+      "animation": [
+        {
+          "if": {"flag": 0, "cmp": "==", "val": 3},
+          "then": "up"
+        },
+        "down"
       ],
-      "room_bg": "rooms/room4",
-      "music_path": "mus_ruins.wav",
-      "spawn_x": 99, "spawn_y": 207,
-      "exits": [
+      "action": {
+        "action": "cutscene",
+        "cutscene_id": 3
+      }
+    },
+    {
+      "id": 2,
+      "texture": "room_sprites/lever_ruins",
+      "pos": [557, 55],
+      "animation": [
         {
-          "exit_type": "side",
-          "room_id": 3,
-          "spawn_x": 98,
-          "spawn_y": 56,
-          "side": "down"
+          "if": {"flag": 0, "cmp": "==", "val": 3},
+          "then": "up"
         },
-        {
-          "exit_type": "side",
-          "room_id": 5,
-          "spawn_x": 2,
-          "spawn_y": 144,
-          "side": "right"
-        }
+        "down"
       ],
-      "sprites": [
+      "action": {
+        "action": "cutscene",
+        "cutscene_id": 4
+      }
+    },
+    {
+      "texture": "room_sprites/lever_ruins",
+      "pos": [595, 55],
+      "animation": "up",
+      "action": {
+        "action": "cutscene",
+        "cutscene_id": 5
+      }
+    },
+    {
+      "texture": "room_sprites/wall_panel_ruins",
+      "pos": [69, 40],
+      "action": {
+        "action": "cutscene",
+        "cutscene_id": 0
+      }
+    },
+    {
+      "texture": "room_sprites/sign_ruins",
+      "pos": [99, 120],
+      "action": {
+        "action": "cutscene",
+        "cutscene_id": 1
+      }
+    },
+    {
+      "id": 3,
+      "texture": "room_sprites/spike",
+      "pos": [670, 140],
+      "animation": [
         {
-          "texture": "room_sprites/wall_panel_ruins",
-          "x": 69, "y": 40,
-          "action": "cutscene", "cutscene_id": 0
+          "if": {"flag": 0, "cmp": "==", "val": 3},
+          "then": "up"
         },
-        {
-          "texture": "room_sprites/lever_ruins",
-          "x": 357, "y": 55,
-          "animation": "up",
-          "action": "cutscene", "cutscene_id": 3
-        },
-        {
-          "texture": "room_sprites/lever_ruins",
-          "x": 557, "y": 55,
-          "animation": "up",
-          "action": "cutscene", "cutscene_id": 4
-        },
-        {
-          "texture": "room_sprites/lever_ruins",
-          "x": 595, "y": 55,
-          "animation": "up",
-          "action": "cutscene", "cutscene_id": 5
-        },
-        {
-          "texture": "room_sprites/sign_ruins",
-          "x": 99, "y": 120,
-          "action": "cutscene", "cutscene_id": 1
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 670, "y": 140,
-          "animation": "up"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 670, "y": 160,
-          "animation": "up"
-        },
-        {
-          "texture": "room_sprites/toriel",
-          "x": 98, "y": 110,
-          "animation": "downIdle"
-        }
-      ],
-      "colliders": [
-        {
-          "x": 89, "y": 195, "w": 40, "h": 28,
-          "action": "cutscene", "cutscene_id": 2
-        },
-        {
-          "comment": "disabled on first lever (cutscene 403)",
-          "x": 429, "y": 140, "w": 60, "h": 40
-        },
-        {
-          "comment": "disabled on seconds lever (cutscene 404)",
-          "x": 659, "y": 140, "w": 30, "h": 40
-        },
-        {"x": 0, "y": 0, "w": 9, "h": 240},
-        {"x": 9, "y": 0, "w": 711, "h": 80},
-        {"x": 9, "y": 220, "w": 80, "h": 20},
-        {"x": 129, "y": 220, "w": 591, "h": 20},
-        {"x": 209, "y": 80, "w": 40, "h": 60},
-        {"x": 209, "y": 180, "w": 40, "h": 40},
-        {"x": 449, "y": 80, "w": 40, "h": 60},
-        {"x": 449, "y": 180, "w": 40, "h": 40},
-        {"x": 669, "y": 80, "w": 51, "h": 60},
-        {"x": 669, "y": 180, "w": 51, "h": 40}
+        "down"
       ]
     },
     {
-      "conditions": [],
-      "room_bg": "rooms/room4",
-      "music_path": "mus_ruins.wav",
-      "spawn_x": 99, "spawn_y": 207,
-      "exits": [
+      "id": 4,
+      "texture": "room_sprites/spike",
+      "pos": [670, 160],
+      "animation": [
         {
-          "exit_type": "side",
-          "room_id": 3,
-          "spawn_x": 98,
-          "spawn_y": 56,
-          "side": "down"
+          "if": {"flag": 0, "cmp": "==", "val": 3},
+          "then": "up"
         },
-        {
-          "exit_type": "side",
-          "room_id": 5,
-          "spawn_x": 2,
-          "spawn_y": 144,
-          "side": "right"
-        }
-      ],
-      "sprites": [
-        {
-          "texture": "room_sprites/wall_panel_ruins",
-          "x": 69, "y": 40,
-          "action": "cutscene", "cutscene_id": 0
-        },
-        {
-          "texture": "room_sprites/lever_ruins",
-          "x": 357, "y": 55,
-          "animation": "down"
-        },
-        {
-          "texture": "room_sprites/lever_ruins",
-          "x": 557, "y": 55,
-          "animation": "down"
-        },
-        {
-          "texture": "room_sprites/lever_ruins",
-          "x": 595, "y": 55,
-          "animation": "up",
-          "action": "cutscene", "cutscene_id": 5
-        },
-        {
-          "texture": "room_sprites/sign_ruins",
-          "x": 99, "y": 120,
-          "action": "cutscene", "cutscene_id": 1
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 670, "y": 140,
-          "animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 670, "y": 160,
-          "animation": "down"
-        }
-      ],
-      "colliders": [
-        {"x": 0, "y": 0, "w": 9, "h": 240},
-        {"x": 9, "y": 0, "w": 711, "h": 80},
-        {"x": 9, "y": 220, "w": 80, "h": 20},
-        {"x": 129, "y": 220, "w": 591, "h": 20},
-        {"x": 209, "y": 80, "w": 40, "h": 60},
-        {"x": 209, "y": 180, "w": 40, "h": 40},
-        {"x": 449, "y": 80, "w": 40, "h": 60},
-        {"x": 449, "y": 180, "w": 40, "h": 40},
-        {"x": 669, "y": 80, "w": 51, "h": 60},
-        {"x": 669, "y": 180, "w": 51, "h": 40}
+        "down"
       ]
     }
+  ],
+  "colliders": [
+    {
+      "only_if": {"flag": 0, "cmp": "==", "val": 3},
+      "then": [
+        {
+          "id": 10,
+          "rect": [89, 195, 40, 28],
+          "type": {
+            "type": "cutscene",
+            "cutscene_id": 2
+          }
+        },
+        {
+          "comment": "disabled on first lever (cutscene 403)",
+          "id": 20,
+          "rect": [429, 140, 60, 40]
+        },
+        {
+          "comment": "disabled on second lever (cutscene 404)",
+          "id": 30,
+          "rect": [659, 140, 30, 40]
+        }
+      ]
+    },
+    {"rect": [0, 0, 9, 240]},
+    {"rect": [9, 0, 711, 80]},
+    {"rect": [9, 220, 80, 20]},
+    {"rect": [129, 220, 591, 20]},
+    {"rect": [209, 80, 40, 60]},
+    {"rect": [209, 180, 40, 40]},
+    {"rect": [449, 80, 40, 60]},
+    {"rect": [449, 180, 40, 40]},
+    {"rect": [669, 80, 51, 60]},
+    {"rect": [669, 180, 51, 40]}
   ]
 }

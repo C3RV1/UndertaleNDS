@@ -17,6 +17,9 @@ void RoomSideExit::read(BufferReader* rdr, SaveData *save) {
 
 RoomSideExit readConditionalValue(tag<RoomSideExit>, BufferReader* rdr,
                                   SaveData* save) {
+#ifdef DEBUG_CONDITIONAL_FILE
+  Engine::log_("Reading RoomSideExit value");
+#endif
   RoomSideExit data;
   data.read(rdr, save);
   return data;
@@ -28,26 +31,27 @@ void RoomSpriteActionUnion::read(BufferReader* rdr, SaveData* save) {
   case RoomSpriteAction::NONE:
     break;
   case RoomSpriteAction::CUTSCENE:
-    _cutscene._cutsceneId = readConditionalData<u16>(rdr, save, this);
+    _cutscene._cutscene_id = readConditionalData<u16>(rdr, save, this);
     break;
   case RoomSpriteAction::PROXIMITY:
     _proximity._distance = readConditionalData<u16>(rdr, save, this);
+    _proximity._close_anim = readConditionalData<std::string>(rdr, save, this);
     break;
   case RoomSpriteAction::PARALLAX:
-    _parallax._parallaxX = readConditionalData<s32>(rdr, save, this);
-    _parallax._parallaxY = readConditionalData<s32>(rdr, save, this);
+    _parallax._parallax_x = readConditionalData<s32>(rdr, save, this);
+    _parallax._parallax_y = readConditionalData<s32>(rdr, save, this);
     break;
   case RoomSpriteAction::PUSHABLE:
-    _pushable._validRectX = readConditionalData<u16>(rdr, save, this);
-    _pushable._validRectY = readConditionalData<u16>(rdr, save, this);
-    _pushable._validRectW = readConditionalData<u16>(rdr, save, this);
-    _pushable._validRectH = readConditionalData<u16>(rdr, save, this);
-    _pushable._goalPosX = readConditionalData<u16>(rdr, save, this);
-    _pushable._goalPosY = readConditionalData<u16>(rdr, save, this);
-    _pushable._cutsceneId = readConditionalData<u16>(rdr, save, this);
-    _pushable._goalFlagId = readConditionalData<u16>(rdr, save, this);
-    _pushable._goalFlagBit = readConditionalData<u16>(rdr, save, this);
-    _pushable._stopOnGoal = readConditionalData<bool>(rdr, save, this);
+    _pushable._valid_rect_x = readConditionalData<u16>(rdr, save, this);
+    _pushable._valid_rect_y = readConditionalData<u16>(rdr, save, this);
+    _pushable._valid_rect_w = readConditionalData<u16>(rdr, save, this);
+    _pushable._valid_rect_h = readConditionalData<u16>(rdr, save, this);
+    _pushable._goal_x = readConditionalData<u16>(rdr, save, this);
+    _pushable._goal_y = readConditionalData<u16>(rdr, save, this);
+    _pushable._goal_cutscene_id = readConditionalData<u16>(rdr, save, this);
+    _pushable._goal_flag_id = readConditionalData<u16>(rdr, save, this);
+    _pushable._goal_flag_bit = readConditionalData<u16>(rdr, save, this);
+    _pushable._stop_on_goal = readConditionalData<bool>(rdr, save, this);
     break;
   default:
     Engine::throw_("Incorrect room sprite action " + std::to_string((int)_action));
@@ -56,13 +60,16 @@ void RoomSpriteActionUnion::read(BufferReader* rdr, SaveData* save) {
 }
 
 RoomSpriteActionUnion readConditionalValue(tag<RoomSpriteActionUnion>, BufferReader* rdr, SaveData* save) {
+#ifdef DEBUG_CONDITIONAL_FILE
+  Engine::log_("Reading RoomSpriteActionUnion value");
+#endif
   RoomSpriteActionUnion data;
   data.read(rdr, save);
   return data;
 }
 
 void RoomSpriteData::read(BufferReader* rdr, SaveData* save) {
-  _sprId = readConditionalData<s16>(rdr, save, this);
+  _sprId = readConditionalData<u16>(rdr, save, this);
   _texture = readConditionalData<std::string>(rdr, save, this);
   _x = readConditionalData<u16>(rdr, save, this);
   _y = readConditionalData<u16>(rdr, save, this);
@@ -71,6 +78,9 @@ void RoomSpriteData::read(BufferReader* rdr, SaveData* save) {
 }
 
 RoomSpriteData readConditionalValue(tag<RoomSpriteData>, BufferReader* rdr, SaveData* save) {
+#ifdef DEBUG_CONDITIONAL_FILE
+  Engine::log_("Reading RoomSpriteData value");
+#endif
   RoomSpriteData data;
   data.read(rdr, save);
   return data;
@@ -96,23 +106,29 @@ void RoomColliderTypeUnion::read(BufferReader* rdr, SaveData* save) {
 }
 
 RoomColliderTypeUnion readConditionalValue(tag<RoomColliderTypeUnion>, BufferReader* rdr, SaveData* save) {
+#ifdef DEBUG_CONDITIONAL_FILE
+  Engine::log_("Reading RoomColliderTypeUnion value");
+#endif
   RoomColliderTypeUnion data;
   data.read(rdr, save);
   return data;
 }
 
 void RoomColliderData::read(BufferReader *rdr, SaveData *save) {
-  _collId = readConditionalData<s16>(rdr, save, this);
-  _rectX = readConditionalData<u16>(rdr, save, this);
-  _rectY = readConditionalData<u16>(rdr, save, this);
-  _rectW = readConditionalData<u16>(rdr, save, this);
-  _rectH = readConditionalData<u16>(rdr, save, this);
+  _collId = readConditionalData<u8>(rdr, save, this);
+  _x = readConditionalData<u16>(rdr, save, this);
+  _y = readConditionalData<u16>(rdr, save, this);
+  _w = readConditionalData<u16>(rdr, save, this);
+  _h = readConditionalData<u16>(rdr, save, this);
   _enabled = readConditionalData<bool>(rdr, save, this);
 
   _type = readConditionalData<RoomColliderTypeUnion>(rdr, save, this);
 }
 
 RoomColliderData readConditionalValue(tag<RoomColliderData>, BufferReader* rdr, SaveData* save) {
+#ifdef DEBUG_CONDITIONAL_FILE
+  Engine::log_("Reading RoomColliderData value");
+#endif
   RoomColliderData data;
   data.read(rdr, save);
   return data;

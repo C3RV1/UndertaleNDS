@@ -3,32 +3,37 @@
 //
 
 #include "Room/Room.hpp"
+#include "ConditionalFile/RoomConditionalFile.hpp"
 #include "Cutscene/Cutscene.hpp"
 #include "Engine/Background.hpp"
 #include "Engine/Engine.hpp"
 #include "Engine/Sprite.hpp"
 #include "Engine/WAV.hpp"
-#include "Engine/math.hpp"
 #include "Formats/utils.hpp"
 #include "Room/Camera.hpp"
 #include "Room/InGameMenu.hpp"
 #include "Room/Player.hpp"
 #include "Save.hpp"
 #include <cstdio>
+#include <memory>
 #include <optional>
+#include <string>
+#include <utility>
 
 Room::Room(int roomId, std::optional<std::pair<u16, u16>> spawnCoords,
            std::unique_ptr<InGameMenu> ingame_menu,
            std::unique_ptr<SaveData> save)
     : _roomId(roomId), _nav(this), _player(this), _camera(this),
       _ingame_menu(std::move(ingame_menu)), _save(std::move(save)) {
-  _roomId = roomId;
-  std::string buffer = "nitro:/rooms/room" + std::to_string(roomId) + ".room";
+  
+  std::string buffer = "nitro:/new_rooms/room" + std::to_string(roomId) + ".room";
+  
   FILE *f = fopen(buffer.c_str(), "rb");
   if (f == nullptr) {
     buffer = "Error opening room " + std::to_string(roomId);
     Engine::throw_(buffer);
   }
+  
   loadRoom(f);
   fclose(f);
   
@@ -36,7 +41,7 @@ Room::Room(int roomId, std::optional<std::pair<u16, u16>> spawnCoords,
     _save->flags[i] = 0; // clear room specific flags
   }
 
-  _bg.loadPath(_roomData.roomBg);
+  _bg.loadPath(_roomData._roomBg);
 
   int bgLoad = _bg.loadBgExtendedMain(512 / 8);
   if (bgLoad != 0) {
@@ -44,12 +49,13 @@ Room::Room(int roomId, std::optional<std::pair<u16, u16>> spawnCoords,
     nocashMessage(buffer.c_str());
   }
 
-  if (!_roomData.musicBg.empty()) {
-    bool musicChange = _roomData.musicBg != Audio2::cBGMusic->getFilename() ||
-                       !Audio2::cBGMusic->getPlaying();
-    Audio2::cBGMusic->setVolume(_roomData.musicVolume);
+  if (!_roomData._musicPath.empty()) {
+    bool musicChange =
+        _roomData._musicPath != Audio2::cBGMusic->getFilename() ||
+        !Audio2::cBGMusic->getPlaying();
+    Audio2::cBGMusic->setVolume(_roomData._musicVolume);
     if (musicChange) {
-      Audio2::playBGMusic(_roomData.musicBg, true);
+      Audio2::playBGMusic(_roomData._musicPath, true);
     }
   } else {
     Audio2::stopBGMusic();
@@ -62,233 +68,87 @@ Room::Room(int roomId, std::optional<std::pair<u16, u16>> spawnCoords,
     _player._spr->_wy = spawnCoords->second << 8;
   }
   else {
-    _player._spr->_wx = _spawnX << 8;
-    _player._spr->_wy = _spawnY << 8;
+    _player._spr->_wx = _roomData._spawnX << 8;
+    _player._spr->_wy = _roomData._spawnY << 8;
   }
   _camera.updatePosition(true, _player);
 }
 
 void Room::loadRoom(FILE *f) {
-  ROOMFile roomFile;
-
-  fread(roomFile.header.header, 4, 1, f);
+  RoomHeader header;
+  fread(header.header, 4, 1, f);
   char expectedHeader[4] = {'R', 'O', 'O', 'M'};
 
-  if (memcmp(expectedHeader, roomFile.header.header, 4) != 0) {
+  if (memcmp(expectedHeader, header.header, 4) != 0) {
     std::string buffer = "Error loading room #r" + std::to_string(_roomId) +
                          "#x: Invalid header.";
     Engine::throw_(buffer);
   }
 
-  fread(&roomFile.header.fileSize, 4, 1, f);
+  fread(&header.fileSize, 4, 1, f);
   long pos = ftell(f);
   fseek(f, 0, SEEK_END);
   u32 size = ftell(f);
   fseek(f, pos, SEEK_SET);
 
-  if (roomFile.header.fileSize != size) {
+  if (header.fileSize != size) {
     std::string buffer = "Error loading spr #r" + std::to_string(_roomId) +
                          "#x: File size doesn't match (expected: " +
-                         std::to_string(roomFile.header.fileSize) +
+                         std::to_string(header.fileSize) +
                          ", actual: " + std::to_string(size) + ")";
     Engine::throw_(buffer);
   }
 
-  fread(&roomFile.header.version, 4, 1, f);
-  if (roomFile.header.version != ROOMHeader::version_expected) {
+  fread(&header.version, 4, 1, f);
+  if (header.version != RoomHeader::version_expected) {
     std::string buffer = "Error loading room #r" + std::to_string(_roomId) +
                          "#x: Invalid version (expected: 10, actual: " +
-                         std::to_string(roomFile.header.version) + ")";
+                         std::to_string(header.version) + ")";
     Engine::throw_(buffer);
   }
 
-  fread(&roomFile.partCount, 1, 1, f);
+  BufferReader rdr;
+  rdr.openFromFile(f, header.fileSize - ftell(f));
+  
+  _roomData.read(&rdr, _save.get());
 
-  bool valid = false;
-  for (int i = 0; i < roomFile.partCount && !valid; i++) {
-    fread(&_roomData.lengthBytes, 4, 1, f);
-    long endPos = ftell(f) + _roomData.lengthBytes;
-    fread(&_roomData.conditionCount, 1, 1, f);
-
-    valid = true;
-    for (int j = 0; j < _roomData.conditionCount && valid; j++) {
-      if (!evaluateCondition(f))
-        valid = false;
-    }
-
-    if (!valid)
-      fseek(f, endPos, SEEK_SET);
-  }
-  if (!valid) { // no valid room part found
-    std::string buffer = "Error loading room #r" + std::to_string(_roomId) +
-                         "#x: No valid room part found.";
-    Engine::throw_(buffer);
-  }
-
-  int bgPathLen = str_len_file(f, 0);
-
-  _roomData.roomBg.resize(bgPathLen);
-  fread(&_roomData.roomBg[0], bgPathLen, 1, f);
-  fseek(f, 1, SEEK_CUR);
-
-  int musicPathLen = str_len_file(f, 0);
-
-  _roomData.musicBg.resize(musicPathLen);
-  fread(&_roomData.musicBg[0], musicPathLen, 1, f);
-  fseek(f, 1, SEEK_CUR);
-
-  fread(&_roomData.musicVolume, 1, 1, f);
-
-  fread(&_spawnX, 2, 1, f);
-  fread(&_spawnY, 2, 1, f);
-
-  u8 exitCount;
-  fread(&exitCount, 1, 1, f);
-  _roomData.roomExits.roomExits.resize(exitCount);
-  auto &roomExits = _roomData.roomExits.roomExits;
-
-  _rectExitCount = 0;
-  for (int i = 0; i < exitCount; i++) {
-    fread(&roomExits[i].exitType, 1, 1, f);
-    fread(&roomExits[i].roomId, 2, 1, f);
-    fread(&roomExits[i].spawnX, 1, 2, f);
-    fread(&roomExits[i].spawnY, 1, 2, f);
-    switch (roomExits[i].exitType) {
+  for (auto& exit : _roomData._roomExits) {
+    switch(exit._exitSide) {
     case 0:
-      fread(&roomExits[i].side, 1, 1, f);
-      switch (roomExits[i].side) {
-      case 0:
-        _exitTop = &roomExits[i];
-        break;
-      case 1:
-        _exitBtm = &roomExits[i];
-        break;
-      case 2:
-        _exitLeft = &roomExits[i];
-        break;
-      case 3:
-        _exitRight = &roomExits[i];
-        break;
-      default:
-        break;
-      }
+      _exitTop = &exit;
       break;
     case 1:
-      _rectExitCount++;
-      fread(&roomExits[i].x, 2, 1, f);
-      fread(&roomExits[i].y, 2, 1, f);
-      fread(&roomExits[i].w, 2, 1, f);
-      fread(&roomExits[i].h, 2, 1, f);
-      break;
-    default:
-      break;
-    }
-  }
-
-  _rectExits.resize(_rectExitCount);
-  for (int i = 0, j = 0; i < exitCount; i++) {
-    if (roomExits[i].exitType != 1)
-      continue;
-    _rectExits[j++] = &roomExits[i];
-  }
-
-  u8 spriteCount;
-  fread(&spriteCount, 1, 1, f);
-  _roomData.roomSprites.roomSprites.resize(spriteCount);
-  auto &roomSprites = _roomData.roomSprites.roomSprites;
-
-  for (int i = 0; i < spriteCount; i++) {
-    int sprPathLen = str_len_file(f, 0);
-    roomSprites[i].path.resize(sprPathLen);
-    fread(&roomSprites[i].path[0], sprPathLen, 1, f);
-    fseek(f, 1, SEEK_CUR);
-    fread(&roomSprites[i].x, 2, 1, f);
-    fread(&roomSprites[i].y, 2, 1, f);
-    int animLen = str_len_file(f, 0);
-    roomSprites[i].animation.resize(animLen);
-    fread(&roomSprites[i].animation[0], animLen, 1, f);
-    fseek(f, 1, SEEK_CUR);
-    fread(&roomSprites[i].interactAction, 1, 1, f);
-    switch (roomSprites[i].interactAction) {
-    case 1:
-      fread(&roomSprites[i].cutsceneId, 2, 1, f);
+      _exitBtm = &exit;
       break;
     case 2:
-      fread(&roomSprites[i].distance, 2, 1, f);
-      animLen = str_len_file(f, 0);
-      roomSprites[i].closeAnim.resize(animLen);
-      fread(&roomSprites[i].closeAnim[0], animLen, 1, f);
-      fseek(f, 1, SEEK_CUR);
+      _exitLeft = &exit;
       break;
     case 3:
-      fread(&roomSprites[i].parallax_x, 4, 1, f);
-      fread(&roomSprites[i].parallax_y, 4, 1, f);
+      _exitRight = &exit;
       break;
-    case 4:
-      fread(&roomSprites[i].valid_rect_x, 2, 1, f);
-      fread(&roomSprites[i].valid_rect_y, 2, 1, f);
-      fread(&roomSprites[i].valid_rect_w, 2, 1, f);
-      fread(&roomSprites[i].valid_rect_h, 2, 1, f);
-      fread(&roomSprites[i].goal_x, 2, 1, f);
-      fread(&roomSprites[i].goal_y, 2, 1, f);
-      fread(&roomSprites[i].goal_cutscene_id, 2, 1, f);
-      fread(&roomSprites[i].goal_flag_id, 2, 1, f);
-      fread(&roomSprites[i].goal_flag_bit, 2, 1, f);
-      fread(&roomSprites[i].stop_on_goal, 1, 1, f);
-      break;
-    }
-  }
-
-  u16 colliderCount;
-  fread(&colliderCount, 2, 1, f);
-  _roomData.roomColliders.roomColliders.resize(colliderCount);
-  auto &roomColliders = _roomData.roomColliders.roomColliders;
-
-  for (int i = 0; i < colliderCount; i++) {
-    fread(&roomColliders[i].x, 2, 1, f);
-    fread(&roomColliders[i].y, 2, 1, f);
-    fread(&roomColliders[i].w, 2, 1, f);
-    fread(&roomColliders[i].h, 2, 1, f);
-    fread(&roomColliders[i].colliderAction, 1, 1, f);
-    fread(&roomColliders[i].enabled, 1, 1, f);
-    if (roomColliders[i].colliderAction == 1) {
-      fread(&roomColliders[i].cutsceneId, 2, 1, f);
+    default:
+      Engine::throw_("Error loading room #r" + std::to_string(_roomId) +
+                     "#x: Invalid exit side " + std::to_string(exit._exitSide));
     }
   }
 }
 
 void Room::loadSprites() {
-  _sprites.reserve(_roomData.roomSprites.roomSprites.size());
-  for (auto const &roomSprite : _roomData.roomSprites.roomSprites) {
-    _sprites.emplace_back(Engine::Allocated3D, this).load(roomSprite);
+  for (auto const &roomSprite : _roomData._roomSprites) {
+    if (roomSprite._sprId != 0 && _sprites.count(roomSprite._sprId) > 0)
+      Engine::throw_("Room: Duplicate spr id != 0: " +
+                     std::to_string(roomSprite._sprId));
+    _sprites
+        .emplace(std::piecewise_construct, std::make_tuple(roomSprite._sprId),
+                 std::make_tuple(Engine::Allocated3D, this))
+        ->second.load(roomSprite);
   }
-}
-
-bool Room::evaluateCondition(FILE *f) {
-  ROOMPartCondition cond;
-  fread(&cond.flagId, 2, 1, f);
-  fread(&cond.cmpOperator, 1, 1, f);
-  bool flip = cond.cmpOperator & 4;
-  cond.cmpOperator = cond.cmpOperator & 3;
-  fread(&cond.cmpValue, 2, 1, f);
-
-  u16 flagValue = _save->flags[cond.flagId];
-  bool flag = false;
-  if (cond.cmpOperator == ComparisonOperator::EQUALS)
-    flag = (flagValue == cond.cmpValue);
-  else if (cond.cmpOperator == ComparisonOperator::GREATER_THAN)
-    flag = (flagValue > cond.cmpValue);
-  else if (cond.cmpOperator == ComparisonOperator::LESS_THAN)
-    flag = (flagValue < cond.cmpValue);
-  if (flip)
-    flag = !flag;
-  return flag;
 }
 
 void Room::draw() {
   _player.draw();
-  for (auto &_sprite : _sprites) {
-    _sprite.draw();
+  for (auto &sprite : _sprites) {
+    sprite.second.draw();
   }
 }
 
@@ -309,8 +169,8 @@ void Room::update() {
   
   _player.update();
   _nav.update();
-  for (auto &_sprite : _sprites) {
-    _sprite.update();
+  for (auto & sprite : _sprites) {
+    sprite.second.update();
   }
   
   _camera.updatePosition(false, _player);
@@ -321,8 +181,8 @@ void Room::push() {
   _pushed = true;
   
   Engine::spritePush(_player._spr);
-  for (auto &_sprite : _sprites) {
-    Engine::spritePush(_sprite._spr);
+  for (auto &sprite : _sprites) {
+    Engine::spritePush(sprite.second._spr);
   }
 
   _ingame_menu->unload();
@@ -337,7 +197,7 @@ void Room::pop() {
   Engine::textMain.clear();
   Engine::textSub.clear();
   
-  _bg.loadPath(_roomData.roomBg);
+  _bg.loadPath(_roomData._roomBg);
   Engine::spritePop(_player._spr);
   Engine::clearSub();
 
@@ -345,8 +205,8 @@ void Room::pop() {
   if (bgLoad != 0)
     nocashMessage(("Error loading room bg: %d" + std::to_string(bgLoad)).c_str());
 
-  for (auto &_sprite : _sprites) {
-    Engine::spritePop(_sprite._spr);
+  for (auto &sprite : _sprites) {
+    Engine::spritePop(sprite.second._spr);
   }
 
   _ingame_menu->load();
