@@ -24,10 +24,10 @@
 void runBattle();
 void runRoom();
 
-int main() {
-  defaultExceptionHandler();
 
-  /* Configure the VRAM and background control registers. */
+int main() {
+  /* Configure VRAM, background control registers, exceptions, filesystem, 3d,
+   * audio. */
   if (Engine::init() != 0)
     return 0;
 

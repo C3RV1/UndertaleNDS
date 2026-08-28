@@ -8,6 +8,7 @@
 #include "Engine/WAV.hpp"
 #include "Engine/dma.hpp"
 #include <memory>
+#include <exception>
 
 #ifndef BLOCKSDS_SDK
 #include "nitrofs.h"
@@ -16,7 +17,41 @@
 #endif
 
 namespace Engine {
+void uncaught_exception_handler() {
+#ifdef __cpp_exceptions
+  static int exception_handling_state = 0;
+  exception_handling_state++;
+  if (exception_handling_state == 2)
+    Engine::throw_("Error handling exception.");
+  else if (exception_handling_state == 3)
+    for (;;);
+    
+  try {
+    auto excp = std::current_exception();
+    if (excp)
+      std::rethrow_exception(excp);
+  }
+  catch (const std::exception &e) {
+    Engine::throw_("Uncaught exception: " + std::string(typeid(e).name()) +
+                   " " + std::string(e.what()));
+  }
+  catch (const std::string &e) {
+    Engine::throw_("Uncaught exception: " + e);
+  }
+  catch (const char* e) {
+    Engine::throw_("Uncaught exception:" + std::string(e));
+  }
+  catch (...) {
+    Engine::throw_("Uncaught exception: And unparsable?");
+  }
+#else
+  Engine::throw_("Uncaught exception: Exceptions not enabled.");
+#endif
+}
+
 int init() {
+  defaultExceptionHandler();
+  std::set_terminate(uncaught_exception_handler);
   powerOn(POWER_ALL);
 
   if (!fatInitDefault()) {

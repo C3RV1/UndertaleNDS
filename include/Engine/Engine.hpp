@@ -11,6 +11,9 @@ namespace Engine {
     int init();
     void tick();
 
+    inline void log_(std::string message) {
+        nocashMessage(message.c_str());
+    }
     [[noreturn]] void throw_(std::string message);
 }
 
