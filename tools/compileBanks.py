@@ -4,7 +4,7 @@ import os
 def find_largest_match(window: list, data: list, max_length: int):
     largest_match_start = -1
     largest_match_length = 3
-    match_start = len(window) - 1
+    match_start = len(window)
     match_length = 0
     for i, e in enumerate(window):
         if match_length == len(data) or match_length >= max_length:
@@ -34,12 +34,12 @@ def lz77_encode(data: bytes):
         if match_start == -1:
             out_blocks.append(data_lst[0])
             window.append(data_lst[0])
-            l = 1
+            length = 1
         else:
             out_blocks.append((match_start, match_length))
             window.extend(data_lst[:match_length])
-            l = match_length
-        data_lst = data_lst[l:]
+            length = match_length
+        data_lst = data_lst[length:]
         if len(window) > window_size:
             bytes_to_remove = len(window) - window_size
             window = window[bytes_to_remove:]
