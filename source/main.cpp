@@ -3,17 +3,12 @@
 //
 
 #include "Battle/Battle.hpp"
-#include "Cutscene/Cutscene.hpp"
 #include "Engine/DataBank.hpp"
 #include "Engine/Engine.hpp"
 #include "Engine/Font.hpp"
-#include "Engine/OAMManager.hpp"
 #include "GameLoop.hpp"
 #include "MainMenu.hpp"
-#include "Room/Camera.hpp"
 #include "Room/InGameMenu.hpp"
-#include "Room/Player.hpp"
-#include "Room/Room.hpp"
 #include "Save.hpp"
 #include "TitleScreen.hpp"
 #include "WriteName.hpp"
@@ -33,7 +28,6 @@ int main() {
 
   textBank.load("nitro:/txts.cbnk");
 
-
   runTitleScreen();
   
   auto save = std::make_unique<SaveData>();
@@ -46,16 +40,16 @@ int main() {
     runMainMenu(*save);
   }
 
-  for (int i = 0; i < 5; i++) {
-    save->items[i] = 1 + (i % 3 == 0);
-  }
-
   Engine::textMain.clear();
   Engine::textSub.clear();
 
   // DEBUG
-  save->lastSavedRoom = 6;
-  save->flags[0] = 5;
+  // save->lastSavedRoom = 6;
+  // save->flags[0] = 5;
+  
+  for (int i = 0; i < 5; i++) {
+    save->items[i] = 1 + (i % 3 == 0);
+  }
 
   runGameLoop(std::move(save));
   return 0;

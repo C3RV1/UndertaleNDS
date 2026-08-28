@@ -3,7 +3,7 @@
 //
 
 #include "Cutscene/Dialogue.hpp"
-#include "Cutscene/Cutscene.hpp"
+#include "Save.hpp"
 #include "Engine/Audio.hpp"
 #include "Engine/DataBank.hpp"
 #include "Engine/Font.hpp"
@@ -18,7 +18,7 @@ Dialogue::Dialogue(SaveData *save, const std::string &text_,
                    const std::string &typeSndPath, const std::string &fontTxt,
                    u16 framesPerLetter, Engine::TextBGManager &txtManager,
                    Engine::AllocationMode heartAlloc)
-    : _save(save), _textManager(&txtManager), _target(target) {
+    : _save(save), _target(target), _textManager(&txtManager) {
   _typeSnd = std::make_shared<Audio2::WAV>();
   _fnt = Engine::fontManager.loadFont(fontTxt);
   _heartSprite = std::make_shared<Engine::Sprite>(heartAlloc);
@@ -29,7 +29,7 @@ Dialogue::Dialogue(SaveData *save, const std::string &text_,
   _textPos = _text.begin();
   _lastClearPos = _text.begin();
   _lastClearColor = _textManager->getColor();
-
+  
   _letterFrames = framesPerLetter;
   _cTimer = _letterFrames;
   
@@ -37,11 +37,11 @@ Dialogue::Dialogue(SaveData *save, const std::string &text_,
     _targetIdle = target->nameToAnimId(targetIdle);
     _targetTalk = target->nameToAnimId(targetTalk);
   }
-
+  
   _textManager->clear();
   _textManager->reloadColors();
   _textManager->setColor(15);
-
+  
   _typeSnd->load(typeSndPath);
   _typeSnd->setLoops(0);
 }
