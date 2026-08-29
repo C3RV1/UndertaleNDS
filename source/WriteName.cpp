@@ -255,6 +255,5 @@ void runWriteNameMenu(SaveData &save) {
 
   memset(save.name, 0, currentLen + 1);
   memcpy(save.name, currentName, currentLen + 1);
-  std::string buffer = "Selected name: " + std::string(save.name);
-  nocashMessage(buffer.c_str());
+  Engine::log_("Selected name: " + std::string(save.name));
 }

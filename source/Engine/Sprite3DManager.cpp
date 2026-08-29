@@ -17,11 +17,9 @@ int Sprite3DManager::loadSprite(std::shared_ptr<Sprite> res) {
     return -1;
   if (res->_allocated != NoAlloc)
     return -2;
-  if (!res->_texture->_has3D) {
-    std::string buffer = "Error loading spr #r" + res->_texture->_path +
-                         "#x to 3D: Sprite doesn't have 3D chunk.";
-    throw_(buffer);
-  }
+  if (!res->_texture->_has3D)
+    throw_("Error loading spr #r" + res->_texture->_path +
+           "#x to 3D: Sprite doesn't have 3D chunk.");
 
   Sprite3DMemory mem;
   mem.texture = res->_texture;
@@ -72,9 +70,8 @@ void Sprite3DManager::loadSpriteTexture(Sprite3DMemory &mem) {
       paletteFreeZones.reserve(length, mem.texture->_paletteIdx, alignment);
   if (res != 0) {
     // no palette found
-    std::string buffer = "Error loading spr #r" + mem.texture->_path +
-                         "#x to 3D: No available palettes.";
-    throw_(buffer);
+    throw_("Error loading spr #r" + mem.texture->_path +
+           "#x to 3D: No available palettes.");
   }
 
   u16 *paletteBase = &VRAM_E[16 * mem.texture->_paletteIdx + 1];
@@ -95,9 +92,8 @@ void Sprite3DManager::loadSpriteTexture(Sprite3DMemory &mem) {
           tileWidth * tileHeight * mem.texture->_frameCount * tileBytes;
       if (tileFreeZones.reserve(neededBytes, mem.texture->_tileStart[tileIdx],
                                 1) == 1) {
-        std::string buffer = "Error loading spr #r" + mem.texture->_path +
-                             "#x to 3D: Couldn't reserve tiles.";
-        throw_(buffer);
+        throw_("Error loading spr #r" + mem.texture->_path +
+               "#x to 3D: Couldn't reserve tiles.");
       }
 
       u8 *tileRamStart = (u8 *)VRAM_B + mem.texture->_tileStart[tileIdx];
@@ -242,9 +238,7 @@ void Sprite3DManager::updateTextures() {
 
     Sprite3DMemory &mem = i.second;
     if (!mem.loadedIntoMemory) {
-#ifdef DEBUG_3D
-      nocashMessage("Loading sprite");
-#endif
+      debug_3d("Loading sprite");
       if (!setBank) {
         vramSetBankB(VRAM_B_LCD);
         vramSetBankE(VRAM_E_LCD);

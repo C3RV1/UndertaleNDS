@@ -17,10 +17,9 @@ bool Texture::loadPath(const std::string &path) {
   pathFull = "nitro:/spr/" + path + ".cspr";
 
   FILE *f = fopen(pathFull.c_str(), "rb");
-  if (!f) {
-    buffer = "Error opening spr #r" + path;
-    throw_(buffer);
-  }
+  if (!f)
+    throw_("Error opening spr #r" + path);
+  
   setvbuf(f, NULL, _IOFBF, 4 * 1024);
 
   loadCSPR(f);
@@ -38,10 +37,8 @@ void Texture::loadCSPR(FILE *f) {
   fread(header, 4, 1, f);
 
   const char expectedChar[4] = {'C', 'S', 'P', 'R'};
-  if (memcmp(header, expectedChar, 4) != 0) {
-    std::string buffer = "Error loading spr #r" + _path + "#x: Invalid header.";
-    throw_(buffer);
-  }
+  if (memcmp(header, expectedChar, 4) != 0)
+    throw_("Error loading spr #r" + _path + "#x: Invalid header.");
 
   fread(&fileSize, 4, 1, f);
   u32 pos = ftell(f);
@@ -50,20 +47,18 @@ void Texture::loadCSPR(FILE *f) {
   fseek(f, pos, SEEK_SET);
 
   if (fileSize != size) {
-    std::string buffer =
+    throw_(
         "Error loading spr #r" + _path +
         "#x: File size doesn't match (expected: " + std::to_string(fileSize) +
-        ", actual: " + std::to_string(size) + ")";
-    throw_(buffer);
+        ", actual: " + std::to_string(size) + ")");
   }
 
   fread(&version, 4, 1, f);
   if (version != CSPRHeader::version) {
-    std::string buffer =
+    throw_(
         "Error loading spr #r" + _path +
         "#x: Invalid version (expected: 6, actual: " + std::to_string(version) +
-        ")";
-    throw_(buffer);
+        ")");
   }
 
   fread(&_width, 2, 1, f);
@@ -92,9 +87,8 @@ void Texture::loadCSPR(FILE *f) {
     _animations[i].frames.resize(frameCount);
     if (frameCount == 0) {
       // should free on error?
-      std::string buffer = "Error loading spr #r" + _path + "#x: Animation " +
-                           std::to_string(i) + " has no frames.";
-      throw_(buffer);
+      throw_("Error loading spr #r" + _path + "#x: Animation " +
+             std::to_string(i) + " has no frames.");
     }
     for (int j = 0; j < frameCount; j++) {
       fread(&_animations[i].frames[j].frame, 1, 1, f);
@@ -105,17 +99,14 @@ void Texture::loadCSPR(FILE *f) {
   }
 
   if (_hasOam) {
-    if (colorCount > 15) { // OAM can't have more than 15 colors
-      std::string buffer =
-          "Error loading spr #r" + _path + "#x: OAM can't be 8 bit.";
-      throw_(buffer);
-    }
+    if (colorCount > 15) // OAM can't have more than 15 colors
+      throw_("Error loading spr #r" + _path + "#x: OAM can't be 8 bit.");
+    
     loadOam(f);
   }
 
-  if (_has3D) {
+  if (_has3D)
     load3D(f);
-  }
 
   _loaded = true;
 }
@@ -124,10 +115,7 @@ void Texture::free_() {
   if (!_loaded)
     return;
   _loaded = false;
-#ifdef DEBUG_TEXTURES
-  std::string msg = "Freeing texture: " + _path;
-  nocashMessage(msg.c_str());
-#endif
+  debug_textures("Freeing texture: " + _path);
 }
 
 void Texture::loadOam(FILE *f) {
@@ -169,10 +157,7 @@ TextureManager::loadTexture(const std::string &path, bool ensureReuse) {
   auto textureKV = textures.find(path);
   if (textureKV != textures.end()) {
     if (!textureKV->second.expired()) {
-#ifdef DEBUG_TEXTURES
-      std::string msg = "Found texture " + path + " in bank: reusing.";
-      nocashMessage(msg.c_str());
-#endif
+      debug_textures("Found texture " + path + " in bank: reusing.");
       auto texture = textureKV->second.lock();
       if (ensureReuse) {
         auto reuseTextureKV = ensureReuseTextures.find(path);
@@ -181,20 +166,14 @@ TextureManager::loadTexture(const std::string &path, bool ensureReuse) {
       }
       return texture;
     }
-#ifdef DEBUG_TEXTURES
     else {
-      std::string msg = "Found texture " + path + " in bank: expired.";
-      nocashMessage(msg.c_str());
+      debug_textures("Found texture " + path + " in bank: expired.");
     }
-#endif
     textures.erase(textureKV);
   }
-#ifdef DEBUG_TEXTURES
   else {
-    std::string msg = "Not found texture " + path + " in bank.";
-    nocashMessage(msg.c_str());
+    debug_textures("Not found texture " + path + " in bank.");
   }
-#endif
 
   auto texture = std::make_shared<Texture>(path);
   textures.insert(std::make_pair(path, texture));
@@ -204,10 +183,7 @@ TextureManager::loadTexture(const std::string &path, bool ensureReuse) {
 }
 
 void TextureManager::clearEnsureReuse(std::string path) {
-#ifdef DEBUG_TEXTURES
-  std::string buffer = "Clearing permanently loaded texture: " + path;
-  nocashMessage(buffer.c_str());
-#endif
+  debug_textures("Clearing permanently loaded texture: " + path);
   auto ensureKv = ensureReuseTextures.find(path);
   if (ensureKv == ensureReuseTextures.end())
     return;

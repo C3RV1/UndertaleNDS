@@ -19,10 +19,8 @@ void WAV::load(const std::string &name) {
   std::string realPath = "nitro:/z_audio/" + name;
   FILE *f = fopen(realPath.c_str(), "rb");
   _filename = name;
-  if (f == nullptr) {
-    std::string buffer = "Error opening WAV #r" + name;
-    Engine::throw_(buffer);
-  }
+  if (f == nullptr)
+    Engine::throw_("Error opening WAV #r" + name);
 
   char header[4];
 
@@ -33,10 +31,8 @@ void WAV::load(const std::string &name) {
 
   fread(header, 4, 1, f);
   if (memcmp(header, riffHeader, 4) != 0) {
-    std::string buffer =
-        "Error opening WAV #r" + name + "#x: Invalid RIFF header.";
     fclose(f);
-    Engine::throw_(buffer);
+    Engine::throw_("Error opening WAV #r" + name + "#x: Invalid RIFF header.");
   }
 
   u32 fileSize;
@@ -44,19 +40,15 @@ void WAV::load(const std::string &name) {
 
   fread(header, 4, 1, f);
   if (memcmp(header, waveHeader, 4) != 0) {
-    std::string buffer =
-        "Error opening WAV #r" + name + "#x: Invalid WAVE header.";
     fclose(f);
-    Engine::throw_(buffer);
+    Engine::throw_("Error opening WAV #r" + name + "#x: Invalid WAVE header.");
   }
 
   // fmt header
   fread(header, 4, 1, f);
   if (memcmp(header, fmtHeader, 4) != 0) {
-    std::string buffer =
-        "Error opening WAV #r" + name + "#x: Invalid FMT header.";
     fclose(f);
-    Engine::throw_(buffer);
+    Engine::throw_("Error opening WAV #r" + name + "#x: Invalid FMT header.");
   }
 
   u32 chunkSize = 0;
@@ -82,30 +74,25 @@ void WAV::load(const std::string &name) {
     } else if (_bitsPerSample == 16) {
       _format = SoundFormat_16Bit;
     } else {
-      std::string buffer =
-          "Error opening WAV #r" + name + "#x: Invalid bits per sample.";
       fclose(f);
-      Engine::throw_(buffer);
+      Engine::throw_("Error opening WAV #r" + name +
+                     "#x: Invalid bits per sample.");
     }
   } else if (format == 0x11 && enableAdpcm) {
     _format = SoundFormat_ADPCM;
     if (_bitsPerSample != 4) {
-      std::string buffer =
-          "Error opening WAV #r" + name + "#x: Invalid bits per sample.";
       fclose(f);
-      Engine::throw_(buffer);
+      Engine::throw_("Error opening WAV #r" + name +
+                     "#x: Invalid bits per sample.");
     }
   } else {
-    std::string buffer = "Error opening WAV #r" + name + "#x: Invalid format.";
     fclose(f);
-    Engine::throw_(buffer);
+    Engine::throw_("Error opening WAV #r" + name + "#x: Invalid format.");
   }
 
   if (channels > 2) {
-    std::string buffer =
-        "Error opening WAV #r" + name + "#x: Invalid channels.";
     fclose(f);
-    Engine::throw_(buffer);
+    Engine::throw_("Error opening WAV #r" + name + "#x: Invalid channels.");
   }
 
   _stereo = channels == 2;
@@ -121,10 +108,9 @@ void WAV::load(const std::string &name) {
     fseek(f, chunkSize, SEEK_CUR);
   }
   if (chunkSize == 0) {
-    std::string buffer =
-        "Error opening WAV #r" + name + "#x: Couldn't find DATA chunk.";
     fclose(f);
-    Engine::throw_(buffer);
+    Engine::throw_("Error opening WAV #r" + name +
+                   "#x: Couldn't find DATA chunk.");
   }
 
   _dataEnd = ftell(f) + chunkSize;
@@ -335,7 +321,7 @@ void WAV::renew_file_buffer(u8 bufferId, bool isFirst) {
 void playBGMusic(const std::string &filename, bool loop) {
   stopBGMusic();
   if (!cBGMusic) {
-    nocashMessage("BGMusic is nullptr!");
+    Engine::log_("BGMusic is nullptr!");
     return;
   }
   cBGMusic->load(filename);

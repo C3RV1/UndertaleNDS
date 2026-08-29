@@ -41,15 +41,13 @@ RoomNavigation::getTarget(const TargetInfo &targetInfo) {
     auto it = _room->_sprites.find(targetInfo.targetId);
     if (it != _room->_sprites.end())
       return it->second._spr;
-    nocashMessage(("RoomNav: Target sprite with id " +
-                   std::to_string(targetInfo.targetId) + " not found.")
-                      .c_str());
+    Engine::log_("RoomNav: Target sprite with id " +
+                 std::to_string(targetInfo.targetId) + " not found.");
     return nullptr;
   }
   default:
-    nocashMessage(("Unknown target type for room nav: " +
-                   std::to_string(targetInfo.targetType))
-                      .c_str());
+    Engine::log_("Unknown target type for room nav: " +
+                 std::to_string(targetInfo.targetType));
     return nullptr;
   }
 }

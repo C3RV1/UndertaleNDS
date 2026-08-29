@@ -34,14 +34,10 @@ Cutscene::Cutscene(u16 cutsceneId, u16 roomId, Room* room)
 
     _commandData.openFromFile(f, len);
 
-    if (!checkHeader()) {
-      buffer = "Error cutscene " + std::to_string(cutsceneId) + ": HEADER";
-      nocashMessage(buffer.c_str());
-      _commandData.close();
-    }
+    if (!checkHeader())
+      Engine::throw_("Error cutscene " + std::to_string(cutsceneId) + ": HEADER");
   } else {
-    buffer = "Error opening cutscene " + std::to_string(cutsceneId);
-    nocashMessage(buffer.c_str());
+    Engine::throw_("Error opening cutscene " + std::to_string(cutsceneId));
   }
   fclose(f);
 }
@@ -133,9 +129,6 @@ bool Cutscene::runCommands() {
 }
 
 bool Cutscene::runCommand(u8 cmd) {
-  /*int len;
-  TargetInfo targetInfo;
-  u32 address;*/
   u32 address;
   
   Navigation* nav;
@@ -146,17 +139,12 @@ bool Cutscene::runCommand(u8 cmd) {
 
   switch (cmd) {
   case CMD_DEBUG: {
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_DEBUG");
-#endif
-    std::string buffer = _commandData.readstring();
-    nocashMessage(buffer.c_str());
+    debug_cutscene("CMD_DEBUG");
+    Engine::log_(_commandData.readstring());
     break;
   }
   case CMD_LOAD_SPRITE: {
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_LOAD_SPRITE");
-#endif
+    debug_cutscene("CMD_LOAD_SPRITE");
     u16 sprId;
     s32 x, y, layer;
     _commandData.read(&sprId, 2);
@@ -168,18 +156,14 @@ bool Cutscene::runCommand(u8 cmd) {
     break;
   }
   case CMD_UNLOAD_SPRITE: {
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_UNLOAD_SPRITE");
-#endif
+    debug_cutscene("CMD_UNLOAD_SPRITE");
     u16 sprId;
     _commandData.read(&sprId, 2);
     nav->unload_sprite(sprId);
     break;
   }
   case CMD_PLAYER_CONTROL: {
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_PLAYER_CONTROL");
-#endif
+    debug_cutscene("CMD_PLAYER_CONTROL");
     bool playerControl;
     _commandData.read(&playerControl, 1);
     _room->_player.set_player_control(playerControl);
@@ -190,18 +174,14 @@ bool Cutscene::runCommand(u8 cmd) {
     break;
   }
   case CMD_MANUAL_CAMERA: {
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_MANUAL_CAMERA");
-#endif
+    debug_cutscene("CMD_MANUAL_CAMERA");
     bool manualCamera;
     _commandData.read(&manualCamera, 1);
     _room->_camera._manual = manualCamera;
     break;
   }
   case CMD_WAIT: {
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_WAIT");
-#endif
+    debug_cutscene("CMD_WAIT");
     u8 waitType;
     _commandData.read(&waitType, 1);
     if (waitType == WAIT_FRAMES) {
@@ -214,9 +194,7 @@ bool Cutscene::runCommand(u8 cmd) {
     break;
   }
   case CMD_SET_SHOWN: {
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_SET_SHOWN");
-#endif
+    debug_cutscene("CMD_SET_SHOWN");
     TargetInfo targetInfo = readTarget(_commandData);
     bool shown;
     _commandData.read(&shown, 1);
@@ -224,18 +202,14 @@ bool Cutscene::runCommand(u8 cmd) {
     break;
   }
   case CMD_SET_ANIMATION: {
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_SET_ANIMATION");
-#endif
+    debug_cutscene("CMD_SET_ANIMATION");
     TargetInfo targetInfo = readTarget(_commandData);
     std::string anim = _commandData.readstring();
     nav->set_animation(targetInfo, anim);
     break;
   }
   case CMD_SET_OPACITY: {
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_SET_OPACITY");
-#endif
+    debug_cutscene("CMD_SET_OPACITY");
     TargetInfo targetInfo = readTarget(_commandData);
     u8 opacity;
     _commandData.read(&opacity, 1);
@@ -243,9 +217,7 @@ bool Cutscene::runCommand(u8 cmd) {
     break;
   }
   case CMD_SET_POS: {
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_SET_POS");
-#endif
+    debug_cutscene("CMD_SET_POS");
     TargetInfo targetInfo = readTarget(_commandData);
     s32 x, y;
     _commandData.read(&x, 4);
@@ -254,9 +226,7 @@ bool Cutscene::runCommand(u8 cmd) {
     break;
   }
   case CMD_MOVE: {
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_MOVE");
-#endif
+    debug_cutscene("CMD_MOVE");
     TargetInfo targetInfo = readTarget(_commandData);
     s32 dx, dy;
     _commandData.read(&dx, 4);
@@ -265,9 +235,7 @@ bool Cutscene::runCommand(u8 cmd) {
     break;
   }
   case CMD_SET_SCALE: {
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_SET_SCALE");
-#endif
+    debug_cutscene("CMD_SET_SCALE");
     TargetInfo targetInfo = readTarget(_commandData);
     s32 x, y;
     _commandData.read(&x, 4);
@@ -276,9 +244,7 @@ bool Cutscene::runCommand(u8 cmd) {
     break;
   }
   case CMD_SET_POS_IN_FRAMES: {
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_SET_POS_IN_FRAMES");
-#endif
+    debug_cutscene("CMD_SET_POS_IN_FRAMES");
     TargetInfo targetInfo = readTarget(_commandData);
     s32 x, y;
     _commandData.read(&x, 4);
@@ -289,9 +255,7 @@ bool Cutscene::runCommand(u8 cmd) {
     break;
   }
   case CMD_MOVE_IN_FRAMES: {
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_MOVE_IN_FRAMES");
-#endif
+    debug_cutscene("CMD_MOVE_IN_FRAMES");
     TargetInfo targetInfo = readTarget(_commandData);
     s32 x, y;
     _commandData.read(&x, 4);
@@ -302,9 +266,7 @@ bool Cutscene::runCommand(u8 cmd) {
     break;
   }
   case CMD_SCALE_IN_FRAMES: {
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_SCALE_IN_FRAMES");
-#endif
+    debug_cutscene("CMD_SCALE_IN_FRAMES");
     TargetInfo targetInfo = readTarget(_commandData);
     s32 x, y;
     _commandData.read(&x, 4);
@@ -315,9 +277,7 @@ bool Cutscene::runCommand(u8 cmd) {
     break;
   }
   case CMD_START_DIALOGUE: {
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_START_DIALOGUE");
-#endif
+    debug_cutscene("CMD_START_DIALOGUE");
     TargetInfo targetInfo;
     u16 textId, framesPerLetter;
     s32 x, y;
@@ -384,9 +344,7 @@ bool Cutscene::runCommand(u8 cmd) {
     break;
   }
   case CMD_START_BATTLE: {
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_START_BATTLE");
-#endif
+    debug_cutscene("CMD_START_BATTLE");
     if (_cBattle == nullptr) {
       _cBattle = std::make_unique<Battle>(this);
       _cBattle->loadFromBuffer(_commandData);
@@ -395,9 +353,7 @@ bool Cutscene::runCommand(u8 cmd) {
     return true;
   }
   case CMD_EXIT_BATTLE: {
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_EXIT_BATTLE");
-#endif
+    debug_cutscene("CMD_EXIT_BATTLE");
     bool battleWon = false;
     _commandData.read(&battleWon, 1);
     if (_cBattle != nullptr)
@@ -405,18 +361,14 @@ bool Cutscene::runCommand(u8 cmd) {
     return true;
   }
   case CMD_BATTLE_ATTACK: {
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_BATTLE_ATTACK");
-#endif
+    debug_cutscene("CMD_BATTLE_ATTACK");
     if (_cBattle) // just in case
       _cBattle->startBattleAttacks();
       
     break;
   }
   case CMD_BATTLE_ACTION: {
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_BATTLE_ACTION");
-#endif
+    debug_cutscene("CMD_BATTLE_ACTION");
     if (_cBattle == nullptr) // just in case
       break;
     if (_cBattle->_cBattleAction != nullptr)
@@ -431,32 +383,24 @@ bool Cutscene::runCommand(u8 cmd) {
     break;
   }
   case CMD_JUMP_IF:
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_JUMP_IF");
-#endif
+    debug_cutscene("CMD_JUMP_IF");
     _commandData.read(&address, 4);
     if (_flag)
       _commandData.seek(address);
     break;
   case CMD_JUMP_IF_NOT:
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_JUMP_IF_NOT");
-#endif
+    debug_cutscene("CMD_JUMP_IF_NOT");
     _commandData.read(&address, 4);
     if (!_flag)
       _commandData.seek(address);
     break;
   case CMD_JUMP:
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_JUMP");
-#endif
+    debug_cutscene("CMD_JUMP");
     _commandData.read(&address, 4);
     _commandData.seek(address);
     break;
   case CMD_START_BGM: {
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_START_BGM");
-#endif
+    debug_cutscene("CMD_START_BGM");
     bool loop;
     _commandData.read(&loop, 1);
     std::string path = _commandData.readstring();
@@ -464,15 +408,11 @@ bool Cutscene::runCommand(u8 cmd) {
     break;
   }
   case CMD_STOP_BGM:
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_STOP_BGM");
-#endif
+    debug_cutscene("CMD_STOP_BGM");
     Audio2::stopBGMusic();
     break;
   case CMD_PLAY_SFX: {
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_PLAY_SFX");
-#endif
+    debug_cutscene("CMD_PLAY_SFX");
     s8 loops;
     _commandData.read(&loops, 1);
     std::string path = _commandData.readstring();
@@ -484,9 +424,7 @@ bool Cutscene::runCommand(u8 cmd) {
     break;
   }
   case CMD_SET_FLAG: {
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_SET_FLAG");
-#endif
+    debug_cutscene("CMD_SET_FLAG");
     u16 flagId, flagValue;
     _commandData.read(&flagId, 2);
     _commandData.read(&flagValue, 2);
@@ -495,9 +433,7 @@ bool Cutscene::runCommand(u8 cmd) {
     break;
   }
   case CMD_ADD_FLAG: {
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_ADD_FLAG");
-#endif
+    debug_cutscene("CMD_ADD_FLAG");
     u16 flagId;
     s16 flagMod;
     _commandData.read(&flagId, 2);
@@ -507,9 +443,7 @@ bool Cutscene::runCommand(u8 cmd) {
     break;
   }
   case CMD_CMP_FLAG: {
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_CMP_FLAG");
-#endif
+    debug_cutscene("CMD_CMP_FLAG");
     u16 flagId, flagValue, cmpValue;
     u8 comparator;
     _commandData.read(&flagId, 2);
@@ -527,9 +461,7 @@ bool Cutscene::runCommand(u8 cmd) {
     break;
   }
   case CMD_SET_COLLIDER_ENABLED: {
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_SET_COLLIDER_ENABLED");
-#endif
+    debug_cutscene("CMD_SET_COLLIDER_ENABLED");
     u8 colliderId;
     bool enabled;
     _commandData.read(&colliderId, 1);
@@ -543,9 +475,7 @@ bool Cutscene::runCommand(u8 cmd) {
     break;
   }
   case CMD_SET_ACTION: {
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_SET_ACTION");
-#endif
+    debug_cutscene("CMD_SET_ACTION");
     // TODO: IMPROVE and add other actions
     u8 interactAction;
     u16 cutsceneId_;
@@ -568,25 +498,19 @@ bool Cutscene::runCommand(u8 cmd) {
     break;
   }
   case CMD_SAVE_MENU:
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_SAVE_MENU");
-#endif
+    debug_cutscene("CMD_SAVE_MENU");
     if (_cSaveMenu == nullptr)
       _cSaveMenu = std::make_unique<SaveMenu>(_room->_save.get(), _roomId);
     break;
   case CMD_MAX_HEALTH:
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_MAX_HEALTH");
-#endif
+    debug_cutscene("CMD_MAX_HEALTH");
     _room->_save->hp = _room->_save->maxHp;
     _room->_ingame_menu->updateHp();
     if (_cBattle != nullptr)
       _cBattle->showHp();
     break;
   case CMD_CMP_ENEMY_HP: {
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_CMP_ENEMY_HP");
-#endif
+    debug_cutscene("CMD_CMP_ENEMY_HP");
     u8 enemyIdx, comparator;
     u16 cmpValue;
     _commandData.read(&enemyIdx, 1);
@@ -608,15 +532,11 @@ bool Cutscene::runCommand(u8 cmd) {
     break;
   }
   case CMD_CLEAR_NAV_TASKS:
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_CLEAR_NAV_TASKS");
-#endif
+    debug_cutscene("CMD_CLEAR_NAV_TASKS");
     nav->clearAllTasks();
     break;
   case CMD_LOAD_SPRITE_RELATIVE: {
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_LOAD_SPRITE_RELATIVE");
-#endif
+    debug_cutscene("CMD_LOAD_SPRITE_RELATIVE");
     u16 sprId;
     s32 dx, dy, layer;
     _commandData.read(&sprId, 2);
@@ -630,9 +550,7 @@ bool Cutscene::runCommand(u8 cmd) {
     break;
   }
   case CMD_SET_CELL:
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_SET_CELL");
-#endif
+    debug_cutscene("CMD_SET_CELL");
     for (u8 &i : _room->_save->cell) {
       _commandData.read(&i, 1);
       if (i == 0)
@@ -640,9 +558,7 @@ bool Cutscene::runCommand(u8 cmd) {
     }
     break;
   case CMD_CLEAR: {
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_CLEAR");
-#endif
+    debug_cutscene("CMD_CLEAR");
     bool mainScreen;
     _commandData.read(&mainScreen, 1);
     Engine::TextBGManager &txt =
@@ -651,9 +567,7 @@ bool Cutscene::runCommand(u8 cmd) {
     break;
   }
   case CMD_ENEMY_COMMAND: {
-#ifdef DEBUG_CUTSCENES
-    nocashMessage("CMD_ENEMY_COMMAND");
-#endif
+    debug_cutscene("CMD_ENEMY_COMMAND");
     s8 enemyNum;
     u8 enemyNum2;
     u8 enemyCmd;
@@ -661,7 +575,7 @@ bool Cutscene::runCommand(u8 cmd) {
     _commandData.read(&enemyCmd, 1);
 
     if (_cBattle == nullptr) {
-      nocashMessage("Attempted enemy command while not in battle!");
+      Engine::throw_("Attempted enemy command while not in battle!");
       break;
     }
     if (enemyNum < 0)
@@ -669,16 +583,15 @@ bool Cutscene::runCommand(u8 cmd) {
     else
       enemyNum2 = enemyNum;
     if (enemyNum2 >= _cBattle->_enemies.size()) {
-      nocashMessage("Enemy command num outside of range!");
+      Engine::throw_("Enemy command num outside of range!");
       break;
     }
     _cBattle->_enemies[enemyNum]->enemyCommand(enemyCmd);
     break;
   }
   default:
-    std::string buffer = "Error cmd " + std::to_string(cmd) +
-                         " unknown, pos:" + std::to_string(_commandData.tell());
-    nocashMessage(buffer.c_str());
+    Engine::throw_("Error cmd " + std::to_string(cmd) +
+                   " unknown, pos:" + std::to_string(_commandData.tell()));
     return true;
   }
   return false;

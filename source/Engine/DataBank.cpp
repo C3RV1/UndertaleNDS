@@ -9,22 +9,20 @@
 
 void DataBank::load(std::string path) {
   FILE *f = fopen(path.c_str(), "rb");
-  if (!f) {
-    std::string buffer = "Error opening text bank " + path;
-    Engine::throw_(buffer);
-  }
+  if (!f)
+    Engine::throw_("Error opening text bank " + path);
 
   u32 fileSizeWithoutHeader;
 
-  if (!checkHeader(f, fileSizeWithoutHeader)) {
-    std::string buffer = "Error header text bank " + path;
-    Engine::throw_(buffer);
-  }
+  if (!checkHeader(f, fileSizeWithoutHeader))
+    Engine::throw_("Error header text bank " + path);
 
+  // Pad size to u32 (4 bytes)
   auto data = std::unique_ptr<u32[]>(new u32[(fileSizeWithoutHeader + 3) / 4]);
   fread(data.get(), fileSizeWithoutHeader, 1, f);
   fclose(f);
 
+  // LZSS format starts with XX XX XX 10 where XX XX XX is decompressed size.
   u32 decompressedSize = data[0] >> 8;
 
   auto dataDecompressed = std::unique_ptr<u8[]>(new u8[decompressedSize]);
@@ -78,11 +76,10 @@ u32 DataBank::loadFileTable(u8 *data) {
   char buffer[32];
   u32 startPos, length;
 
-  nocashMessage(
-      ("Loading table with " + std::to_string(count) + " elements").c_str());
+  Engine::log_("Loading table with " + std::to_string(count) + " elements");
   for (u32 i = 0; i < count; i++) {
     memcpy(buffer, &data[pos], 32);
-    nocashMessage(buffer);
+    Engine::log_(buffer);
     pos += 32;
     startPos = *(u32 *)(&data[pos]);
     pos += 4;
@@ -90,20 +87,18 @@ u32 DataBank::loadFileTable(u8 *data) {
     pos += 4;
 
     auto added = _fileTable.insert({{buffer}, {startPos, length}}).first;
-    nocashMessage(("Added " + added->first + ": " +
-                   std::to_string(added->second.first) + ", " +
-                   std::to_string(added->second.second))
-                      .c_str());
+    Engine::log_("Added " + added->first + ": " +
+                 std::to_string(added->second.first) + ", " +
+                 std::to_string(added->second.second));
   }
   return pos;
 }
 
 std::string DataBank::getText(std::string textPath) {
   auto textKV = _fileTable.find(textPath);
-  if (textKV == _fileTable.end()) {
-    std::string buffer = "Couldn't find text: " + textPath;
-    Engine::throw_(buffer);
-  }
+  if (textKV == _fileTable.end())
+    Engine::throw_("Couldn't find text: " + textPath);
+    
   auto textPosLen = textKV->second;
   return std::string(&_data[textPosLen.first],
                      &_data[textPosLen.first + textPosLen.second]);
@@ -111,20 +106,18 @@ std::string DataBank::getText(std::string textPath) {
 
 const u8 *DataBank::getFile(std::string textPath) {
   auto textKV = _fileTable.find(textPath);
-  if (textKV == _fileTable.end()) {
-    std::string buffer = "Couldn't find text: " + textPath;
-    Engine::throw_(buffer);
-  }
+  if (textKV == _fileTable.end())
+    Engine::throw_("Couldn't find text: " + textPath);
+  
   auto textPosLen = textKV->second;
   return &_data[textPosLen.first];
 }
 
 u32 DataBank::getSize(std::string textPath) {
   auto textKV = _fileTable.find(textPath);
-  if (textKV == _fileTable.end()) {
-    std::string buffer = "Couldn't find text: " + textPath;
-    Engine::throw_(buffer);
-  }
+  if (textKV == _fileTable.end())
+    Engine::throw_("Couldn't find text: " + textPath);
+  
   auto textPosLen = textKV->second;
   return textPosLen.second;
 }

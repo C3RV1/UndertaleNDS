@@ -2,13 +2,13 @@
 // Created by cervi on 11/11/2022.
 //
 
+#include "DEBUG_FLAGS.hpp"
 #include "Engine/FreeZoneManager.hpp"
 #include "Engine/Engine.hpp"
+#include <string>
 
 namespace Engine {
 int FreeZoneManager::reserve(u16 length, u16 &start, u16 alignment) {
-  char buffer[100];
-
   auto freeZoneIdx = _zones.begin();
   u16 length_ = 0, alignOffset = 0;
   for (; freeZoneIdx != _zones.end(); freeZoneIdx++) {
@@ -20,13 +20,10 @@ int FreeZoneManager::reserve(u16 length, u16 &start, u16 alignment) {
   }
 
   if (freeZoneIdx >= _zones.end()) {
-    sprintf(buffer,
-            "FZM %s error reserve %d length %d (needed %d) alignment %d",
-            _name.c_str(), start, length_, length, alignment);
-#ifdef DEBUG_ZONES_DUMP
     dump();
-#endif
-    throw_(buffer);
+    throw_("FZM " + _name + " error reserve " + std::to_string(start) +
+           " length " + std::to_string(length_) + " (needed " +
+           std::to_string(length) + ") alignment " + std::to_string(alignment));
     return 1;
   }
 
@@ -51,38 +48,29 @@ int FreeZoneManager::reserve(u16 length, u16 &start, u16 alignment) {
     }
   }
 
-#ifdef DEBUG_ZONES
-  sprintf(buffer, "FZM %s reserve %d (align %d) -> start %d", _name.c_str(),
-          length, alignment, start);
-  nocashMessage(buffer);
-#endif
+  debug_zones("FZM " + _name + " reserve " + std::to_string(length) +
+                  " (align " + std::to_string(alignment) + ") -> start " +
+                  std::to_string(start));
 
-#ifdef DEBUG_ZONES_DUMP
   dump();
-#endif
 
   return 0;
 }
 
-#ifdef DEBUG_ZONES_DUMP
 void FreeZoneManager::dump() {
-  char buffer[100];
-  sprintf(buffer, "FZM %s DUMP %zu", _name.c_str(), _zones.size());
-  nocashMessage(buffer);
+#ifdef DEBUG_ZONES_DUMP
+  Engine::log_("FZM " + _name + + " DUMP " + std::to_string(_zones.size()));
   for (auto const &zone : _zones) {
-    sprintf(buffer, "ZONE %d (%d)", zone.first, zone.second);
-    nocashMessage(buffer);
+    Engine::log_("ZONE " + std::to_string(zone.first) + " (" +
+                 std::to_string(zone.second) + ")");
   }
-  nocashMessage("----------------------------------");
-}
+  Engine::log_("----------------------------------");
 #endif
+}
 
 void FreeZoneManager::free(u16 length, u16 start) {
-#ifdef DEBUG_ZONES
-  char buffer[100];
-  sprintf(buffer, "FZM %s free %d (%d)", _name.c_str(), start, length);
-  nocashMessage(buffer);
-#endif
+  debug_zones("FZM " + _name + " free " + std::to_string(start) + " (" +
+              std::to_string(length) + ")");
 
   auto freeAfterIdx = _zones.begin();
   for (; freeAfterIdx != _zones.end(); freeAfterIdx++) {
@@ -116,8 +104,6 @@ void FreeZoneManager::free(u16 length, u16 start) {
     _zones.emplace(freeAfterIdx, start, length);
   }
 
-#ifdef DEBUG_ZONES_DUMP
   dump();
-#endif
 }
 } // namespace Engine

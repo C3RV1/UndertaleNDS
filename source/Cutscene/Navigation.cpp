@@ -72,10 +72,8 @@ void Navigation::set_animation(const TargetInfo &targetInfo,
 
 void Navigation::set_opacity(const TargetInfo &targetInfo, u8 opacity) {
   auto spriteManager = getTarget(targetInfo);
-  if (spriteManager == nullptr) {
-    nocashMessage("no target");
+  if (spriteManager == nullptr)
     return;
-  }
   spriteManager->_opacity = opacity;
 }
 

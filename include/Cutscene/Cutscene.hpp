@@ -37,4 +37,5 @@ private:
   BufferReader _commandData;
 };
 
+
 #endif // UNDERTALE_CUTSCENE_HPP

@@ -4,6 +4,7 @@
 
 #include "Battle/BattleAction.hpp"
 #include "Engine/DataBank.hpp"
+#include "Engine/Engine.hpp"
 
 #include "Engine/Background.hpp"
 #include "Engine/Font.hpp"
@@ -161,7 +162,7 @@ int BattleAction::getActionNum() const {
       return 40;
     return 41 + _cTarget;
   default:
-    nocashMessage("GetActionNum fail");
+    Engine::throw_("GetActionNum fail");
     return 0;
   }
 }

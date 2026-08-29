@@ -55,12 +55,12 @@ int init() {
   powerOn(POWER_ALL);
 
   if (!fatInitDefault()) {
-    nocashMessage("Error initing fat. Continuing... might be playing on "
-                  "emulator w/out DLDI?");
+    log_("Error initing fat. Continuing... might be playing on "
+         "emulator w/out DLDI?");
   }
 
   if (!nitroFSInit(nullptr)) {
-    nocashMessage("nitroFSInit failure!\n");
+    log_("nitroFSInit failure!\n");
     return -1;
   }
 
@@ -141,10 +141,10 @@ void tick() {
 
 [[noreturn]] void throw_(std::string message) {
   static bool handlingException = false;
-  nocashMessage("Exception caught:");
-  nocashMessage(message.c_str());
+  log_("Exception caught:");
+  log_(message);
   if (handlingException) {
-    nocashMessage("Recursive call to throw_");
+    log_("Recursive call to throw_");
     while (true)
       ;
   }

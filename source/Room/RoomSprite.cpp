@@ -216,7 +216,7 @@ void RoomSprite::commit_player_move() {
       _room->_cutscene = std::make_unique<Cutscene>(_pushable._goal_cutscene_id,
                                                     _room->_roomId, _room);
     else
-      nocashMessage("Cannot create goal cutscene: Already playing another!");
+      Engine::log_("Cannot create goal cutscene: Already playing another!");
   }
 }
 

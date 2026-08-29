@@ -29,11 +29,9 @@ int OAMManager::loadSprite(std::shared_ptr<Sprite> res) {
     return -1;
   if (res->_allocated != NoAlloc)
     return -2;
-  if (!res->_texture->_hasOam) {
-    std::string buffer = "Error loading spr #r" + res->_texture->_path +
-                         "#x to OAM: Sprite doesn't have OAM chunk.";
-    throw_(buffer);
-  }
+  if (!res->_texture->_hasOam)
+    throw_("Error loading spr #r" + res->_texture->_path +
+           "#x to OAM: Sprite doesn't have OAM chunk.");
 
   auto &colors = res->_texture->_colors;
 
@@ -64,9 +62,8 @@ int OAMManager::loadSprite(std::shared_ptr<Sprite> res) {
     // then we use the free palette
     if (freePalette == -1) {
       // If we couldn't find a free palette, return.
-      std::string buffer = "Error loading spr #r" + res->_texture->_path +
-                           "#x to OAM: No available palettes.";
-      throw_(buffer);
+      throw_("Error loading spr #r" + res->_texture->_path +
+             "#x to OAM: No available palettes.");
     }
     mem.palette = freePalette;
     dmaCopySafe(3, &res->_texture->_colors[0],
@@ -135,10 +132,10 @@ int OAMManager::reserveOAMEntry(u8 tileW, u8 tileH) {
       break;
     }
   }
-  if (oamId == -1) {
-    std::string buffer = "Error reserving OAM entry: OAM is full";
-    throw_(buffer);
-  }
+  
+  if (oamId == -1)
+    throw_("Error reserving OAM entry: OAM is full");
+  
   oamEntry->free_ = false;
   oamEntry->tileWidth = tileW;
   oamEntry->tileHeight = tileH;
@@ -146,9 +143,7 @@ int OAMManager::reserveOAMEntry(u8 tileW, u8 tileH) {
   // load tiles in groups of animations
   u16 neededTiles = oamEntry->tileWidth * oamEntry->tileHeight;
   _tileZones.reserve(neededTiles, oamEntry->tileStart, 2);
-#ifdef DEBUG_2D
   dumpOamState();
-#endif
 
   return oamId;
 }
@@ -168,23 +163,21 @@ void OAMManager::freeOAMEntry(int oamId) {
   u16 length = oamEntry->tileWidth * oamEntry->tileHeight;
   _tileZones.free(length, oamEntry->tileStart);
 
-#ifdef DEBUG_2D
   dumpOamState();
-#endif
 }
 
-#ifdef DEBUG_2D
 void OAMManager::dumpOamState() {
-  char buffer[100];
+#ifdef DEBUG_2D
   for (int i = 0; i < 128; i++) {
     if (_oamEntries[i].free_)
       continue;
-    sprintf(buffer, "OAM %d start %d w %d h %d", i, _oamEntries[i].tileStart,
-            _oamEntries[i].tileWidth, _oamEntries[i].tileHeight);
-    nocashMessage(buffer);
+    Engine::log_("OAM " + std::to_string(i) + " start " +
+                 std::to_string(_oamEntries[i].tileStart) + " w " +
+                 std::to_string(_oamEntries[i].tileWidth) + " h " +
+                 std::to_string(_oamEntries[i].tileHeight));
   }
-}
 #endif
+}
 
 void OAMManager::freeSprite(std::shared_ptr<Sprite> spr) {
   if (spr->_allocated != AllocatedOAM)

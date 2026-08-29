@@ -5,7 +5,6 @@
 #define UNDERTALE_CONDITIONAL_FILE_HPP
 
 #include "DEBUG_FLAGS.hpp"
-#include "Engine/Engine.hpp"
 #include "Formats/utils.hpp"
 #include "Save.hpp"
 #include <nds.h>
@@ -29,9 +28,7 @@ public:
   bool hasMoreVariations();
   bool orWithPrevious();
 
-#ifdef DEBUG_CONDITIONAL_FILE
   std::string to_string();
-#endif
 
 private:
   static constexpr u8 kFlipBit = 1 << 2;
@@ -47,14 +44,14 @@ Condition readCondition(BufferReader *rdr);
 
 template <typename> struct tag {};
 
-u8 readConditionalValue(tag<u8>, BufferReader *rdr, SaveData *save);
-u16 readConditionalValue(tag<u16>, BufferReader *rdr, SaveData *save);
-u32 readConditionalValue(tag<u32>, BufferReader *rdr, SaveData *save);
-s8 readConditionalValue(tag<s8>, BufferReader *rdr, SaveData *save);
-s16 readConditionalValue(tag<s16>, BufferReader *rdr, SaveData *save);
-s32 readConditionalValue(tag<s32>, BufferReader *rdr, SaveData *save);
-bool readConditionalValue(tag<bool>, BufferReader *rdr, SaveData *save);
-std::string readConditionalValue(tag<std::string>, BufferReader *rdr,
+u8 readValue(tag<u8>, BufferReader *rdr, SaveData *save);
+u16 readValue(tag<u16>, BufferReader *rdr, SaveData *save);
+u32 readValue(tag<u32>, BufferReader *rdr, SaveData *save);
+s8 readValue(tag<s8>, BufferReader *rdr, SaveData *save);
+s16 readValue(tag<s16>, BufferReader *rdr, SaveData *save);
+s32 readValue(tag<s32>, BufferReader *rdr, SaveData *save);
+bool readValue(tag<bool>, BufferReader *rdr, SaveData *save);
+std::string readValue(tag<std::string>, BufferReader *rdr,
                                  SaveData *save);
 
 #if defined(DEBUG_CONDITIONAL_FILE) && !defined(__GXX_RTTI)
@@ -73,17 +70,14 @@ struct TypeName {
 template <class T>
 T readConditionalData(BufferReader *rdr, SaveData *save, ConditionalObj *obj) {
 #ifdef DEBUG_CONDITIONAL_FILE
-  Engine::log_("readConditionalData<" + TypeName<T>::Get() + ">");
+  debug_conditional_file("readConditionalData<" + TypeName<T>::Get() + ">");
 #endif
+
   if (!obj->nextIsConditional(rdr)) {
-#ifdef DEBUG_CONDITIONAL_FILE
-    Engine::log_("Unconditional data");
-#endif
-    return readConditionalValue(tag<T>{}, rdr, save);
+    debug_conditional_file("Unconditional data");
+    return readValue(tag<T>{}, rdr, save);
   }
-#ifdef DEBUG_CONDITIONAL_FILE
-  Engine::log_("Conditional data");
-#endif
+  debug_conditional_file("Conditional data");
 
   std::optional<T> data = {};
   std::optional<Condition> c = {};
@@ -91,10 +85,8 @@ T readConditionalData(BufferReader *rdr, SaveData *save, ConditionalObj *obj) {
     bool areConditionsTrue = true;
     do {
       c = readCondition(rdr);
-#ifdef DEBUG_CONDITIONAL_FILE
-      Engine::log_("Condition: " + c->to_string() + " evaluates to " +
-                   std::to_string(c->checkCondition(save)));
-#endif
+      debug_conditional_file("Condition: " + c->to_string() + " evaluates to " +
+                           std::to_string(c->checkCondition(save)));
       if (!c->orWithPrevious())
         areConditionsTrue &= c->checkCondition(save);
       else
@@ -102,28 +94,20 @@ T readConditionalData(BufferReader *rdr, SaveData *save, ConditionalObj *obj) {
     } while (c->hasMoreConditions());
 
     if (areConditionsTrue && !data) {
-#ifdef DEBUG_CONDITIONAL_FILE
-      Engine::log_("Conditions passed! Data set");
-#endif
-      data = readConditionalValue(tag<T>{}, rdr, save);
+      debug_conditional_file("Conditions passed! Data set");
+      data = readValue(tag<T>{}, rdr, save);
     } else {
-#ifdef DEBUG_CONDITIONAL_FILE
-      Engine::log_("Conditions did not pass... Discarding");
-#endif
-      T _ = readConditionalValue(tag<T>{}, rdr, save);
+      debug_conditional_file("Conditions did not pass... Discarding");
+      T _ = readValue(tag<T>{}, rdr, save);
     }
   } while (c->hasMoreVariations());
 
   if (!data) {
-#ifdef DEBUG_CONDITIONAL_FILE
-    Engine::log_("Returning default value");
-#endif
-    return readConditionalValue(tag<T>{}, rdr, save);
+    debug_conditional_file("Returning default value");
+    return readValue(tag<T>{}, rdr, save);
   } else {
-#ifdef DEBUG_CONDITIONAL_FILE
-    Engine::log_("Discarding default value");
-#endif
-    T _ = readConditionalValue(tag<T>{}, rdr, save);
+    debug_conditional_file("Discarding default value");
+    T _ = readValue(tag<T>{}, rdr, save);
   }
 
   return *data;
@@ -140,30 +124,24 @@ public:
 template <class T>
 void VectorConditional<T>::read(BufferReader *rdr, SaveData *save) {
 #ifdef DEBUG_CONDITIONAL_FILE
-  Engine::log_("VectorCondition::read<" + TypeName<T>::Get() + ">");
+  debug_conditional_file("VectorCondition::read<" + TypeName<T>::Get() + ">");
 #endif
   u16 num_elements;
   rdr->read(&num_elements, 2);
   for (size_t i = 0; i < num_elements; i++) {
     if (!nextIsConditional(rdr)) {
-#ifdef DEBUG_CONDITIONAL_FILE
-      Engine::log_("Unconditional data");
-#endif
-      this->push_back(readConditionalValue(tag<T>{}, rdr, save));
+      debug_conditional_file("Unconditional data");
+      this->push_back(readValue(tag<T>{}, rdr, save));
       continue;
     }
-#ifdef DEBUG_CONDITIONAL_FILE
-    Engine::log_("Conditional data");
-#endif
 
+    debug_conditional_file("Conditional data");
     std::optional<Condition> c = {};
     bool areConditionsTrue = true;
     do {
       c = readCondition(rdr);
-#ifdef DEBUG_CONDITIONAL_FILE
-      Engine::log_("Condition: " + c->to_string() + " evaluates to " +
-                   std::to_string(c->checkCondition(save)));
-#endif
+      debug_conditional_file("Condition: " + c->to_string() + " evaluates to " +
+                           std::to_string(c->checkCondition(save)));
       if (!c->orWithPrevious())
         areConditionsTrue &= c->checkCondition(save);
       else
@@ -172,22 +150,17 @@ void VectorConditional<T>::read(BufferReader *rdr, SaveData *save) {
 
     u8 value_count;
     rdr->read(&value_count, 1);
-#ifdef DEBUG_CONDITIONAL_FILE
-    Engine::log_("Condition has " + std::to_string(value_count) + " values");
-#endif
+    debug_conditional_file("Condition has " + std::to_string(value_count) +
+                         " values");
 
     for (int j = 0; j < value_count; j++) {
-      T data = readConditionalValue(tag<T>{}, rdr, save);
+      T data = readValue(tag<T>{}, rdr, save);
       if (areConditionsTrue) {
-#ifdef DEBUG_CONDITIONAL_FILE
-        Engine::log_("Conditions passed! Pushing back");
-#endif
+        debug_conditional_file("Conditions passed! Pushing back");
         this->push_back(data);
       }
-#ifdef DEBUG_CONDITIONAL_FILE
       else
-        Engine::log_("Conditions did not pass... Discarding");
-#endif
+        debug_conditional_file("Conditions did not pass... Discarding");
     }
 
   }

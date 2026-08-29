@@ -38,12 +38,10 @@ bool SaveData::loadData() {
   fCard.read(header, 4);
 
   if (memcmp(header, expectedHeader, 4) != 0) {
-#ifdef DEBUG_SAVE
     std::string buffer = "Save: BAD HEADER: ";
     for (int i = 0; i < 4; i++)
       buffer += std::to_string((int)header[i]) + " ";
-    nocashMessage(buffer.c_str());
-#endif
+    Engine::log_(buffer.c_str());
     fCard.close();
     clear(INTERNAL_RESET);
     return true;
@@ -52,9 +50,7 @@ bool SaveData::loadData() {
   u32 saveVersion_;
   fCard.read(&saveVersion_, 4);
   if (saveVersion_ != saveVersion) {
-#ifdef DEBUG_SAVE
-    nocashMessage("Save: BAD VERSION.");
-#endif
+    Engine::log_("Save: BAD VERSION.");
     fCard.close();
     clear(INTERNAL_RESET);
     return true;
@@ -111,7 +107,7 @@ bool SaveData::saveData(u16 roomId) {
 
 bool SaveData::writePermanentFlags() {
   if (!fCard.open("wb")) {
-    nocashMessage("Error saving permanent flags!");
+    Engine::log_("Error saving permanent flags!");
     return false;
   }
   fCard.seek(4 + 4 + MAX_NAME_LEN + 1 + 2 * FlagIds::PERSISTENT, SEEK_SET);

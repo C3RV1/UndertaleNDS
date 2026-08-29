@@ -13,6 +13,7 @@
 #include "Engine/TextBGManager.hpp"
 #include "Engine/WAV.hpp"
 #include "Engine/math.hpp"
+#include "Engine/Engine.hpp"
 #include <memory>
 #include <string>
 
@@ -28,11 +29,9 @@ std::unique_ptr<Enemy> getEnemy(Battle *battle, u16 enemyId) {
     return std::make_unique<Dummy>(battle);
   case 2:
     return std::make_unique<Froggit>(battle, true);
-  default: {
-    std::string msg = "Couldn't create enemy: " + std::to_string(enemyId);
-    nocashMessage(msg.c_str());
+  default:
+    Engine::throw_("Couldn't create enemy: " + std::to_string(enemyId));
     return nullptr;
-  }
   }
 }
 

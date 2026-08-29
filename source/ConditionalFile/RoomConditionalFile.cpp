@@ -5,6 +5,7 @@
 #include "ConditionalFile/RoomConditionalFile.hpp"
 #include "ConditionalFile/ConditionalFile.hpp"
 #include "Engine/Engine.hpp"
+#include "DEBUG_FLAGS.hpp"
 #include "Formats/utils.hpp"
 #include <string>
 
@@ -15,11 +16,9 @@ void RoomSideExit::read(BufferReader* rdr, SaveData *save) {
   _exitSide = readConditionalData<u8>(rdr, save, this);
 }
 
-RoomSideExit readConditionalValue(tag<RoomSideExit>, BufferReader* rdr,
+RoomSideExit readValue(tag<RoomSideExit>, BufferReader* rdr,
                                   SaveData* save) {
-#ifdef DEBUG_CONDITIONAL_FILE
-  Engine::log_("Reading RoomSideExit value");
-#endif
+  debug_conditional_file("Reading RoomSideExit value");
   RoomSideExit data;
   data.read(rdr, save);
   return data;
@@ -59,10 +58,8 @@ void RoomSpriteActionUnion::read(BufferReader* rdr, SaveData* save) {
   }
 }
 
-RoomSpriteActionUnion readConditionalValue(tag<RoomSpriteActionUnion>, BufferReader* rdr, SaveData* save) {
-#ifdef DEBUG_CONDITIONAL_FILE
-  Engine::log_("Reading RoomSpriteActionUnion value");
-#endif
+RoomSpriteActionUnion readValue(tag<RoomSpriteActionUnion>, BufferReader* rdr, SaveData* save) {
+  debug_conditional_file("Reading RoomSpriteActionUnion value");
   RoomSpriteActionUnion data;
   data.read(rdr, save);
   return data;
@@ -77,10 +74,8 @@ void RoomSpriteData::read(BufferReader* rdr, SaveData* save) {
   _action = readConditionalData<RoomSpriteActionUnion>(rdr, save, this);
 }
 
-RoomSpriteData readConditionalValue(tag<RoomSpriteData>, BufferReader* rdr, SaveData* save) {
-#ifdef DEBUG_CONDITIONAL_FILE
-  Engine::log_("Reading RoomSpriteData value");
-#endif
+RoomSpriteData readValue(tag<RoomSpriteData>, BufferReader* rdr, SaveData* save) {
+  debug_conditional_file("Reading RoomSpriteData value");
   RoomSpriteData data;
   data.read(rdr, save);
   return data;
@@ -105,10 +100,8 @@ void RoomColliderTypeUnion::read(BufferReader* rdr, SaveData* save) {
   }
 }
 
-RoomColliderTypeUnion readConditionalValue(tag<RoomColliderTypeUnion>, BufferReader* rdr, SaveData* save) {
-#ifdef DEBUG_CONDITIONAL_FILE
-  Engine::log_("Reading RoomColliderTypeUnion value");
-#endif
+RoomColliderTypeUnion readValue(tag<RoomColliderTypeUnion>, BufferReader* rdr, SaveData* save) {
+  debug_conditional_file("Reading RoomColliderTypeUnion value");
   RoomColliderTypeUnion data;
   data.read(rdr, save);
   return data;
@@ -125,10 +118,8 @@ void RoomColliderData::read(BufferReader *rdr, SaveData *save) {
   _type = readConditionalData<RoomColliderTypeUnion>(rdr, save, this);
 }
 
-RoomColliderData readConditionalValue(tag<RoomColliderData>, BufferReader* rdr, SaveData* save) {
-#ifdef DEBUG_CONDITIONAL_FILE
-  Engine::log_("Reading RoomColliderData value");
-#endif
+RoomColliderData readValue(tag<RoomColliderData>, BufferReader* rdr, SaveData* save) {
+  debug_conditional_file("Reading RoomColliderData value");
   RoomColliderData data;
   data.read(rdr, save);
   return data;

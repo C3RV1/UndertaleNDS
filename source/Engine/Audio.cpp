@@ -30,7 +30,7 @@ void AudioFile::allocateBuffers() {
 
 void AudioManager::play(std::shared_ptr<AudioFile> audio_file) {
   if (!audio_file) {
-    nocashMessage("Tried to play nullptr audio_file!");
+    Engine::throw_("Tried to play nullptr audio_file!");
     return;
   }
 
@@ -57,11 +57,9 @@ bool AudioFile::play() {
     stop();
   }
   _active = true;
-#ifdef DEBUG_AUDIO
-  Engine::log_("Starting wav: " + getFilename() + " stereo " +
-               std::to_string(getStereo()) + " sample rate " +
-               std::to_string(_sampleRate));
-#endif
+  debug_audio("Starting wav: " + getFilename() + " stereo " +
+              std::to_string(getStereo()) + " sample rate " +
+              std::to_string(_sampleRate));
 
   resetPlaying();
 
@@ -81,11 +79,9 @@ bool AudioFile::play() {
   _timerLast = timerTick(audioManager.getTimerId());
 
   progress(kAudioBuffer / 2);
-  
-#ifdef DEBUG_AUDIO
-  Engine::log_("Sound channels: " + std::to_string(_leftChannel) + " " +
-               std::to_string(_rightChannel));
-#endif
+
+  debug_audio("Sound channels: " + std::to_string(_leftChannel) + " " +
+              std::to_string(_rightChannel));
 
   exitAudioCritical(old_irq);
   return true;
@@ -108,11 +104,9 @@ void AudioFile::stop() {
     return;
   }
 
-#ifdef DEBUG_AUDIO
-  Engine::log_("Stopping wav: " + getFilename());
-  Engine::log_("Sound channels: " + std::to_string(_leftChannel) + " " +
-               std::to_string(_rightChannel));
-#endif
+  debug_audio("Stopping wav: " + getFilename());
+  debug_audio("Sound channels: " + std::to_string(_leftChannel) + " " +
+              std::to_string(_rightChannel));
 
   _active = false;
 

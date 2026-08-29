@@ -3,6 +3,7 @@
 //
 #include "Engine/Sprite.hpp"
 #include "Engine/Texture.hpp"
+#include "Engine/Engine.hpp"
 #include <memory>
 #include <string>
 
@@ -125,8 +126,7 @@ int Sprite::nameToAnimId(const std::string &animName) const {
       return i;
     }
   }
-  std::string buffer = "Not found animation: " + animName;
-  nocashMessage(buffer.c_str());
+  log_("Not found animation: " + animName);
   return -1;
 }
 

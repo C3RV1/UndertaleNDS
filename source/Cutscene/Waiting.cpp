@@ -6,12 +6,13 @@
 #include "Battle/Battle.hpp"
 #include "Cutscene/Cutscene.hpp"
 #include "Cutscene/CutsceneEnums.hpp"
+#include "Engine/Engine.hpp"
 
 Waiting::Waiting(Cutscene* cutscene) : _cutscene(cutscene) {}
 
 void Waiting::wait(WaitingType waitingType) {
   if (waitingType == WAIT_FRAMES) {
-    nocashMessage("Wait called with wait frames?");
+    Engine::throw_("Wait called with wait frames!");
     return;
   }
   _cWait = waitingType;
@@ -24,6 +25,7 @@ void Waiting::waitIgnore(WaitingType waitingType) {
 
 void Waiting::waitFrames(int frames) {
   _cWait = WAIT_FRAMES;
+  // FIXME: Should this be like this?
   _cWaitTime = frames + 1; // Hack to improve navigation sync
 }
 

@@ -5,7 +5,6 @@
 #include "Engine/Font.hpp"
 #include "DEBUG_FLAGS.hpp"
 #include "Engine/Engine.hpp"
-#include "Formats/utils.hpp"
 
 namespace Engine {
 bool Font::loadPath(const std::string &path) {
@@ -13,10 +12,9 @@ bool Font::loadPath(const std::string &path) {
   _path = path;
 
   FILE *f = fopen(pathFull.c_str(), "rb");
-  if (!f) {
-    std::string buffer = "Error opening font #r" + _path;
-    throw_(buffer);
-  }
+  if (!f)
+    throw_("Error opening font #r" + _path);
+  
   setvbuf(f, NULL, _IOFBF, 4 * 1024);
 
   loadCFNT(f);
@@ -34,11 +32,8 @@ void Font::loadCFNT(FILE *f) {
   fread(header, 4, 1, f);
 
   const char expectedChar[4] = {'C', 'F', 'N', 'T'};
-  if (memcmp(header, expectedChar, 4) != 0) {
-    std::string buffer =
-        "Error loading font #r" + _path + "#x: Invalid header.";
-    throw_(buffer);
-  }
+  if (memcmp(header, expectedChar, 4) != 0)
+    throw_("Error loading font #r" + _path + "#x: Invalid header.");
 
   fread(&fileSize, 4, 1, f);
   u32 pos = ftell(f);
@@ -47,20 +42,18 @@ void Font::loadCFNT(FILE *f) {
   fseek(f, pos, SEEK_SET);
 
   if (fileSize != size) {
-    std::string buffer =
+    throw_(
         "Error loading font #r" + _path +
         "#x: File size doesn't match (expected: " + std::to_string(fileSize) +
-        ", actual: " + std::to_string(size) + ")";
-    throw_(buffer);
+        ", actual: " + std::to_string(size) + ")");
   }
 
   fread(&version, 4, 1, f);
   if (version != CFNTHeader::version) {
-    std::string buffer =
+    throw_(
         "Error loading spr #r" + _path +
         "#x: Invalid version (expected: 1, actual: " + std::to_string(version) +
-        ")";
-    throw_(buffer);
+        ")");
   }
 
   fread(&_glyphs.lineHeight, 1, 1, f);
@@ -101,26 +94,17 @@ std::shared_ptr<Engine::Font> FontManager::loadFont(const std::string &path) {
   auto fontKV = fonts.find(path);
   if (fontKV != fonts.end()) {
     if (!fontKV->second.expired()) {
-#ifdef DEBUG_FONTS
-      std::string msg = "Found font " + path + " in bank: reusing.";
-      nocashMessage(msg.c_str());
-#endif
+      debug_fonts("Found font " + path + " in bank: reusing.");
       return fontKV->second.lock();
     }
-#ifdef DEBUG_FONTS
     else {
-      std::string msg = "Found font " + path + " in bank: expired.";
-      nocashMessage(msg.c_str());
+      debug_fonts("Found font " + path + " in bank: expired.");
     }
-#endif
     fonts.erase(fontKV);
   }
-#ifdef DEBUG_FONTS
   else {
-    std::string msg = "Not found font " + path + " in bank.";
-    nocashMessage(msg.c_str());
+    debug_fonts("Not found font " + path + " in bank.");
   }
-#endif
 
   auto font = std::make_shared<Font>();
   font->loadPath(path);

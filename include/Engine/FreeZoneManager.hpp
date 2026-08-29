@@ -10,7 +10,6 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include "DEBUG_FLAGS.hpp"
 
 namespace Engine {
     class FreeZoneManager {
@@ -24,9 +23,7 @@ namespace Engine {
 
         void free(u16 length, u16 start);
 
-#ifdef DEBUG_ZONES_DUMP
         void dump();
-#endif
 
     private:
         std::vector<std::pair<u16, u16>> _zones;

@@ -23,7 +23,7 @@ public:
   u16 _spawnX, _spawnY;
   u8 _exitSide;
 };
-RoomSideExit readConditionalValue(tag<RoomSideExit>, BufferReader* rdr, SaveData* save);
+RoomSideExit readValue(tag<RoomSideExit>, BufferReader* rdr, SaveData* save);
 
 enum class RoomSpriteAction {
   NONE = 0,
@@ -65,7 +65,7 @@ public:
     bool _stop_on_goal;
   } _pushable;
 };
-RoomSpriteActionUnion readConditionalValue(tag<RoomSpriteActionUnion>, BufferReader* rdr, SaveData* save);
+RoomSpriteActionUnion readValue(tag<RoomSpriteActionUnion>, BufferReader* rdr, SaveData* save);
 
 
 class RoomSpriteData : public ConditionalObj {
@@ -78,7 +78,7 @@ public:
   std::string _animation;
   RoomSpriteActionUnion _action;
 };
-RoomSpriteData readConditionalValue(tag<RoomSpriteData>, BufferReader* rdr, SaveData* save);
+RoomSpriteData readValue(tag<RoomSpriteData>, BufferReader* rdr, SaveData* save);
 
 
 enum class RoomColliderType {
@@ -105,7 +105,7 @@ public:
     } _cutscene;
   };
 };
-RoomColliderTypeUnion readConditionalValue(tag<RoomColliderTypeUnion>, BufferReader* rdr, SaveData* save);
+RoomColliderTypeUnion readValue(tag<RoomColliderTypeUnion>, BufferReader* rdr, SaveData* save);
 
 
 class RoomColliderData : public ConditionalObj {
@@ -118,7 +118,7 @@ public:
 
   RoomColliderTypeUnion _type;
 };
-RoomColliderData readConditionalValue(tag<RoomColliderData>, BufferReader* rdr, SaveData* save);
+RoomColliderData readValue(tag<RoomColliderData>, BufferReader* rdr, SaveData* save);
 
 
 class RoomData : public ConditionalObj {

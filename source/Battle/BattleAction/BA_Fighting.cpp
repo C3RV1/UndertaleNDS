@@ -1,4 +1,5 @@
 #include "Battle/BattleAction.hpp"
+#include "Engine/Engine.hpp"
 
 bool BattleAction::updateFighting() {
   Enemy *enemy = (*_enemies)[_cTarget].get();
@@ -24,9 +25,7 @@ bool BattleAction::updateFighting() {
     if (damage < 0)
       damage = 0;
 
-    char buffer[200];
-    sprintf(buffer, "Damage %d\n", damage);
-    nocashMessage(buffer);
+    Engine::log_("Damage " + std::to_string(damage));
 
     enemy->doDamage(damage);
     enemy->_hp -= damage;

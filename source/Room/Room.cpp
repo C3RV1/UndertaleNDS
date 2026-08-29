@@ -44,10 +44,8 @@ Room::Room(int roomId, std::optional<std::pair<u16, u16>> spawnCoords,
   _bg.loadPath(_roomData._roomBg);
 
   int bgLoad = _bg.loadBgExtendedMain(512 / 8);
-  if (bgLoad != 0) {
-    buffer = "Error loading room bg. Error Code: " + std::to_string(bgLoad);
-    nocashMessage(buffer.c_str());
-  }
+  if (bgLoad != 0)
+    Engine::throw_("Error loading room bg. Error Code: " + std::to_string(bgLoad));
 
   if (!_roomData._musicPath.empty()) {
     bool musicChange =
@@ -203,7 +201,7 @@ void Room::pop() {
 
   int bgLoad = _bg.loadBgExtendedMain(512 / 8);
   if (bgLoad != 0)
-    nocashMessage(("Error loading room bg: %d" + std::to_string(bgLoad)).c_str());
+    Engine::throw_("Error loading room bg: %d" + std::to_string(bgLoad));
 
   for (auto &sprite : _sprites) {
     Engine::spritePop(sprite.second._spr);

@@ -7,6 +7,7 @@
 
 void runSaveErrorScreen(SaveData& save) {
   lcdMainOnTop();
+  return;
   
   std::string dialogueText = textBank.getText("");
   std::string typeSnd = "";

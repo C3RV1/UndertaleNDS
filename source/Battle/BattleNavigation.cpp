@@ -36,9 +36,8 @@ BattleNavigation::getTarget(const TargetInfo &targetInfo) {
     auto it = _battle->_sprites.find(targetInfo.targetId);
     if (it != _battle->_sprites.end())
       return it->second;
-    nocashMessage(("BattleNav: Target sprite with id " +
-                   std::to_string(targetInfo.targetId) + " not found.")
-                      .c_str());
+    Engine::throw_("BattleNav: Target sprite with id " +
+                   std::to_string(targetInfo.targetId) + " not found.");
     return nullptr;
   }
   case TargetType::ENEMY: {
@@ -48,16 +47,15 @@ BattleNavigation::getTarget(const TargetInfo &targetInfo) {
     else
       enemyTargetId2 = targetInfo.enemyTargetId;
     if (enemyTargetId2 >= _battle->_enemies.size()) {
-      nocashMessage("Error: target id outside of enemy count");
+      Engine::throw_("Error: target id outside of enemy count");
       return nullptr;
     }
     return _battle->_enemies[enemyTargetId2]->getSprite(
         targetInfo.enemySpriteId);
   }
   default:
-    nocashMessage(("Unknown target type for room nav: " +
-                   std::to_string(targetInfo.targetType))
-                      .c_str());
+    Engine::throw_("Unknown target type for room nav: " +
+                   std::to_string(targetInfo.targetType));
     return nullptr;
   }
 }

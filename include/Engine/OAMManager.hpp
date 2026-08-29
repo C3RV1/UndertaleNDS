@@ -5,7 +5,6 @@
 #ifndef UNDERTALE_OAM_MANAGER_HPP
 #define UNDERTALE_OAM_MANAGER_HPP
 
-#include "DEBUG_FLAGS.hpp"
 #include "Engine/FreeZoneManager.hpp"
 #include "Sprite.hpp"
 #include <memory>
@@ -32,9 +31,7 @@ class OAMManager {
 public:
   OAMManager(u16 *paletteRam, u16 *tileRam, u16 *oamRam);
 
-#ifdef DEBUG_2D
   void dumpOamState();
-#endif
 
   void draw();
 

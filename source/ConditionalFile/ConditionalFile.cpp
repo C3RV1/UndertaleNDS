@@ -4,16 +4,12 @@
 #include <string>
 
 bool ConditionalObj::nextIsConditional(BufferReader *rdr) {
-#ifdef DEBUG_CONDITIONAL_FILE
-  Engine::log_("NextIsConditional (last_unc) " +
-               std::to_string(_lastUnconditionalCount));
-#endif
+  debug_conditional_file("NextIsConditional (last_unc) " +
+                       std::to_string(_lastUnconditionalCount));
   if (_lastUnconditionalCount == 0) {
     u8 v;
     rdr->read(&v, 1);
-#ifdef DEBUG_CONDITIONAL_FILE
-    Engine::log_("Needed one more value: read " + std::to_string(v));
-#endif
+    debug_conditional_file("Needed one more value: read " + std::to_string(v));
 
     if (v == 0xFF)
       return true;
@@ -67,7 +63,6 @@ bool Condition::orWithPrevious() {
   return _cmp & kOrWithPreviousBit;
 }
 
-#ifdef DEBUG_CONDITIONAL_FILE
 std::string Condition::to_string() {
   std::string op;
   bool flip = _cmp & kFlipBit;
@@ -100,7 +95,6 @@ std::string Condition::to_string() {
 
   return std::to_string(_flag) + " " + op + " " + std::to_string(_cmp_value);
 }
-#endif
 
 Condition readCondition(BufferReader* rdr) {
   u16 flag, cmp_value;
@@ -111,74 +105,58 @@ Condition readCondition(BufferReader* rdr) {
   return Condition(flag, cmp, cmp_value);
 }
 
-u8 readConditionalValue(tag<u8>, BufferReader *rdr, SaveData *save) {
-#ifdef DEBUG_CONDITIONAL_FILE
-  Engine::log_("Reading u8 value");
-#endif
+u8 readValue(tag<u8>, BufferReader *rdr, SaveData *save) {
+  debug_conditional_file("Reading u8 value");
   u8 data;
   rdr->read(&data, 1);
   return data;
 }
 
-u16 readConditionalValue(tag<u16>, BufferReader *rdr, SaveData *save) {
-#ifdef DEBUG_CONDITIONAL_FILE
-  Engine::log_("Reading u16 value");
-#endif
+u16 readValue(tag<u16>, BufferReader *rdr, SaveData *save) {
+  debug_conditional_file("Reading u16 value");
   u16 data;
   rdr->read(&data, 2);
   return data;
 }
 
-u32 readConditionalValue(tag<u32>, BufferReader *rdr, SaveData *save) {
-#ifdef DEBUG_CONDITIONAL_FILE
-  Engine::log_("Reading u32 value");
-#endif
+u32 readValue(tag<u32>, BufferReader *rdr, SaveData *save) {
+  debug_conditional_file("Reading u32 value");
   u32 data;
   rdr->read(&data, 4);
   return data;
 }
 
-s8 readConditionalValue(tag<s8>, BufferReader *rdr, SaveData *save) {
-#ifdef DEBUG_CONDITIONAL_FILE
-  Engine::log_("Reading s8 value");
-#endif
+s8 readValue(tag<s8>, BufferReader *rdr, SaveData *save) {
+  debug_conditional_file("Reading s8 value");
   s8 data;
   rdr->read(&data, 1);
   return data;
 }
 
-s16 readConditionalValue(tag<s16>, BufferReader *rdr, SaveData *save) {
-#ifdef DEBUG_CONDITIONAL_FILE
-  Engine::log_("Reading s16 value");
-#endif
+s16 readValue(tag<s16>, BufferReader *rdr, SaveData *save) {
+  debug_conditional_file("Reading s16 value");
   s16 data;
   rdr->read(&data, 2);
   return data;
 }
 
-s32 readConditionalValue(tag<s32>, BufferReader *rdr, SaveData *save) {
-#ifdef DEBUG_CONDITIONAL_FILE
-  Engine::log_("Reading s32 value");
-#endif
+s32 readValue(tag<s32>, BufferReader *rdr, SaveData *save) {
+  debug_conditional_file("Reading s32 value");
   s32 data;
   rdr->read(&data, 4);
   return data;
 }
 
-bool readConditionalValue(tag<bool>, BufferReader *rdr, SaveData *save) {
-#ifdef DEBUG_CONDITIONAL_FILE
-  Engine::log_("Reading bool value");
-#endif
+bool readValue(tag<bool>, BufferReader *rdr, SaveData *save) {
+  debug_conditional_file("Reading bool value");
   bool data;
   rdr->read(&data, 1);
   return data;
 }
 
-std::string readConditionalValue(tag<std::string>, BufferReader *rdr,
+std::string readValue(tag<std::string>, BufferReader *rdr,
                                 SaveData *save) {
-#ifdef DEBUG_CONDITIONAL_FILE
-  Engine::log_("Reading string value");
-#endif
+  debug_conditional_file("Reading string value");
   return rdr->readstring();
 }
 
