@@ -14,7 +14,9 @@
 #include "Room/InGameMenu.hpp"
 #include "Room/Player.hpp"
 #include "Save.hpp"
+#include <cerrno>
 #include <cstdio>
+#include <cstring>
 #include <memory>
 #include <optional>
 #include <string>
@@ -25,12 +27,13 @@ Room::Room(int roomId, std::optional<std::pair<u16, u16>> spawnCoords,
            std::unique_ptr<SaveData> save)
     : _roomId(roomId), _nav(this), _player(this), _camera(this),
       _ingame_menu(std::move(ingame_menu)), _save(std::move(save)) {
-  
-  std::string buffer = "nitro:/new_rooms/room" + std::to_string(roomId) + ".room";
-  
+
+  std::string buffer = "nitro:/rooms/room" + std::to_string(roomId) + ".room";
+
   FILE *f = fopen(buffer.c_str(), "rb");
   if (f == nullptr) {
-    buffer = "Error opening room " + std::to_string(roomId);
+    buffer = "Error opening room " + std::to_string(roomId) + ": " +
+             std::strerror(errno);
     Engine::throw_(buffer);
   }
   
@@ -69,7 +72,9 @@ Room::Room(int roomId, std::optional<std::pair<u16, u16>> spawnCoords,
     _player._spr->_wx = _roomData._spawnX << 8;
     _player._spr->_wy = _roomData._spawnY << 8;
   }
-  _camera.updatePosition(true, _player);
+  
+  updateDrawPositions();
+  _camera.drawBackground(true);
 }
 
 void Room::loadRoom(FILE *f) {
@@ -144,10 +149,9 @@ void Room::loadSprites() {
 }
 
 void Room::draw() {
-  _player.draw();
-  for (auto &sprite : _sprites) {
-    sprite.second.draw();
-  }
+  if (_pushed)
+    return;
+  _camera.drawBackground(false);
 }
 
 void Room::update() {
@@ -171,8 +175,15 @@ void Room::update() {
     sprite.second.update();
   }
   
-  _camera.updatePosition(false, _player);
   _ingame_menu->update(*this);
+}
+
+void Room::updateDrawPositions() {
+  _camera.updatePosition(_player);
+  _player.updateDrawPositions(_camera);
+  for (auto & sprite : _sprites) {
+    sprite.second.updateDrawPositions(_camera);
+  }
 }
 
 void Room::push() {
@@ -209,7 +220,7 @@ void Room::pop() {
 
   _ingame_menu->load();
 
-  _camera.updatePosition(true, _player);
-  draw();
+  updateDrawPositions();
+  _camera.drawBackground(true);
 }
 

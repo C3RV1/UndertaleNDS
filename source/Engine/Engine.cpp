@@ -110,15 +110,12 @@ int init() {
 
 ITCM_CODE
 void tick() {
-  objMosaicW %= 0x10 << 8;
-  objMosaicH %= 0x10 << 8;
-  textMain.tick();
-  textSub.tick();
-  main3dSpr.updateTextures();
-  main3dSpr.draw();
-  glFlush(0);
+  main3dSpr.sendToGeometryEngine();
   Audio2::audioManager.updateSync();
+  glFlush(0);
+  
   swiWaitForVBlank();
+  
   OAMManagerSub.draw(); // Update oam in v-blank
   // TODO: Scroll and bg3 negative? Sub screen?
   REG_BG3X = bg3ScrollX;
@@ -127,15 +124,28 @@ void tick() {
   REG_BG3PB = bg3Pb;
   REG_BG3PC = bg3Pc;
   REG_BG3PD = bg3Pd;
+  
+  main3dSpr.updateTextures();
+  
+  textMain.drawToVRAM();
+  textSub.drawToVRAM();
+  
+  objMosaicW %= 0x10 << 8;
+  objMosaicH %= 0x10 << 8;
+  
   REG_MOSAIC_SUB = ((bgMosaicW >> 8) & 0xF) | (((bgMosaicH >> 8) & 0xF) << 4) |
                    (((objMosaicW >> 8) & 0xF) << 8) |
                    (((objMosaicH >> 8) & 0xF) << 12);
   REG_BLDCNT = bldCnt;
   REG_BLDALPHA = bldAlpha;
   REG_BLDY = bldY;
+  REG_MASTER_BRIGHT = masterBright;
+  
   REG_BLDCNT_SUB = bldCntSub;
   REG_BLDALPHA_SUB = bldAlphaSub;
   REG_BLDY_SUB = bldYSub;
+  REG_MASTER_BRIGHT_SUB = masterBrightSub;
+  
   scanKeys();
 }
 
@@ -150,7 +160,7 @@ void tick() {
   }
   handlingException = true;
   lcdMainOnBottom();
-  setBrightness(1, 0);
+  setScreenBrightness(0);
   textMain.clear();
   clearMain();
   auto system_font = fontManager.loadFont("fnt_maintext.font");

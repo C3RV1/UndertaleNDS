@@ -21,7 +21,7 @@
 #include <memory>
 #include <string>
 
-Cutscene::Cutscene(u16 cutsceneId, u16 roomId, Room* room)
+Cutscene::Cutscene(u16 cutsceneId, u16 roomId, Room *room)
     : _cutsceneId(cutsceneId), _roomId(roomId), _room(room), _waiting(this) {
   std::string buffer = "nitro:/cutscenes/r" + std::to_string(roomId) + "/c" +
                        std::to_string(cutsceneId) + ".cscn";
@@ -35,7 +35,8 @@ Cutscene::Cutscene(u16 cutsceneId, u16 roomId, Room* room)
     _commandData.openFromFile(f, len);
 
     if (!checkHeader())
-      Engine::throw_("Error cutscene " + std::to_string(cutsceneId) + ": HEADER");
+      Engine::throw_("Error cutscene " + std::to_string(cutsceneId) +
+                     ": HEADER");
   } else {
     Engine::throw_("Error opening cutscene " + std::to_string(cutsceneId));
   }
@@ -68,20 +69,19 @@ void Cutscene::update() {
     _fader.update();
     if (!_fader.fadeFinished())
       return;
-    switch(_fader.getLastFadeType()) {
+    switch (_fader.getLastFadeType()) {
     case FadeType::FADE_OUT:
       _waiting.waitIgnore(WaitingType::WAIT_EXIT);
       if (_cBattle && _cBattle->_running) {
         _room->push();
         lcdMainOnBottom();
         _cBattle->enter();
-      }
-      else {
+      } else {
         _cBattle = nullptr;
         lcdMainOnTop();
         _room->pop();
       }
-      _fader.startFade(FadeType::FADE_IN);
+      _fader.startFade(FadeType::FADE_IN, FadeScreen::BOTH);
       break;
     case FadeType::FADE_IN:
       _waiting.waitIgnore(WaitingType::WAIT_ENTER);
@@ -90,22 +90,19 @@ void Cutscene::update() {
       break;
     }
   }
-  
+
   if (_cBattle) {
     _cBattle->update();
-    if (!_cBattle->_running) {
-      _fader.startFade(FadeType::FADE_OUT);
-    }
+    if (!_cBattle->_running && _fader.fadeFinished())
+      _fader.startFade(FadeType::FADE_OUT, FadeScreen::BOTH);
   }
 
   if (_cDialogue) {
-    if (_cDialogue->update()) {
+    if (_cDialogue->update())
       _cDialogue = nullptr;
-    }
   } else if (_cSaveMenu) {
-    if (_cSaveMenu->update()) {
+    if (_cSaveMenu->update())
       _cSaveMenu = nullptr;
-    }
   }
 }
 
@@ -119,9 +116,10 @@ bool Cutscene::runCommands() {
   while (!_waiting.getBusy() && !_commandData.at_end()) {
     u8 cmd;
     _commandData.read(&cmd, 1);
-    
-    runCommand(cmd);
-    
+
+    if (runCommand(cmd))
+      break;
+
     _waiting.update(false);
   }
 
@@ -130,8 +128,8 @@ bool Cutscene::runCommands() {
 
 bool Cutscene::runCommand(u8 cmd) {
   u32 address;
-  
-  Navigation* nav;
+
+  Navigation *nav;
   if (_cBattle)
     nav = &_cBattle->_nav;
   else
@@ -296,31 +294,31 @@ bool Cutscene::runCommand(u8 cmd) {
       _commandData.read(&x, 4);
       _commandData.read(&y, 4);
     }
-    
+
     if (dialogue_type == DIALOGUE_CENTERED) {
       speakerIdle = _commandData.readstring();
       speakerTalk = _commandData.readstring();
     }
-    
+
     if (dialogue_type != DIALOGUE_FLAVOR_TEXT) {
       targetInfo = readTarget(_commandData);
       targetIdle = _commandData.readstring();
       targetTalk = _commandData.readstring();
     }
-    
+
     typeSnd = _commandData.readstring();
     font = _commandData.readstring();
-    
+
     _commandData.read(&framesPerLetter, 2);
 
     if (dialogue_type != DIALOGUE_FLAVOR_TEXT)
       _commandData.read(&mainScreen, 1);
-    
+
     Engine::TextBGManager &txt =
         mainScreen ? Engine::textMain : Engine::textSub;
     Engine::AllocationMode heartAlloc =
         mainScreen ? Engine::Allocated3D : Engine::AllocatedOAM;
-      
+
     auto target = nav->getTarget(targetInfo);
     if (_cDialogue == nullptr) {
       if (dialogue_type == DIALOGUE_CENTERED)
@@ -340,7 +338,6 @@ bool Cutscene::runCommand(u8 cmd) {
             _cBattle.get(), _cutsceneId, _room->_roomId, textId, typeSnd, font,
             framesPerLetter);
     }
-    
     break;
   }
   case CMD_START_BATTLE: {
@@ -348,7 +345,7 @@ bool Cutscene::runCommand(u8 cmd) {
     if (_cBattle == nullptr) {
       _cBattle = std::make_unique<Battle>(this);
       _cBattle->loadFromBuffer(_commandData);
-      _fader.startFade(FadeType::FADE_OUT);
+      _fader.startFade(FadeType::FADE_OUT, FadeScreen::BOTH);
     }
     return true;
   }
@@ -364,7 +361,7 @@ bool Cutscene::runCommand(u8 cmd) {
     debug_cutscene("CMD_BATTLE_ATTACK");
     if (_cBattle) // just in case
       _cBattle->startBattleAttacks();
-      
+
     break;
   }
   case CMD_BATTLE_ACTION: {
@@ -378,8 +375,8 @@ bool Cutscene::runCommand(u8 cmd) {
     s16 flavorTextId;
     _commandData.read(&flavorTextId, 2);
 
-    _cBattle->_cBattleAction =
-        std::make_unique<BattleAction>(_cBattle.get(), &_cBattle->_enemies, flavorTextId);
+    _cBattle->_cBattleAction = std::make_unique<BattleAction>(
+        _cBattle.get(), &_cBattle->_enemies, flavorTextId);
     break;
   }
   case CMD_JUMP_IF:
@@ -466,7 +463,7 @@ bool Cutscene::runCommand(u8 cmd) {
     bool enabled;
     _commandData.read(&colliderId, 1);
     _commandData.read(&enabled, 1);
-    for (auto & collider : _room->_roomData._roomColliders) {
+    for (auto &collider : _room->_roomData._roomColliders) {
       if (collider._collId == colliderId) {
         collider._enabled = enabled;
         break;
@@ -481,7 +478,7 @@ bool Cutscene::runCommand(u8 cmd) {
     u16 cutsceneId_;
     TargetInfo targetInfo = readTarget(_commandData);
     _commandData.read(&interactAction, 1);
-    
+
     if (interactAction == 1)
       _commandData.read(&cutsceneId_, 2);
 
@@ -596,4 +593,3 @@ bool Cutscene::runCommand(u8 cmd) {
   }
   return false;
 }
-

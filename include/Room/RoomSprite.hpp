@@ -9,6 +9,7 @@
 class RoomSprite;
 
 #include "Engine/Sprite.hpp"
+#include "Room/Camera.hpp"
 #include "ConditionalFile/RoomConditionalFile.hpp"
 
 class Room;
@@ -30,7 +31,7 @@ public:
   void updateProximity();
   void updatePushable();
 
-  void draw();
+  void updateDrawPositions(Camera &cam);
 
   std::shared_ptr<Engine::Sprite> _spr;
 

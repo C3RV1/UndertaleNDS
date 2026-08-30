@@ -36,6 +36,7 @@ void RoomSprite::load(RoomSpriteData const &sprData) {
   case RoomSpriteAction::PARALLAX:
     _parallax._parallax_x = a._parallax._parallax_x;
     _parallax._parallax_y = a._parallax._parallax_y;
+    // TODO: Change spr position accordingly.
     break;
   case RoomSpriteAction::PUSHABLE:
     _pushable._valid_rect_x = a._pushable._valid_rect_x;
@@ -61,9 +62,9 @@ void RoomSprite::spawn(s32 x, s32 y, std::string path) {
   Engine::spriteSetShown(_spr, true);
 }
 
-void RoomSprite::draw() {
-  _spr->_cam_x = _room->_camera._pos->_wx;
-  _spr->_cam_y = _room->_camera._pos->_wy;
+void RoomSprite::updateDrawPositions(Camera &cam) {
+  _spr->_cam_x = cam._pos->_wx - cam.edgeDistanceX();
+  _spr->_cam_y = cam._pos->_wy - cam.edgeDistanceY();
   if (_action == RoomSpriteAction::PARALLAX) {
     _spr->_cam_x *= _parallax._parallax_x;
     _spr->_cam_x >>= 8;
@@ -71,8 +72,8 @@ void RoomSprite::draw() {
     _spr->_cam_y >>= 8;
   }
   
-  _spr->_cam_scale_x = _room->_camera._pos->_w_scale_x;
-  _spr->_cam_scale_y = _room->_camera._pos->_w_scale_y;
+  _spr->_cam_scale_x = cam._pos->_w_scale_x;
+  _spr->_cam_scale_y = cam._pos->_w_scale_y;
   _spr->_layer = _spr->_wy >> 8;
 }
 

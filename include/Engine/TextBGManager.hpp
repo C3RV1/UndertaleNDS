@@ -29,7 +29,7 @@ public:
   void drawHpBar(int hp, int maxHp, int x, int y, int w, int h);
   void drawHollowRect(int x, int y, int w, int h, int width, int colorIdx);
 
-  void tick();
+  void drawToVRAM();
 
 private:
   u8 *getTile(int x, int y);

@@ -19,10 +19,11 @@ void changeRoom(std::unique_ptr<Room>& room,
   auto igm = std::move(room->_ingame_menu);
   Fader fader;
 
-  fader.startFade(FadeType::FADE_OUT);
+  fader.startFade(FadeType::FADE_OUT, FadeScreen::MAIN);
   while (!fader.fadeFinished()) {
-    Engine::tick();
+    room->updateDrawPositions();
     fader.update();
+    Engine::tick();
     room->draw();
   }
   
@@ -31,10 +32,11 @@ void changeRoom(std::unique_ptr<Room>& room,
       nextRoom->roomId, std::make_pair(nextRoom->spawnX, nextRoom->spawnY),
       std::move(igm), std::move(room->_save));
 
-  fader.startFade(FadeType::FADE_IN);
+  fader.startFade(FadeType::FADE_IN, FadeScreen::MAIN);
   while (!fader.fadeFinished()) {
-    Engine::tick();
+    room->updateDrawPositions();
     fader.update();
+    Engine::tick();
     room->draw();
   }
 }
@@ -49,8 +51,9 @@ void runGameLoop(std::unique_ptr<SaveData> save) {
                              std::move(save));
 
   for (;;) {
-    Engine::tick();
     room->update();
+    room->updateDrawPositions();
+    Engine::tick();
     room->draw();
 
     if (nextRoom)

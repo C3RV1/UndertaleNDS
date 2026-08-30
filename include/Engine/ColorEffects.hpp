@@ -8,15 +8,18 @@
 #include <nds.h>
 
 namespace Engine {
-void setForegroundOpacity(s8 opacity);
-void setDarkenBackground(s8 intensity);
+void setForegroundOpacity(u8 opacity);
+void setDarkenBackground(u8 intensity);
 void disableColorEffects();
-void setForegroundOpacitySub(s8 opacity);
-void setDarkenBackgroundSub(s8 intensity);
+void setForegroundOpacitySub(u8 opacity);
+void setDarkenBackgroundSub(u8 intensity);
 void disableColorEffectsSub();
+void setScreenBrightness(s8 brightness);
+void setScreenBrightnessSub(s8 brightness);
 
-extern s32 bldCnt, bldAlpha, bldY;
-extern s32 bldCntSub, bldAlphaSub, bldYSub;
+extern u32 bldCnt, bldAlpha, bldY;
+extern u32 bldCntSub, bldAlphaSub, bldYSub;
+extern u32 masterBright, masterBrightSub;
 } // namespace Engine
 
 #endif

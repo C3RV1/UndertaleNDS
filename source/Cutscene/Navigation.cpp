@@ -6,6 +6,7 @@
 #include "Engine/Sprite.hpp"
 #include "Engine/math.hpp"
 #include <memory>
+#include <string>
 #include <vector>
 
 TargetInfo readTarget(BufferReader &br) {

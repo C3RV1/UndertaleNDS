@@ -15,7 +15,6 @@
 #include "Camera.hpp"
 #include <cstdio>
 #include <cstring>
-#include <vector>
 #include <map>
 #include <optional>
 
@@ -26,6 +25,7 @@ public:
   Room(int roomId, std::optional<std::pair<u16, u16>> spawnCoords,
        std::unique_ptr<InGameMenu> ingame_menu, std::unique_ptr<SaveData> save);
   void update();
+  void updateDrawPositions();
   void draw();
 
   void push();

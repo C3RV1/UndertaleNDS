@@ -180,7 +180,7 @@ void TextBGManager::updateDirty(u32 localTileId) {
 }
 
 ITCM_CODE
-void TextBGManager::tick() {
+void TextBGManager::drawToVRAM() {
   for (u32 i = 0; i < TILE_BUFFER_SIZE; i++)
     updateDirty(i);
   while (dmaBusy(3))

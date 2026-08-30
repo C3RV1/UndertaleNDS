@@ -1,5 +1,4 @@
 {
-  "cond": {"flag": 0, "cmp": "==", "val": 3},
   "bg": "rooms/room4",
   "music": "mus_ruins.wav",
   "spawn": [99, 207],

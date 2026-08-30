@@ -16,7 +16,17 @@ public:
   explicit Camera(Room *room) : _room(room) {
     _pos = std::make_shared<Engine::Sprite>(Engine::NoAlloc);
   }
-  void updatePosition(bool roomChange, Player& player);
+  
+  inline s32 edgeDistanceX() {
+    return (128 << 16) / _pos->_w_scale_x;
+  }
+  
+  inline s32 edgeDistanceY() {
+    return (96 << 16) / _pos->_w_scale_y;
+  }
+  
+  void updatePosition(Player& player);
+  void drawBackground(bool roomChange);
   bool _manual = false;
   int _prevX = 0, _prevY = 0;
 

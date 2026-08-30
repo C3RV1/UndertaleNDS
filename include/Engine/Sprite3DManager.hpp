@@ -26,7 +26,7 @@ public:
       : tileFreeZones(0, 65536 - 8, "3D_TILES"),
         paletteFreeZones(0, 1024, "3D_PALETTE") {}
 
-  void draw();
+  void sendToGeometryEngine();
   void updateTextures();
 
 private:

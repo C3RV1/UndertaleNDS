@@ -130,7 +130,7 @@ void Sprite3DManager::freeSpriteTexture(Sprite3DMemory &mem) {
 }
 
 ITCM_CODE
-void Sprite3DManager::draw() {
+void Sprite3DManager::sendToGeometryEngine() {
   if (_activeSpr.empty())
     return;
   for (auto i = _activeSpr.begin(); i != _activeSpr.end();) {
@@ -161,26 +161,23 @@ void Sprite3DManager::draw() {
     int allocX = mem.texture->_3dChunk.tilesAllocX;
     int allocY = mem.texture->_3dChunk.tilesAllocY;
 
-    int tilePosY = 0;
+    s32 y = spr->_y;
     for (int tileY = 0; tileY < allocY; tileY++) {
-      int tilePosX = 0;
-      int tileH = 0;
+      s32 x = spr->_x;
+      s32 y2 = 0;
       for (int tileX = 0; tileX < allocX; tileX++) {
         int tileIdx = tileY * allocX + tileX;
         auto &textureTile = mem.texture->_3dChunk.tiles[tileIdx];
-        tileH = textureTile.tileHeight;
 
-        s32 x = ((spr->_x - (1 << 4)) >> 8) + 1;
-        x += (tilePosX * 8 * spr->_scale_x) >> 8;
-        s32 x2 = x + ((textureTile.tileWidth * 8 * spr->_scale_x) >> 8);
         s32 w = textureTile.tileWidth * 8;
-        s32 y = (((spr->_y - (1 << 4)) >> 8)) + 1;
-        y += (tilePosY * 8 * spr->_scale_y) >> 8;
-        s32 y2 = y + ((textureTile.tileHeight * 8 * spr->_scale_y) >> 8);
+        s32 x2 = x + w * spr->_scale_x;
+        
         s32 h = textureTile.tileHeight * 8;
+        y2 = y + h * spr->_scale_y;
 
-        if (x > 256 || x2 < 0 || y > 192 || y2 < 0) {
-          tilePosX += textureTile.tileWidth;
+        s32 px = x >> 8, py = y >> 8, px2 = x2 >> 8, py2 = y2 >> 8;
+        if (px > 256 || px2 < 0 || py > 192 || py2 < 0) {
+          x = x2;
           continue;
         }
 
@@ -205,18 +202,18 @@ void Sprite3DManager::draw() {
           GFX_PAL_FORMAT = mem.texture->_paletteIdx * 2;
         GFX_BEGIN = GL_QUADS;
         GFX_TEX_COORD = 0;
-        GFX_VERTEX16 = x + (y << 16);
+        GFX_VERTEX16 = px + (py << 16);
         GFX_VERTEX16 = spr->_layer + mem.texture->_topDownOffset;
         GFX_TEX_COORD = h << (4 + 16);
-        GFX_VERTEX_XY = x + (y2 << 16);
+        GFX_VERTEX_XY = px + (py2 << 16);
         GFX_TEX_COORD = (h << (4 + 16)) + (w << 4);
-        GFX_VERTEX_XY = x2 + (y2 << 16);
+        GFX_VERTEX_XY = px2 + (py2 << 16);
         GFX_TEX_COORD = (w << 4);
-        GFX_VERTEX_XY = x2 + (y << 16);
+        GFX_VERTEX_XY = px2 + (py << 16);
         GFX_END = 0;
-        tilePosX += textureTile.tileWidth;
+        x = x2;
       }
-      tilePosY += tileH;
+      y = y2;
     }
   }
 }

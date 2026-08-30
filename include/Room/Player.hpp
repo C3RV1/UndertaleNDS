@@ -6,6 +6,7 @@
 #define UNDERTALE_PLAYER_HPP
 
 #include "Engine/Sprite.hpp"
+#include "Room/Camera.hpp"
 #include <cstdio>
 #include <memory>
 #include <nds.h>
@@ -23,10 +24,10 @@ public:
   void attempt_move(s32 &dx, s32 &dy);
   void commit_move(s32 dx, s32 dy);
   [[nodiscard]] bool check_collisions(s32 dx, s32 dy) const;
-  void check_interact() const;
-  void check_exits();
+  void check_sprite_interact() const;
+  void check_collider_interact() const;
   void set_player_control(bool playerControl);
-  void draw();
+  void updateDrawPositions(Camera &cam);
 
   // sprite top left position
   std::shared_ptr<Engine::Sprite> _spr;

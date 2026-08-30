@@ -73,8 +73,8 @@ void Sprite::tick() {
     }
   }
 
-  _x = _wx - _cam_x;
-  _y = _wy - _cam_y;
+  _x = _wx - (_cam_x >> 8 << 8);
+  _y = _wy - (_cam_y >> 8 << 8);
   if (_cAnimation >= 0) {
     CSPRAnimation *current = &_texture->_animations[_cAnimation];
     CSPRAnimFrame *frameInfo = &current->frames[_cAnimFrame];

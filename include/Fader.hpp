@@ -12,14 +12,22 @@ enum class FadeType {
   FADE_OUT
 };
 
+enum class FadeScreen {
+  NONE = 0,
+  MAIN = 0b1,
+  SUB = 0b10,
+  BOTH = 0b11
+};
+
 class Fader {
 public:
-  void startFade(FadeType fadeType);
+  void startFade(FadeType fadeType, FadeScreen screen);
   FadeType getLastFadeType() const;
   void update();
   bool fadeFinished() const;
 private:
   FadeType _cFadeType = FadeType::NO_FADE;
+  FadeScreen _cFadeScreen = FadeScreen::NONE;
   int _cTimer = 0;
 };
 

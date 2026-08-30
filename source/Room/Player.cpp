@@ -5,6 +5,7 @@
 #include "Room/Player.hpp"
 #include "ConditionalFile/RoomConditionalFile.hpp"
 #include "Cutscene/Cutscene.hpp"
+#include "Engine/Engine.hpp"
 #include "Engine/Sprite.hpp"
 #include "Engine/math.hpp"
 #include "Room/Camera.hpp"
@@ -94,7 +95,7 @@ void Player::update() {
   }
 
   if (keysDown() & KEY_A) {
-    check_interact();
+    check_sprite_interact();
   }
 }
 
@@ -114,7 +115,7 @@ void Player::attempt_move(s32 &dx, s32 &dy) {
     commit_move(dx, dy);
   }
   
-  check_exits();
+  check_collider_interact();
 }
 
 void Player::commit_move(const s32 dx, const s32 dy) {
@@ -127,7 +128,7 @@ void Player::commit_move(const s32 dx, const s32 dy) {
   }
 }
 
-void Player::check_exits() {
+void Player::check_collider_interact() const {
   u16 width, height;
   _room->_bg.getSize(width, height);
   if (_spr->_wx < 0) {
@@ -165,10 +166,12 @@ void Player::check_exits() {
       switch (collider._type._type) {
       case RoomColliderType::CUTSCENE:
         // Cutscene
-        _room->_cutscene = std::make_unique<Cutscene>(
-            collider._type._cutscene._cutsceneId, _room->_roomId, _room);
+        if (_room->_cutscene == nullptr)
+          _room->_cutscene = std::make_unique<Cutscene>(
+              collider._type._cutscene._cutsceneId, _room->_roomId, _room);
         break;
       case RoomColliderType::EXIT:
+        Engine::log_("Exiting to room " + std::to_string(collider._type._exit._roomId));
         scheduleRoom(collider._type._exit._roomId,
                      collider._type._exit._spawnX,
                      collider._type._exit._spawnY);
@@ -180,7 +183,7 @@ void Player::check_exits() {
   }
 }
 
-void Player::check_interact() const {
+void Player::check_sprite_interact() const {
   s32 x, y, w = 19, h = 9;
   if (_spr->_cAnimation == _upIdleId || _spr->_cAnimation == _upMoveId) {
     x = 0;
@@ -250,11 +253,11 @@ bool Player::check_collisions(s32 dx, s32 dy) const {
   return false;
 }
 
-void Player::draw() {
-  _spr->_cam_x = _room->_camera._pos->_wx;
-  _spr->_cam_y = _room->_camera._pos->_wy;
-  _spr->_cam_scale_x = _room->_camera._pos->_w_scale_x;
-  _spr->_cam_scale_y = _room->_camera._pos->_w_scale_y;
+void Player::updateDrawPositions(Camera &cam) {
+  _spr->_cam_x = cam._pos->_wx - cam.edgeDistanceX();
+  _spr->_cam_y = cam._pos->_wy - cam.edgeDistanceY();
+  _spr->_cam_scale_x = cam._pos->_w_scale_x;
+  _spr->_cam_scale_y = cam._pos->_w_scale_y;
   _spr->_layer = _spr->_wy >> 8;
 }
 
