@@ -20,15 +20,16 @@ enum class TargetType {
   ENEMY = 4
 };
 
-struct TargetInfo {
-  u8 targetType;
+class TargetInfo {
+public:
+  u8 targetType = (int)TargetType::NULL_;
 
   // If targetType == SPRITE
-  u16 targetId;
+  u16 targetId = 0;
 
   // If targetType == ENEMY
-  s8 enemyTargetId;
-  s8 enemySpriteId;
+  s8 enemyTargetId = 0;
+  s8 enemySpriteId = 0;
 };
 
 TargetInfo readTarget(BufferReader &br);

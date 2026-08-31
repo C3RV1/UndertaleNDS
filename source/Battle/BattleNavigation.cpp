@@ -32,6 +32,8 @@ std::shared_ptr<Engine::Sprite>
 BattleNavigation::getTarget(const TargetInfo &targetInfo) {
   TargetType targetType = static_cast<TargetType>(targetInfo.targetType);
   switch (targetType) {
+  case TargetType::NULL_:
+    return nullptr;
   case TargetType::SPRITE: {
     auto it = _battle->_sprites.find(targetInfo.targetId);
     if (it != _battle->_sprites.end())

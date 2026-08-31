@@ -33,6 +33,8 @@ std::shared_ptr<Engine::Sprite>
 RoomNavigation::getTarget(const TargetInfo &targetInfo) {
   TargetType targetType = static_cast<TargetType>(targetInfo.targetType);
   switch (targetType) {
+  case TargetType::NULL_:
+    return nullptr;
   case TargetType::PLAYER:
     return _room->_player._spr;
   case TargetType::CAMERA:
@@ -46,8 +48,8 @@ RoomNavigation::getTarget(const TargetInfo &targetInfo) {
     return nullptr;
   }
   default:
-    Engine::log_("Unknown target type for room nav: " +
-                 std::to_string(targetInfo.targetType));
+    Engine::throw_("Unknown target type for room nav: " +
+                   std::to_string(targetInfo.targetType));
     return nullptr;
   }
 }

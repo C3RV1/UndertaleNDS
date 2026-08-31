@@ -15,9 +15,12 @@ Dummy::Dummy(Battle* battle) : Enemy(battle) {
   _dummySpr->_wx = kX << 8;
   _dummySpr->_wy = kY << 8;
   _dummySpr->_layer = 1;
-  Engine::spriteSetShown(_dummySpr, true);
 
   loadActText(0);
+}
+
+void Dummy::enter() {
+  Engine::spriteSetShown(_dummySpr, true);
 }
 
 std::shared_ptr<Engine::Sprite> Dummy::getSprite(u8 spriteId) {
