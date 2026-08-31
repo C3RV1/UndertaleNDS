@@ -167,10 +167,10 @@ class ObjCondition:
         wtr.write_uint16(self.flag)
         cmp = self.cmp
         if has_next_condition:
-            cmp += ObjCondition.HAS_NEXT_CONDITION_BIT
+            cmp |= ObjCondition.HAS_NEXT_CONDITION_BIT
         elif has_next_variation:
-            cmp += ObjCondition.HAS_NEXT_VARIATION_BIT
-        wtr.write_uint8(self.cmp)
+            cmp |= ObjCondition.HAS_NEXT_VARIATION_BIT
+        wtr.write_uint8(cmp)
         wtr.write_uint16(self.cmp_value)
 
     @classmethod
