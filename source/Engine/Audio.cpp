@@ -125,10 +125,9 @@ void AudioFile::update() {
     return;
   u16 timerTicks = timerTick(audioManager.getTimerId());
   u16 timerElapsed = timerTicks - _timerLast;
-  u32 samples =
-      ((u32)timerElapsed * (u32)_sampleRate + _ticksRemain) / (BUS_CLOCK / 64);
-  _ticksRemain =
-      ((u32)timerElapsed * (u32)_sampleRate + _ticksRemain) % (BUS_CLOCK / 64);
+  u32 ticksToProcess = (u32)timerElapsed * _sampleRate * 64 + _ticksRemain;
+  u32 samples = ticksToProcess / BUS_CLOCK;
+  _ticksRemain = ticksToProcess % BUS_CLOCK;
   _expectedSampleBufferPos += samples;
 
   progress(samples);
