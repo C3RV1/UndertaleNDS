@@ -18,20 +18,28 @@ public:
   }
   void drawGlyph(Font &font, u8 glyph, int &x, int y);
   void reloadColors();
-  void setPaletteColor(int colorIdx, int r, int g, int b, bool color8bit);
-  void setPaletteColor(int colorIdx, u16 color5bit);
-  void setColor(int colorIdx) { _paletteColor = colorIdx; }
+  void setPaletteColor(u8 colorIdx, int r, int g, int b, bool color8bit);
+  void setPaletteColor(u8 colorIdx, u16 color5bit);
+  void setColor(u8 colorIdx) { _paletteColor = colorIdx & 0xF; }
   u16 getColor() const { return _paletteColor; }
   void clear();
-  void clearRect(int x, int y, int w, int h);
+  inline void clearRect(int x, int y, int w, int h) {
+    drawRect(x, y, w, h, 0);
+  }
 
-  void drawRect(int x, int y, int w, int h, int colorIdx);
+  void drawRect(int x, int y, int w, int h, u8 colorIdx);
   void drawHpBar(int hp, int maxHp, int x, int y, int w, int h);
-  void drawHollowRect(int x, int y, int w, int h, int width, int colorIdx);
+  void drawHollowRect(int x, int y, int w, int h, int width, u8 colorIdx);
 
   void drawToVRAM();
 
 private:
+  enum DIRTY_TILE_UPDATE {
+    DIRTY_NONE = 0,
+    DIRTY_COPY = 1,
+    DIRTY_CLEAR = 2
+  };
+  
   u8 *getTile(int x, int y);
   void clearTile(int x, int y);
   void resetTileReserve();
@@ -42,13 +50,17 @@ private:
   u16 *_mapRam;
   u16 _tileReserve[32 * 24 - 1];
   u16 _tileFront = 0;
-  int _paletteColor = 15;
+  u8 _paletteColor = 15;
 
   static constexpr u32 TILE_BUFFER_SIZE = 24 * 32;
 
-  bool _dirty[TILE_BUFFER_SIZE] = {false};
-  u16 _tileIds[TILE_BUFFER_SIZE] = {0};
+  u8 _dirty[TILE_BUFFER_SIZE] = {DIRTY_NONE};
+  u16 _tileVramIds[TILE_BUFFER_SIZE] = {0};
   u8 _tiles[TILE_BUFFER_SIZE][32] = {0};
+
+  inline u16 tilePosToIdx(int tileX, int tileY) {
+    return (tileY * 32 + tileX);
+  }
 };
 
 extern TextBGManager textMain;
