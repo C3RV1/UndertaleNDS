@@ -1,20 +1,49 @@
 import typing
+
 if typing.TYPE_CHECKING:
-    from tools.CutsceneTypes import *
+    from tools.CutsceneTypes import (
+        Cutscene,
+        WaitTypes,
+        Target,
+        TargetType,
+        FlagOffsets,
+        BtlActionOff,
+        EnemyID,
+        FroggitCommands,
+        SpriteIDs
+    )
 else:
     from CutsceneTypes import *
 
 
+SPR_TORIEL_DISAPPROVE_ID = 1
+
+
 def cutscene(c: Cutscene):
     c.player_control(False)
-    c.set_collider_enabled(2, False)
-    c.load_sprite_relative(5, -13, "room_sprites/spr_exc", Target(TargetType.PLAYER))
+    c.set_collider_enabled(3, False)
+    c.load_sprite_relative(
+        SpriteIDs.SPR_EXC_ROOM,
+        5,
+        -13,
+        "room_sprites/spr_exc",
+        Target(TargetType.PLAYER),
+    )
     c.play_sfx("snd_b.wav")
     c.wait(WaitTypes.FRAMES, 60)
 
-    c.unload_sprite(-1)
+    c.unload_sprite(SpriteIDs.SPR_EXC_ROOM)
 
-    c.start_battle([2,], 0, 61, 63, 134, 75)
+    c.start_battle(
+        [
+            EnemyID.FROGGIT_FIRST,
+        ],
+        0,
+        61,
+        63,
+        134,
+        75,
+    )
     c.wait(WaitTypes.EXIT)
 
     c.start_bgm("mus_battle1.wav", True)
@@ -74,12 +103,14 @@ def cutscene(c: Cutscene):
     c.bind(toriel_scare_jump_3)
 
     c.debug("Toriel scare")
-    c.load_sprite(256, 192 // 4, "battle/spr_torieldisapprove")
+    c.load_sprite(
+        SPR_TORIEL_DISAPPROVE_ID, 256, 192 // 4, "battle/spr_torieldisapprove"
+    )
 
     c.enemy_command(enemy_idx=0, enemy_cmd=FroggitCommands.DISABLE_HEAD_BOB)
     c.wait(WaitTypes.FRAMES, 40)
 
-    c.move_in_frames(Target(TargetType.SPRITE, 0), -76, 0, 80)
+    c.move_in_frames(Target(TargetType.SPRITE, SPR_TORIEL_DISAPPROVE_ID), -76, 0, 80)
     c.wait(WaitTypes.FRAMES, 120)
     c.set_animation(Target(TargetType.ENEMY, 0), "look_up")
     c.wait(WaitTypes.FRAMES, 80)
@@ -87,7 +118,7 @@ def cutscene(c: Cutscene):
     c.set_pos_in_frames(Target(TargetType.ENEMY, 0), -51, 93, 120)
     c.set_pos_in_frames(Target(TargetType.ENEMY, 0, 1), -51, 93, 120)
     c.wait(WaitTypes.FRAMES, 180)
-    c.set_animation(Target(TargetType.SPRITE, 0), "up")
+    c.set_animation(Target(TargetType.SPRITE, SPR_TORIEL_DISAPPROVE_ID), "up")
     c.stop_bgm()
     c.exit_battle(won=True)
 
@@ -96,5 +127,5 @@ def cutscene(c: Cutscene):
     c.wait(WaitTypes.EXIT)
     c.start_bgm("mus_ruins.wav", True)
     c.clear_nav_tasks()
-    c.set_pos(Target(TargetType.SPRITE, 0), 612, 127)
-    c.set_animation(Target(TargetType.SPRITE, 0), "leftIdle")
+    c.set_pos(Target(TargetType.SPRITE, SpriteIDs.TORIEL_ROOM), 612, 127)
+    c.set_animation(Target(TargetType.SPRITE, SpriteIDs.TORIEL_ROOM), "leftIdle")

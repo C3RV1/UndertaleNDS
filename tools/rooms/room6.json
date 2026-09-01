@@ -1,764 +1,501 @@
 {
-  "parts": [
+  "cond": {"flag": 0, "cmp": "==", "val": 5},
+  "bg": "rooms/room6",
+  "music": "mus_ruins.wav",
+  "spawn": [119, 194],
+  "exits": [
     {
-      "conditions": [
-        {"flag_id": 0, "op": "==", "cmp_value": 5}
-      ],
-      "room_bg": "rooms/room6",
-      "music_path": "mus_ruins.wav",
-      "spawn_x": 119, "spawn_y": 194,
-      "exits": [
-        {
-          "exit_type": "side",
-          "room_id": 5,
-          "spawn_x": 138, "spawn_y": 60,
-          "side": "down"
-        },
-        {
-          "exit_type": "side",
-          "room_id": 7,
-          "spawn_x": 6, "spawn_y": 90,
-          "side": "right"
-        }
-      ],
-      "sprites": [
-        {
-          "texture": "room_sprites/toriel",
-          "x": 155, "y": 86,
-          "animation": "downIdle"
-        },
-        {
-          "texture": "room_sprites/wall_panel_large_ruins",
-          "x": 549, "y": 109,
-          "action": "cutscene", "cutscene_id": 10
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 791, "y": 130,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 791, "y": 150,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 811, "y": 130,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 811, "y": 150,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 831, "y": 90,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 831, "y": 110,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 831, "y": 130,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 831, "y": 150,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 851, "y": 90,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 851, "y": 110,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 851, "y": 130,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 851, "y": 150,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 871, "y": 90,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 871, "y": 110,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 891, "y": 90,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 891, "y": 110,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 891, "y": 130,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 891, "y": 150,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 911, "y": 90,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 911, "y": 110,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 911, "y": 130,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 911, "y": 150,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 931, "y": 130,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 931, "y": 150,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 951, "y": 130,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 951, "y": 150,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 971, "y": 130,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 971, "y": 150,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 991, "y": 90,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 991, "y": 110,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 991, "y": 130,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 991, "y": 150,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 1011, "y": 90,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 1011, "y": 110,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 1011, "y": 130,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 1011, "y": 150,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 1031, "y": 90,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 1031, "y": 110,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 1051, "y": 90,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 1051, "y": 110,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        }
-      ],
-      "colliders": [
-        {
-          "x": 109, "y": 159, "w": 40, "h": 70,
-          "action": "cutscene", "cutscene_id": 0
-        },
-        {
-          "x": 149, "y": 69, "w": 40, "h": 120,
-          "action": "cutscene", "cutscene_id": 1
-        },
-        {
-          "x": 489, "y": 149, "w": 40, "h": 40,
-          "action": "cutscene", "cutscene_id": 2
-        },
-        {
-          "x": 529, "y": 149, "w": 40, "h": 40,
-          "action": "cutscene", "cutscene_id": 3
-        },
-        {
-          "x": 760, "y": 130, "w": 30, "h": 40,
-          "action": "cutscene", "cutscene_id": 4
-        },
-
-        {"x": 0, "y": 0, "w": 9, "h": 229},
-        {"x": 9, "y": 0, "w": 1142, "h": 69},
-        {"x": 369, "y": 69, "w": 120, "h": 40},
-        {"x": 489, "y": 69, "w": 141, "h": 80},
-        {"x": 630, "y": 69, "w": 124, "h": 60},
-        {"x": 754, "y": 69, "w": 397, "h": 20},
-        {"x": 754, "y": 89, "w": 36, "h": 40},
-        {"x": 9, "y": 189, "w": 100, "h": 40},
-        {"x": 149, "y": 189, "w": 1002, "h": 40},
-        {"x": 369, "y": 149, "w": 80, "h": 40},
-        {"x": 670, "y": 169, "w": 80, "h": 20},
-        {"x": 750, "y": 169, "w": 320, "h": 20},
-        {"x": 1070, "y": 129, "w": 81, "h": 60},
-        {"x": 790, "y": 89, "w": 40, "h": 40},
-        {"x": 870, "y": 129, "w": 20, "h": 40},
-        {"x": 930, "y": 89, "w": 60, "h": 40},
-        {"x": 1030, "y": 129, "w": 40, "h": 40}
-      ]
+      "room_id": 5,
+      "spawn": [138, 60],
+      "side": "down"
     },
     {
-      "conditions": [],
-      "room_bg": "rooms/room6",
-      "music_path": "mus_ruins.wav",
-      "spawn_x": 0, "spawn_y": 0,
-      "exits": [
-        {
-          "exit_type": "side",
-          "room_id": 5,
-          "spawn_x": 138, "spawn_y": 60,
-          "side": "down"
-        },
-        {
-          "exit_type": "side",
-          "room_id": 7,
-          "spawn_x": 6, "spawn_y": 90,
-          "side": "right"
-        }
-      ],
-      "sprites": [
-        {
-          "texture": "room_sprites/wall_panel_large_ruins",
-          "x": 549, "y": 109,
-          "action": "cutscene", "cutscene_id": 10
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 791, "y": 130,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 791, "y": 150,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 811, "y": 130,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 811, "y": 150,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 831, "y": 90,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 831, "y": 110,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 831, "y": 130,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 831, "y": 150,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 851, "y": 90,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 851, "y": 110,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 851, "y": 130,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 851, "y": 150,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 871, "y": 90,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 871, "y": 110,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 891, "y": 90,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 891, "y": 110,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 891, "y": 130,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 891, "y": 150,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 911, "y": 90,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 911, "y": 110,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 911, "y": 130,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 911, "y": 150,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 931, "y": 130,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 931, "y": 150,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 951, "y": 130,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 951, "y": 150,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 971, "y": 130,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 971, "y": 150,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 991, "y": 90,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 991, "y": 110,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 991, "y": 130,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 991, "y": 150,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 1011, "y": 90,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 1011, "y": 110,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 1011, "y": 130,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 1011, "y": 150,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 1031, "y": 90,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 1031, "y": 110,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 1051, "y": 90,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        },
-        {
-          "texture": "room_sprites/spike",
-          "x": 1051, "y": 110,
-          "animation": "up",
-          "action": "proximity",
-          "distance": 30,
-          "close_animation": "down"
-        }
-      ],
-      "colliders": [
-        {"x": 0, "y": 0, "w": 9, "h": 229},
-        {"x": 9, "y": 0, "w": 1142, "h": 69},
-        {"x": 369, "y": 69, "w": 120, "h": 40},
-        {"x": 489, "y": 69, "w": 141, "h": 80},
-        {"x": 630, "y": 69, "w": 124, "h": 60},
-        {"x": 754, "y": 69, "w": 397, "h": 20},
-        {"x": 754, "y": 89, "w": 36, "h": 40},
-        {"x": 9, "y": 189, "w": 100, "h": 40},
-        {"x": 149, "y": 189, "w": 1002, "h": 40},
-        {"x": 369, "y": 149, "w": 80, "h": 40},
-        {"x": 670, "y": 169, "w": 80, "h": 20},
-        {"x": 750, "y": 169, "w": 320, "h": 20},
-        {"x": 1070, "y": 129, "w": 81, "h": 60},
-        {"x": 790, "y": 89, "w": 40, "h": 40},
-        {"x": 870, "y": 129, "w": 20, "h": 40},
-        {"x": 930, "y": 89, "w": 60, "h": 40},
-        {"x": 1030, "y": 129, "w": 40, "h": 40}
-      ]
+      "room_id": 7,
+      "spawn": [6, 90],
+      "side": "right"
     }
+  ],
+  "sprites": [
+    {
+      "only_if": {"flag": 0, "cmp": "==", "val": 5},
+      "then": {
+        "id": "toriel_room",
+        "texture": "room_sprites/toriel",
+        "pos": [155, 86],
+        "animation": "downIdle"
+      }
+    },
+    {
+      "texture": "room_sprites/wall_panel_large_ruins",
+      "pos": [549, 109],
+      "action": {
+        "action": "cutscene",
+        "cutscene_id": 10
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [791, 130],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [791, 150],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [811, 130],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [811, 150],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [831, 90],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [831, 110],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [831, 130],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [831, 150],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [851, 90],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [851, 110],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [851, 130],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [851, 150],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [871, 90],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [871, 110],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [891, 90],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [891, 110],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [891, 130],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [891, 150],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [911, 90],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [911, 110],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [911, 130],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [911, 150],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [931, 130],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [931, 150],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [951, 130],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [951, 150],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [971, 130],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [971, 150],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [991, 90],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [991, 110],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [991, 130],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [991, 150],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [1011, 90],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [1011, 110],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [1011, 130],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [1011, 150],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [1031, 90],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [1031, 110],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [1051, 90],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [1051, 110],
+      "animation": "up",
+      "action": {
+        "action": "proximity",
+        "distance": 30,
+        "close_animation": "down"
+      }
+    }
+  ],
+  "colliders": [
+    {
+      "only_if": {"flag": 0, "cmp": "==", "val": 5},
+      "then": [
+        {
+          "id": 1,
+          "rect": [109, 159, 40, 70],
+          "type": {
+            "type": "cutscene",
+            "cutscene_id": 0
+          }
+        },
+        {
+          "id": 2,
+          "rect": [149, 69, 40, 130],
+          "type": {
+            "type": "cutscene",
+            "cutscene_id": 1
+          }
+        },
+        {
+          "id": 3,
+          "rect": [489, 149, 40, 40],
+          "type": {
+            "type": "cutscene",
+            "cutscene_id": 2
+          }
+        },
+        {
+          "id": 4,
+          "rect": [529, 149, 40, 40],
+          "type": {
+            "type": "cutscene",
+            "cutscene_id": 3
+          }
+        },
+        {
+          "id": 5,
+          "rect": [760, 130, 30, 40],
+          "type": {
+            "type": "cutscene",
+            "cutscene_id": 4
+          }
+        }
+      ]
+    },
+    {"rect": [0, 0, 9, 229]},
+    {"rect": [9, 0, 1142, 69]},
+    {"rect": [369, 69, 120, 40]},
+    {"rect": [489, 69, 141, 80]},
+    {"rect": [630, 69, 124, 60]},
+    {"rect": [754, 69, 397, 20]},
+    {"rect": [754, 89, 36, 40]},
+    {"rect": [9, 189, 100, 40]},
+    {"rect": [149, 189, 1002, 40]},
+    {"rect": [369, 149, 80, 40]},
+    {"rect": [670, 169, 80, 20]},
+    {"rect": [750, 169, 320, 20]},
+    {"rect": [1070, 129, 81, 60]},
+    {"rect": [790, 89, 40, 40]},
+    {"rect": [870, 129, 20, 40]},
+    {"rect": [930, 89, 60, 40]},
+    {"rect": [1030, 129, 40, 40]}
   ]
 }

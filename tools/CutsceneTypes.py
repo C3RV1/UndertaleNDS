@@ -123,6 +123,7 @@ class BtlActionOff(enum.IntEnum):
 class EnemyID(enum.IntEnum):
     FLOWEY = 0
     DUMMY = 1
+    FROGGIT_FIRST = 2
 
 
 class FloweyCommands(enum.IntEnum):
