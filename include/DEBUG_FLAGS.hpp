@@ -15,6 +15,7 @@
 #define DEBUG_SAVE
 #define DEBUG_FONTS
 // #define DEBUG_CONDITIONAL_FILE
+// #define DEBUG_TEXT
 
 #include "Engine/Engine.hpp"
 
@@ -68,6 +69,12 @@ inline void debug_cutscene(std::string msg) {
 
 inline void debug_conditional_file(std::string msg) {
 #ifdef DEBUG_CONDITIONAL_FILE
+  Engine::log_(msg);
+#endif
+}
+
+inline void debug_text(std::string msg) {
+#ifdef DEBUG_TEXT
   Engine::log_(msg);
 #endif
 }

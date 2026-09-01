@@ -3,8 +3,10 @@
 //
 
 #include "Engine/TextBGManager.hpp"
+#include "DEBUG_FLAGS.hpp"
 #include "Engine/dma.hpp"
 #include <cstring>
+#include <string>
 
 namespace Engine {
 void TextBGManager::resetTileReserve() {
@@ -158,6 +160,7 @@ ITCM_CODE
 void TextBGManager::clearTile(int x, int y) {
   x /= 8;
   y /= 8;
+  debug_text("Clearing tile " + std::to_string(x) + " " + std::to_string(y));
   u16 tileId = *(vu16 *)((u8 *)_mapRam + (y * 32 + x) * 2) & 0x1FF;
   if (tileId == 0)
     return;
@@ -203,6 +206,8 @@ void TextBGManager::setPaletteColor(int colorIdx, u16 color5bit) {
 
 ITCM_CODE
 void TextBGManager::drawRect(int x, int y, int w, int h, int colorIdx) {
+  debug_text("Clearing rect " + std::to_string(x) + " " + std::to_string(y) +
+             " [" + std::to_string(w) + "x" + std::to_string(h) + "]");
   // Look at drawGlyph for an explanation on this code
   // as it follows the same idea.
   if (x < 0) {
@@ -213,29 +218,30 @@ void TextBGManager::drawRect(int x, int y, int w, int h, int colorIdx) {
     h -= -y;
     y = 0;
   }
-  if (x + w > 256)
-    w = 256 - x;
-  if (y + h > 192)
-    h = 192 - y;
-
+  
   int dstX = x + w;
   int dstY = y + h;
+  if (dstX > 256)
+    dstX = 256;
+  if (dstY > 192)
+    dstY = 192;
+
   for (; y < dstY;) {
     int x_ = x;
     for (; x_ < dstX;) {
       u8 tileY = y % 8;
       u8 tileX = x_ % 8;
 
-      if (tileX == 0 && tileY == 0 && x_ + 8 < dstX && y + 8 < dstY) {
+      if (tileX == 0 && tileY == 0 && x_ + 8 <= dstX && y + 8 <= dstY) {
         // Each tile is 4 bits.
-        if (colorIdx != 0 || true) {
-          u8 *tilePointer = getTile(x_, y);
-          memset(tilePointer, colorIdx * 0x11, 32);
+        if (colorIdx != 0) {
+          memset(getTile(x_, y), colorIdx * 0x11, 32);
         } else
           clearTile(x_, y);
         x_ += 8;
         continue;
       }
+      
       u8 *tilePointer = getTile(x_, y);
       for (; tileY < 8 && (y / 8) * 8 + tileY < dstY; tileY++) {
         int tileX_ = tileX;
