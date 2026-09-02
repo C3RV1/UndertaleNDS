@@ -1,94 +1,67 @@
 {
-  "parts": [
+  "bg": "rooms/room7",
+  "music": "mus_ruins.wav",
+  "spawn": [0, 0],
+  "exits": [
     {
-      "conditions": [
-        {"flag_id": 0, "op": "==", "cmp_value": 6}
-      ],
-      "room_bg": "rooms/room7",
-      "music_path": "",
-      "spawn_x": 0, "spawn_y": 0,
-      "exits": [
-        {
-          "exit_type": "side",
-          "room_id": 6,
-          "spawn_x": 1128, "spawn_y": 86,
-          "side": "left"
-        },
-        {
-          "exit_type": "side",
-          "room_id": 8,
-          "spawn_x": 5, "spawn_y": 95,
-          "side": "right"
-        }
-      ],
-      "sprites": [
-        {
-          "texture": "room_sprites/spr_pillar",
-          "x": 1174, "y": 37
-        },
-        {
-          "texture": "room_sprites/toriel",
-          "x": 90, "y": 72,
-          "animation": "leftIdle"
-        }
-      ],
-      "colliders": [
-        {
-          "x": 0, "y": 77, "w": 70, "h": 100,
-          "action": "cutscene", "cutscene_id": 0
-        },
-        {
-          "comment": "toriel collider",
-          "x": 1174, "y": 77, "w": 36, "h": 16
-        },
-        {
-          "x": 1210, "y": 77, "w": 30, "h": 100,
-          "action": "cutscene", "cutscene_id": 2
-        },
-
-        {"x": 0, "y": 0, "w": 41, "h": 97},
-        {"x": 41, "y": 0, "w": 1291, "h": 77},
-        {"x": 1332, "y": 0, "w": 40, "h": 97},
-        {"x": 0, "y": 137, "w": 41, "h": 56},
-        {"x": 41, "y": 177, "w": 1291, "h": 16},
-        {"x": 1332, "y": 137, "w": 40, "h": 56},
-        {"x": 1174, "y": 91, "w": 36, "h": 5}
-      ]
+      "room_id": 6,
+      "spawn": [1128, 86],
+      "side": "left"
     },
     {
-      "conditions": [],
-      "room_bg": "rooms/room7",
-      "music_path": "mus_ruins.wav",
-      "spawn_x": 0, "spawn_y": 0,
-      "exits": [
+      "room_id": 8,
+      "spawn": [5, 95],
+      "side": "right"
+    }
+  ],
+  "sprites": [
+    {
+      "only_if": {"flag": 0, "cmp": "==", "val": 6},
+      "then": {
+        "id": "toriel_room",
+        "texture": "room_sprites/toriel",
+        "pos": [90, 72],
+        "animation": "leftIdle"
+      }
+    },
+    {
+      "texture": "room_sprites/spr_pillar",
+      "pos": [1174, 37]
+    }
+  ],
+  "colliders": [
+    {
+      "only_if": {"flag": 0, "cmp": "==", "val": 6},
+      "then": [
         {
-          "exit_type": "side",
-          "room_id": 6,
-          "spawn_x": 1128, "spawn_y": 86,
-          "side": "left"
+          "id": 1,
+          "rect": [0, 77, 70, 100],
+          "type": {
+            "type": "cutscene",
+            "cutscene_id": 0
+          }
         },
         {
-          "exit_type": "side",
-          "room_id": 8,
-          "spawn_x": 5, "spawn_y": 95,
-          "side": "right"
-        }
-      ],
-      "sprites": [
+          "id": 2,
+          "comment": "toriel collider",
+          "rect": [1174, 77, 36, 16]
+        },
         {
-          "texture": "room_sprites/spr_pillar",
-          "x": 1174, "y": 37
+          "id": 3,
+          "rect": [1210, 77, 30, 100],
+          "type": {
+            "type": "cutscene",
+            "cutscene_id": 2
+          }
         }
-      ],
-      "colliders": [
-        {"x": 0, "y": 0, "w": 41, "h": 97},
-        {"x": 41, "y": 0, "w": 1291, "h": 77},
-        {"x": 1332, "y": 0, "w": 40, "h": 97},
-        {"x": 0, "y": 137, "w": 41, "h": 56},
-        {"x": 41, "y": 177, "w": 1291, "h": 16},
-        {"x": 1332, "y": 137, "w": 40, "h": 56},
-        {"x": 1174, "y": 91, "w": 36, "h": 5}
       ]
-    }
+    },
+    {"rect": [0, 0, 41, 97]},
+    {"rect": [41, 0, 1291, 77]},
+    {"rect": [1332, 0, 40, 97]},
+    {"rect": [0, 137, 41, 56]},
+    {"rect": [41, 177, 1291, 16]},
+    {"rect": [1332, 137, 40, 56]},
+    {"rect": [1174, 91, 36, 5]}
   ]
 }
