@@ -2,6 +2,7 @@
 // Created by cervi on 28/08/2023.
 //
 #include "Cutscene/Dialogue.hpp"
+#include "Engine/Engine.hpp"
 #include "Engine/Sprite.hpp"
 #include <memory>
 
@@ -165,7 +166,7 @@ u16 DialogueCentered::getLineWidth(std::string::iterator pos) {
     lineWidth_ += _fnt->getGlyphWidth(*pLine++);
     lineWidth_++;
   }
-  return lineWidth_ - 1;
+  return lineWidth_;
 }
 
 void DialogueCentered::onPause() {
