@@ -135,9 +135,10 @@ u8 *TextBGManager::getTile(int x, int y) {
     _tileVramIds[tileIdx] = tileId;
     memset(_tiles[tileIdx], 0, 32);
   }
-  else if (_dirty[tileIdx] == DIRTY_CLEAR)
+  else if (_dirty[tileIdx] == DIRTY_CLEAR) {
     memset(_tiles[tileIdx], 0, 32);
-
+  }
+  
   _dirty[tileIdx] = DIRTY_COPY;
   return _tiles[tileIdx];
 }
@@ -155,7 +156,7 @@ void TextBGManager::updateDirty(u32 tileIdx) {
     *(vu16 *)((u8 *)_mapRam + tileIdx * 2) = (15 << 12) + _tileVramIds[tileIdx];
     break;
   case DIRTY_CLEAR:
-    _tileReserve[--_tileFront] = tileIdx;
+    _tileReserve[--_tileFront] = _tileVramIds[tileIdx];
     *(vu16 *)((u8 *)_mapRam + tileIdx * 2) = 0;
     _tileVramIds[tileIdx] = 0;
     break;
@@ -215,15 +216,20 @@ void TextBGManager::drawRect(int x, int y, int w, int h, u8 colorIdx) {
     for (; x_ < dstX;) {
       u8 tileY = y % 8;
       u8 tileX = x_ % 8;
+      u16 tileIdx = tilePosToIdx(x_ / 8, y / 8);
 
       if (tileX == 0 && tileY == 0 && x_ + 8 <= dstX && y + 8 <= dstY) {
         // Each tile is 4 bits.
-        if (colorIdx != 0) {
+        if (colorIdx != 0)
           memset(getTile(x_, y), (colorIdx & 0xF) * 0x11, 32);
-        } else {
-          _dirty[tilePosToIdx(x_ / 8, y / 8)] = DIRTY_CLEAR;
-        }
+        else
+          _dirty[tileIdx] = DIRTY_CLEAR;
         x_ += 8;
+        continue;
+      }
+
+      if (colorIdx == 0 && (_tileVramIds[tileIdx] == 0 || _dirty[tileIdx] == DIRTY_CLEAR)) {
+        x_ += 8 - (x_ % 8);
         continue;
       }
       
