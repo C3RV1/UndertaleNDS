@@ -3,11 +3,11 @@
 //
 #include "Room/InGameMenu.hpp"
 #include "Cutscene/Cutscene.hpp"
+#include "Engine/Background.hpp"
 #include "Engine/DataBank.hpp"
 #include "Engine/Font.hpp"
 #include "Engine/Sprite.hpp"
 #include "Engine/TextBGManager.hpp"
-#include "Formats/utils.hpp"
 #include "Room/Room.hpp"
 #include "Save.hpp"
 #include <memory>
@@ -136,13 +136,13 @@ void InGameMenu::drawItemPage() {
   if (_itemPage > 0)
     Engine::textSub.drawGlyph(*_fnt, '<', x, kPageChangeY);
   else
-    Engine::textSub.drawGlyph(*_fnt, ' ', x, kPageChangeY);
-
+    Engine::textSub.clearRect(x, kPageChangeY, 16, 16);
+    
   x = 256 - 15;
   if (_itemPage < (_optionCount - 1) / 2)
     Engine::textSub.drawGlyph(*_fnt, '>', x, kPageChangeY);
   else
-    Engine::textSub.drawGlyph(*_fnt, ' ', x, kPageChangeY);
+    Engine::textSub.clearRect(x, kPageChangeY, 16, 16);
 
   int y = kItemsY;
   for (int i = 0; i < 2; i++) {
