@@ -1,6 +1,6 @@
 import typing
 if typing.TYPE_CHECKING:
-    from tools.CutsceneTypes import *
+    from tools.CutsceneTypes import Cutscene, Target, TargetType, WaitTypes, FlagOffsets
 else:
     from CutsceneTypes import *
 
@@ -8,7 +8,7 @@ else:
 def cutscene(c: Cutscene):
     c.player_control(False)
     c.set_animation(Target(TargetType.PLAYER), "rightIdle")
-    c.set_collider_enabled(0, False)
+    c.set_collider_enabled(1, False)
     c.play_sfx("snd_phone.wav", 0)
     c.dialogue_centered(10, "", 0, 0, "", "",
                         Target(TargetType.NULL), "", "",
