@@ -57,9 +57,11 @@ bool AudioFile::play() {
     stop();
   }
   _active = true;
+  _clocks = (BUS_CLOCK / _sampleRate) >> 1 << 1;
   debug_audio("Starting wav: " + getFilename() + " stereo " +
               std::to_string(getStereo()) + " sample rate " +
-              std::to_string(_sampleRate));
+              std::to_string(_sampleRate) + " clocks " +
+              std::to_string(_clocks));
 
   resetPlaying();
 
@@ -76,7 +78,7 @@ bool AudioFile::play() {
                                    _sampleRate, _volume, 64, true, 0);
   }
   
-  _timerLast = timerTick(audioManager.getTimerId());
+  _timerLast = timerTick(kTimerCounter);
 
   progress(kAudioBuffer / 2);
 
@@ -123,11 +125,11 @@ ITCM_CODE
 void AudioFile::update() {
   if (!_active)
     return;
-  u16 timerTicks = timerTick(audioManager.getTimerId());
+  u16 timerTicks = timerTick(kTimerCounter);
   u16 timerElapsed = timerTicks - _timerLast;
-  u32 ticksToProcess = (u32)timerElapsed * _sampleRate * 64 + _ticksRemain;
-  u32 samples = ticksToProcess / BUS_CLOCK;
-  _ticksRemain = ticksToProcess % BUS_CLOCK;
+  u32 ticksToProcess = (u32)timerElapsed * 1024 + _ticksRemain;
+  u32 samples = ticksToProcess / _clocks;
+  _ticksRemain = ticksToProcess % _clocks;
   _expectedSampleBufferPos += samples;
 
   progress(samples);
@@ -165,8 +167,8 @@ void updateAudio() { Audio2::audioManager.update(); }
 
 AudioManager::AudioManager() {
   soundEnable();
-  timerStart(kTimerCounter, ClockDivider_64, 0, nullptr);
-  timerStart(kTimerIrq, ClockDivider_1, 0, updateAudio);
+  timerStart(kTimerCounter, ClockDivider_1024, 0, nullptr);
+  timerStart(kTimerIrq, ClockDivider_1, 1 << 15, updateAudio);
 }
 
 AudioManager audioManager;

@@ -153,8 +153,9 @@ private:
    */
   virtual void updateSync() = 0;
 
-  u16 _timerLast;
-  u32 _ticksRemain;
+  u16 _timerLast = 0;
+  u32 _ticksRemain = 0;
+  u32 _clocks = 0;
 
   friend class AudioManager;
 };
