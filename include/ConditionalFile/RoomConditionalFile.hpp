@@ -11,8 +11,8 @@ struct RoomHeader {
   char header[4] = {'R', 'O', 'O', 'M'};
   u32 fileSize = 0;
 
-  u32 version = 11;
-  static constexpr u32 version_expected = 11;
+  u32 version = 12;
+  static constexpr u32 version_expected = 12;
 };
 
 class RoomSideExit : public ConditionalObj {

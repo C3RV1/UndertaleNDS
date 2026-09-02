@@ -9,6 +9,19 @@ import os
 import pathlib
 import enum
 
+def tuple_unpacker[T](val_unpacker: Callable[[Any], T], expected_length: int) -> Callable[[Any], tuple]:
+    def inner_unpacker(x: tuple):
+        if len(x) != expected_length:
+            raise ValueError(f"Tuple should be {expected_length} elements long.")
+        return tuple([val_unpacker(v) for v in x])
+    return inner_unpacker
+
+def tuple_packer(val_packer: Callable[[Any], None]) -> Callable[[tuple], None]:
+    def inner_packer(x: tuple):
+        for v in x:
+            val_packer(v)
+    return inner_packer
+
 def int_unpacker(x: Any) -> int:
     if not isinstance(x, int):
         raise ValueError(f"{repr(x)} is not an int.")
@@ -28,13 +41,6 @@ def str_unpacker(x: Any) -> str:
     if not isinstance(x, str):
         raise ValueError(f"{repr(x)} is not a string.")
     return x
-
-def spr_id_unpacker(x: Any) -> int:
-    if isinstance(x, int):
-        return x
-    if isinstance(x, str) and x in ROOM_SPRITE_NAMES_TO_SPRITE_IDS:
-        return ROOM_SPRITE_NAMES_TO_SPRITE_IDS[x]
-    raise ValueError(f"{repr(x)} is not a valid sprite id.")
 
 def to_fixed_point(f: float) -> int:
     return int(f * (2 ** 8))
@@ -58,7 +64,7 @@ class RoomHeader:
     def __init__(self) -> None:
         self.header = b"ROOM"
         self.file_size_pos = 0
-        self.version = 11
+        self.version = 12
 
     def write(self, wtr: binary.BinaryWriter) -> None:
         wtr.write(self.header)
@@ -215,7 +221,7 @@ class ObjConditionAndValue[T](ObjData[T]):
             data_wtr(self.next)
 
 def unpack_data[T](json_obj: list[dict[str, Any] | Any] | Any, value_unpacker: Callable[[Any], T]) -> ObjData[T]:
-    if not isinstance(json_obj, list):
+    if not isinstance(json_obj, list) or not isinstance(json_obj[0], dict) or "if" not in json_obj[0]:
         return ObjUnconditionalData(value_unpacker(json_obj))
 
     root: Optional[ObjConditionAndValue[T]] = None
@@ -259,18 +265,17 @@ class RoomSideExit(Obj):
     def __init__(
         self,
         room_id: ObjData[int],
-        spawn: tuple[ObjData[int], ObjData[int]],
+        spawn: ObjData[tuple[int, int]],
         exit_type: ObjData[int],
     ) -> None:
         super().__init__()
         self.room_id: ObjData[int] = room_id
-        self.spawn: tuple[ObjData[int], ObjData[int]] = spawn
+        self.spawn: ObjData[tuple[int, int]] = spawn
         self.exit_side: ObjData[int] = exit_type
 
     def write(self, cw: ConditionalWriter) -> None:
         self.room_id.write(cw, cw.wtr.write_uint16)
-        for v in self.spawn:
-            v.write(cw, cw.wtr.write_uint16)
+        self.spawn.write(cw, tuple_packer(cw.wtr.write_uint16))
         self.exit_side.write(cw, cw.wtr.write_uint8)
 
     @classmethod
@@ -285,15 +290,9 @@ class RoomSideExit(Obj):
                 "right": 3
             }[x]
 
-        if len(json_obj["spawn"]) != 2:
-            raise ValueError("Spawn coords must have 2 items.")
-
         return cls(
             unpack_data(json_obj["room_id"], int_unpacker),
-            (
-                unpack_data(json_obj["spawn"][0], int_unpacker),
-                unpack_data(json_obj["spawn"][1], int_unpacker)
-            ),
+            unpack_data(json_obj["spawn"], tuple_unpacker(int_unpacker, 2)),
             unpack_data(json_obj["side"], exit_side_unpacker)
         )
 
@@ -317,23 +316,13 @@ class RoomSpriteActionUnion(Obj):
         self.close_anim: ObjData[str] = ObjUnconditionalData("")
 
         # Type 3 = Parallax (fixed-point)
-        self.parallax: tuple[ObjData[float], ObjData[float]] = (
-            ObjUnconditionalData(0),
-            ObjUnconditionalData(0)
-        )
+        self.parallax: ObjData[tuple[float, float]] = ObjUnconditionalData((0, 0))
 
         # Type 4 = Pushable
-        self.valid_rect: tuple[ObjData[int], ObjData[int],
-            ObjData[int], ObjData[int]] = (
-            ObjUnconditionalData(0),
-            ObjUnconditionalData(0),
-            ObjUnconditionalData(0),
-            ObjUnconditionalData(0)
+        self.valid_rect: ObjData[tuple[int, int, int, int]] = ObjUnconditionalData(
+            (0, 0, 0, 0)
         )
-        self.goal_pos: tuple[ObjData[int], ObjData[int]] = (
-            ObjUnconditionalData(0),
-            ObjUnconditionalData(0)
-        )
+        self.goal_pos: ObjData[tuple[int, int]] = ObjUnconditionalData((0, 0))
         self.cutscene_id: ObjData[int] = ObjUnconditionalData(0)
         self.goal_flag_id: ObjData[int] = ObjUnconditionalData(0)
         self.goal_flag_bit: ObjData[int] = ObjUnconditionalData(0)
@@ -349,13 +338,10 @@ class RoomSpriteActionUnion(Obj):
             self.distance.write(cw, cw.wtr.write_uint16)
             self.close_anim.write(cw, str_wtr(cw.wtr))
         elif self.type == SpriteActionType.PARALLAX:
-            for v in self.parallax:
-                v.write(cw, fixed_point_wtr(cw.wtr))
+            self.parallax.write(cw, tuple_packer(fixed_point_wtr(cw.wtr)))
         elif self.type == SpriteActionType.PUSHABLE:
-            for v in self.valid_rect:
-                v.write(cw, cw.wtr.write_uint16)
-            for v in self.goal_pos:
-                v.write(cw, cw.wtr.write_uint16)
+            self.valid_rect.write(cw, tuple_packer(cw.wtr.write_uint16))
+            self.goal_pos.write(cw, tuple_packer(cw.wtr.write_uint16))
             self.cutscene_id.write(cw, cw.wtr.write_uint16)
             self.goal_flag_id.write(cw, cw.wtr.write_uint16)
             self.goal_flag_bit.write(cw, cw.wtr.write_uint16)
@@ -380,30 +366,19 @@ class RoomSpriteActionUnion(Obj):
             ret.close_anim = unpack_data(json_obj["close_animation"],
                                          str_unpacker)
         elif action_type == SpriteActionType.PARALLAX:
-            if len(json_obj["parallax"]) != 2:
-                raise ValueError("Parallax must have 2 items.")
-            ret.parallax = (
-                unpack_data(json_obj.get("parallax"[0], 1.0), float_unpacker),
-                unpack_data(json_obj.get("parallax"[1], 1.0), float_unpacker)
+            ret.parallax = unpack_data(
+                json_obj.get("parallax", (1.0, 1.0)), tuple_unpacker(float_unpacker, 2)
             )
             # TODO: Move this logic to C code
             # res.x -= 256 // 2, res.y -= 192 // 2
             # res.x/y *= res.parallax_x/y if res.parallax_x/y != 0
             # res.x += 256 // 2, res.y += 192 // 2
         elif action_type == SpriteActionType.PUSHABLE:
-            if len(json_obj["valid_rect"]) != 4:
-                raise ValueError("Valid rect must have 4 items.")
-            if len(json_obj["goal_pos"]) != 2:
-                raise ValueError("Goal position must have 2 items.")
-            ret.valid_rect = (
-                unpack_data(json_obj["valid_rect"][0], int_unpacker),
-                unpack_data(json_obj["valid_rect"][1], int_unpacker),
-                unpack_data(json_obj["valid_rect"][2], int_unpacker),
-                unpack_data(json_obj["valid_rect"][3], int_unpacker)
+            ret.valid_rect = unpack_data(
+                json_obj["valid_rect"], tuple_unpacker(int_unpacker, 4)
             )
-            ret.goal_pos = (
-                unpack_data(json_obj["goal_pos"][0], int_unpacker),
-                unpack_data(json_obj["goal_pos"][1], int_unpacker)
+            ret.goal_pos = unpack_data(
+                json_obj["goal_pos"], tuple_unpacker(int_unpacker, 2)
             )
             ret.goal_flag_id = unpack_data(json_obj["goal_flag_id"], int_unpacker)
             ret.goal_flag_bit = unpack_data(json_obj["goal_flag_bit"], int_unpacker)
@@ -412,37 +387,45 @@ class RoomSpriteActionUnion(Obj):
 
 
 class RoomSprite(Obj):
-    def __init__(self, spr_id: ObjData[int], texture: ObjData[str],
-                 pos: tuple[ObjData[int], ObjData[int]],
-                 animation: ObjData[str], action: ObjData[RoomSpriteActionUnion]) -> None:
+    def __init__(
+        self,
+        spr_id: ObjData[int],
+        texture: ObjData[str],
+        pos: ObjData[tuple[int, int]],
+        animation: ObjData[str],
+        action: ObjData[RoomSpriteActionUnion],
+    ) -> None:
         super().__init__()
         self.spr_id: ObjData[int] = spr_id
         self.texture: ObjData[str] = texture
-        self.pos: tuple[ObjData[int], ObjData[int]] = pos
+        self.pos: ObjData[tuple[int, int]] = pos
         self.animation: ObjData[str] = animation
         self.action: ObjData[RoomSpriteActionUnion] = action
 
     def write(self, cw: ConditionalWriter) -> None:
         self.spr_id.write(cw, cw.wtr.write_uint16)
         self.texture.write(cw, str_wtr(cw.wtr))
-        for v in self.pos:
-            v.write(cw, cw.wtr.write_uint16)
+        self.pos.write(cw, tuple_packer(cw.wtr.write_uint16))
         self.animation.write(cw, str_wtr(cw.wtr))
         self.action.write(cw, obj_wtr(cw))
         
     @classmethod
     def from_json_obj(cls, json_obj: dict[str, Any]) -> RoomSprite:
-        if len(json_obj["pos"]) != 2:
-            raise ValueError("Position must have 2 values.")
-        if "id" in json_obj and json_obj["id"] == 0:
-            raise ValueError("Specified sprite id cannot be 0.")
+        def spr_id_unpacker(x: Any) -> int:
+            if isinstance(x, int):
+                if x == 0:
+                    raise ValueError("Specified sprite id cannot be 0.")
+                return x
+            if isinstance(x, str) and x in ROOM_SPRITE_NAMES_TO_SPRITE_IDS:
+                return ROOM_SPRITE_NAMES_TO_SPRITE_IDS[x]
+            if x is None:
+                return 0
+            raise ValueError(f"{repr(x)} is not a valid sprite id.")
+
         return cls(
-            unpack_data(json_obj.get("id", 0), spr_id_unpacker),
+            unpack_data(json_obj.get("id", None), spr_id_unpacker),
             unpack_data(json_obj["texture"], str_unpacker),
-            (
-                unpack_data(json_obj["pos"][0], int_unpacker),
-                unpack_data(json_obj["pos"][1], int_unpacker),
-            ),
+            unpack_data(json_obj["pos"], tuple_unpacker(int_unpacker, 2)),
             unpack_data(json_obj.get("animation", "gfx"), str_unpacker),
             unpack_data(json_obj.get("action", {}), RoomSpriteActionUnion.from_json_obj)
         )
@@ -460,10 +443,7 @@ class ColliderTypeUnion(Obj):
 
         # Type 1 = Exit
         self.room_id: ObjData[int] = ObjUnconditionalData(0)
-        self.spawn: tuple[ObjData[int], ObjData[int]] = (
-            ObjUnconditionalData(0),
-            ObjUnconditionalData(0)
-        )
+        self.spawn: ObjData[tuple[int, int]] = ObjUnconditionalData((0, 0))
 
         # Type 2 = Cutscene
         self.cutscene_id: ObjData[int]= ObjUnconditionalData(0)
@@ -474,8 +454,7 @@ class ColliderTypeUnion(Obj):
             pass
         elif self.type == ColliderType.EXIT:
             self.room_id.write(cw, cw.wtr.write_uint16)
-            for v in self.spawn:
-                v.write(cw, cw.wtr.write_uint16)
+            self.spawn.write(cw, tuple_packer(cw.wtr.write_uint16))
         elif self.type == ColliderType.CUTSCENE:
             self.cutscene_id.write(cw, cw.wtr.write_uint16)
         else:
@@ -490,14 +469,8 @@ class ColliderTypeUnion(Obj):
         }[json_obj.get("type", "wall")]
         ret = cls(coll_type)
         if coll_type == ColliderType.EXIT:
-            if len(json_obj["spawn"]) != 2:
-                raise ValueError("Spawn coords must have 2 items.")
-
             ret.room_id = unpack_data(json_obj["room_id"], int_unpacker)
-            ret.spawn = (
-                unpack_data(json_obj["spawn"][0], int_unpacker),
-                unpack_data(json_obj["spawn"][1], int_unpacker)
-            )
+            ret.spawn = unpack_data(json_obj["spawn"], tuple_unpacker(int_unpacker, 2))
         elif coll_type == ColliderType.CUTSCENE:
             ret.cutscene_id = unpack_data(json_obj["cutscene_id"], int_unpacker)
         return ret
@@ -505,35 +478,34 @@ class ColliderTypeUnion(Obj):
 
 class RoomCollider(Obj):
     def __init__(self, coll_id: ObjData[int],
-                 rect: tuple[ObjData[int], ObjData[int], ObjData[int], ObjData[int]],
+                 rect: ObjData[tuple[int, int, int, int]],
                  enabled: ObjData[bool], coll_type: ObjData[ColliderTypeUnion]) -> None:
         super().__init__()
         self.coll_id: ObjData[int] = coll_id
-        self.rect: tuple[ObjData[int], ObjData[int], ObjData[int], ObjData[int]] = rect
+        self.rect: ObjData[tuple[int, int, int, int]] = rect
         self.enabled: ObjData[bool] = enabled
         self.coll_type: ObjData[ColliderTypeUnion] = coll_type
 
     def write(self, cw: ConditionalWriter) -> None:
         self.coll_id.write(cw, cw.wtr.write_uint8)
-        for v in self.rect:
-            v.write(cw, cw.wtr.write_uint16)
+        self.rect.write(cw, tuple_packer(cw.wtr.write_uint16))
         self.enabled.write(cw, cw.wtr.write_bool)
         self.coll_type.write(cw, obj_wtr(cw))
         
     @classmethod
     def from_json_obj(cls, json_obj: dict[str, Any]) -> RoomCollider:
-        if len(json_obj["rect"]) != 4:
-            raise ValueError("Rect must have 4 items.")
-        if "id" in json_obj and json_obj["id"] == 0:
-            raise ValueError("Specified sprite id cannot be 0.")
+        def coll_id_unpacker(x: Any) -> int:
+            if x is None:
+                return 0
+            if not isinstance(x, int):
+                raise ValueError(f"{repr(x)} is not a collider id.")
+            if x == 0:
+                raise ValueError("Specified collider id cannot be 0.")
+            return x
+
         return cls(
-            unpack_data(json_obj.get("id", 0), int_unpacker),
-            (
-                unpack_data(json_obj["rect"][0], int_unpacker),
-                unpack_data(json_obj["rect"][1], int_unpacker),
-                unpack_data(json_obj["rect"][2], int_unpacker),
-                unpack_data(json_obj["rect"][3], int_unpacker),
-            ),
+            unpack_data(json_obj.get("id", None), coll_id_unpacker),
+            unpack_data(json_obj["rect"], tuple_unpacker(int_unpacker, 4)),
             unpack_data(json_obj.get("enabled", True), bool_unpacker),
             unpack_data(json_obj.get("type", {}), ColliderTypeUnion.from_json_obj)
         )
@@ -591,9 +563,7 @@ class ListObjConditionalData[T](ListObjData[T]):
             data_wtr(v)
 
 def unpack_list_data[T](json_obj: dict[str, Any | dict[str, Any]] | Any, value_unpacker: Callable[[Any], T]) -> ListObjData[T]:
-    if not isinstance(json_obj, dict):
-        return ListObjUnconditionalData(value_unpacker(json_obj))
-    if json_obj.get("only_if", None) is None:
+    if not isinstance(json_obj, dict) or "only_if" not in json_obj:
         return ListObjUnconditionalData(value_unpacker(json_obj))
 
     condition_list = json_obj["only_if"]
@@ -615,7 +585,7 @@ def unpack_list_data[T](json_obj: dict[str, Any | dict[str, Any]] | Any, value_u
 class Room(Obj):
     def __init__(self, room_bg: ObjData[str], music_path: ObjData[str],
                  music_volume: ObjData[int],
-                 spawn: tuple[ObjData[int], ObjData[int]],
+                 spawn: ObjData[tuple[int, int]],
                  room_exits: ListObj[RoomSideExit],
                  room_sprites: ListObj[RoomSprite],
                  room_colliders: ListObj[RoomCollider]
@@ -624,7 +594,7 @@ class Room(Obj):
         self.room_bg: ObjData[str] = room_bg
         self.music_path: ObjData[str] = music_path
         self.music_volume: ObjData[int] = music_volume
-        self.spawn: tuple[ObjData[int], ObjData[int]] = spawn
+        self.spawn: ObjData[tuple[int, int]] = spawn
         self.room_exits: ListObj[RoomSideExit] = room_exits
         self.room_sprites: ListObj[RoomSprite] = room_sprites
         self.room_colliders: ListObj[RoomCollider] = room_colliders
@@ -633,8 +603,7 @@ class Room(Obj):
         self.room_bg.write(cw, str_wtr(cw.wtr))
         self.music_path.write(cw, str_wtr(cw.wtr))
         self.music_volume.write(cw, cw.wtr.write_uint8)
-        for v in self.spawn:
-            v.write(cw, cw.wtr.write_uint16)
+        self.spawn.write(cw, tuple_packer(cw.wtr.write_uint16))
 
         self.room_exits.write(cw, obj_wtr(cw))
         self.room_sprites.write(cw, obj_wtr(cw))
@@ -646,10 +615,7 @@ class Room(Obj):
             unpack_data(json_obj["bg"], str_unpacker),
             unpack_data(json_obj["music"], str_unpacker),
             unpack_data(json_obj.get("music_volume", 127), int_unpacker),
-            (
-                unpack_data(json_obj["spawn"][0], int_unpacker),
-                unpack_data(json_obj["spawn"][1], int_unpacker),
-            ),
+            unpack_data(json_obj["spawn"], tuple_unpacker(int_unpacker, 2)),
             ListObj.from_json_list(json_obj["exits"], RoomSideExit.from_json_obj),
             ListObj.from_json_list(json_obj["sprites"], RoomSprite.from_json_obj),
             ListObj.from_json_list(json_obj["colliders"], RoomCollider.from_json_obj)

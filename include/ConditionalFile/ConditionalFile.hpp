@@ -60,6 +60,22 @@ bool readValue(tag<bool>, ConditionalReader *cr, SaveData *save);
 std::string readValue(tag<std::string>, ConditionalReader *cr,
                                  SaveData *save);
 
+template <typename T>
+std::tuple<T, T> readValue(tag<std::tuple<T, T>>, ConditionalReader *cr, SaveData *save) {
+  T u = readValue(tag<T>(), cr, save);
+  T v = readValue(tag<T>(), cr, save);
+  return std::make_tuple(u, v);
+}
+
+template <typename T>
+std::tuple<T, T, T, T> readValue(tag<std::tuple<T, T, T, T>>, ConditionalReader *cr, SaveData *save) {
+  T u = readValue(tag<T>(), cr, save);
+  T v = readValue(tag<T>(), cr, save);
+  T w = readValue(tag<T>(), cr, save);
+  T y = readValue(tag<T>(), cr, save);
+  return std::make_tuple(u, v, w, y);
+}
+
 #if defined(DEBUG_CONDITIONAL_FILE) && !defined(__GXX_RTTI)
 #error "Debugging ConditionalFile requires RTTI enabled. Remove -fno-rtti."
 #endif
@@ -74,7 +90,7 @@ struct TypeName {
 #endif
 
 template <class T>
-T readConditionalData(ConditionalReader *cr, SaveData *save, ConditionalObj *obj) {
+T readConditionalData(ConditionalReader *cr, SaveData *save) {
 #ifdef DEBUG_CONDITIONAL_FILE
   debug_conditional_file("readConditionalData<" + TypeName<T>::Get() + ">");
 #endif

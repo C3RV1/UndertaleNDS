@@ -106,8 +106,9 @@ void Room::loadRoom(FILE *f) {
   fread(&header.version, 4, 1, f);
   if (header.version != RoomHeader::version_expected) {
     std::string buffer = "Error loading room #r" + std::to_string(_roomId) +
-                         "#x: Invalid version (expected: 11, actual: " +
-                         std::to_string(header.version) + ")";
+                         "#x: Invalid version (expected: " +
+                         std::to_string(RoomHeader::version_expected) +
+                         ", actual: " + std::to_string(header.version) + ")";
     Engine::throw_(buffer);
   }
 
