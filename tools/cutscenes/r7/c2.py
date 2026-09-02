@@ -52,7 +52,7 @@ def cutscene(c: Cutscene):
         type_sound="snd_txttor.wav",
     )
     c.wait(WaitTypes.DIALOGUE)
-    c.set_flag(FlagOffsets.OWNS_PHONE, SpriteIDs.TORIEL_ROOM)
+    c.set_flag(FlagOffsets.OWNS_PHONE, 1)
     c.set_cell([1, 2, 3, 4])
 
     c.set_animation(Target(TargetType.SPRITE, SpriteIDs.TORIEL_ROOM), "rightMove")
