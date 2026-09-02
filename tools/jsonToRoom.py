@@ -323,7 +323,7 @@ class RoomSpriteActionUnion(Obj):
             (0, 0, 0, 0)
         )
         self.goal_pos: ObjData[tuple[int, int]] = ObjUnconditionalData((0, 0))
-        self.cutscene_id: ObjData[int] = ObjUnconditionalData(0)
+        self.goal_cutscene_id: ObjData[int] = ObjUnconditionalData(0)
         self.goal_flag_id: ObjData[int] = ObjUnconditionalData(0)
         self.goal_flag_bit: ObjData[int] = ObjUnconditionalData(0)
         self.stop_on_goal: ObjData[bool] = ObjUnconditionalData(False)
@@ -342,7 +342,7 @@ class RoomSpriteActionUnion(Obj):
         elif self.type == SpriteActionType.PUSHABLE:
             self.valid_rect.write(cw, tuple_packer(cw.wtr.write_uint16))
             self.goal_pos.write(cw, tuple_packer(cw.wtr.write_uint16))
-            self.cutscene_id.write(cw, cw.wtr.write_uint16)
+            self.goal_cutscene_id.write(cw, cw.wtr.write_uint16)
             self.goal_flag_id.write(cw, cw.wtr.write_uint16)
             self.goal_flag_bit.write(cw, cw.wtr.write_uint16)
             self.stop_on_goal.write(cw, cw.wtr.write_bool)
@@ -380,7 +380,7 @@ class RoomSpriteActionUnion(Obj):
             ret.goal_pos = unpack_data(
                 json_obj["goal_pos"], tuple_unpacker(int_unpacker, 2)
             )
-            ret.cutscene_id = unpack_data(json_obj["goal_cutscene_id"], int_unpacker)
+            ret.goal_cutscene_id = unpack_data(json_obj["goal_cutscene_id"], int_unpacker)
             ret.goal_flag_id = unpack_data(json_obj["goal_flag_id"], int_unpacker)
             ret.goal_flag_bit = unpack_data(json_obj["goal_flag_bit"], int_unpacker)
             ret.stop_on_goal = unpack_data(json_obj["stop_on_goal"], bool_unpacker)
