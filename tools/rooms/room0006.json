@@ -1,6 +1,5 @@
 {
-  "cond": {"flag": 0, "cmp": "==", "val": 5},
-  "bg": "rooms/room6",
+  "bg": "rooms/room0006",
   "music": "mus_ruins.wav",
   "spawn": [119, 194],
   "exits": [

@@ -1,0 +1,49 @@
+{
+  "bg": "rooms/room0010",
+  "music": "mus_ruins.wav",
+  "spawn": [5, 114],
+  "exits": [
+    {
+      "room_id": 8,
+      "spawn": [301, 336],
+      "side": "left"
+    },
+    {
+      "room_id": 11,
+      "spawn": [3, 91],
+      "side": "right"
+    }
+  ],
+  "sprites": [],
+  "colliders": [
+    {
+      "rect": [181, 110, 16, 60],
+      "type": {
+        "type": "cutscene",
+        "cutscene_id": 0
+      }
+    },
+    {
+      "rect": [95, 278, 30, 50],
+      "type": {
+        "type": "cutscene",
+        "cutscene_id": 1
+      }
+    },
+    {
+      "rect": [255, 278, 30, 50],
+      "type": {
+        "type": "cutscene",
+        "cutscene_id": 1
+      }
+    },
+    
+    {"rect": [0, 41, 372, 69]},
+    {"rect": [0, 150, 70, 290]},
+    {"rect": [310, 150, 62, 290]},
+    {"rect": [70, 170, 239, 108]},
+    {"rect": [70, 278, 25, 52]},
+    {"rect": [285, 278, 25, 52]},
+    {"rect": [125, 278, 130, 52]}
+  ]
+}

@@ -10,7 +10,13 @@
 #include <string>
 #include "nds.h"
 
-int str_len_file(FILE *f, char terminator);
+[[deprecated]] int str_len_file(FILE *f, char terminator);
+
+template <typename T>
+std::string to_string_pad(T val, size_t len, char pad_char) {
+  auto s = std::to_string(val);
+  return std::string(len - std::min(s.length(), len), pad_char) + s;
+}
 
 class BufferReader {
 public:

@@ -1,5 +1,5 @@
 {
-  "bg": "rooms/room2",
+  "bg": "rooms/room0002",
   "music": "mus_ruins.wav",
   "spawn": [132, 205],
   "exits": [

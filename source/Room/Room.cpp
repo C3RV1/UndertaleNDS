@@ -28,7 +28,8 @@ Room::Room(int roomId, std::optional<std::pair<u16, u16>> spawnCoords,
     : _roomId(roomId), _nav(this), _player(this), _camera(this),
       _ingame_menu(std::move(ingame_menu)), _save(std::move(save)) {
 
-  std::string buffer = "nitro:/rooms/room" + std::to_string(roomId) + ".room";
+  std::string buffer =
+      "nitro:/rooms/room" + to_string_pad(roomId, 4, '0') + ".room";
 
   FILE *f = fopen(buffer.c_str(), "rb");
   if (f == nullptr) {
