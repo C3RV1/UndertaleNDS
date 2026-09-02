@@ -323,19 +323,19 @@ bool Cutscene::runCommand(u8 cmd) {
     if (_cDialogue == nullptr) {
       if (dialogue_type == DIALOGUE_CENTERED)
         _cDialogue = std::make_unique<DialogueCentered>(
-            _room->_save.get(), _cutsceneId, _room->_roomId, textId, target,
+            _room->_save.get(), _cutsceneId, _roomId, textId, target,
             std::move(targetIdle), std::move(targetTalk), std::move(typeSnd),
             std::move(font), framesPerLetter, txt, heartAlloc,
             std::move(speaker), x, y, std::move(speakerIdle),
             std::move(speakerTalk));
       else if (dialogue_type == DIALOGUE_LEFT_ALIGNED)
         _cDialogue = std::make_unique<DialogueLeftAligned>(
-            _room->_save.get(), _cutsceneId, _room->_roomId, textId, target,
+            _room->_save.get(), _cutsceneId, _roomId, textId, target,
             targetIdle, targetTalk, typeSnd, font, framesPerLetter, txt,
             heartAlloc, x, y);
       else if (dialogue_type == DIALOGUE_FLAVOR_TEXT && _cBattle)
         _cDialogue = std::make_unique<FlavorTextDialogue>(
-            _cBattle.get(), _cutsceneId, _room->_roomId, textId, typeSnd, font,
+            _cBattle.get(), _cutsceneId, _roomId, textId, typeSnd, font,
             framesPerLetter);
     }
     break;
