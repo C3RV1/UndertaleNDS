@@ -10,6 +10,8 @@
 
 namespace Audio2 {
 
+constexpr u32 kBusClocks = 33554432;
+
 int enterAudioCritical() {
   int v = REG_IE & IRQ_TIMER(Audio2::kTimerIrq);
   irqDisable(IRQ_TIMER(Audio2::kTimerIrq));
@@ -57,7 +59,7 @@ bool AudioFile::play() {
     stop();
   }
   _active = true;
-  _clocks = (BUS_CLOCK / _sampleRate) >> 1 << 1;
+  _clocks = (kBusClocks / _sampleRate) >> 1 << 1;
   debug_audio("Starting wav: " + getFilename() + " stereo " +
               std::to_string(getStereo()) + " sample rate " +
               std::to_string(_sampleRate) + " clocks " +
