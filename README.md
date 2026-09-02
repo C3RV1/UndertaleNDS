@@ -95,5 +95,8 @@ trying to process rooms which are not yet finished.
 After compiling the assets, build the rom by running `make`.
 
 ## Credits
-Toby Fox - Original game
-Cervi - DS Port
+Thanks to Toby Fox for the original game and to the team behind
+BlocksDS ([[https://blocksds.skylyrac.net/docs/credits/]]) for making DS game
+development possible.
+
+
