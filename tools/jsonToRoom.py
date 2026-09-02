@@ -380,6 +380,7 @@ class RoomSpriteActionUnion(Obj):
             ret.goal_pos = unpack_data(
                 json_obj["goal_pos"], tuple_unpacker(int_unpacker, 2)
             )
+            ret.cutscene_id = unpack_data(json_obj["goal_cutscene_id"], int_unpacker)
             ret.goal_flag_id = unpack_data(json_obj["goal_flag_id"], int_unpacker)
             ret.goal_flag_bit = unpack_data(json_obj["goal_flag_bit"], int_unpacker)
             ret.stop_on_goal = unpack_data(json_obj["stop_on_goal"], bool_unpacker)

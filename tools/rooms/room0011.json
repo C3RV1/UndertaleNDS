@@ -49,6 +49,7 @@
       }
     },
     {
+      "id": 1,
       "texture": "room_sprites/spike",
       "animation": [
         {
@@ -60,6 +61,7 @@
       "pos": [277, 75]
     },
     {
+      "id": 2,
       "texture": "room_sprites/spike",
       "animation": [
         {
@@ -71,6 +73,7 @@
       "pos": [277, 95]
     },
     {
+      "id": 3,
       "texture": "room_sprites/spike",
       "animation": [
         {
@@ -82,6 +85,7 @@
       "pos": [277, 115]
     },
     {
+      "id": 4,
       "texture": "room_sprites/spike",
       "animation": [
         {
@@ -93,6 +97,7 @@
       "pos": [277, 135]
     },
     {
+      "id": 5,
       "texture": "room_sprites/spike",
       "animation": [
         {
@@ -104,6 +109,7 @@
       "pos": [277, 155]
     },
     {
+      "id": 6,
       "texture": "room_sprites/spike",
       "animation": [
         {
@@ -127,14 +133,16 @@
       "only_if": {"flag": 0, "cmp": "<=", "val": 10},
       "then": [
         {
+          "id": 3,
           "_comment": "Spikes",
           "rect": [276, 74, 20, 120]
         },
         {
           "_comment": "Call trigger 2",
+          "id": 2,
           "rect": [63, 94, 6, 40],
-          "action": {
-            "action": "cutscene",
+          "type": {
+            "type": "cutscene",
             "cutscene_id": 15
           }
         }
@@ -144,9 +152,10 @@
       "only_if": {"flag": 0, "cmp": "==", "val": 9},
       "then": {
         "_comment": "Call trigger",
+        "id": 1,
         "rect": [33, 94, 6, 40],
-        "action": {
-          "action": "cutscene",
+        "type": {
+          "type": "cutscene",
           "cutscene_id": 10
         }
       }
