@@ -106,15 +106,17 @@ void Room::loadRoom(FILE *f) {
   fread(&header.version, 4, 1, f);
   if (header.version != RoomHeader::version_expected) {
     std::string buffer = "Error loading room #r" + std::to_string(_roomId) +
-                         "#x: Invalid version (expected: 10, actual: " +
+                         "#x: Invalid version (expected: 11, actual: " +
                          std::to_string(header.version) + ")";
     Engine::throw_(buffer);
   }
 
-  BufferReader rdr;
-  rdr.openFromFile(f, header.fileSize - ftell(f));
+  auto rdr = std::make_unique<BufferReader>();
+  rdr->openFromFile(f, header.fileSize - ftell(f));
+
+  ConditionalReader cr(std::move(rdr));
   
-  _roomData.read(&rdr, _save.get());
+  _roomData.read(&cr, _save.get());
 
   for (auto& exit : _roomData._roomExits) {
     switch(exit._exitSide) {

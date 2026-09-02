@@ -3,7 +3,9 @@
 #include "Cutscene/CutsceneEnums.hpp"
 #include <string>
 
-bool ConditionalObj::nextIsConditional(BufferReader *rdr) {
+ConditionalReader::ConditionalReader(std::unique_ptr<BufferReader> rdr_) : rdr(std::move(rdr_)) {}
+
+bool ConditionalReader::nextIsConditional() {
   debug_conditional_file("NextIsConditional (last_unc) " +
                        std::to_string(_lastUnconditionalCount));
   if (_lastUnconditionalCount == 0) {
@@ -105,58 +107,58 @@ Condition readCondition(BufferReader* rdr) {
   return Condition(flag, cmp, cmp_value);
 }
 
-u8 readValue(tag<u8>, BufferReader *rdr, SaveData *save) {
+u8 readValue(tag<u8>, ConditionalReader *cr, SaveData *save) {
   debug_conditional_file("Reading u8 value");
   u8 data;
-  rdr->read(&data, 1);
+  cr->rdr->read(&data, 1);
   return data;
 }
 
-u16 readValue(tag<u16>, BufferReader *rdr, SaveData *save) {
+u16 readValue(tag<u16>, ConditionalReader *cr, SaveData *save) {
   debug_conditional_file("Reading u16 value");
   u16 data;
-  rdr->read(&data, 2);
+  cr->rdr->read(&data, 2);
   return data;
 }
 
-u32 readValue(tag<u32>, BufferReader *rdr, SaveData *save) {
+u32 readValue(tag<u32>, ConditionalReader *cr, SaveData *save) {
   debug_conditional_file("Reading u32 value");
   u32 data;
-  rdr->read(&data, 4);
+  cr->rdr->read(&data, 4);
   return data;
 }
 
-s8 readValue(tag<s8>, BufferReader *rdr, SaveData *save) {
+s8 readValue(tag<s8>, ConditionalReader *cr, SaveData *save) {
   debug_conditional_file("Reading s8 value");
   s8 data;
-  rdr->read(&data, 1);
+  cr->rdr->read(&data, 1);
   return data;
 }
 
-s16 readValue(tag<s16>, BufferReader *rdr, SaveData *save) {
+s16 readValue(tag<s16>, ConditionalReader *cr, SaveData *save) {
   debug_conditional_file("Reading s16 value");
   s16 data;
-  rdr->read(&data, 2);
+  cr->rdr->read(&data, 2);
   return data;
 }
 
-s32 readValue(tag<s32>, BufferReader *rdr, SaveData *save) {
+s32 readValue(tag<s32>, ConditionalReader *cr, SaveData *save) {
   debug_conditional_file("Reading s32 value");
   s32 data;
-  rdr->read(&data, 4);
+  cr->rdr->read(&data, 4);
   return data;
 }
 
-bool readValue(tag<bool>, BufferReader *rdr, SaveData *save) {
+bool readValue(tag<bool>, ConditionalReader *cr, SaveData *save) {
   debug_conditional_file("Reading bool value");
   bool data;
-  rdr->read(&data, 1);
+  cr->rdr->read(&data, 1);
   return data;
 }
 
-std::string readValue(tag<std::string>, BufferReader *rdr,
+std::string readValue(tag<std::string>, ConditionalReader *cr,
                                 SaveData *save) {
   debug_conditional_file("Reading string value");
-  return rdr->readstring();
+  return cr->rdr->readstring();
 }
 

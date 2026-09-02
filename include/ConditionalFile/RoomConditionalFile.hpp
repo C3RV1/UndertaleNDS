@@ -12,18 +12,18 @@ struct RoomHeader {
   u32 fileSize = 0;
 
   u32 version = 11;
-  static constexpr u32 version_expected = 10;
+  static constexpr u32 version_expected = 11;
 };
 
 class RoomSideExit : public ConditionalObj {
 public:
-  void read(BufferReader* rdr, SaveData* save) override;
+  void read(ConditionalReader *cr, SaveData* save) override;
 
   u16 _roomId;
   u16 _spawnX, _spawnY;
   u8 _exitSide;
 };
-RoomSideExit readValue(tag<RoomSideExit>, BufferReader* rdr, SaveData* save);
+RoomSideExit readValue(tag<RoomSideExit>, ConditionalReader *cr, SaveData* save);
 
 enum class RoomSpriteAction {
   NONE = 0,
@@ -35,7 +35,7 @@ enum class RoomSpriteAction {
 
 class RoomSpriteActionUnion : public ConditionalObj {
 public:
-  void read(BufferReader* rdr, SaveData* save) override;
+  void read(ConditionalReader *cr, SaveData* save) override;
 
   RoomSpriteAction _action = RoomSpriteAction::NONE;
 
@@ -65,12 +65,12 @@ public:
     bool _stop_on_goal;
   } _pushable;
 };
-RoomSpriteActionUnion readValue(tag<RoomSpriteActionUnion>, BufferReader* rdr, SaveData* save);
+RoomSpriteActionUnion readValue(tag<RoomSpriteActionUnion>, ConditionalReader *cr, SaveData* save);
 
 
 class RoomSpriteData : public ConditionalObj {
 public:
-  void read(BufferReader* rdr, SaveData* save) override;
+  void read(ConditionalReader *cr, SaveData* save) override;
   
   u16 _sprId;
   std::string _texture;
@@ -78,7 +78,7 @@ public:
   std::string _animation;
   RoomSpriteActionUnion _action;
 };
-RoomSpriteData readValue(tag<RoomSpriteData>, BufferReader* rdr, SaveData* save);
+RoomSpriteData readValue(tag<RoomSpriteData>, ConditionalReader *cr, SaveData* save);
 
 
 enum class RoomColliderType {
@@ -90,7 +90,7 @@ enum class RoomColliderType {
 
 class RoomColliderTypeUnion : public ConditionalObj {
 public:
-  void read(BufferReader* rdr, SaveData* save) override;
+  void read(ConditionalReader *cr, SaveData* save) override;
 
   RoomColliderType _type = RoomColliderType::WALL;
   union {
@@ -105,12 +105,12 @@ public:
     } _cutscene;
   };
 };
-RoomColliderTypeUnion readValue(tag<RoomColliderTypeUnion>, BufferReader* rdr, SaveData* save);
+RoomColliderTypeUnion readValue(tag<RoomColliderTypeUnion>, ConditionalReader *cr, SaveData* save);
 
 
 class RoomColliderData : public ConditionalObj {
 public:
-  void read(BufferReader* rdr, SaveData* save) override;
+  void read(ConditionalReader *cr, SaveData* save) override;
 
   u8 _collId;
   u16 _x, _y, _w, _h;
@@ -118,12 +118,12 @@ public:
 
   RoomColliderTypeUnion _type;
 };
-RoomColliderData readValue(tag<RoomColliderData>, BufferReader* rdr, SaveData* save);
+RoomColliderData readValue(tag<RoomColliderData>, ConditionalReader *cr, SaveData* save);
 
 
 class RoomData : public ConditionalObj {
 public:
-  void read(BufferReader* rdr, SaveData* save) override;
+  void read(ConditionalReader *cr, SaveData* save) override;
 
   std::string _roomBg;
   std::string _musicPath;

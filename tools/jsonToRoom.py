@@ -9,8 +9,6 @@ import os
 import pathlib
 import enum
 
-# TODO: Share Unconditional count between objects.
-
 def int_unpacker(x: Any) -> int:
     if not isinstance(x, int):
         raise ValueError(f"{repr(x)} is not an int.")
@@ -51,16 +49,16 @@ def str_wtr(wtr: binary.BinaryWriter) -> Callable[[str], None]:
         wtr.write_string(string, encoding="ascii")
     return inner_string_wtr
 
-def obj_wtr(wtr: binary.BinaryWriter) -> Callable[[Obj], None]:
+def obj_wtr(cw: ConditionalWriter) -> Callable[[Obj], None]:
     def inner_obj_wtr(obj: Obj):
-        obj.write(wtr)
+        obj.write(cw)
     return inner_obj_wtr
 
 class RoomHeader:
     def __init__(self) -> None:
         self.header = b"ROOM"
         self.file_size_pos = 0
-        self.version = 10
+        self.version = 11
 
     def write(self, wtr: binary.BinaryWriter) -> None:
         wtr.write(self.header)
@@ -74,51 +72,55 @@ class RoomHeader:
         wtr.write_uint32(size)
         wtr.seek(size)
 
-class ConditionalObj:
-    def __init__(self) -> None:
+class ConditionalWriter:
+    def __init__(self, wtr: binary.BinaryWriter) -> None:
+        self.wtr = wtr
         self.last_non_condition_count = 0
         self.last_non_condition_pos: Optional[int] = None
 
-    def write_last_unconditional_count(self, wtr: binary.BinaryWriter) -> None:
-        pos = wtr.tell()
+    def write_last_unconditional_count(self) -> None:
+        pos = self.wtr.tell()
 
         if self.last_non_condition_pos is None:
             raise RuntimeError("Trying to write last unconditional without pos.")
 
-        wtr.seek(self.last_non_condition_pos)
-        wtr.write_uint8(self.last_non_condition_count - 1)
-        wtr.seek(pos)
+        self.wtr.seek(self.last_non_condition_pos)
+        self.wtr.write_uint8(self.last_non_condition_count - 1)
+        self.wtr.seek(pos)
 
         self.last_non_condition_count = 0
 
-    def start_unconditional_data(self, wtr: binary.BinaryWriter) -> None:
+    def start_unconditional_data(self) -> None:
         if self.last_non_condition_count == 0xFF:
-            self.write_last_unconditional_count(wtr)
+            self.write_last_unconditional_count()
         if self.last_non_condition_count == 0:
-            self.last_non_condition_pos = wtr.tell()
-            wtr.write_uint8(0)
+            self.last_non_condition_pos = self.wtr.tell()
+            self.wtr.write_uint8(0)
         self.last_non_condition_count += 1
     
-    def start_conditional_data(self, wtr: binary.BinaryWriter) -> None:
+    def start_conditional_data(self) -> None:
         if self.last_non_condition_count != 0:
-            self.write_last_unconditional_count(wtr)
-        wtr.write_uint8(0xFF)
+            self.write_last_unconditional_count()
+        self.wtr.write_uint8(0xFF)
 
-    def end_write(self, wtr: binary.BinaryWriter) -> None:
+    def end_write(self) -> None:
         if self.last_non_condition_count != 0:
-            self.write_last_unconditional_count(wtr)
+            self.write_last_unconditional_count()
+
+class ConditionalObj:
+    def __init__(self) -> None:
+        pass
+
 
 class Obj(ConditionalObj):
-    def write(self, wtr: binary.BinaryWriter) -> None:
-        _ = wtr
+    def write(self, cw: ConditionalWriter) -> None:
+        _ = cw
         raise NotImplementedError("Raw obj should not be used.")
 
 
 class ObjData[T]:
-    def write(self, obj: Obj, wtr: binary.BinaryWriter,
-              data_wtr: Callable[[T], None]) -> None:
-        _ = obj
-        _ = wtr
+    def write(self, cw: ConditionalWriter, data_wtr: Callable[[T], None]) -> None:
+        _ = cw
         _ = data_wtr
         raise NotImplementedError("Use of raw ObjData is incorrect.")
 
@@ -127,9 +129,9 @@ class ObjUnconditionalData[T](ObjData[T]):
         super().__init__()
         self.data: T = data
 
-    def write(self, obj: Obj, wtr: binary.BinaryWriter,
+    def write(self, cw: ConditionalWriter,
               data_wtr: Callable[[T], None]) -> None:
-        obj.start_unconditional_data(wtr)
+        cw.start_unconditional_data()
         data_wtr(self.data)
 
 class ObjCondition:
@@ -190,9 +192,8 @@ class ObjConditionAndValue[T](ObjData[T]):
     def set_next(self, next: ObjConditionAndValue[T] | T) -> None:
         self.next = next
 
-    def write(self, obj: Obj, wtr: binary.BinaryWriter,
-              data_wtr: Callable[[T], None]) -> None:
-        obj.start_conditional_data(wtr)
+    def write(self, cw: ConditionalWriter, data_wtr: Callable[[T], None]) -> None:
+        cw.start_conditional_data()
 
         if self.next is None:
             raise RuntimeError("Next cannot be None")
@@ -204,12 +205,12 @@ class ObjConditionAndValue[T](ObjData[T]):
         has_next_variation = isinstance(self.next, ObjConditionAndValue)
         for i, cond in enumerate(self.conditions):
             has_next_cond = (i != len(self.conditions) - 1)
-            cond.write(wtr, has_next_cond, has_next_variation)
+            cond.write(cw.wtr, has_next_cond, has_next_variation)
 
         data_wtr(self.value)
 
         if isinstance(self.next, ObjConditionAndValue):
-            self.next.write(obj, wtr, data_wtr)
+            self.next.write(cw, data_wtr)
         else:
             data_wtr(self.next)
 
@@ -255,20 +256,22 @@ def unpack_data[T](json_obj: list[dict[str, Any] | Any] | Any, value_unpacker: C
 
       
 class RoomSideExit(Obj):
-    def __init__(self, room_id: ObjData[int],
-                 spawn: tuple[ObjData[int], ObjData[int]],
-                 exit_type: ObjData[int]) -> None:
+    def __init__(
+        self,
+        room_id: ObjData[int],
+        spawn: tuple[ObjData[int], ObjData[int]],
+        exit_type: ObjData[int],
+    ) -> None:
         super().__init__()
         self.room_id: ObjData[int] = room_id
         self.spawn: tuple[ObjData[int], ObjData[int]] = spawn
         self.exit_side: ObjData[int] = exit_type
 
-    def write(self, wtr: binary.BinaryWriter) -> None:
-        self.room_id.write(self, wtr, wtr.write_uint16)
+    def write(self, cw: ConditionalWriter) -> None:
+        self.room_id.write(cw, cw.wtr.write_uint16)
         for v in self.spawn:
-            v.write(self, wtr, wtr.write_uint16)
-        self.exit_side.write(self, wtr, wtr.write_uint8)
-        self.end_write(wtr)
+            v.write(cw, cw.wtr.write_uint16)
+        self.exit_side.write(cw, cw.wtr.write_uint8)
 
     @classmethod
     def from_json_obj(cls, json_obj) -> RoomSideExit:
@@ -336,30 +339,29 @@ class RoomSpriteActionUnion(Obj):
         self.goal_flag_bit: ObjData[int] = ObjUnconditionalData(0)
         self.stop_on_goal: ObjData[bool] = ObjUnconditionalData(False)
 
-    def write(self, wtr: binary.BinaryWriter) -> None:
-        wtr.write_uint8(int(self.type))
+    def write(self, cw: ConditionalWriter) -> None:
+        cw.wtr.write_uint8(int(self.type))
         if self.type == SpriteActionType.NONE:
             pass
         elif self.type == SpriteActionType.CUTSCENE:
-            self.cutscene_id.write(self, wtr, wtr.write_uint16)
+            self.cutscene_id.write(cw, cw.wtr.write_uint16)
         elif self.type == SpriteActionType.PROXIMITY:
-            self.distance.write(self, wtr, wtr.write_uint16)
-            self.close_anim.write(self, wtr, str_wtr(wtr))
+            self.distance.write(cw, cw.wtr.write_uint16)
+            self.close_anim.write(cw, str_wtr(cw.wtr))
         elif self.type == SpriteActionType.PARALLAX:
             for v in self.parallax:
-                v.write(self, wtr, fixed_point_wtr(wtr))
+                v.write(cw, fixed_point_wtr(cw.wtr))
         elif self.type == SpriteActionType.PUSHABLE:
             for v in self.valid_rect:
-                v.write(self, wtr, wtr.write_uint16)
+                v.write(cw, cw.wtr.write_uint16)
             for v in self.goal_pos:
-                v.write(self, wtr, wtr.write_uint16)
-            self.cutscene_id.write(self, wtr, wtr.write_uint16)
-            self.goal_flag_id.write(self, wtr, wtr.write_uint16)
-            self.goal_flag_bit.write(self, wtr, wtr.write_uint16)
-            self.stop_on_goal.write(self, wtr, wtr.write_bool)
+                v.write(cw, cw.wtr.write_uint16)
+            self.cutscene_id.write(cw, cw.wtr.write_uint16)
+            self.goal_flag_id.write(cw, cw.wtr.write_uint16)
+            self.goal_flag_bit.write(cw, cw.wtr.write_uint16)
+            self.stop_on_goal.write(cw, cw.wtr.write_bool)
         else:
             raise ValueError("Invalid action type.")
-        self.end_write(wtr)
 
     @classmethod
     def from_json_obj(cls, json_obj: dict[str, Any]) -> RoomSpriteActionUnion:
@@ -420,14 +422,13 @@ class RoomSprite(Obj):
         self.animation: ObjData[str] = animation
         self.action: ObjData[RoomSpriteActionUnion] = action
 
-    def write(self, wtr: binary.BinaryWriter) -> None:
-        self.spr_id.write(self, wtr, wtr.write_uint16)
-        self.texture.write(self, wtr, str_wtr(wtr))
+    def write(self, cw: ConditionalWriter) -> None:
+        self.spr_id.write(cw, cw.wtr.write_uint16)
+        self.texture.write(cw, str_wtr(cw.wtr))
         for v in self.pos:
-            v.write(self, wtr, wtr.write_uint16)
-        self.animation.write(self, wtr, str_wtr(wtr))
-        self.action.write(self, wtr, obj_wtr(wtr))
-        self.end_write(wtr)
+            v.write(cw, cw.wtr.write_uint16)
+        self.animation.write(cw, str_wtr(cw.wtr))
+        self.action.write(cw, obj_wtr(cw))
         
     @classmethod
     def from_json_obj(cls, json_obj: dict[str, Any]) -> RoomSprite:
@@ -467,19 +468,18 @@ class ColliderTypeUnion(Obj):
         # Type 2 = Cutscene
         self.cutscene_id: ObjData[int]= ObjUnconditionalData(0)
 
-    def write(self, wtr: binary.BinaryWriter) -> None:
-        wtr.write_uint8(int(self.type))
+    def write(self, cw:ConditionalWriter) -> None:
+        cw.wtr.write_uint8(int(self.type))
         if self.type == ColliderType.WALL:
             pass
         elif self.type == ColliderType.EXIT:
-            self.room_id.write(self, wtr, wtr.write_uint16)
+            self.room_id.write(cw, cw.wtr.write_uint16)
             for v in self.spawn:
-                v.write(self, wtr, wtr.write_uint16)
+                v.write(cw, cw.wtr.write_uint16)
         elif self.type == ColliderType.CUTSCENE:
-            self.cutscene_id.write(self, wtr, wtr.write_uint16)
+            self.cutscene_id.write(cw, cw.wtr.write_uint16)
         else:
             raise ValueError("Invalid collider type.")
-        self.end_write(wtr)
 
     @classmethod
     def from_json_obj(cls, json_obj: dict[str, Any]) -> ColliderTypeUnion:
@@ -513,13 +513,12 @@ class RoomCollider(Obj):
         self.enabled: ObjData[bool] = enabled
         self.coll_type: ObjData[ColliderTypeUnion] = coll_type
 
-    def write(self, wtr: binary.BinaryWriter) -> None:
-        self.coll_id.write(self, wtr, wtr.write_uint8)
+    def write(self, cw: ConditionalWriter) -> None:
+        self.coll_id.write(cw, cw.wtr.write_uint8)
         for v in self.rect:
-            v.write(self, wtr, wtr.write_uint16)
-        self.enabled.write(self, wtr, wtr.write_bool)
-        self.coll_type.write(self, wtr, obj_wtr(wtr))
-        self.end_write(wtr)
+            v.write(cw, cw.wtr.write_uint16)
+        self.enabled.write(cw, cw.wtr.write_bool)
+        self.coll_type.write(cw, obj_wtr(cw))
         
     @classmethod
     def from_json_obj(cls, json_obj: dict[str, Any]) -> RoomCollider:
@@ -545,11 +544,10 @@ class ListObj[T](ConditionalObj):
         super().__init__()
         self.elements: Sequence[ListObjData[T]] = elements
 
-    def write(self, wtr: binary.BinaryWriter, data_wtr: Callable[[T], None]) -> None:
-        wtr.write_uint16(len(self.elements))
+    def write(self, cw: ConditionalWriter, data_wtr: Callable[[T], None]) -> None:
+        cw.wtr.write_uint16(len(self.elements))
         for v in self.elements:
-            v.write(self, wtr, data_wtr)
-        self.end_write(wtr)
+            v.write(cw, data_wtr)
 
     @classmethod
     def from_json_list(cls, list: Sequence[Any], value_unpacker: Callable[[Any], T]) -> ListObj[T]:
@@ -560,8 +558,7 @@ class ListObj[T](ConditionalObj):
 
 
 class ListObjData[T]:
-    def write(self, list: ListObj[T], wtr: binary.BinaryWriter,
-              data_wtr: Callable[[T], None]) -> None:
+    def write(self, cw: ConditionalWriter, data_wtr: Callable[[T], None]) -> None:
         pass
 
 class ListObjUnconditionalData[T](ListObjData[T]):
@@ -569,9 +566,8 @@ class ListObjUnconditionalData[T](ListObjData[T]):
         super().__init__()
         self.data: T = data
 
-    def write(self, list: ListObj[T], wtr: binary.BinaryWriter,
-              data_wtr: Callable[[T], None]) -> None:
-        list.start_unconditional_data(wtr)
+    def write(self, cw: ConditionalWriter, data_wtr: Callable[[T], None]) -> None:
+        cw.start_unconditional_data()
         data_wtr(self.data)
 
 
@@ -582,16 +578,15 @@ class ListObjConditionalData[T](ListObjData[T]):
         self.conditions: Sequence[ObjCondition] = conditions
         self.data: list[T] = data
 
-    def write(self, list: ListObj[T], wtr: binary.BinaryWriter,
-              data_wtr: Callable[[T], None]) -> None:
+    def write(self, cw: ConditionalWriter, data_wtr: Callable[[T], None]) -> None:
         if len(self.conditions) == 0:
             raise ValueError("List condition obj without conditions.")
 
-        list.start_conditional_data(wtr)
+        cw.start_conditional_data()
         for i, v in enumerate(self.conditions):
             has_next_condition = (i != len(self.conditions) - 1)
-            v.write(wtr, has_next_condition, False)
-        wtr.write_uint8(len(self.data))
+            v.write(cw.wtr, has_next_condition, False)
+        cw.wtr.write_uint8(len(self.data))
         for v in self.data:
             data_wtr(v)
 
@@ -634,17 +629,16 @@ class Room(Obj):
         self.room_sprites: ListObj[RoomSprite] = room_sprites
         self.room_colliders: ListObj[RoomCollider] = room_colliders
 
-    def write(self, wtr: binary.BinaryWriter) -> None:
-        self.room_bg.write(self, wtr, str_wtr(wtr))
-        self.music_path.write(self, wtr, str_wtr(wtr))
-        self.music_volume.write(self, wtr, wtr.write_uint8)
+    def write(self, cw: ConditionalWriter) -> None:
+        self.room_bg.write(cw, str_wtr(cw.wtr))
+        self.music_path.write(cw, str_wtr(cw.wtr))
+        self.music_volume.write(cw, cw.wtr.write_uint8)
         for v in self.spawn:
-            v.write(self, wtr, wtr.write_uint16)
+            v.write(cw, cw.wtr.write_uint16)
 
-        self.room_exits.write(wtr, obj_wtr(wtr))
-        self.room_sprites.write(wtr, obj_wtr(wtr))
-        self.room_colliders.write(wtr, obj_wtr(wtr))
-        self.end_write(wtr)
+        self.room_exits.write(cw, obj_wtr(cw))
+        self.room_sprites.write(cw, obj_wtr(cw))
+        self.room_colliders.write(cw, obj_wtr(cw))
 
     @classmethod
     def from_json_obj(cls, json_obj: dict[str, Any]) -> Room:
@@ -669,7 +663,9 @@ class RoomFile:
 
     def write(self, wtr: binary.BinaryWriter) -> None:
         self.header.write(wtr)
-        self.room.write(wtr)
+        cw = ConditionalWriter(wtr)
+        self.room.write(cw)
+        cw.end_write()
         self.header.write_size(wtr)
 
 
