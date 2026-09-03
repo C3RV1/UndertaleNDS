@@ -39,6 +39,6 @@ void runSplashScreen() {
 
   Engine::clearMain();
   Engine::setScreenBrightness(0);
-  for (int i = 0; i < kHoldFrames; i++)
+  for (int i = 0; i < kHoldFrames2; i++)
     Engine::tick();
 }
