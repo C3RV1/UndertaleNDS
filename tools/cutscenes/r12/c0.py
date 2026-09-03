@@ -1,6 +1,6 @@
 import typing
 if typing.TYPE_CHECKING:
-    from tools.CutsceneTypes import *
+    from tools.CutsceneTypes import Cutscene, Target, TargetType, WaitTypes, frames_from_dst
 else:
     from CutsceneTypes import *
 
@@ -8,7 +8,7 @@ else:
 def cutscene(c: Cutscene):
     c.debug("Cutscene fall!")
     c.player_control(False)
-    c.load_sprite_relative(0, 29-(10//2), "room_sprites/hole", Target(TargetType.PLAYER))
+    c.load_sprite_relative(0, 0, 29-(10//2), "room_sprites/hole", Target(TargetType.PLAYER))
     c.play_sfx("snd_chug.wav")
     c.set_opacity(Target(TargetType.PLAYER), 24)
     c.wait(WaitTypes.FRAMES, 30)

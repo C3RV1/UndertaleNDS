@@ -1,183 +1,99 @@
 {
-  "parts": [
+  "bg": "rooms/room0012",
+  "music": "mus_ruins.wav",
+  "spawn": [4, 63],
+  "exits": [
     {
-      "conditions": [],
-      "room_bg": "rooms/room12",
-      "music_path": "mus_ruins.wav",
-      "spawn_x": 4,
-      "spawn_y": 63,
-      "exits": [
-        {
-          "exit_type": "side",
-          "room_id": 11,
-          "spawn_x": 432,
-          "spawn_y": 88,
-          "side": "left"
-        },
-        {
-          "exit_type": "side",
-          "room_id": 13,
-          "spawn_x": 0,
-          "spawn_y": 0,
-          "side": "right"
-        }
-      ],
-      "sprites": [
-        {
-          "texture": "room_sprites/wall_panel_ruins",
-          "x": 460,
-          "y": 110,
-          "action": "cutscene",
-          "cutscene_id": 10
-        },
-        {
-          "texture": "room_sprites/wall_panel_ruins",
-          "x": 475,
-          "y": 495,
-          "action": "cutscene",
-          "cutscene_id": 20
-        }
-      ],
-      "colliders": [
-        {
-          "x": 0,
-          "y": 0,
-          "w": 578,
-          "h": 70
-        },
-        {
-          "x": 360,
-          "y": 70,
-          "w": 218,
-          "h": 80
-        },
-        {
-          "x": 540,
-          "y": 150,
-          "w": 38,
-          "h": 40
-        },
-        {
-          "x": 540,
-          "y": 230,
-          "w": 38,
-          "h": 40
-        },
-        {
-          "x": 0,
-          "y": 110,
-          "w": 240,
-          "h": 226
-        },
-        {
-          "x": 240,
-          "y": 270,
-          "w": 337,
-          "h": 66
-        },
-        {
-          "x": 0,
-          "y": 336,
-          "w": 145,
-          "h": 119
-        },
-        {
-          "x": 145,
-          "y": 336,
-          "w": 31,
-          "h": 68
-        },
-        {
-          "x": 176,
-          "y": 336,
-          "w": 193,
-          "h": 119
-        },
-        {
-          "x": 360,
-          "y": 455,
-          "w": 203,
-          "h": 80
-        },
-        {
-          "x": 540,
-          "y": 535,
-          "w": 23,
-          "h": 133
-        },
-        {
-          "x": 0,
-          "y": 455,
-          "w": 40,
-          "h": 213
-        },
-        {
-          "x": 40,
-          "y": 495,
-          "w": 200,
-          "h": 173
-        },
-        {
-          "x": 240,
-          "y": 655,
-          "w": 300,
-          "h": 13
-        },
-        {
-          "_comment": "Fall 1",
-          "x": 247,
-          "y": 118,
-          "w": 65,
-          "h": 145,
-          "action": "cutscene",
-          "cutscene_id": 0
-        },
-        {
-          "_comment": "Fall 2",
-          "x": 365,
-          "y": 150,
-          "w": 11,
-          "h": 92,
-          "action": "cutscene",
-          "cutscene_id": 0
-        },
-        {
-          "_comment": "Fall 3",
-          "x": 426,
-          "y": 218,
-          "w": 9,
-          "h": 52,
-          "action": "cutscene",
-          "cutscene_id": 0
-        },
-        {
-          "_comment": "Fall 4",
-          "x": 488,
-          "y": 150,
-          "w": 24,
-          "h": 76,
-          "action": "cutscene",
-          "cutscene_id": 0
-        },
-        {
-          "_comment": "Fall 5",
-          "x": 520,
-          "y": 150,
-          "w": 20,
-          "h": 31,
-          "action": "cutscene",
-          "cutscene_id": 0
-        },
-        {
-          "_comment": "Room up",
-          "x": 145,
-          "y": 404,
-          "w": 31,
-          "h": 44,
-          "action": "cutscene",
-          "cutscene_id": 1
-        }
-      ]
+      "room_id": 11,
+      "spawn": [432, 88],
+      "side": "left"
+    },
+    {
+      "room_id": 13,
+      "spawn": [4, 106],
+      "side": "right"
     }
+  ],
+  "sprites": [
+    {
+      "texture": "room_sprites/wall_panel_ruins",
+      "pos": [460, 110],
+      "action": {
+        "action": "cutscene",
+        "cutscene_id": 10
+      }
+    },
+    {
+      "texture": "room_sprites/wall_panel_ruins",
+      "pos": [460, 495],
+      "action": {
+        "action": "cutscene",
+        "cutscene_id": 20
+      }
+    }
+  ],
+  "colliders": [
+    {
+      "_comment": "Fall 1",
+      "rect": [247, 118, 65, 145],
+      "type": {
+        "type": "cutscene",
+        "cutscene_id": 0
+      }
+    },
+    {
+      "_comment": "Fall 2",
+      "rect": [365, 150, 11, 92],
+      "type": {
+        "type": "cutscene",
+        "cutscene_id": 0
+      }
+    },
+    {
+      "_comment": "Fall 3",
+      "rect": [426, 218, 9, 52],
+      "type": {
+        "type": "cutscene",
+        "cutscene_id": 0
+      }
+    },
+    {
+      "_comment": "Fall 4",
+      "rect": [488, 150, 24, 76],
+      "type": {
+        "type": "cutscene",
+        "cutscene_id": 0
+      }
+    },
+    {
+      "_comment": "Fall 5",
+      "rect": [520, 150, 20, 31],
+      "type": {
+        "type": "cutscene",
+        "cutscene_id": 0
+      }
+    },
+    {
+      "_comment": "Room up",
+      "rect": [145, 404, 31, 44],
+      "type": {
+        "type": "cutscene",
+        "cutscene_id": 1
+      }
+    },
+    {"rect": [0, 0, 578, 70]},
+    {"rect": [360, 70, 218, 80]},
+    {"rect": [540, 150, 38, 40]},
+    {"rect": [540, 230, 38, 40]},
+    {"rect": [0, 110, 240, 226]},
+    {"rect": [240, 270, 337, 66]},
+    {"rect": [0, 336, 145, 119]},
+    {"rect": [145, 336, 31, 68]},
+    {"rect": [176, 336, 193, 119]},
+    {"rect": [360, 455, 203, 80]},
+    {"rect": [540, 535, 23, 133]},
+    {"rect": [0, 455, 40, 213]},
+    {"rect": [40, 495, 200, 173]},
+    {"rect": [240, 655, 300, 13]}
   ]
 }
