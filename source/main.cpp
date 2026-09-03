@@ -16,9 +16,6 @@
 #include <cstdio>
 #include <memory>
 
-void runBattle();
-void runRoom();
-
 
 int main() {
   /* Configure VRAM, background control registers, exceptions, filesystem, 3d,
