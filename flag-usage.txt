@@ -10,7 +10,7 @@
     8 - received call from toriel
     9 - received call cinnamon/butterscotch
     10 - received call confirm not dislike
-    11 - spikes down on room 9
+    11 - spikes down on room 11
 1 - dummy behaviour
     0 - killed
     1 - talked
@@ -28,6 +28,10 @@
 5 - called toriel momm
     0 - haven't
     1 - have
+6 - room 13 rocks
+    bit 0 - rock top
+    bit 1 - rock middle
+    bit 2 - rock btm (in goal)
 
 210-219 - specific room flags (cleared upon entering room)
 220-229 - specific battle flags (cleared upon entering battle)

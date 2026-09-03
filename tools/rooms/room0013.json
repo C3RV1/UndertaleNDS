@@ -1,79 +1,94 @@
 {
-  "parts": [
+  "bg": "rooms/room0013",
+  "music": "mus_ruins.wav",
+  "spawn": [4, 106],
+  "exits": [
     {
-      "conditions": [],
-      "room_bg": "rooms/room13",
-      "spawn_x": 0, "spawn_y": 0,
-      "exits": [
-        {
-          "exit_type": "side",
-          "room_id": 12,
-          "spawn_x": 0, "spawn_y": 0,
-          "side": "left"
-        },
-        {
-          "exit_type": "side",
-          "room_id": 14,
-          "spawn_x": 0, "spawn_y": 0,
-          "side": "right"
-        }
-      ],
-      "colliders": [
-        {
-          "x": 0,
-          "y": 0,
-          "w": 79,
-          "h": 113
-        },
-        {
-          "x": 79,
-          "y": 0,
-          "w": 480,
-          "h": 73
-        },
-        {
-          "x": 480,
-          "y": 73,
-          "w": 79,
-          "h": 40
-        },
-        {
-          "x": 480,
-          "y": 153,
-          "w": 79,
-          "h": 74
-        },
-        {
-          "x": 0,
-          "y": 153,
-          "w": 79,
-          "h": 74
-        },
-        {
-          "x": 79,
-          "y": 213,
-          "w": 401,
-          "h": 14
-        },
-        {
-          "x": 380,
-          "y": 174,
-          "w": 40,
-          "h": 39
-        },
-        {
-          "x": 380,
-          "y": 73,
-          "w": 40,
-          "h": 41
-        },
-        {
-          "x": 380,
-          "y": 114,
-          "w": 40,
-          "h": 60
-        }
-      ]
+      "room_id": 12,
+      "spawn": [557, 184],
+      "side": "left"
+    },
+    {
+      "room_id": 14,
+      "spawn": [0, 0],
+      "side": "right"
     }
+  ],
+  "sprites": [
+    {
+      "texture": "room_sprites/spr_rock",
+      "pos": [200, 94],
+      "action": {
+        "action": "pushable",
+        "valid_rect": [200, 94, 98, 18],
+        "goal_pos": [279, 94],
+        "goal_cutscene_id": 0,
+        "goal_flag_id": 6,
+        "goal_flag_bit": 0,
+        "stop_on_goal": true
+      }
+    },
+    {
+      "texture": "room_sprites/spr_rock",
+      "pos": [180, 134],
+      "action": {
+        "action": "pushable",
+        "valid_rect": [180, 134, 118, 18],
+        "goal_pos": [279, 134],
+        "goal_cutscene_id": 0,
+        "goal_flag_id": 6,
+        "goal_flag_bit": 1,
+        "stop_on_goal": true
+      }
+    },
+    {
+      "texture": "room_sprites/spr_rock",
+      "pos": [220, 174],
+      "animation": "up",
+      "collider": {
+        "rect": [0, 0, 20, 18]
+      }
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [381, 114],
+      "animation": "up"
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [381, 134],
+      "animation": "up"
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [381, 154],
+      "animation": "up"
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [401, 114],
+      "animation": "up"
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [401, 134],
+      "animation": "up"
+    },
+    {
+      "texture": "room_sprites/spike",
+      "pos": [401, 154],
+      "animation": "up"
+    }
+  ],
+  "colliders": [
+    {"rect": [0, 0, 79, 113]},
+    {"rect": [79, 0, 480, 73]},
+    {"rect": [480, 73, 79, 40]},
+    {"rect": [480, 153, 79, 74]},
+    {"rect": [0, 153, 79, 74]},
+    {"rect": [79, 213, 401, 14]},
+    {"rect": [380, 174, 40, 39]},
+    {"rect": [380, 73, 40, 41]},
+    {"rect": [380, 114, 40, 60]}
   ]
 }
