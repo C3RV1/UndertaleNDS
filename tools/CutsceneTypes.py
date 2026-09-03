@@ -83,6 +83,7 @@ class FlagOffsets(enum.IntEnum):
     TORIEL_HELLO_COUNT = 3
     TORIEL_FLIRT_COUNT = 4
     TORIEL_CALL_MOM = 5
+    ROOM13_ROCKS = 6
     ROOM_FLAGS = 210
     BATTLE_FLAGS = 220
     BATTLE_ACTION = 230
@@ -110,6 +111,7 @@ class ComparisonOperator(enum.IntEnum):
     EQUALS = 0
     GREATER_THAN = 1
     LESS_THAN = 2
+    AND = 3
 
 
 class BtlActionOff(enum.IntEnum):
@@ -161,7 +163,7 @@ class Target:
 class Cutscene:
     def __init__(self, wtr: binary.BinaryWriter):
         self.wtr: binary.BinaryWriter = wtr
-        self.version = 16
+        self.version = 17
         self.file_size_pos = 0
         self.instructions_address = []
         self.pending_address = {}
@@ -455,15 +457,17 @@ class Cutscene:
     def cmp_flag(self, flag_id: int, operator: str, value: int):
         self.write_header(CutsceneCommands.CMP_FLAG)
         self.wtr.write_uint16(flag_id)
+        flip = 1 << 3
         op_byte = {
             "==": 0,
-            "!=": 0,
+            "!=": 0 + flip,
             ">": 1,
-            "<=": 1,
+            "<=": 1 + flip,
             "<": 2,
-            ">=": 2
+            ">=": 2 + flip,
+            "&": 3,
+            "!&": 3 + flip
         }[operator]
-        op_byte += (1 << 2) if operator in ["!=", "<=", ">="] else 0
         self.wtr.write_uint8(op_byte)
         self.wtr.write_uint16(value)
         return self.end_command()
@@ -471,15 +475,17 @@ class Cutscene:
     def cmp_enemy_hp(self, enemy_id: int, operator: str, value: int):
         self.write_header(CutsceneCommands.CMP_ENEMY_HP)
         self.wtr.write_uint8(enemy_id)
+        flip = 1 << 3
         op_byte = {
             "==": 0,
-            "!=": 0,
+            "!=": 0 + flip,
             ">": 1,
-            "<=": 1,
+            "<=": 1 + flip,
             "<": 2,
-            ">=": 2
+            ">=": 2 + flip,
+            "&": 3,
+            "!&": 3 + flip
         }[operator]
-        op_byte += (1 << 2) if operator in ["!=", "<=", ">="] else 0
         self.wtr.write_uint8(op_byte)
         self.wtr.write_uint16(value)
         return self.end_command()

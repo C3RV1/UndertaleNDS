@@ -11,8 +11,8 @@ struct RoomHeader {
   char header[4] = {'R', 'O', 'O', 'M'};
   u32 fileSize = 0;
 
-  u32 version = 12;
-  static constexpr u32 version_expected = 12;
+  u32 version = 13;
+  static constexpr u32 version_expected = 13;
 };
 
 class RoomSideExit : public ConditionalObj {
@@ -67,6 +67,24 @@ public:
 };
 RoomSpriteActionUnion readValue(tag<RoomSpriteActionUnion>, ConditionalReader *cr, SaveData* save);
 
+enum class RoomHasCollider {
+  NO_COLLIDER = 0,
+  COLLIDER = 1
+};
+
+class RoomSpriteColliderUnion : public ConditionalObj {
+public:
+  void read(ConditionalReader *cr, SaveData* save) override;
+  inline bool hasCollider() const {
+    return _hasCollider == RoomHasCollider::COLLIDER;
+  }
+
+  s8 _x, _y, _w, _h;
+
+private:
+  RoomHasCollider _hasCollider = RoomHasCollider::NO_COLLIDER;
+};
+RoomSpriteColliderUnion readValue(tag<RoomSpriteColliderUnion>, ConditionalReader *cr, SaveData* save);
 
 class RoomSpriteData : public ConditionalObj {
 public:
@@ -77,6 +95,7 @@ public:
   u16 _x, _y;
   std::string _animation;
   RoomSpriteActionUnion _action;
+  RoomSpriteColliderUnion _collider;
 };
 RoomSpriteData readValue(tag<RoomSpriteData>, ConditionalReader *cr, SaveData* save);
 

@@ -3,6 +3,7 @@
 //
 
 #include "Room/RoomSprite.hpp"
+#include "ConditionalFile/RoomConditionalFile.hpp"
 #include "Cutscene/Cutscene.hpp"
 #include "Engine/Sprite.hpp"
 #include "Engine/math.hpp"
@@ -10,10 +11,18 @@
 #include "Room/Player.hpp"
 #include "Room/Room.hpp"
 #include <memory>
+#include <string>
 
 void RoomSprite::load(RoomSpriteData const &sprData) {
   Engine::spriteLoadTexture(_spr, sprData._texture);
   _animation_id = _spr->nameToAnimId(sprData._animation);
+  _hasCollider = sprData._collider.hasCollider();
+  if (_hasCollider) {
+    _coll_x = sprData._collider._x;
+    _coll_y = sprData._collider._y;
+    _coll_w = sprData._collider._w;
+    _coll_h = sprData._collider._h;
+  }
   _spr->_wx = sprData._x << 8;
   _spr->_wy = sprData._y << 8;
   _spr->setAnimation(_animation_id);
@@ -82,12 +91,12 @@ void RoomSprite::update() {
   case RoomSpriteAction::PROXIMITY:
     updateProximity();
     break;
-  case RoomSpriteAction::PUSHABLE:
-    updatePushable();
     break;
   default:
     break;
   }
+  if (_hasCollider)
+    updateColliderPush();
 }
 
 void RoomSprite::updateProximity() {
@@ -108,30 +117,32 @@ void RoomSprite::updateProximity() {
     _spr->setAnimation(_animation_id);
 }
 
-void RoomSprite::updatePushable() {
+void RoomSprite::updateColliderPush() {
   // Runs after Navigation, so any position changes can already be detected.
   // If after Navigation we colide with the Player, we must have moved,
   // not the Player. We should try to push the Player, then, if we collide
   // with them.
   s32 x = _spr->_wx;
   s32 y = _spr->_wy;
-  s32 dx = x - _pushable._old_x;
-  s32 dy = y - _pushable._old_y;
+  s32 dx = x - _old_x;
+  s32 dy = y - _old_y;
   if (dx == 0 && dy == 0)
     return;
 
-  _pushable._old_x = _spr->_wx;
-  _pushable._old_y = _spr->_wy;
+  _old_x = _spr->_wx;
+  _old_y = _spr->_wy;
 
   s32 px = _room->_player._spr->_wx;
   s32 py = _room->_player._spr->_wy;
   s32 pw = _room->_player._spr->_texture->getWidth() << 8;
   s32 ph = _room->_player._spr->_texture->getHeight() << 8;
 
-  s32 w = _spr->_texture->getWidth() << 8;
-  s32 h = _spr->_texture->getHeight() << 8;
+  s32 cx = _spr->_wx + ((s32)_coll_x << 8);
+  s32 cy = _spr->_wy + ((s32)_coll_y << 8);
+  s32 cw = (s32)_coll_w << 8;
+  s32 ch = (s32)_coll_h << 8;
 
-  if (!collidesRect(px, py, pw, ph, x, y, w, h))
+  if (!collidesRect(px, py, pw, ph, cx, cy, cw, ch))
     return;
 
   // Push player
@@ -141,9 +152,20 @@ void RoomSprite::updatePushable() {
 
 bool RoomSprite::check_player_collide(s32 x, s32 y, s32 w, s32 h, s32 dx,
                                       s32 dy) {
-  if (_action != RoomSpriteAction::PUSHABLE)
+  if (_action == RoomSpriteAction::PUSHABLE)
+    return check_player_collide_pushable(x, y, w, h, dx, dy);
+  if (!_hasCollider)
     return false;
 
+  s32 x2 = _spr->_wx + ((s32)_coll_x << 8);
+  s32 y2 = _spr->_wy + ((s32)_coll_y << 8);
+  s32 w2 = (s32)_coll_w << 8;
+  s32 h2 = (s32)_coll_h << 8;
+  return collidesRect(x, y, w, h, x2, y2, w2, h2);
+}
+
+bool RoomSprite::check_player_collide_pushable(s32 x, s32 y, s32 w, s32 h,
+                                               s32 dx, s32 dy) {
   _pushable._commit_x = _spr->_wx;
   _pushable._commit_y = _spr->_wy;
   const s32 w2 = _spr->_texture->getWidth() << 8;
@@ -194,18 +216,19 @@ bool RoomSprite::check_player_collide(s32 x, s32 y, s32 w, s32 h, s32 dx,
 void RoomSprite::commit_player_move() {
   if (_action != RoomSpriteAction::PUSHABLE)
     return;
+  u16 bitValue = 1 << _pushable._goal_flag_bit;
   bool flag_set = (_room->_save->flags[_pushable._goal_flag_id] &
-                   _pushable._goal_flag_bit) != 0;
+                   bitValue) != 0;
   _spr->_wx = _pushable._commit_x;
   _spr->_wy = _pushable._commit_y;
-  _pushable._old_x = _spr->_wx;
-  _pushable._old_y = _spr->_wy;
-
+  _old_x = _spr->_wx;
+  _old_y = _spr->_wy;
+  
   bool should_set_flag = check_on_goal();
   if (should_set_flag)
-    _room->_save->flags[_pushable._goal_flag_id] |= _pushable._goal_flag_bit;
+    _room->_save->flags[_pushable._goal_flag_id] |= bitValue;
   else
-    _room->_save->flags[_pushable._goal_flag_id] &= ~_pushable._goal_flag_bit;
+    _room->_save->flags[_pushable._goal_flag_id] &= ~bitValue;
 
   if (should_set_flag != flag_set) {
     if (should_set_flag && _pushable._stop_on_goal) {

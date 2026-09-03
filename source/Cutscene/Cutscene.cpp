@@ -5,6 +5,7 @@
 #include "Cutscene/Cutscene.hpp"
 #include "Battle/Battle.hpp"
 #include "Battle/FlavorTextDialogue.hpp"
+#include "ConditionalFile/ConditionalFile.hpp"
 #include "ConditionalFile/RoomConditionalFile.hpp"
 #include "Cutscene/CutsceneEnums.hpp"
 #include "Cutscene/Dialogue.hpp"
@@ -441,20 +442,8 @@ bool Cutscene::runCommand(u8 cmd) {
   }
   case CMD_CMP_FLAG: {
     debug_cutscene("CMD_CMP_FLAG");
-    u16 flagId, flagValue, cmpValue;
-    u8 comparator;
-    _commandData.read(&flagId, 2);
-    _commandData.read(&comparator, 1);
-    _commandData.read(&cmpValue, 2);
-    flagValue = _room->_save->flags[flagId];
-    if ((comparator & 3) == ComparisonOperator::EQUALS)
-      _flag = (flagValue == cmpValue);
-    else if ((comparator & 3) == ComparisonOperator::GREATER_THAN)
-      _flag = (flagValue > cmpValue);
-    else if ((comparator & 3) == ComparisonOperator::LESS_THAN)
-      _flag = (flagValue < cmpValue);
-    if (comparator & 4)
-      _flag = !_flag;
+    Condition cond = readCondition(&_commandData);
+    _flag = cond.checkCondition(_room->_save.get());
     break;
   }
   case CMD_SET_COLLIDER_ENABLED: {
@@ -518,13 +507,15 @@ bool Cutscene::runCommand(u8 cmd) {
     if (enemyIdx >= _cBattle->_enemies.size())
       break;
     u16 flagValue = _cBattle->_enemies[enemyIdx]->_hp;
-    if ((comparator & 3) == ComparisonOperator::EQUALS)
+    if ((comparator & 0b111) == ComparisonOperator::EQUALS)
       _flag = (flagValue == cmpValue);
-    else if ((comparator & 3) == ComparisonOperator::GREATER_THAN)
+    else if ((comparator & 0b111) == ComparisonOperator::GREATER_THAN)
       _flag = (flagValue > cmpValue);
-    else if ((comparator & 3) == ComparisonOperator::LESS_THAN)
+    else if ((comparator & 0b111) == ComparisonOperator::LESS_THAN)
       _flag = (flagValue < cmpValue);
-    if (comparator & 4)
+    else if ((comparator & 0b111) == ComparisonOperator::AND)
+      _flag = (flagValue & cmpValue) != 0;
+    if (comparator & 0b1000)
       _flag = !_flag;
     break;
   }

@@ -29,7 +29,7 @@ public:
 
   void update();
   void updateProximity();
-  void updatePushable();
+  void updateColliderPush();
 
   void updateDrawPositions(Camera &cam);
 
@@ -61,11 +61,17 @@ public:
     u16 _goal_flag_bit;
     bool _stop_on_goal;
     s32 _commit_x, _commit_y;
-    s32 _old_x, _old_y;
   } _pushable;
 
+  bool _hasCollider;
+  s8 _coll_x, _coll_y, _coll_w, _coll_h;
+  
 private:
+  s32 _old_x, _old_y;
+
   Room* _room;
+  bool check_player_collide_pushable(s32 x, s32 y, s32 w, s32 h, s32 dx,
+                                     s32 dy);
   bool check_on_goal();
 };
 

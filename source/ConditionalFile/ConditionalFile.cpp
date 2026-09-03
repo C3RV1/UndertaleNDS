@@ -42,6 +42,9 @@ bool Condition::checkCondition(SaveData* save) {
   case ComparisonOperator::LESS_THAN:
     v = save->flags[_flag] < _cmp_value;
     break;
+  case ComparisonOperator::AND:
+    v = (save->flags[_flag] & _cmp_value) != 0;
+    break;
   default:
     Engine::throw_("Invalid room condition comparator " + std::to_string(comparator));
     break;
@@ -87,6 +90,11 @@ std::string Condition::to_string() {
     else
       op = ">=";
     break;
+  case ComparisonOperator::AND:
+    if (!flip)
+      op = "&";
+    else
+      op = "!&";
   default:
     if (!flip)
       op = "INV";

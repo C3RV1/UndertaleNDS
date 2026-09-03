@@ -64,7 +64,7 @@ class RoomHeader:
     def __init__(self) -> None:
         self.header = b"ROOM"
         self.file_size_pos = 0
-        self.version = 12
+        self.version = 13
 
     def write(self, wtr: binary.BinaryWriter) -> None:
         wtr.write(self.header)
@@ -141,10 +141,10 @@ class ObjUnconditionalData[T](ObjData[T]):
         data_wtr(self.data)
 
 class ObjCondition:
-    FLIP_BIT = 1 << 2
-    HAS_NEXT_CONDITION_BIT = 1 << 3
-    HAS_NEXT_VARIATION_BIT = 1 << 4
-    OR_WITH_PREVIOUS_BIT = 1 << 5
+    FLIP_BIT = 1 << 3
+    HAS_NEXT_CONDITION_BIT = 1 << 4
+    HAS_NEXT_VARIATION_BIT = 1 << 5
+    OR_WITH_PREVIOUS_BIT = 1 << 6
     
     def __init__(self, flag: int, cmp: int | str, cmp_value: int,
                  or_with_prev: bool | str) -> None:
@@ -156,7 +156,9 @@ class ObjCondition:
                 ">": 1,
                 "<=": ObjCondition.FLIP_BIT + 1,
                 "<": 2,
-                ">=": ObjCondition.FLIP_BIT + 2
+                ">=": ObjCondition.FLIP_BIT + 2,
+                "&": 3,
+                "!&": ObjCondition.FLIP_BIT + 3
             }[cmp]
         if isinstance(or_with_prev, str):
             or_with_prev = {
@@ -387,6 +389,36 @@ class RoomSpriteActionUnion(Obj):
         return ret
 
 
+class RoomSpriteHasCollider(enum.IntEnum):
+    NO_COLLIDER = 0
+    COLLIDER = 1
+
+
+class RoomSpriteColliderUnion(Obj):
+    def __init__(self, has_collider: RoomSpriteHasCollider):
+        self.has_collider = has_collider
+
+        self.collider_rect: ObjData[tuple[int, int, int, int]] = ObjUnconditionalData(
+            (0, 0, 0, 0)
+        )
+
+    def write(self, cw: ConditionalWriter) -> None:
+        cw.wtr.write_uint8(self.has_collider)
+        if self.has_collider == RoomSpriteHasCollider.COLLIDER:
+            self.collider_rect.write(cw, tuple_packer(cw.wtr.write_int8))
+
+    @classmethod
+    def from_json_obj(cls, json_obj: dict[str, Any]) -> RoomSpriteColliderUnion:
+        has_collider = json_obj.get("has_collider", True)
+        has_collider_val = RoomSpriteHasCollider.COLLIDER if has_collider else RoomSpriteHasCollider.NO_COLLIDER
+        ret = cls(has_collider_val)
+        if has_collider:
+            ret.collider_rect = unpack_data(
+                json_obj["rect"], tuple_unpacker(int_unpacker, 4)
+            )
+        return ret
+
+
 class RoomSprite(Obj):
     def __init__(
         self,
@@ -395,6 +427,7 @@ class RoomSprite(Obj):
         pos: ObjData[tuple[int, int]],
         animation: ObjData[str],
         action: ObjData[RoomSpriteActionUnion],
+        has_collider: ObjData[RoomSpriteColliderUnion]
     ) -> None:
         super().__init__()
         self.spr_id: ObjData[int] = spr_id
@@ -402,6 +435,7 @@ class RoomSprite(Obj):
         self.pos: ObjData[tuple[int, int]] = pos
         self.animation: ObjData[str] = animation
         self.action: ObjData[RoomSpriteActionUnion] = action
+        self.has_collider: ObjData[RoomSpriteColliderUnion] = has_collider
 
     def write(self, cw: ConditionalWriter) -> None:
         self.spr_id.write(cw, cw.wtr.write_uint16)
@@ -409,6 +443,7 @@ class RoomSprite(Obj):
         self.pos.write(cw, tuple_packer(cw.wtr.write_uint16))
         self.animation.write(cw, str_wtr(cw.wtr))
         self.action.write(cw, obj_wtr(cw))
+        self.has_collider.write(cw, obj_wtr(cw))
         
     @classmethod
     def from_json_obj(cls, json_obj: dict[str, Any]) -> RoomSprite:
@@ -428,7 +463,8 @@ class RoomSprite(Obj):
             unpack_data(json_obj["texture"], str_unpacker),
             unpack_data(json_obj["pos"], tuple_unpacker(int_unpacker, 2)),
             unpack_data(json_obj.get("animation", "gfx"), str_unpacker),
-            unpack_data(json_obj.get("action", {}), RoomSpriteActionUnion.from_json_obj)
+            unpack_data(json_obj.get("action", {}), RoomSpriteActionUnion.from_json_obj),
+            unpack_data(json_obj.get("collider", {"has_collider": False}), RoomSpriteColliderUnion.from_json_obj)
         )
 
                 
@@ -640,6 +676,10 @@ def convert(input_file, output_file) -> None:
     print(f"Converting {input_file} to {output_file}")
     with open(input_file, "r") as f:
         json_data = json.loads(f.read())
+
+    if "parts" in json_data:
+        print(f"Skipping {input_file} as it has old format.")
+        return
 
     try:
         room_file = RoomFile(Room.from_json_obj(json_data))

@@ -37,10 +37,10 @@ public:
   std::string to_string();
 
 private:
-  static constexpr u8 kFlipBit = 1 << 2;
-  static constexpr u8 kHasNextConditionBit = 1 << 3;
-  static constexpr u8 kHasNextVariationBit = 1 << 4;
-  static constexpr u8 kOrWithPreviousBit = 1 << 5;
+  static constexpr u8 kFlipBit = 1 << 3;
+  static constexpr u8 kHasNextConditionBit = 1 << 4;
+  static constexpr u8 kHasNextVariationBit = 1 << 5;
+  static constexpr u8 kOrWithPreviousBit = 1 << 6;
 
   u16 _flag, _cmp_value;
   u8 _cmp;

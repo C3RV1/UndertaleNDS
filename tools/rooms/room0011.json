@@ -33,7 +33,7 @@
             "goal_pos": [216, 134],
             "goal_cutscene_id": 20,
             "goal_flag_id": 210,
-            "goal_flag_bit": 1,
+            "goal_flag_bit": 0,
             "stop_on_goal": true
           }
         },

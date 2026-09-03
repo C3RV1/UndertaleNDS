@@ -68,6 +68,21 @@ RoomSpriteActionUnion readValue(tag<RoomSpriteActionUnion>, ConditionalReader *c
   return data;
 }
 
+void RoomSpriteColliderUnion::read(ConditionalReader* cr, SaveData* save) {
+  cr->rdr->read(&_hasCollider, 1);
+  if (hasCollider()) {
+    auto rect = readConditionalData<std::tuple<s8, s8, s8, s8>>(cr, save);
+    std::tie(_x, _y, _w, _h) = rect;
+  }
+}
+
+RoomSpriteColliderUnion readValue(tag<RoomSpriteColliderUnion>, ConditionalReader* cr, SaveData* save) {
+  debug_conditional_file("Reading RoomSpriteColliderUnion value");
+  RoomSpriteColliderUnion data;
+  data.read(cr, save);
+  return data;
+}
+
 void RoomSpriteData::read(ConditionalReader *cr, SaveData* save) {
   _sprId = readConditionalData<u16>(cr, save);
   _texture = readConditionalData<std::string>(cr, save);
@@ -75,6 +90,7 @@ void RoomSpriteData::read(ConditionalReader *cr, SaveData* save) {
   std::tie(_x, _y) = pos;
   _animation = readConditionalData<std::string>(cr, save);
   _action = readConditionalData<RoomSpriteActionUnion>(cr, save);
+  _collider = readConditionalData<RoomSpriteColliderUnion>(cr, save);
 }
 
 RoomSpriteData readValue(tag<RoomSpriteData>, ConditionalReader *cr, SaveData* save) {

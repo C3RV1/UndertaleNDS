@@ -54,7 +54,12 @@ enum CutsceneCommands {
   CMD_DEBUG = 0xff
 };
 
-enum ComparisonOperator { EQUALS = 0, GREATER_THAN = 1, LESS_THAN = 2 };
+enum ComparisonOperator {
+  EQUALS = 0,
+  GREATER_THAN = 1,
+  LESS_THAN = 2,
+  AND = 3
+};
 
 enum WaitingType {
   NONE = 0,
