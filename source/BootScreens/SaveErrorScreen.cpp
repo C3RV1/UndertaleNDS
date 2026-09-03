@@ -1,4 +1,4 @@
-#include "SaveErrorScreen.hpp"
+#include "BootScreens/SaveErrorScreen.hpp"
 #include "Engine/DataBank.hpp"
 #include "Engine/Sprite.hpp"
 #include "Engine/TextBGManager.hpp"

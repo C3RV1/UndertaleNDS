@@ -1,8 +1,9 @@
 //
 // Created by cervi on 22/08/2022.
 //
-#include "TitleScreen.hpp"
+#include "BootScreens/TitleScreen.hpp"
 #include "Engine/Background.hpp"
+#include "Engine/ColorEffects.hpp"
 #include "Engine/DataBank.hpp"
 #include "Engine/Engine.hpp"
 #include "Engine/Font.hpp"
@@ -10,6 +11,7 @@
 #include "Engine/WAV.hpp"
 
 void runTitleScreen() {
+  // TODO: Move to Fader and add text sound
   constexpr int fadeInFrames = 30;
   constexpr int holdFrames = 60 * 5;
   int fadeOutFrames = 30; // replace on last frame to fadeOutLastFrames
@@ -40,7 +42,7 @@ void runTitleScreen() {
 
   Audio2::playBGMusic("mus_story_mod.wav", true);
 
-  setBrightness(1, -16);
+  Engine::setScreenBrightness(-16);
   bool skip = false;
 
   for (int introIdx = 0; introIdx < 11 && !skip; introIdx++) {
@@ -55,10 +57,10 @@ void runTitleScreen() {
     while (timer >= 0 && introIdx != 0 && !skip) {
       Engine::tick();
       skip = keysDown() != 0;
-      setBrightness(1, (-16 * timer) / fadeInFrames);
+      Engine::setScreenBrightness((-16 * timer) / fadeInFrames);
       timer--;
     }
-    setBrightness(1, 0);
+    Engine::setScreenBrightness(0);
 
     if (introIdx == 10) { // Intro last has longer hold
       timer = holdLastFrames;
@@ -127,9 +129,9 @@ void runTitleScreen() {
     while (timer >= 0 && !skip) {
       Engine::tick();
       skip = keysDown() != 0;
-      setBrightness(1, (-16 * (fadeOutFrames - timer)) / fadeOutFrames);
+      Engine::setScreenBrightness((-16 * (fadeOutFrames - timer)) / fadeOutFrames);
       if (introIdx == 6)
-        setBrightness(2, (-16 * (fadeOutFrames - timer)) / fadeOutFrames);
+        Engine::setScreenBrightnessSub((-16 * (fadeOutFrames - timer)) / fadeOutFrames);
       timer--;
     }
   }
@@ -147,7 +149,8 @@ void runTitleScreen() {
   cBackground.loadBgTextMain();
 
   REG_BG3VOFS = 0;
-  setBrightness(3, 0); // set brightness to full bright
+  Engine::setScreenBrightness(0); // set brightness to full bright
+  Engine::setScreenBrightnessSub(0); // set brightness to full bright
 
   timer = introLogoFrames;
 

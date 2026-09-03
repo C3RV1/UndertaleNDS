@@ -2,7 +2,7 @@
 // Created by cervi on 24/08/2022.
 //
 
-#include "WriteName.hpp"
+#include "BootScreens/WriteName.hpp"
 
 #include "Engine/Background.hpp"
 #include "Engine/DataBank.hpp"

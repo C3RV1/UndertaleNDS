@@ -3,6 +3,7 @@
 //
 
 #include "Battle/Battle.hpp"
+#include "BootScreens/SplashScreen.hpp"
 #include "Engine/DataBank.hpp"
 #include "Engine/Engine.hpp"
 #include "Engine/Font.hpp"
@@ -10,9 +11,9 @@
 #include "MainMenu.hpp"
 #include "Room/InGameMenu.hpp"
 #include "Save.hpp"
-#include "TitleScreen.hpp"
-#include "WriteName.hpp"
-#include "SaveErrorScreen.hpp"
+#include "BootScreens/TitleScreen.hpp"
+#include "BootScreens/WriteName.hpp"
+#include "BootScreens/SaveErrorScreen.hpp"
 #include <cstdio>
 #include <memory>
 
@@ -25,6 +26,7 @@ int main() {
 
   textBank.load("nitro:/txts.cbnk");
 
+  runSplashScreen();
   runTitleScreen();
   
   auto save = std::make_unique<SaveData>();
