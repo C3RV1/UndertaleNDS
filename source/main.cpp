@@ -43,8 +43,8 @@ int main() {
   Engine::textSub.clear();
 
   // DEBUG
-  // save->lastSavedRoom = 6;
-  // save->flags[0] = 5;
+  save->lastSavedRoom = 13;
+  save->flags[0] = 11;
   
   for (int i = 0; i < 5; i++) {
     save->items[i] = 1 + (i % 3 == 0);

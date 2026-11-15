@@ -18,6 +18,30 @@ std::string to_string_pad(T val, size_t len, char pad_char) {
   return std::string(len - std::min(s.length(), len), pad_char) + s;
 }
 
+/*
+class IOReader {
+public:
+  virtual void close();
+  inline bool isOpen() const { return _opened; }
+  virtual void read(void *ptr, size_t size);
+  [[deprecated]] virtual void strncpy(char *ptr, size_t max_size);
+  virtual std::string readstring();
+  virtual long tell() const;
+  virtual void seek(long where);
+  virtual bool at_end() const;
+  
+protected:
+  bool _opened = false;
+};
+
+class FileReader : public IOReader {
+public:
+  void close() override;
+  void read(void *ptr, size_t size) override;
+  void strncpy(char* ptr, size_t max_size);
+}
+*/
+
 class BufferReader {
 public:
   void close();

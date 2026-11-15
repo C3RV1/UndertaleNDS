@@ -27,6 +27,7 @@ class AudioFile {
 public:
   /**
    * Loads the audio file corresponding to the name passed as a parameter.
+   * 
    * @param name The name of the audio file to load.
    */
   virtual void load(const std::string &name) = 0;
@@ -39,45 +40,52 @@ public:
 
   /**
    * Gets the filename that was used when load was called.
+   * 
    * @return The filename used when load was called, or the empty string if load
    * was never called.
    */
-  std::string getFilename() { return _filename; }
+  inline std::string getFilename() { return _filename; }
 
   /**
    * Sets the number of times to loop the sample.
    * If you call it with loops = 1, the sample will play twice (looping once).
    * If you set loops to -1, the sample will loop indefinitely.
+   * 
    * @param loops The number of times to loop the sample.
    */
-  void setLoops(int loops) { _loops = loops; }
+  inline void setLoops(int loops) { _loops = loops; }
 
   /**
    * Get whether the file is a stereo audio file.
+   * 
    * @return Whether the file is stereo.
    */
-  bool getStereo() const { return _stereo; }
+  inline bool getStereo() const { return _stereo; }
 
   /**
    * Get whether the file is playing at the moment.
+   * 
    * @return Whether the file is playing.
    */
-  bool getPlaying() const { return _active; }
+  inline bool getPlaying() const { return _active; }
 
   /**
    * Get whether the file has been loaded.
+   * 
    * @return Whether the file has been loaded.
    */
-  bool getLoaded() const { return _loaded; }
+  inline bool getLoaded() const { return _loaded; }
 
   /**
    * Get the current volume of the audio file.
+   * 
    * @return The volume of the audio (from min=0 to max=127).
    */
-  u8 getVolume() const { return _volume; }
+  inline u8 getVolume() const { return _volume; }
 
   /**
    * Set the current volume of the audio file.
+   * 
    * @param volume The volume of the audio (from min=0 to max=127).
    */
   void setVolume(u8 volume);
@@ -121,12 +129,25 @@ protected:
   // The position in the audio buffers in samples.
   u32 _sampleBufferPos;
 
+  /**
+   * Returns the format supported by the DS audio sound system which should be
+   * specified when initiating the sound channels.
+   *    
+   * @returns The format of the sound data.
+   */
   virtual SoundFormat getAllocFormat() = 0;
 
+  /**
+   * Returns the bits per sample used to allocated the sound data buffers.
+   *
+   * @returns How many bits is a sample.
+   */
   virtual u8 getBitsPerSample() = 0;
+  
   /**
    * Should only be called from update(). Should stream the desired samples
    * to the audio buffers.
+   * 
    * @param samples The number of samples to load.
    */
   virtual void progress(u16 samples) = 0;
@@ -160,17 +181,18 @@ private:
   friend class AudioManager;
 };
 
-// TODO: Move update to IRQ timer.
-
 class AudioManager {
 public:
   /**
-   * Initialize the audio system. Instruct the audio system to use
-   * timerId as the timer for timing audio sample loading.
-   * @param timerId The id of the timer to use.
+   * Initialize the audio system.
    */
   explicit AudioManager();
 
+  /**
+   * Starts playing an AudioFile.
+   *
+   * @param audio_file The AudioFile to start playing.
+   */
   void play(std::shared_ptr<AudioFile> audio_file);
 
   /**
@@ -185,16 +207,8 @@ public:
    */
   void updateSync();
 
-  /**
-   * Gets the timer used by the audio system, specified when the audio manager
-   * is constructed.
-   * @return The timer used by the audio system.
-   */
-  u8 getTimerId() const { return _timerId; }
-
 private:
   std::list<std::shared_ptr<AudioFile>> _playing;
-  u8 _timerId;
 };
 
 extern AudioManager audioManager;
