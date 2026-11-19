@@ -63,7 +63,7 @@ public:
     s32 _commit_x, _commit_y;
   } _pushable;
 
-  bool _hasCollider;
+  bool _hasCollider = false;
   s8 _coll_x, _coll_y, _coll_w, _coll_h;
   
 private:
