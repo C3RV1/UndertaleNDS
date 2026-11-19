@@ -4,6 +4,8 @@
 #include "Engine/Sprite.hpp"
 #include "Engine/Texture.hpp"
 #include "Engine/Engine.hpp"
+#include "Engine/Sprite3DManager.hpp"
+#include "Engine/OAMManager.hpp"
 #include <memory>
 #include <string>
 
@@ -23,14 +25,14 @@ void spriteSetAllocationMode(std::shared_ptr<Sprite> spr,
 void Sprite::setAnimation(int animId) {
   if (!_loaded)
     return;
-  if (animId >= _texture->_animationCount || animId < 0)
+  if (animId >= _texture->getAnimations().size() || animId < 0)
     return;
   if (_cAnimation == animId)
     return;
   _cAnimation = animId;
   _cAnimFrame = 0;
-  _cAnimTimer = _texture->_animations[animId].frames[0].duration;
-  _cFrame = _texture->_animations[animId].frames[0].frame;
+  _cAnimTimer = _texture->getAnimations()[animId].frames[0].duration;
+  _cFrame = _texture->getAnimations()[animId].frames[0].frame;
 }
 
 void spriteLoadTexture(std::shared_ptr<Sprite> spr, std::string path,
@@ -61,14 +63,14 @@ void Sprite::tick() {
   if (!_loaded)
     return;
   if (_cAnimation >= 0) {
-    CSPRAnimation *current = &_texture->_animations[_cAnimation];
-    if (current->frames[_cAnimFrame].duration != 0) {
+    auto &current = _texture->getAnimations()[_cAnimation];
+    if (current.frames[_cAnimFrame].duration != 0) {
       _cAnimTimer--;
       if (_cAnimTimer == 0) {
         _cAnimFrame++;
-        _cAnimFrame %= current->frames.size();
-        _cFrame = current->frames[_cAnimFrame].frame;
-        _cAnimTimer = current->frames[_cAnimFrame].duration;
+        _cAnimFrame %= current.frames.size();
+        _cFrame = current.frames[_cAnimFrame].frame;
+        _cAnimTimer = current.frames[_cAnimFrame].duration;
       }
     }
   }
@@ -76,10 +78,10 @@ void Sprite::tick() {
   _x = _wx - (_cam_x >> 8 << 8);
   _y = _wy - (_cam_y >> 8 << 8);
   if (_cAnimation >= 0) {
-    CSPRAnimation *current = &_texture->_animations[_cAnimation];
-    CSPRAnimFrame *frameInfo = &current->frames[_cAnimFrame];
-    _x += frameInfo->drawOffX << 8;
-    _y += frameInfo->drawOffY << 8;
+    auto &current = _texture->getAnimations()[_cAnimation];
+    auto &frameInfo = current.frames[_cAnimFrame];
+    _x += frameInfo.drawOffX << 8;
+    _y += frameInfo.drawOffY << 8;
   }
   _x *= _cam_scale_x;
   _x >>= 8;
@@ -121,10 +123,12 @@ void spriteSetShown(std::shared_ptr<Sprite> spr, bool shown) {
 int Sprite::nameToAnimId(const std::string &animName) const {
   if (!_loaded)
     return -1;
-  for (int i = 0; i < _texture->_animationCount; i++) {
-    if (animName == _texture->_animations[i].name) {
+  int i = 0;
+  for (auto& anim : _texture->getAnimations()) {
+    if (animName == anim.name) {
       return i;
     }
+    i++;
   }
   log_("Not found animation: " + animName);
   return -1;

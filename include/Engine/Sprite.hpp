@@ -5,12 +5,6 @@
 #ifndef UNDERTALE_SPRITE_HPP
 #define UNDERTALE_SPRITE_HPP
 
-namespace Engine {
-class Sprite;
-}
-
-#include "Engine/OAMManager.hpp"
-#include "Engine/Sprite3DManager.hpp"
 #include "Engine/Texture.hpp"
 #include <nds.h>
 
@@ -62,7 +56,6 @@ private:
   u16 _cAnimFrame = 0;
 
   AllocationMode _allocMode;
-  AllocationMode _allocated = AllocationMode::NoAlloc;
   bool _shown = false;
   bool _pushed = false;
 };

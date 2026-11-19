@@ -73,9 +73,10 @@ void Texture::loadCSPR(FILE *f) {
   _colors.resize(colorCount);
   fread(&_colors[0], 2, colorCount, f);
 
-  fread(&_animationCount, 1, 1, f);
-  _animations.resize(_animationCount);
-  for (int i = 0; i < _animationCount; i++) {
+  u8 animationCount;
+  fread(&animationCount, 1, 1, f);
+  _animations.resize(animationCount);
+  for (int i = 0; i < animationCount; i++) {
     int nameLen = str_len_file(f, 0);
     _animations[i].name.resize(nameLen);
     fread(&_animations[i].name[0], nameLen, 1, f);

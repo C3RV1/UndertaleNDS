@@ -28,20 +28,52 @@ public:
   }
   ~Texture() { free_(); }
 
+  inline const std::vector<u16>& getColors() const {
+    return _colors;
+  }
+
+  inline const CSPR_3D& get3DChunk() const {
+    return _3dChunk;
+  }
+  
+  inline const CSPR_OAM& getOAMChunk() const {
+    return _oamChunk;
+  }
+
+  inline u8 getFrameCount() const {
+    return _frameCount;
+  }
+
+  inline const std::string& getPath() const {
+    return _path;
+  }
+
+  inline bool getHas3D() const {
+    return _has3D;
+  }
+
+  inline bool getHasOAM() const {
+    return _hasOam;
+  }
+
+  inline u16 getTopDownOffset() const {
+    return _topDownOffset;
+  }
+
+  inline const std::vector<CSPRAnimation>& getAnimations() const {
+    return _animations;
+  }
+
 private:
   void loadOam(FILE *f);
   void load3D(FILE *f);
   void free_();
-  friend class OAMManager;
-  friend class Sprite3DManager;
-  friend class Sprite;
-  friend class TextureManager;
   bool _loaded = false;
   bool _hasOam = false;
   bool _has3D = false;
 
   // Header chunk
-  u16 _width = 0, _height = 0; // don't know if these will be used
+  u16 _width = 0, _height = 0;
   u16 _topDownOffset = 0;
   u8 _frameCount = 0;
 
@@ -49,13 +81,7 @@ private:
   std::vector<u16> _colors;
 
   // Animations chunk
-  u8 _animationCount = 0;
   std::vector<CSPRAnimation> _animations;
-
-  // 3D
-  u8 _loaded3DCount = 0;
-  std::vector<u16> _tileStart;
-  u16 _paletteIdx = 0;
 
   CSPR_OAM _oamChunk;
   CSPR_3D _3dChunk;

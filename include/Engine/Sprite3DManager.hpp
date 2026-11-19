@@ -13,11 +13,34 @@
 #include <vector>
 
 namespace Engine {
-struct Sprite3DMemory {
-  std::shared_ptr<Texture> texture;
+class Sprite3DTexture {
+public:
+  Sprite3DTexture(FreeZoneManager &tileReserve, FreeZoneManager &paletteReserve,
+                  const Texture& texture);
+  ~Sprite3DTexture();
 
+  inline u16 getTile(size_t i) const {
+    return _tiles[i].first;
+  }
+
+  inline size_t getTileCount() const {
+    return _tiles.size();
+  }
+
+  inline u16 getPaletteStart() const {
+    return _palette.first;
+  }
+
+private:
+  FreeZoneManager& _tileReserve;
+  FreeZoneManager& _paletteReserve;
+  std::vector<std::pair<u16, u16>> _tiles;
+  std::pair<u16, u16> _palette;
+};
+
+struct Sprite3DMemory {
+  std::shared_ptr<Sprite3DTexture> texture = nullptr;
   int loadedFrame = -1;
-  bool loadedIntoMemory = false;
 };
 
 class Sprite3DManager {
@@ -37,7 +60,7 @@ private:
 
   void ensureAlphaBlend();
 
-  void loadSpriteTexture(Sprite3DMemory &mem);
+  std::shared_ptr<Sprite3DTexture> loadSpriteTexture(const Texture &texture, bool &setBank);
   void freeSpriteTexture(Sprite3DMemory &mem);
 
   FreeZoneManager tileFreeZones;
